@@ -3,9 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { libraryApi } from '../../api/library';
 import type { LibraryItem } from '../../types';
 import toast from 'react-hot-toast';
-import { Plus, Pencil, Trash2, Copy, FileText, X, Check, FolderOpen, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, Copy, X, Check, FolderOpen, ExternalLink, Eye } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import MediaUploadField from '../../components/ui/MediaUploadField';
+import PdfThumbnail from '../../components/ui/PdfThumbnail';
+import PdfViewerModal from '../../components/ui/PdfViewerModal';
 import { BACKEND_URL } from '../../config';
 
 const emptyForm = { title: '', description: '', fileUrl: '', category: '' };
@@ -17,6 +19,7 @@ export default function AdminLibrary() {
   const [form, setForm] = useState(emptyForm);
   const [filterCat, setFilterCat] = useState('');
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [viewing, setViewing] = useState<LibraryItem | null>(null);
 
   const { data: items, isLoading } = useQuery({
     queryKey: ['library', filterCat],
@@ -98,6 +101,7 @@ export default function AdminLibrary() {
   const resolveUrl = (url: string) => url.startsWith('/') ? `${BACKEND_URL}${url}` : url;
 
   return (
+    <>
     <div className="space-y-6 animate-fade-in" dir="rtl">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -147,8 +151,12 @@ export default function AdminLibrary() {
         <div className="grid gap-4">
           {items.map(item => (
             <div key={item.id} className="card p-5 flex items-start gap-4 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center shrink-0">
-                <FileText size={24} className="text-orange-500" />
+              <div
+                className="w-16 h-20 rounded-xl overflow-hidden shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setViewing(item)}
+                title="عرض PDF"
+              >
+                <PdfThumbnail url={item.fileUrl} className="w-full h-full" />
               </div>
 
               <div className="flex-1 min-w-0">
@@ -166,6 +174,13 @@ export default function AdminLibrary() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => setViewing(item)}
+                      title="عرض PDF"
+                      className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
+                    >
+                      <Eye size={16} />
+                    </button>
                     <a
                       href={resolveUrl(item.fileUrl)}
                       target="_blank"
@@ -282,5 +297,14 @@ export default function AdminLibrary() {
         </div>
       )}
     </div>
+
+    {viewing && (
+      <PdfViewerModal
+        url={viewing.fileUrl}
+        title={viewing.title}
+        onClose={() => setViewing(null)}
+      />
+    )}
+    </>
   );
 }
