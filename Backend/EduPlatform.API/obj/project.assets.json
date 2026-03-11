@@ -3592,7 +3592,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ADAM-LAP\\.nuget\\packages\\": {}
+    "C:\\Users\\ADAM-LAP\\.nuget\\packages": {}
   },
   "project": {
     "version": "1.0.0",
@@ -3600,10 +3600,11 @@
       "projectUniqueName": "F:\\Amer\\Mr Amer Platform\\Backend\\EduPlatform.API\\EduPlatform.API.csproj",
       "projectName": "EduPlatform.API",
       "projectPath": "F:\\Amer\\Mr Amer Platform\\Backend\\EduPlatform.API\\EduPlatform.API.csproj",
-      "packagesPath": "C:\\Users\\ADAM-LAP\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\ADAM-LAP\\.nuget\\packages",
       "outputPath": "F:\\Amer\\Mr Amer Platform\\Backend\\EduPlatform.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
+        "F:\\Amer\\Mr Amer Platform\\Backend\\EduPlatform.API\\NuGet.Config",
         "C:\\Users\\ADAM-LAP\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
