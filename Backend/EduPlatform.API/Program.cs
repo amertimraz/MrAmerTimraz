@@ -82,7 +82,19 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseCors("AllowFrontend");
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        var origin = ctx.Context.Request.Headers["Origin"].ToString();
+        if (!string.IsNullOrEmpty(origin))
+        {
+            ctx.Context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+            ctx.Context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+            ctx.Context.Response.Headers["Vary"] = "Origin";
+        }
+    }
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
