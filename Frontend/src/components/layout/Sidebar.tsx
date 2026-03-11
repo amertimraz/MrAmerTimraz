@@ -2,7 +2,7 @@ import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, FileText, Trophy,
   Gamepad2, Bell, Users, LogOut, GraduationCap, Settings,
-  Database, Zap, Tag, Home, CreditCard,
+  Database, Zap, Tag, Home, CreditCard, FolderOpen,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -35,6 +35,7 @@ const adminLinks: NavItem[] = [
   { to: '/admin/tests', icon: <FileText size={20} />, label: 'الاختبارات' },
   { to: '/admin/notifications', icon: <Bell size={20} />, label: 'الإشعارات' },
   { to: '/admin/categories',    icon: <Tag size={20} />,      label: 'الأقسام الدراسية' },
+  { to: '/admin/library',       icon: <FolderOpen size={20} />, label: 'المكتبة التعليمية' },
   { to: '/admin/settings',      icon: <Settings size={20} />, label: 'الإعدادات' },
 ];
 

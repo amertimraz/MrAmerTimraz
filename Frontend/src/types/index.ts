@@ -121,3 +121,12 @@ export interface Notification {
   link?: string;
   createdAt: string;
 }
+
+export interface LibraryItem {
+  id: number;
+  title: string;
+  description?: string;
+  fileUrl: string;
+  category?: string;
+  createdAt: string;
+}

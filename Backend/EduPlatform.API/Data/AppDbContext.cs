@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<PaymentRequest> PaymentRequests => Set<PaymentRequest>();
+    public DbSet<LibraryItem> LibraryItems => Set<LibraryItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

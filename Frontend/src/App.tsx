@@ -41,6 +41,8 @@ import AdminCourses          from './pages/admin/AdminCourses';
 import AdminSettings         from './pages/admin/AdminSettings';
 import AdminCategories       from './pages/admin/AdminCategories';
 import AdminPayments         from './pages/admin/AdminPayments';
+import AdminLibrary          from './pages/admin/AdminLibrary';
+import LibraryPage           from './pages/landing/LibraryPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -70,6 +72,7 @@ export default function App() {
             <Route path="/courses"  element={<CoursesPage />} />
             <Route path="/about"    element={<AboutPage />} />
             <Route path="/contact"  element={<ContactPage />} />
+            <Route path="/library"  element={<LibraryPage />} />
           </Route>
 
           <Route path="/login"    element={<LoginPage />} />
@@ -114,6 +117,7 @@ export default function App() {
             <Route path="notifications"   element={<NotificationsPage />} />
             <Route path="settings"        element={<AdminSettings />} />
             <Route path="categories"      element={<AdminCategories />} />
+            <Route path="library"         element={<AdminLibrary />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

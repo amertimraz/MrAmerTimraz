@@ -30,6 +30,7 @@ function TeacherLogo({ isDark }: { isDark: boolean }) {
 const navLinks = [
   { to: '/',        label: 'الرئيسية'   },
   { to: '/courses', label: 'الدروس'     },
+  { to: '/library', label: 'المكتبة'    },
   { to: '/about',   label: 'عن مستر' },
   { to: '/contact', label: 'تواصل معنا' },
 ];

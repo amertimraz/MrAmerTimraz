@@ -24,6 +24,7 @@ const pageTitles: Record<string, string> = {
   '/admin/tests': 'الاختبارات',
   '/admin/notifications': 'الإشعارات',
   '/admin/categories': 'الأقسام الدراسية',
+  '/admin/library': 'المكتبة التعليمية',
   '/admin/settings': 'الإعدادات',
 };
 
