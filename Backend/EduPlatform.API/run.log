@@ -1,0 +1,164 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (98ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      PRAGMA journal_mode = 'wal';
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Users" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Users" PRIMARY KEY AUTOINCREMENT,
+          "Name" TEXT NOT NULL,
+          "Email" TEXT NOT NULL,
+          "PasswordHash" TEXT NOT NULL,
+          "Role" TEXT NOT NULL,
+          "CreatedAt" TEXT NOT NULL,
+          "IsActive" INTEGER NOT NULL,
+          "ProfileImage" TEXT NULL
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Courses" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Courses" PRIMARY KEY AUTOINCREMENT,
+          "Title" TEXT NOT NULL,
+          "Description" TEXT NULL,
+          "ThumbnailUrl" TEXT NULL,
+          "Category" TEXT NULL,
+          "IsPublished" INTEGER NOT NULL,
+          "CreatedBy" INTEGER NOT NULL,
+          "CreatedAt" TEXT NOT NULL,
+          CONSTRAINT "FK_Courses_Users_CreatedBy" FOREIGN KEY ("CreatedBy") REFERENCES "Users" ("Id") ON DELETE RESTRICT
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Notifications" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Notifications" PRIMARY KEY AUTOINCREMENT,
+          "UserId" INTEGER NOT NULL,
+          "Title" TEXT NOT NULL,
+          "Message" TEXT NOT NULL,
+          "IsRead" INTEGER NOT NULL,
+          "Link" TEXT NULL,
+          "CreatedAt" TEXT NOT NULL,
+          CONSTRAINT "FK_Notifications_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Enrollments" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Enrollments" PRIMARY KEY AUTOINCREMENT,
+          "StudentId" INTEGER NOT NULL,
+          "CourseId" INTEGER NOT NULL,
+          "EnrolledAt" TEXT NOT NULL,
+          "Progress" REAL NOT NULL,
+          CONSTRAINT "FK_Enrollments_Courses_CourseId" FOREIGN KEY ("CourseId") REFERENCES "Courses" ("Id") ON DELETE CASCADE,
+          CONSTRAINT "FK_Enrollments_Users_StudentId" FOREIGN KEY ("StudentId") REFERENCES "Users" ("Id") ON DELETE RESTRICT
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Tests" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Tests" PRIMARY KEY AUTOINCREMENT,
+          "CourseId" INTEGER NOT NULL,
+          "Title" TEXT NOT NULL,
+          "Description" TEXT NULL,
+          "DurationMinutes" INTEGER NOT NULL,
+          "PassingScore" INTEGER NOT NULL,
+          "IsPublished" INTEGER NOT NULL,
+          "CreatedAt" TEXT NOT NULL,
+          CONSTRAINT "FK_Tests_Courses_CourseId" FOREIGN KEY ("CourseId") REFERENCES "Courses" ("Id") ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Videos" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Videos" PRIMARY KEY AUTOINCREMENT,
+          "CourseId" INTEGER NOT NULL,
+          "Title" TEXT NOT NULL,
+          "Description" TEXT NULL,
+          "Url" TEXT NOT NULL,
+          "Source" TEXT NOT NULL,
+          "DurationSeconds" INTEGER NOT NULL,
+          "OrderIndex" INTEGER NOT NULL,
+          "CreatedAt" TEXT NOT NULL,
+          CONSTRAINT "FK_Videos_Courses_CourseId" FOREIGN KEY ("CourseId") REFERENCES "Courses" ("Id") ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Questions" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Questions" PRIMARY KEY AUTOINCREMENT,
+          "TestId" INTEGER NOT NULL,
+          "QuestionText" TEXT NOT NULL,
+          "QuestionType" TEXT NOT NULL,
+          "Options" TEXT NULL,
+          "CorrectAnswer" TEXT NULL,
+          "Points" INTEGER NOT NULL,
+          "OrderIndex" INTEGER NOT NULL,
+          "ImageUrl" TEXT NULL,
+          CONSTRAINT "FK_Questions_Tests_TestId" FOREIGN KEY ("TestId") REFERENCES "Tests" ("Id") ON DELETE CASCADE
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE "Results" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Results" PRIMARY KEY AUTOINCREMENT,
+          "StudentId" INTEGER NOT NULL,
+          "TestId" INTEGER NOT NULL,
+          "Score" REAL NOT NULL,
+          "MaxScore" REAL NOT NULL,
+          "Passed" INTEGER NOT NULL,
+          "Answers" TEXT NULL,
+          "CompletedAt" TEXT NOT NULL,
+          CONSTRAINT "FK_Results_Tests_TestId" FOREIGN KEY ("TestId") REFERENCES "Tests" ("Id") ON DELETE CASCADE,
+          CONSTRAINT "FK_Results_Users_StudentId" FOREIGN KEY ("StudentId") REFERENCES "Users" ("Id") ON DELETE RESTRICT
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Courses_CreatedBy" ON "Courses" ("CreatedBy");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Enrollments_CourseId" ON "Enrollments" ("CourseId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX "IX_Enrollments_StudentId_CourseId" ON "Enrollments" ("StudentId", "CourseId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Notifications_UserId" ON "Notifications" ("UserId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Questions_TestId" ON "Questions" ("TestId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Results_StudentId" ON "Results" ("StudentId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Results_TestId" ON "Results" ("TestId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Tests_CourseId" ON "Tests" ("CourseId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX "IX_Users_Email" ON "Users" ("Email");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX "IX_Videos_CourseId" ON "Videos" ("CourseId");
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS "u")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 21), @p2='?' (DbType = Boolean), @p3='?' (Size = 5), @p4='?' (Size = 60), @p5='?', @p6='?' (Size = 5)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("CreatedAt", "Email", "IsActive", "Name", "PasswordHash", "ProfileImage", "Role")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 23), @p2='?' (DbType = Boolean), @p3='?' (Size = 9), @p4='?' (Size = 60), @p5='?', @p6='?' (Size = 7)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("CreatedAt", "Email", "IsActive", "Name", "PasswordHash", "ProfileImage", "Role")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 23), @p2='?' (DbType = Boolean), @p3='?' (Size = 11), @p4='?' (Size = 60), @p5='?', @p6='?' (Size = 7)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("CreatedAt", "Email", "IsActive", "Name", "PasswordHash", "ProfileImage", "Role")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+      RETURNING "Id";
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: f:\Amer\Mr Amer Platform\Backend\EduPlatform.API
