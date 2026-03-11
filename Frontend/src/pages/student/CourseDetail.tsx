@@ -6,8 +6,9 @@ import { videosApi } from '../../api/videos';
 import { testsApi } from '../../api/tests';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Play, FileText, ArrowRight, Clock, Youtube, Download } from 'lucide-react';
+import { BACKEND_URL } from '../../config';
 
-const BACKEND = 'http://localhost:5001';
+const BACKEND = BACKEND_URL;
 
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
@@ -114,7 +115,7 @@ export default function CourseDetail() {
               </div>
               <div className="flex items-center gap-3 text-gray-400 text-sm">
                 {v.source === 'YouTube' && <Youtube size={16} className="text-red-500" />}
-                {v.pdfUrl && <FileText size={15} className="text-orange-400" title="يحتوي على ملف PDF" />}
+                {v.pdfUrl && <FileText size={15} className="text-orange-400" />}
                 {v.durationSeconds > 0 && (
                   <span className="flex items-center gap-1">
                     <Clock size={14} />

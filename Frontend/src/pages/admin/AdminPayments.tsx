@@ -5,6 +5,7 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 import type { PaymentRequest } from '../../types';
 import { CheckCircle, XCircle, Clock, Eye, X } from 'lucide-react';
+import { BACKEND_URL } from '../../config';
 
 const statusLabel = (s: string) =>
   s === 'Approved' ? 'مقبول' : s === 'Rejected' ? 'مرفوض' : 'قيد المراجعة';
@@ -182,9 +183,9 @@ export default function AdminPayments() {
             {viewing.receiptImageUrl && (
               <div>
                 <p className="text-sm text-gray-500 mb-2">إيصال الدفع:</p>
-                <a href={`http://localhost:5001${viewing.receiptImageUrl}`} target="_blank" rel="noreferrer">
+                <a href={`${BACKEND_URL}${viewing.receiptImageUrl}`} target="_blank" rel="noreferrer">
                   <img
-                    src={`http://localhost:5001${viewing.receiptImageUrl}`}
+                    src={`${BACKEND_URL}${viewing.receiptImageUrl}`}
                     alt="إيصال الدفع"
                     className="w-full rounded-xl border border-gray-200 dark:border-gray-700 object-contain max-h-48"
                   />

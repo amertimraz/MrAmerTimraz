@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+*.db
+*.db-shm
+*.db-wal
+.vs/
+wwwroot/uploads/
+
+# NuGet
+NuGet.Config
+*.nupkg
+
+# Frontend
+node_modules/
+Frontend/dist/
+Frontend/.env
+Frontend/.env.local
+
+# OS
+.DS_Store
+Thumbs.db

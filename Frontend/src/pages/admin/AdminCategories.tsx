@@ -3,7 +3,7 @@ import { useCategoriesStore, type Category } from '../../store/categoriesStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Pencil, Trash2, Tag, Save, X,
-  GripVertical, ChevronUp, ChevronDown, RotateCcw,
+  ChevronUp, ChevronDown, RotateCcw,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

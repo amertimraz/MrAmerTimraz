@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Upload, Link2, X, Loader2, FileText, Film } from 'lucide-react';
 import { uploadsApi } from '../../api/uploads';
 import toast from 'react-hot-toast';
+import { BACKEND_URL } from '../../config';
 
 type MediaType = 'image' | 'pdf' | 'video';
 
@@ -13,7 +14,7 @@ interface MediaUploadFieldProps {
   optional?: boolean;
 }
 
-const BACKEND = 'http://localhost:5001';
+const BACKEND = BACKEND_URL;
 
 const config: Record<MediaType, { accept: string; maxMB: number; icon: React.ReactNode; hint: string }> = {
   image: { accept: 'image/*', maxMB: 10,  icon: <Upload size={18} />,   hint: 'JPG, PNG, WEBP — حتى 10 MB' },
