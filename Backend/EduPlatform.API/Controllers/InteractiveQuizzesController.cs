@@ -22,7 +22,9 @@ public class InteractiveQuizzesController : ControllerBase
             .OrderByDescending(q => q.CreatedAt)
             .Select(q => new
             {
-                q.Id, q.Title, q.Subject, q.Grade, q.Description, q.CoverImageUrl, q.CreatedAt,
+                q.Id, q.Title, q.Subject, q.Grade, q.Description, q.CoverImageUrl,
+                q.TeacherName, q.TeacherImage, q.WhatsappUrl, q.YoutubeUrl, q.FacebookUrl, q.ShowSupportButton,
+                q.CreatedAt,
                 QuestionCount = q.Questions.Count
             })
             .ToListAsync();

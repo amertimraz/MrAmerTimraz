@@ -193,6 +193,8 @@ export default function AdminQuizzes() {
 
   const [coverImgUploading, setCoverImgUploading] = useState(false);
   const coverImgRef = useRef<HTMLInputElement>(null);
+  const [teacherImgUploading, setTeacherImgUploading] = useState(false);
+  const teacherImgRef = useRef<HTMLInputElement>(null);
 
   const [linkEditorId, setLinkEditorId] = useState<number | null>(null);
   const [linkEditorUrl, setLinkEditorUrl] = useState('');
@@ -675,8 +677,43 @@ export default function AdminQuizzes() {
                       <input value={form.teacherName} onChange={e => setForm(f => ({ ...f, teacherName: e.target.value }))} className="input-field text-sm" placeholder="مستر عامر تمراز" />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">صورة المعلم (رابط)</label>
-                      <input value={form.teacherImage} onChange={e => setForm(f => ({ ...f, teacherImage: e.target.value }))} className="input-field text-sm" placeholder="/teacher2.png" dir="ltr" />
+                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">صورة المعلم</label>
+                      <div className="flex gap-1.5">
+                        <input value={form.teacherImage} onChange={e => setForm(f => ({ ...f, teacherImage: e.target.value }))} className="input-field text-sm flex-1 min-w-0" placeholder="/teacher2.png" dir="ltr" />
+                        <button
+                          type="button"
+                          onClick={() => teacherImgRef.current?.click()}
+                          disabled={teacherImgUploading}
+                          className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-xs font-medium shrink-0 disabled:opacity-50"
+                        >
+                          {teacherImgUploading ? <div className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" /> : <Upload size={12} />}
+                          {teacherImgUploading ? '' : 'رفع'}
+                        </button>
+                        <input
+                          ref={teacherImgRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async e => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setTeacherImgUploading(true);
+                            try {
+                              const url = await uploadsApi.image(file);
+                              setForm(f => ({ ...f, teacherImage: url }));
+                              toast.success('تم رفع الصورة');
+                            } catch {
+                              toast.error('فشل رفع الصورة');
+                            } finally {
+                              setTeacherImgUploading(false);
+                              e.target.value = '';
+                            }
+                          }}
+                        />
+                      </div>
+                      {form.teacherImage && (
+                        <img src={form.teacherImage} alt="" className="mt-1.5 w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600" onError={e => (e.currentTarget.style.display = 'none')} />
+                      )}
                     </div>
                   </div>
                   <div>
