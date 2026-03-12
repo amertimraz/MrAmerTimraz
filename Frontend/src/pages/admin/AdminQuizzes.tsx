@@ -10,7 +10,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import {
   Plus, Pencil, Trash2, Play, BookOpen, X, FileText,
   Upload, ClipboardList, CheckCircle, AlertCircle, Sparkles,
-  Settings, Download, Trophy, Timer, Star, Layers,
+  Settings, Download, Trophy, Timer, Star, Layers, Link2,
 } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
@@ -530,6 +530,17 @@ export default function AdminQuizzes() {
                     className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                   >
                     <Pencil size={16} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const url = `${window.location.origin}/quiz/${quiz.id}`;
+                      navigator.clipboard.writeText(url);
+                      toast.success('تم نسخ الرابط العام!');
+                    }}
+                    title="نسخ الرابط العام (بدون تسجيل)"
+                    className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors"
+                  >
+                    <Link2 size={16} />
                   </button>
                   <button
                     onClick={() => { if (window.confirm(`حذف "${quiz.title}"؟`)) deleteMutation.mutate(quiz.id); }}

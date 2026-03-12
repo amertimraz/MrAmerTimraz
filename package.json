@@ -1,0 +1,25 @@
+{
+  "name": "mr-amer-platform",
+  "version": "1.0.0",
+  "description": "",
+  "main": "migrate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amertimraz/MrAmerTimraz.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/amertimraz/MrAmerTimraz/issues"
+  },
+  "homepage": "https://github.com/amertimraz/MrAmerTimraz#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "pg": "^8.20.0"
+  }
+}
