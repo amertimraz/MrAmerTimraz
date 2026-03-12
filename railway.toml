@@ -1,0 +1,6 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Backend/EduPlatform.API/Dockerfile"
+
+[deploy]
+restartPolicyType = "on_failure"

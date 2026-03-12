@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>EduPlatform.API</RootNamespace>
-    <RestorePackagesPath>C:\Users\ADAM-LAP\.nuget\packages</RestorePackagesPath>
+
   </PropertyGroup>
 
   <ItemGroup>
