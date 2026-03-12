@@ -13,8 +13,7 @@ import {
   ChevronDown, ChevronUp, BookOpen, CheckCircle,
   Clock, Eye, EyeOff, Pencil, Link2, Youtube,
 } from 'lucide-react';
-import { BACKEND_URL } from '../../config';
-
+import { resolveFileUrl } from '../../config';
 const emptyVideoForm = { title: '', url: '', description: '', source: 'YouTube', durationSeconds: 0, orderIndex: 0 };
 const emptyTestForm  = { title: '', description: '', durationMinutes: 30, passingScore: 60 };
 
@@ -236,7 +235,7 @@ export default function CourseManager() {
                           )}
                           {lesson.pdfUrl && (
                             <a
-                              href={lesson.pdfUrl.startsWith('/') ? `${BACKEND_URL}${lesson.pdfUrl}` : lesson.pdfUrl}
+                              href={resolveFileUrl(lesson.pdfUrl)}
                               target="_blank"
                               rel="noreferrer"
                               className="mt-2 flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-xl text-orange-600 text-sm hover:bg-orange-100 transition-colors"

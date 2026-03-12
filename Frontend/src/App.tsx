@@ -42,7 +42,9 @@ import AdminSettings         from './pages/admin/AdminSettings';
 import AdminCategories       from './pages/admin/AdminCategories';
 import AdminPayments         from './pages/admin/AdminPayments';
 import AdminLibrary          from './pages/admin/AdminLibrary';
+import AdminQuizzes          from './pages/admin/AdminQuizzes';
 import LibraryPage           from './pages/landing/LibraryPage';
+import QuizPresenter         from './pages/QuizPresenter';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -118,7 +120,10 @@ export default function App() {
             <Route path="settings"        element={<AdminSettings />} />
             <Route path="categories"      element={<AdminCategories />} />
             <Route path="library"         element={<AdminLibrary />} />
+            <Route path="quizzes"         element={<AdminQuizzes />} />
           </Route>
+
+          <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

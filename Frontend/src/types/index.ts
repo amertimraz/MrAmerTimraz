@@ -122,11 +122,38 @@ export interface Notification {
   createdAt: string;
 }
 
+export interface InteractiveQuizSummary {
+  id: number;
+  title: string;
+  subject?: string;
+  grade?: string;
+  description?: string;
+  coverImageUrl?: string;
+  createdAt: string;
+  questionCount: number;
+}
+
+export interface InteractiveQuestion {
+  id: number;
+  quizId: number;
+  text: string;
+  type: 'MCQ' | 'TrueFalse';
+  options?: string | null;
+  correctAnswer?: string | null;
+  explanation?: string | null;
+  orderIndex: number;
+}
+
+export interface InteractiveQuiz extends InteractiveQuizSummary {
+  questions: InteractiveQuestion[];
+}
+
 export interface LibraryItem {
   id: number;
   title: string;
   description?: string;
   fileUrl: string;
   category?: string;
+  thumbnailUrl?: string;
   createdAt: string;
 }

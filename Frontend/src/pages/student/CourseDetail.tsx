@@ -6,9 +6,7 @@ import { videosApi } from '../../api/videos';
 import { testsApi } from '../../api/tests';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Play, FileText, ArrowRight, Clock, Youtube, Download } from 'lucide-react';
-import { BACKEND_URL } from '../../config';
-
-const BACKEND = BACKEND_URL;
+import { resolveFileUrl } from '../../config';
 
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
@@ -46,10 +44,10 @@ export default function CourseDetail() {
       const m = url.match(/vimeo\.com\/(\d+)/);
       return m ? `https://player.vimeo.com/video/${m[1]}` : url;
     }
-    return url.startsWith('/') ? `${BACKEND}${url}` : url;
+    return resolveFileUrl(url);
   };
 
-  const resolveUrl = (url: string) => url.startsWith('/') ? `${BACKEND}${url}` : url;
+  const resolveUrl = resolveFileUrl;
 
   if (isLoading) return <LoadingSpinner size="lg" />;
   if (!course) return <div className="text-center text-gray-400 mt-20">الدرس غير موجود</div>;

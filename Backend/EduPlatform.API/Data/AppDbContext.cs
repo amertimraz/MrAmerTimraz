@@ -17,6 +17,8 @@ public class AppDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<PaymentRequest> PaymentRequests => Set<PaymentRequest>();
     public DbSet<LibraryItem> LibraryItems => Set<LibraryItem>();
+    public DbSet<InteractiveQuiz> InteractiveQuizzes => Set<InteractiveQuiz>();
+    public DbSet<InteractiveQuestion> InteractiveQuestions => Set<InteractiveQuestion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -112,6 +114,15 @@ public class AppDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(p => p.CourseId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<InteractiveQuestion>(entity =>
+        {
+            entity.HasOne(q => q.Quiz)
+                  .WithMany(qz => qz.Questions)
+                  .HasForeignKey(q => q.QuizId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.Property(q => q.Type).HasConversion<string>();
         });
     }
 }

@@ -8,9 +8,9 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import MediaUploadField from '../../components/ui/MediaUploadField';
 import PdfThumbnail from '../../components/ui/PdfThumbnail';
 import PdfViewerModal from '../../components/ui/PdfViewerModal';
-import { BACKEND_URL } from '../../config';
+import { resolveFileUrl } from '../../config';
 
-const emptyForm = { title: '', description: '', fileUrl: '', category: '' };
+const emptyForm = { title: '', description: '', fileUrl: '', category: '', thumbnailUrl: '' };
 
 export default function AdminLibrary() {
   const qc = useQueryClient();
@@ -66,7 +66,13 @@ export default function AdminLibrary() {
   const openAdd = () => { setForm(emptyForm); setEditing(null); setModal('add'); };
   const openEdit = (item: LibraryItem) => {
     setEditing(item);
-    setForm({ title: item.title, description: item.description ?? '', fileUrl: item.fileUrl, category: item.category ?? '' });
+    setForm({
+      title: item.title,
+      description: item.description ?? '',
+      fileUrl: item.fileUrl,
+      category: item.category ?? '',
+      thumbnailUrl: item.thumbnailUrl ?? '',
+    });
     setModal('edit');
   };
   const closeModal = () => { setModal(null); setEditing(null); setForm(emptyForm); };
@@ -75,17 +81,22 @@ export default function AdminLibrary() {
     e.preventDefault();
     if (!form.title.trim()) { toast.error('العنوان مطلوب'); return; }
     if (!form.fileUrl.trim()) { toast.error('الملف مطلوب'); return; }
-    const data = { title: form.title, description: form.description || undefined, fileUrl: form.fileUrl, category: form.category || undefined };
+    const data = {
+      title: form.title,
+      description: form.description || '',
+      fileUrl: form.fileUrl,
+      category: form.category || '',
+      thumbnailUrl: form.thumbnailUrl || '',
+    };
     if (modal === 'edit' && editing) {
-      updateMutation.mutate({ id: editing.id, data: { ...data, description: data.description ?? '', category: data.category ?? '' } });
+      updateMutation.mutate({ id: editing.id, data });
     } else {
       createMutation.mutate(data);
     }
   };
 
   const copyUrl = (item: LibraryItem) => {
-    const url = item.fileUrl.startsWith('/') ? `${BACKEND_URL}${item.fileUrl}` : item.fileUrl;
-    navigator.clipboard.writeText(url).then(() => {
+    navigator.clipboard.writeText(item.fileUrl).then(() => {
       setCopiedId(item.id);
       toast.success('تم نسخ الرابط!');
       setTimeout(() => setCopiedId(null), 2000);
@@ -97,8 +108,6 @@ export default function AdminLibrary() {
       deleteMutation.mutate(item.id);
     }
   };
-
-  const resolveUrl = (url: string) => url.startsWith('/') ? `${BACKEND_URL}${url}` : url;
 
   return (
     <>
@@ -116,7 +125,6 @@ export default function AdminLibrary() {
         </button>
       </div>
 
-      {/* Category filter */}
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setFilterCat('')}
@@ -156,7 +164,7 @@ export default function AdminLibrary() {
                 onClick={() => setViewing(item)}
                 title="عرض PDF"
               >
-                <PdfThumbnail url={item.fileUrl} className="w-full h-full" />
+                <PdfThumbnail thumbnailUrl={item.thumbnailUrl ? resolveFileUrl(item.thumbnailUrl) : undefined} className="w-full h-full" />
               </div>
 
               <div className="flex-1 min-w-0">
@@ -182,7 +190,7 @@ export default function AdminLibrary() {
                       <Eye size={16} />
                     </button>
                     <a
-                      href={resolveUrl(item.fileUrl)}
+                      href={resolveFileUrl(item.fileUrl)}
                       target="_blank"
                       rel="noreferrer"
                       title="فتح الملف"
@@ -216,7 +224,7 @@ export default function AdminLibrary() {
 
                 <div className="mt-2 flex items-center gap-2">
                   <code className="text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-lg truncate max-w-xs">
-                    {resolveUrl(item.fileUrl)}
+                    {item.fileUrl}
                   </code>
                 </div>
 
@@ -229,7 +237,6 @@ export default function AdminLibrary() {
         </div>
       )}
 
-      {/* Modal */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" dir="rtl">
           <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh]">
@@ -286,6 +293,14 @@ export default function AdminLibrary() {
                 optional={false}
               />
 
+              <MediaUploadField
+                type="image"
+                value={form.thumbnailUrl}
+                onChange={url => setForm(f => ({ ...f, thumbnailUrl: url }))}
+                label="الصورة المصغرة"
+                optional={true}
+              />
+
               <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="btn-primary flex-1">
                   {createMutation.isPending || updateMutation.isPending ? 'جاري الحفظ...' : modal === 'add' ? 'إضافة' : 'حفظ التعديلات'}
@@ -300,7 +315,7 @@ export default function AdminLibrary() {
 
     {viewing && (
       <PdfViewerModal
-        url={viewing.fileUrl}
+        url={resolveFileUrl(viewing.fileUrl)}
         title={viewing.title}
         onClose={() => setViewing(null)}
       />

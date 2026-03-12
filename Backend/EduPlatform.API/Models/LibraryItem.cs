@@ -17,5 +17,7 @@ public class LibraryItem
     [MaxLength(100)]
     public string? Category { get; set; }
 
+    public string? ThumbnailUrl { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

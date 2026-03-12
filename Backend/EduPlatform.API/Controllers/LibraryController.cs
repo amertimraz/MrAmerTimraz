@@ -47,6 +47,7 @@ public class LibraryController : ControllerBase
             Description = dto.Description,
             FileUrl = dto.FileUrl,
             Category = dto.Category,
+            ThumbnailUrl = dto.ThumbnailUrl,
         };
         _db.LibraryItems.Add(item);
         await _db.SaveChangesAsync();
@@ -64,6 +65,7 @@ public class LibraryController : ControllerBase
         item.Description = dto.Description;
         item.FileUrl = dto.FileUrl;
         item.Category = dto.Category;
+        item.ThumbnailUrl = dto.ThumbnailUrl;
 
         await _db.SaveChangesAsync();
         return Ok(item);
@@ -76,12 +78,15 @@ public class LibraryController : ControllerBase
         var item = await _db.LibraryItems.FindAsync(id);
         if (item == null) return NotFound();
 
-        if (!string.IsNullOrEmpty(item.FileUrl) && item.FileUrl.StartsWith("/uploads/"))
+        foreach (var url in new[] { item.FileUrl, item.ThumbnailUrl })
         {
-            var root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            var filePath = Path.Combine(root, item.FileUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-            if (System.IO.File.Exists(filePath))
-                System.IO.File.Delete(filePath);
+            if (!string.IsNullOrEmpty(url) && url.StartsWith("/uploads/"))
+            {
+                var root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var filePath = Path.Combine(root, url.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(filePath))
+                    System.IO.File.Delete(filePath);
+            }
         }
 
         _db.LibraryItems.Remove(item);
@@ -108,4 +113,5 @@ public class LibraryItemDto
     public string? Description { get; set; }
     public string FileUrl { get; set; } = string.Empty;
     public string? Category { get; set; }
+    public string? ThumbnailUrl { get; set; }
 }

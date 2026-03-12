@@ -62,15 +62,26 @@ var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Spli
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(origin =>
+        {
+            if (string.IsNullOrEmpty(origin)) return false;
+            var uri = new Uri(origin);
+            if (uri.Host == "localhost") return true;
+            if (uri.Host.EndsWith(".vercel.app")) return true;
+            if (allowedOrigins.Contains(origin)) return true;
+            return false;
+        })
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
 });
 
 builder.Services.AddControllers()
-    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(
-        new System.Text.Json.Serialization.JsonStringEnumConverter()));
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 
 var app = builder.Build();
 
@@ -78,6 +89,33 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN ThumbnailUrl TEXT;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE InteractiveQuizzes ADD COLUMN CoverImageUrl TEXT;"); } catch { }
+    try
+    {
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS InteractiveQuizzes (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Title TEXT NOT NULL,
+                Subject TEXT,
+                Grade TEXT,
+                Description TEXT,
+                CreatedAt TEXT NOT NULL DEFAULT (datetime('now'))
+            );");
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS InteractiveQuestions (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                QuizId INTEGER NOT NULL,
+                Text TEXT NOT NULL,
+                Type TEXT NOT NULL DEFAULT 'MCQ',
+                Options TEXT,
+                CorrectAnswer TEXT,
+                Explanation TEXT,
+                OrderIndex INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY (QuizId) REFERENCES InteractiveQuizzes(Id) ON DELETE CASCADE
+            );");
+    }
+    catch { }
     await DbSeeder.SeedAsync(db);
 }
 
@@ -92,6 +130,13 @@ app.UseStaticFiles(new StaticFileOptions
             ctx.Context.Response.Headers["Access-Control-Allow-Origin"] = origin;
             ctx.Context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
             ctx.Context.Response.Headers["Vary"] = "Origin";
+        }
+        var path = ctx.Context.Request.Path.Value ?? "";
+        if (path.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            ctx.Context.Response.Headers["Content-Disposition"] = "inline";
+            ctx.Context.Response.Headers["Content-Type"] = "application/pdf";
+            ctx.Context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
         }
     }
 });
