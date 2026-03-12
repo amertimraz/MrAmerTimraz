@@ -194,6 +194,9 @@ export default function AdminQuizzes() {
   const [coverImgUploading, setCoverImgUploading] = useState(false);
   const coverImgRef = useRef<HTMLInputElement>(null);
 
+  const [linkEditorId, setLinkEditorId] = useState<number | null>(null);
+  const [linkEditorUrl, setLinkEditorUrl] = useState('');
+
   const [savedEditId, setSavedEditId] = useState<number | null>(null);
   const [savedEditData, setSavedEditData] = useState<{ text: string; type: 'MCQ' | 'TrueFalse'; options: string[]; correctAnswer?: string } | null>(null);
   const [savedAiLoadingIds, setSavedAiLoadingIds] = useState<Set<number>>(new Set());
@@ -533,12 +536,15 @@ export default function AdminQuizzes() {
                   </button>
                   <button
                     onClick={() => {
-                      const url = `${window.location.origin}/quiz/${quiz.id}`;
-                      navigator.clipboard.writeText(url);
-                      toast.success('تم نسخ الرابط العام!');
+                      if (linkEditorId === quiz.id) {
+                        setLinkEditorId(null);
+                      } else {
+                        setLinkEditorId(quiz.id);
+                        setLinkEditorUrl(`${window.location.origin}/quiz/${quiz.id}`);
+                      }
                     }}
-                    title="نسخ الرابط العام (بدون تسجيل)"
-                    className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors"
+                    title="الرابط العام (بدون تسجيل)"
+                    className={`p-2.5 rounded-xl transition-colors ${linkEditorId === quiz.id ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'}`}
                   >
                     <Link2 size={16} />
                   </button>
@@ -550,6 +556,28 @@ export default function AdminQuizzes() {
                     <Trash2 size={16} />
                   </button>
                 </div>
+
+                {linkEditorId === quiz.id && (
+                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700" dir="rtl">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">🔗 الرابط العام (قابل للتعديل)</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(linkEditorUrl); toast.success('تم نسخ الرابط!'); }}
+                        className="shrink-0 px-3 py-2 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors"
+                      >
+                        نسخ
+                      </button>
+                      <input
+                        type="text"
+                        value={linkEditorUrl}
+                        onChange={e => setLinkEditorUrl(e.target.value)}
+                        className="flex-1 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs font-mono outline-none focus:border-purple-400 transition-colors text-left"
+                        dir="ltr"
+                        spellCheck={false}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
