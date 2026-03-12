@@ -62,18 +62,9 @@ var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Spli
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.SetIsOriginAllowed(origin =>
-        {
-            if (string.IsNullOrEmpty(origin)) return false;
-            var uri = new Uri(origin);
-            if (uri.Host == "localhost") return true;
-            if (uri.Host.EndsWith(".vercel.app")) return true;
-            if (allowedOrigins.Contains(origin)) return true;
-            return false;
-        })
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials());
+              .AllowAnyMethod());
 });
 
 builder.Services.AddControllers()
