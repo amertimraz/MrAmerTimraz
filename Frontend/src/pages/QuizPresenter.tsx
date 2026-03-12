@@ -503,7 +503,13 @@ export default function QuizPresenter() {
           </div>
         )}
         <div className="mt-6">
-          <SocialBanner />
+          <SocialBanner
+            teacherName={quiz.teacherName}
+            teacherImage={quiz.teacherImage}
+            whatsappUrl={quiz.whatsappUrl}
+            youtubeUrl={quiz.youtubeUrl}
+            facebookUrl={quiz.facebookUrl}
+          />
         </div>
       </div>
       <button onClick={() => navigate(-1)} className="absolute top-4 right-4 p-2 text-gray-500 hover:text-white transition-colors"><X size={24} /></button>
@@ -731,7 +737,13 @@ export default function QuizPresenter() {
           </div>
 
           <div className="mt-6">
-            <SocialBanner />
+            <SocialBanner
+              teacherName={quiz?.teacherName}
+              teacherImage={quiz?.teacherImage}
+              whatsappUrl={quiz?.whatsappUrl}
+              youtubeUrl={quiz?.youtubeUrl}
+              facebookUrl={quiz?.facebookUrl}
+            />
           </div>
 
         </div>

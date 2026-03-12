@@ -222,7 +222,17 @@ export default function AdminQuizzes() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: typeof emptyForm }) => quizzesApi.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['interactive-quizzes'] }); toast.success('تم التحديث!'); closeModal(); },
+    onSuccess: (updatedQuiz) => {
+      qc.setQueryData<InteractiveQuizSummary[]>(['interactive-quizzes'], old =>
+        old?.map(q => q.id === updatedQuiz.id
+          ? { ...q, ...updatedQuiz, questionCount: q.questionCount }
+          : q
+        )
+      );
+      qc.invalidateQueries({ queryKey: ['interactive-quizzes'] });
+      toast.success('تم التحديث!');
+      closeModal();
+    },
     onError: () => toast.error('فشل في التحديث'),
   });
 
