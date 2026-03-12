@@ -12,11 +12,18 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "";
 var connStr = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
 
+static string ConvertPostgresUrlToConnectionString(string url)
+{
+    var uri = new Uri(url);
+    var userInfo = uri.UserInfo.Split(':');
+    return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (!string.IsNullOrEmpty(databaseUrl) && (databaseUrl.StartsWith("postgresql") || databaseUrl.StartsWith("postgres")))
     {
-        options.UseNpgsql(databaseUrl);
+        options.UseNpgsql(ConvertPostgresUrlToConnectionString(databaseUrl));
     }
     else if (connStr.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase) || !connStr.Contains("Server="))
     {
