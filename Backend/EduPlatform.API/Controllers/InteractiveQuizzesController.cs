@@ -47,7 +47,13 @@ public class InteractiveQuizzesController : ControllerBase
             Subject = dto.Subject,
             Grade = dto.Grade,
             Description = dto.Description,
-            CoverImageUrl = dto.CoverImageUrl
+            CoverImageUrl = dto.CoverImageUrl,
+            TeacherName = dto.TeacherName,
+            TeacherImage = dto.TeacherImage,
+            WhatsappUrl = dto.WhatsappUrl,
+            YoutubeUrl = dto.YoutubeUrl,
+            FacebookUrl = dto.FacebookUrl,
+            ShowSupportButton = dto.ShowSupportButton,
         };
         _db.InteractiveQuizzes.Add(quiz);
         await _db.SaveChangesAsync();
@@ -64,6 +70,12 @@ public class InteractiveQuizzesController : ControllerBase
         quiz.Grade = dto.Grade;
         quiz.Description = dto.Description;
         quiz.CoverImageUrl = dto.CoverImageUrl;
+        quiz.TeacherName = dto.TeacherName;
+        quiz.TeacherImage = dto.TeacherImage;
+        quiz.WhatsappUrl = dto.WhatsappUrl;
+        quiz.YoutubeUrl = dto.YoutubeUrl;
+        quiz.FacebookUrl = dto.FacebookUrl;
+        quiz.ShowSupportButton = dto.ShowSupportButton;
         await _db.SaveChangesAsync();
         return Ok(quiz);
     }
@@ -93,6 +105,12 @@ public class InteractiveQuizzesController : ControllerBase
             Grade = original.Grade,
             Description = original.Description,
             CoverImageUrl = original.CoverImageUrl,
+            TeacherName = original.TeacherName,
+            TeacherImage = original.TeacherImage,
+            WhatsappUrl = original.WhatsappUrl,
+            YoutubeUrl = original.YoutubeUrl,
+            FacebookUrl = original.FacebookUrl,
+            ShowSupportButton = original.ShowSupportButton,
             Questions = original.Questions.Select((q, i) => new InteractiveQuestion
             {
                 Text = q.Text,
@@ -177,6 +195,12 @@ public class CreateQuizDto
     public string? Grade { get; set; }
     public string? Description { get; set; }
     public string? CoverImageUrl { get; set; }
+    public string? TeacherName { get; set; }
+    public string? TeacherImage { get; set; }
+    public string? WhatsappUrl { get; set; }
+    public string? YoutubeUrl { get; set; }
+    public string? FacebookUrl { get; set; }
+    public bool ShowSupportButton { get; set; } = true;
 }
 
 public class CreateIQuestionDto

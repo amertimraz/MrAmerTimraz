@@ -168,7 +168,7 @@ function parsePdfText(rawText: string): ParsedQuestion[] {
   );
 }
 
-const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '' };
+const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true };
 
 export default function AdminQuizzes() {
   const qc = useQueryClient();
@@ -279,7 +279,7 @@ export default function AdminQuizzes() {
   });
 
   const openCreate = () => { setForm(emptyForm); setEditing(null); setModal('create'); };
-  const openEdit = (q: InteractiveQuizSummary) => { setEditing(q); setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '' }); setModal('edit'); };
+  const openEdit = (q: InteractiveQuizSummary) => { setEditing(q); setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true }); setModal('edit'); };
   const openQuestions = (q: InteractiveQuizSummary) => {
     const saved = localStorage.getItem(`quiz-settings-${q.id}`);
     const def = { stageCount: 3, questionsPerStage: 20, mcqPerStage: 0, tfPerStage: 0, goldenEvery: 10, timerEnabled: false, timerDuration: 30 };
@@ -600,14 +600,14 @@ export default function AdminQuizzes() {
 
       {(modal === 'create' || modal === 'edit') && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" dir="rtl">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {modal === 'create' ? 'إنشاء اختبار جديد' : 'تعديل الاختبار'}
               </h2>
               <button onClick={closeModal} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"><X size={20} /></button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">عنوان الاختبار *</label>
                 <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className="input-field" placeholder="مثال: مراجعة شهر مارس — تكنولوجيا" required />
@@ -664,6 +664,45 @@ export default function AdminQuizzes() {
                 {form.coverImageUrl && (
                   <img src={form.coverImageUrl} alt="" className="mt-2 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-600" onError={e => (e.currentTarget.style.display = 'none')} />
                 )}
+              </div>
+              <hr className="border-gray-100 dark:border-gray-700" />
+              <div>
+                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">⚙️ إعدادات البانر السفلي</p>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">اسم المعلم</label>
+                      <input value={form.teacherName} onChange={e => setForm(f => ({ ...f, teacherName: e.target.value }))} className="input-field text-sm" placeholder="مستر عامر تمراز" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">صورة المعلم (رابط)</label>
+                      <input value={form.teacherImage} onChange={e => setForm(f => ({ ...f, teacherImage: e.target.value }))} className="input-field text-sm" placeholder="/teacher2.png" dir="ltr" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">واتساب (رابط القناة)</label>
+                    <input value={form.whatsappUrl} onChange={e => setForm(f => ({ ...f, whatsappUrl: e.target.value }))} className="input-field text-sm" placeholder="https://whatsapp.com/channel/..." dir="ltr" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">يوتيوب</label>
+                      <input value={form.youtubeUrl} onChange={e => setForm(f => ({ ...f, youtubeUrl: e.target.value }))} className="input-field text-sm" placeholder="https://youtube.com/@..." dir="ltr" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">فيسبوك</label>
+                      <input value={form.facebookUrl} onChange={e => setForm(f => ({ ...f, facebookUrl: e.target.value }))} className="input-field text-sm" placeholder="https://facebook.com/..." dir="ltr" />
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <div
+                      onClick={() => setForm(f => ({ ...f, showSupportButton: !f.showSupportButton }))}
+                      className={`w-10 h-6 rounded-full transition-colors relative shrink-0 ${form.showSupportButton ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                    >
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${form.showSupportButton ? 'right-1' : 'left-1'}`} />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">إظهار زر الدعم المادي 💛</span>
+                  </label>
+                </div>
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="btn-primary flex-1">

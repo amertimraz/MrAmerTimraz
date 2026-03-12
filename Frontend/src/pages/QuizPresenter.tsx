@@ -947,22 +947,31 @@ export default function QuizPresenter() {
       {/* Social Banner */}
       <div className="shrink-0 px-4 pb-1">
         <div className="max-w-2xl mx-auto">
-          <SocialBanner compact />
+          <SocialBanner
+            compact
+            teacherName={quiz?.teacherName}
+            teacherImage={quiz?.teacherImage}
+            whatsappUrl={quiz?.whatsappUrl}
+            youtubeUrl={quiz?.youtubeUrl}
+            facebookUrl={quiz?.facebookUrl}
+          />
         </div>
       </div>
 
       {/* Support Button */}
-      <div className="shrink-0 px-4 pb-3">
-        <div className="max-w-2xl mx-auto">
-          <button
-            onClick={() => setSupportOpen(true)}
-            className="w-full py-2.5 rounded-2xl font-bold text-sm text-white transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
-          >
-            <span>💛</span> ادعم المحتوى المجاني
-          </button>
+      {(quiz?.showSupportButton ?? true) && (
+        <div className="shrink-0 px-4 pb-3">
+          <div className="max-w-2xl mx-auto">
+            <button
+              onClick={() => setSupportOpen(true)}
+              className="w-full py-2.5 rounded-2xl font-bold text-sm text-white transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
+            >
+              <span>💛</span> ادعم المحتوى المجاني
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Support Modal */}
       {supportOpen && <SupportModal onClose={() => setSupportOpen(false)} />}
@@ -1111,20 +1120,37 @@ function SupportModal({ onClose }: { onClose: () => void }) {
 }
 
 /* ─── Social Banner ──────────────────────────────────────── */
-const SOCIAL_LINKS = {
-  whatsapp: 'https://whatsapp.com/channel/0029Vb7KXht7oQhjG0RCMp3m',
-  youtube:  'https://www.youtube.com/@AmerTimraz',
-  facebook: 'https://www.facebook.com/MrAmerTimraz',
+const DEFAULT_TEACHER = {
+  name:      'مستر عامر تمراز',
+  image:     '/teacher2.png',
+  whatsapp:  'https://whatsapp.com/channel/0029Vb7KXht7oQhjG0RCMp3m',
+  youtube:   'https://www.youtube.com/@AmerTimraz',
+  facebook:  'https://www.facebook.com/MrAmerTimraz',
 };
 
-function SocialBanner({ compact = false }: { compact?: boolean }) {
+interface SocialBannerProps {
+  compact?: boolean;
+  teacherName?: string | null;
+  teacherImage?: string | null;
+  whatsappUrl?: string | null;
+  youtubeUrl?: string | null;
+  facebookUrl?: string | null;
+}
+
+function SocialBanner({ compact = false, teacherName, teacherImage, whatsappUrl, youtubeUrl, facebookUrl }: SocialBannerProps) {
+  const name     = teacherName  || DEFAULT_TEACHER.name;
+  const image    = teacherImage || DEFAULT_TEACHER.image;
+  const whatsapp = whatsappUrl  || DEFAULT_TEACHER.whatsapp;
+  const youtube  = youtubeUrl   || DEFAULT_TEACHER.youtube;
+  const facebook = facebookUrl  || DEFAULT_TEACHER.facebook;
+
   return (
     <div className={`bg-white/5 border border-white/10 rounded-2xl text-right ${compact ? 'p-3' : 'p-4'}`} dir="rtl">
       {!compact && (
         <div className="flex items-center gap-3 mb-3">
-          <img src="/teacher2.png" alt="مستر عامر تمراز" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
+          <img src={image} alt={name} className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
           <div>
-            <p className="text-white font-black text-sm leading-tight">مستر عامر تمراز</p>
+            <p className="text-white font-black text-sm leading-tight">{name}</p>
             <p className="text-gray-400 text-xs mt-0.5">للمزيد من الاختبارات والمراجعات تابعنا</p>
           </div>
         </div>
@@ -1132,24 +1158,24 @@ function SocialBanner({ compact = false }: { compact?: boolean }) {
       <div className={`flex flex-wrap gap-2 ${compact ? 'justify-between items-center' : 'justify-end'}`}>
         {compact && (
           <div className="flex items-center gap-2 shrink-0">
-            <img src="/teacher2.png" alt="مستر عامر تمراز" className="w-11 h-11 rounded-full object-cover border-2 border-white/30 shrink-0" />
-            <span className="text-gray-200 text-sm font-bold">مستر عامر تمراز</span>
+            <img src={image} alt={name} className="w-11 h-11 rounded-full object-cover border-2 border-white/30 shrink-0" />
+            <span className="text-gray-200 text-sm font-bold">{name}</span>
           </div>
         )}
         <div className="flex flex-wrap gap-2">
-        <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer"
+        <a href={whatsapp} target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs text-white transition-all hover:scale-105 active:scale-95"
           style={{ background: '#25D366' }}>
           <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white shrink-0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.11.549 4.09 1.504 5.815L0 24l6.335-1.48A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.374l-.36-.213-3.76.876.916-3.653-.234-.374A9.818 9.818 0 1112 21.818z"/></svg>
           واتساب 🔔
         </a>
-        <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer"
+        <a href={youtube} target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs text-white transition-all hover:scale-105 active:scale-95"
           style={{ background: '#FF0000' }}>
           <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white shrink-0"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
           يوتيوب
         </a>
-        <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer"
+        <a href={facebook} target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs text-white transition-all hover:scale-105 active:scale-95"
           style={{ background: '#1877F2' }}>
           <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white shrink-0"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073c0 6.027 4.388 11.025 10.125 11.927v-8.437H7.078v-3.49h3.047V9.43c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796v8.437C19.612 23.098 24 18.1 24 12.073z"/></svg>

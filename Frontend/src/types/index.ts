@@ -129,6 +129,12 @@ export interface InteractiveQuizSummary {
   grade?: string;
   description?: string;
   coverImageUrl?: string;
+  teacherName?: string;
+  teacherImage?: string;
+  whatsappUrl?: string;
+  youtubeUrl?: string;
+  facebookUrl?: string;
+  showSupportButton: boolean;
   createdAt: string;
   questionCount: number;
 }

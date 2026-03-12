@@ -6,6 +6,13 @@ export interface QuizPayload {
   subject?: string;
   grade?: string;
   description?: string;
+  coverImageUrl?: string;
+  teacherName?: string;
+  teacherImage?: string;
+  whatsappUrl?: string;
+  youtubeUrl?: string;
+  facebookUrl?: string;
+  showSupportButton?: boolean;
 }
 
 export interface QuestionPayload {
