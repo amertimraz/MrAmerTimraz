@@ -14,7 +14,7 @@ var connStr = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    if (!string.IsNullOrEmpty(databaseUrl) && databaseUrl.StartsWith("postgresql"))
+    if (!string.IsNullOrEmpty(databaseUrl) && (databaseUrl.StartsWith("postgresql") || databaseUrl.StartsWith("postgres")))
     {
         options.UseNpgsql(databaseUrl);
     }
