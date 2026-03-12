@@ -10,7 +10,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import {
   Plus, Pencil, Trash2, Play, BookOpen, X, FileText,
   Upload, ClipboardList, CheckCircle, AlertCircle, Sparkles,
-  Settings, Download, Trophy, Timer, Star, Layers, Link2,
+  Settings, Download, Trophy, Timer, Star, Layers, Link2, Copy,
 } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
@@ -227,6 +227,12 @@ export default function AdminQuizzes() {
   const deleteMutation = useMutation({
     mutationFn: quizzesApi.delete,
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['interactive-quizzes'] }); toast.success('تم الحذف'); },
+  });
+
+  const duplicateMutation = useMutation({
+    mutationFn: quizzesApi.duplicate,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['interactive-quizzes'] }); toast.success('تم تكرار الاختبار!'); },
+    onError: () => toast.error('فشل في التكرار'),
   });
 
   const deleteQuestionMutation = useMutation({
@@ -547,6 +553,14 @@ export default function AdminQuizzes() {
                     className={`p-2.5 rounded-xl transition-colors ${linkEditorId === quiz.id ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'}`}
                   >
                     <Link2 size={16} />
+                  </button>
+                  <button
+                    onClick={() => { if (window.confirm(`تكرار "${quiz.title}" بكل أسئلته؟`)) duplicateMutation.mutate(quiz.id); }}
+                    title="تكرار الاختبار"
+                    disabled={duplicateMutation.isPending}
+                    className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors disabled:opacity-50"
+                  >
+                    <Copy size={16} />
                   </button>
                   <button
                     onClick={() => { if (window.confirm(`حذف "${quiz.title}"؟`)) deleteMutation.mutate(quiz.id); }}

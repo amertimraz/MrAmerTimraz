@@ -78,6 +78,37 @@ public class InteractiveQuizzesController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("{id}/duplicate"), Authorize(Roles = "Admin,Teacher")]
+    public async Task<IActionResult> Duplicate(int id)
+    {
+        var original = await _db.InteractiveQuizzes
+            .Include(q => q.Questions.OrderBy(q => q.OrderIndex))
+            .FirstOrDefaultAsync(q => q.Id == id);
+        if (original == null) return NotFound();
+
+        var copy = new InteractiveQuiz
+        {
+            Title = original.Title + " (نسخة)",
+            Subject = original.Subject,
+            Grade = original.Grade,
+            Description = original.Description,
+            CoverImageUrl = original.CoverImageUrl,
+            Questions = original.Questions.Select((q, i) => new InteractiveQuestion
+            {
+                Text = q.Text,
+                Type = q.Type,
+                Options = q.Options,
+                CorrectAnswer = q.CorrectAnswer,
+                Explanation = q.Explanation,
+                OrderIndex = i
+            }).ToList()
+        };
+
+        _db.InteractiveQuizzes.Add(copy);
+        await _db.SaveChangesAsync();
+        return Ok(copy);
+    }
+
     [HttpPost("{id}/questions/bulk"), Authorize(Roles = "Admin,Teacher")]
     public async Task<IActionResult> BulkAddQuestions(int id, [FromBody] List<CreateIQuestionDto> questions)
     {
