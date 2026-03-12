@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { quizzesApi } from '../api/quizzes';
 import type { InteractiveQuestion } from '../types';
-import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, Timer, Star, Layers, Trophy, User, Sun, Moon } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, Timer, Star, Layers, Trophy, User, Sun, Moon, Volume2, VolumeX } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 /* ─── Constants ─────────────────────────────────────────── */
@@ -121,6 +121,57 @@ function getStageMeta(stageIdx: number) {
   return STAGE_META[stageIdx % STAGE_META.length];
 }
 
+/* ─── Sound FX ───────────────────────────────────────────── */
+type SoundType = 'correct' | 'wrong' | 'golden' | 'select' | 'stage' | 'end' | 'tick';
+
+function useSoundFX(volume: number, enabled: boolean) {
+  return useCallback((type: SoundType) => {
+    if (!enabled || volume === 0) return;
+    try {
+      const ctx = new AudioContext();
+      const beep = (freq: number, start: number, dur: number, shape: OscillatorType = 'sine', vol = 0.5) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = shape;
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(vol * volume, ctx.currentTime + start);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur + 0.01);
+      };
+      switch (type) {
+        case 'select':
+          beep(700, 0, 0.06, 'sine', 0.25); break;
+        case 'correct':
+          beep(523, 0,    0.12, 'sine', 0.5);
+          beep(659, 0.1,  0.12, 'sine', 0.5);
+          beep(784, 0.2,  0.22, 'sine', 0.65); break;
+        case 'wrong':
+          beep(280, 0,    0.15, 'sawtooth', 0.4);
+          beep(190, 0.15, 0.22, 'sawtooth', 0.35); break;
+        case 'golden':
+          beep(880,  0,    0.08, 'sine', 0.5);
+          beep(1100, 0.09, 0.08, 'sine', 0.5);
+          beep(1320, 0.18, 0.08, 'sine', 0.5);
+          beep(1760, 0.27, 0.25, 'sine', 0.65); break;
+        case 'stage':
+          beep(440, 0,    0.1, 'sine', 0.5);
+          beep(554, 0.11, 0.1, 'sine', 0.5);
+          beep(659, 0.22, 0.1, 'sine', 0.5);
+          beep(880, 0.33, 0.3, 'sine', 0.6); break;
+        case 'end':
+          [523, 659, 784, 1047].forEach((f, i) => beep(f, i * 0.13, 0.15, 'sine', 0.55));
+          beep(1047, 0.54, 0.55, 'sine', 0.75); break;
+        case 'tick':
+          beep(1000, 0, 0.05, 'sine', 0.18); break;
+      }
+      setTimeout(() => ctx.close(), 3000);
+    } catch { /* AudioContext not available */ }
+  }, [volume, enabled]);
+}
+
 /* ─── Component ──────────────────────────────────────────── */
 export default function QuizPresenter() {
   const { id } = useParams<{ id: string }>();
@@ -159,6 +210,18 @@ export default function QuizPresenter() {
   const [motivMsg, setMotivMsg] = useState('');
   const [showMotiv, setShowMotiv] = useState(false);
   const [answeredCorrect, setAnsweredCorrect] = useState<boolean[]>([]);
+
+  /* sound */
+  const [soundVolume, setSoundVolume] = useState(() => {
+    const v = localStorage.getItem('quiz-sound-volume');
+    return v !== null ? Number(v) : 0.6;
+  });
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    return localStorage.getItem('quiz-sound-enabled') !== 'false';
+  });
+  const playSound = useSoundFX(soundVolume, soundEnabled);
+  const setVolume = (v: number) => { setSoundVolume(v); localStorage.setItem('quiz-sound-volume', String(v)); };
+  const toggleSound = () => { const n = !soundEnabled; setSoundEnabled(n); localStorage.setItem('quiz-sound-enabled', String(n)); };
 
   /* settings */
   const [showSettings, setShowSettings] = useState(false);
@@ -209,6 +272,9 @@ export default function QuizPresenter() {
   const currentMeta = getStageMeta(currentStageIdx);
 
   /* timer */
+  const playSoundRef = useRef(playSound);
+  useEffect(() => { playSoundRef.current = playSound; }, [playSound]);
+
   const resetTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     setTimeLeft(timerDuration);
@@ -217,6 +283,7 @@ export default function QuizPresenter() {
       timerRef.current = setInterval(() => {
         setTimeLeft(t => {
           if (t <= 1) { clearInterval(timerRef.current!); setTimerRunning(false); setRevealed(true); return 0; }
+          playSoundRef.current('tick');
           return t - 1;
         });
       }, 1000);
@@ -257,19 +324,22 @@ export default function QuizPresenter() {
         setPointAnim({ v: pts, key: Date.now() });
         setTimeout(() => setPointAnim(null), 1200);
       }
+      if (correct) playSound(isGolden ? 'golden' : 'correct');
+      else playSound('wrong');
       const msg = isGolden ? rand(GOLDEN_MSGS) : correct ? rand(CORRECT_MSGS) : rand(WRONG_MSGS);
       setMotivMsg(msg);
       setShowMotiv(true);
       setTimeout(() => setShowMotiv(false), 2000);
       setAnsweredCorrect(prev => { const a = [...prev]; a[currentIdx] = correct; return a; });
     } else {
+      playSound('wrong');
       const msg = rand(WRONG_MSGS);
       setMotivMsg(msg);
       setShowMotiv(true);
       setTimeout(() => setShowMotiv(false), 2000);
       setAnsweredCorrect(prev => { const a = [...prev]; a[currentIdx] = false; return a; });
     }
-  }, [revealed, questions, currentIdx, pointsForQ, isGolden, reveal]);
+  }, [revealed, questions, currentIdx, pointsForQ, isGolden, reveal, playSound]);
 
   const saveResultToLeaderboard = useCallback((finalScore: number, correct: number) => {
     if (!quiz || !playerName) return;
@@ -289,18 +359,20 @@ export default function QuizPresenter() {
       if (timerRef.current) clearInterval(timerRef.current);
       const correct = answeredCorrect.filter(Boolean).length;
       saveResultToLeaderboard(score, correct);
+      playSound('end');
       setScreen('end');
       return;
     }
 
     const nextStage = Math.floor(nextIdx / stageSize);
     if (nextStage > currentStageIdx && effectiveStageCount > 1) {
+      playSound('stage');
       setPendingStageIdx(nextStage);
       setScreen('stage-transition');
     } else {
       goTo(nextIdx);
     }
-  }, [currentIdx, questions.length, stageSize, currentStageIdx, effectiveStageCount, goTo, answeredCorrect, score, saveResultToLeaderboard]);
+  }, [currentIdx, questions.length, stageSize, currentStageIdx, effectiveStageCount, goTo, answeredCorrect, score, saveResultToLeaderboard, playSound]);
 
   const prev = useCallback(() => { if (currentIdx > 0) goTo(currentIdx - 1); }, [currentIdx, goTo]);
 
@@ -311,7 +383,7 @@ export default function QuizPresenter() {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); if (revealed) next(); }
       if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!revealed) reveal(); else next(); }
-      if (!revealed && e.key >= '1' && e.key <= '4') setSelectedOption(Number(e.key) - 1);
+      if (!revealed && e.key >= '1' && e.key <= '4') { setSelectedOption(Number(e.key) - 1); playSound('select'); }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -508,6 +580,8 @@ export default function QuizPresenter() {
             timerEnabled={timerEnabled} setTimerEnabled={setTimerEnabled}
             timerDuration={timerDuration} setTimerDuration={setTimerDuration}
             shuffled={shuffled} toggleShuffle={toggleShuffle}
+            soundVolume={soundVolume} setVolume={setVolume}
+            soundEnabled={soundEnabled} toggleSound={toggleSound}
             onClose={() => setShowSettings(false)}
           />
         )}
@@ -712,6 +786,9 @@ export default function QuizPresenter() {
           <button onClick={toggleDark} className="p-2 text-gray-500 hover:text-white rounded-xl hover:bg-white/10 transition-colors">
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+          <button onClick={toggleSound} className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${soundEnabled ? 'text-primary-400' : 'text-gray-600'}`}>
+            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
           <button onClick={() => setShowSettings(s => !s)} className="p-2 text-gray-500 hover:text-white rounded-xl hover:bg-white/10 transition-colors"><Settings size={18} /></button>
         </div>
       </div>
@@ -741,6 +818,8 @@ export default function QuizPresenter() {
             timerEnabled={timerEnabled} setTimerEnabled={setTimerEnabled}
             timerDuration={timerDuration} setTimerDuration={setTimerDuration}
             shuffled={shuffled} toggleShuffle={toggleShuffle}
+            soundVolume={soundVolume} setVolume={setVolume}
+            soundEnabled={soundEnabled} toggleSound={toggleSound}
             onClose={() => setShowSettings(false)}
             inline
           />
@@ -801,7 +880,7 @@ export default function QuizPresenter() {
                   const isWrong = revealed && selectedOption === i && !isCorrect;
                   return (
                     <button key={opt.val}
-                      onClick={() => { if (!revealed) { setSelectedOption(i); handleRevealResult(i); } }}
+                      onClick={() => { if (!revealed) { playSound('select'); setSelectedOption(i); handleRevealResult(i); } }}
                       className={`py-12 rounded-2xl font-black text-2xl text-white transition-all duration-300
                         ${revealed ? isCorrect ? `${opt.bg} scale-105 ring-4 ring-white/40 shadow-2xl` : `${opt.dim} opacity-40` : `${opt.bg} ${opt.hover} active:scale-95 cursor-pointer shadow-lg`}
                         ${isWrong ? 'ring-2 ring-red-300/50' : ''}`}
@@ -819,7 +898,7 @@ export default function QuizPresenter() {
                 const isSelected = selectedOption === i;
                 return (
                   <button key={i}
-                    onClick={() => { if (!revealed) { setSelectedOption(i); handleRevealResult(i); } }}
+                    onClick={() => { if (!revealed) { playSound('select'); setSelectedOption(i); handleRevealResult(i); } }}
                     className={`p-5 rounded-2xl text-right transition-all duration-300
                       ${revealed ? isCorrect ? `${color.bg} scale-[1.03] ring-4 ring-white/40 shadow-2xl` : `${color.dim} opacity-40` : `${color.bg} ${color.hover} active:scale-95 cursor-pointer shadow-md ${isSelected ? 'ring-4 ring-white/50 scale-[1.02]' : ''}`}`}
                   >
@@ -970,7 +1049,7 @@ function SocialBanner({ compact = false }: { compact?: boolean }) {
 }
 
 /* ─── Settings Panel ──────────────────────────────────────── */
-function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuestionsPerStage, mcqPerStage, setMcqPerStage, tfPerStage, setTfPerStage, goldenEvery, setGoldenEvery, timerEnabled, setTimerEnabled, timerDuration, setTimerDuration, shuffled, toggleShuffle, onClose, inline }: {
+function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuestionsPerStage, mcqPerStage, setMcqPerStage, tfPerStage, setTfPerStage, goldenEvery, setGoldenEvery, timerEnabled, setTimerEnabled, timerDuration, setTimerDuration, shuffled, toggleShuffle, soundVolume, setVolume, soundEnabled, toggleSound, onClose, inline }: {
   stageCount: number; setStageCount: (n: number) => void;
   questionsPerStage: number; setQuestionsPerStage: (n: number) => void;
   mcqPerStage: number; setMcqPerStage: (n: number) => void;
@@ -979,6 +1058,8 @@ function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuesti
   timerEnabled: boolean; setTimerEnabled: (b: boolean) => void;
   timerDuration: number; setTimerDuration: (n: number) => void;
   shuffled: boolean; toggleShuffle: () => void;
+  soundVolume: number; setVolume: (v: number) => void;
+  soundEnabled: boolean; toggleSound: () => void;
   onClose: () => void;
   inline?: boolean;
 }) {
@@ -1050,6 +1131,29 @@ function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuesti
         <label className="text-gray-300 text-sm block mb-2">السؤال الذهبي كل: <span className="text-yellow-400 font-bold">{goldenEvery === 0 ? 'معطّل' : `${goldenEvery} سؤال`}</span></label>
         <input type="range" min={0} max={20} step={1} value={goldenEvery} onChange={e => setGoldenEvery(Number(e.target.value))} className="w-full accent-yellow-500" />
         <div className="flex justify-between text-xs text-gray-500 mt-1"><span>معطّل</span><span>كل 20</span></div>
+      </div>
+
+      {/* Sound Control */}
+      <div className="space-y-2 p-3 bg-white/5 rounded-xl border border-white/10">
+        <div className="flex items-center justify-between">
+          <label className="text-gray-300 text-sm flex items-center gap-2">
+            {soundEnabled ? <Volume2 size={14} className="text-primary-400" /> : <VolumeX size={14} className="text-gray-500" />}
+            المؤثرات الصوتية
+          </label>
+          <button onClick={toggleSound} className={`w-12 h-6 rounded-full transition-colors relative ${soundEnabled ? 'bg-primary-500' : 'bg-gray-600'}`}>
+            <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all ${soundEnabled ? 'right-0.5' : 'left-0.5'}`} />
+          </button>
+        </div>
+        {soundEnabled && (
+          <div className="flex items-center gap-2">
+            <VolumeX size={12} className="text-gray-500 shrink-0" />
+            <input type="range" min={0} max={1} step={0.05} value={soundVolume}
+              onChange={e => setVolume(Number(e.target.value))}
+              className="flex-1 accent-primary-500 h-1" />
+            <Volume2 size={12} className="text-primary-400 shrink-0" />
+            <span className="text-xs text-gray-400 w-8 text-center">{Math.round(soundVolume * 100)}%</span>
+          </div>
+        )}
       </div>
 
       <label className="flex items-center justify-between cursor-pointer">

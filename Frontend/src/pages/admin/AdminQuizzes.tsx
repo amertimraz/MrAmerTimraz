@@ -894,7 +894,7 @@ export default function AdminQuizzes() {
                                       value={savedEditData.type}
                                       onChange={e => {
                                         const t = e.target.value as 'MCQ' | 'TrueFalse';
-                                        setSavedEditData({ ...savedEditData, type: t, options: t === 'TrueFalse' ? ['صح', 'خطأ'] : savedEditData.options, correctAnswer: undefined });
+                                        setSavedEditData({ ...savedEditData, type: t, options: t === 'TrueFalse' ? ['صح', 'خطأ'] : (savedEditData.options.length >= 4 ? savedEditData.options : ['', '', '', '']), correctAnswer: undefined });
                                       }}
                                       className="input-field text-sm py-1 flex-1"
                                     >
@@ -905,7 +905,7 @@ export default function AdminQuizzes() {
                                   {savedEditData.type === 'MCQ' && (
                                     <div className="space-y-2">
                                       <p className="text-xs text-gray-500">الخيارات — اضغط الحرف لتحديد الصحيح:</p>
-                                      {(savedEditData.options.length < 2 ? ['', '', '', ''] : savedEditData.options).map((opt, j) => (
+                                      {savedEditData.options.map((opt, j) => (
                                         <div key={j} className="flex items-center gap-2">
                                           <button
                                             onClick={() => setSavedEditData({ ...savedEditData, correctAnswer: String(j) })}
@@ -917,15 +917,33 @@ export default function AdminQuizzes() {
                                             value={opt}
                                             onChange={e => {
                                               const o = [...savedEditData.options];
-                                              while (o.length <= j) o.push('');
                                               o[j] = e.target.value;
                                               setSavedEditData({ ...savedEditData, options: o });
                                             }}
                                             className="input-field text-sm py-1 flex-1"
                                             placeholder={`الخيار ${ARABIC_OPTIONS[j]}`}
                                           />
+                                          {savedEditData.options.length > 2 && (
+                                            <button
+                                              onClick={() => {
+                                                const o = savedEditData.options.filter((_, i) => i !== j);
+                                                const ca = savedEditData.correctAnswer === String(j) ? undefined : savedEditData.correctAnswer;
+                                                setSavedEditData({ ...savedEditData, options: o, correctAnswer: ca });
+                                              }}
+                                              className="text-red-400 hover:text-red-600 shrink-0 text-lg leading-none"
+                                              title="حذف الخيار"
+                                            >×</button>
+                                          )}
                                         </div>
                                       ))}
+                                      {savedEditData.options.length < 4 && (
+                                        <button
+                                          onClick={() => setSavedEditData({ ...savedEditData, options: [...savedEditData.options, ''] })}
+                                          className="text-xs text-primary-500 hover:text-primary-400 flex items-center gap-1 mt-1"
+                                        >
+                                          + إضافة خيار ({savedEditData.options.length}/4)
+                                        </button>
+                                      )}
                                     </div>
                                   )}
                                   {savedEditData.type === 'TrueFalse' && (
