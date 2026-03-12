@@ -84,6 +84,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
+        o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
         o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
         o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
@@ -94,39 +96,48 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
-    try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN ThumbnailUrl TEXT;"); } catch { }
-    try { db.Database.ExecuteSqlRaw("ALTER TABLE InteractiveQuizzes ADD COLUMN CoverImageUrl TEXT;"); } catch { }
-    try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherName\" TEXT;"); } catch { }
-    try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherImage\" TEXT;"); } catch { }
-    try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"WhatsappUrl\" TEXT;"); } catch { }
-    try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"YoutubeUrl\" TEXT;"); } catch { }
-    try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"FacebookUrl\" TEXT;"); } catch { }
-    try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"ShowSupportButton\" BOOLEAN NOT NULL DEFAULT TRUE;"); } catch { }
-    try
+    var isPostgres = db.Database.IsNpgsql();
+    if (isPostgres)
     {
-        db.Database.ExecuteSqlRaw(@"
-            CREATE TABLE IF NOT EXISTS InteractiveQuizzes (
-                Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                Title TEXT NOT NULL,
-                Subject TEXT,
-                Grade TEXT,
-                Description TEXT,
-                CreatedAt TEXT NOT NULL DEFAULT (datetime('now'))
-            );");
-        db.Database.ExecuteSqlRaw(@"
-            CREATE TABLE IF NOT EXISTS InteractiveQuestions (
-                Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                QuizId INTEGER NOT NULL,
-                Text TEXT NOT NULL,
-                Type TEXT NOT NULL DEFAULT 'MCQ',
-                Options TEXT,
-                CorrectAnswer TEXT,
-                Explanation TEXT,
-                OrderIndex INTEGER NOT NULL DEFAULT 0,
-                FOREIGN KEY (QuizId) REFERENCES InteractiveQuizzes(Id) ON DELETE CASCADE
-            );");
+        var pgAlters = new[]
+        {
+            ("LibraryItems",        "ThumbnailUrl",      "TEXT"),
+            ("InteractiveQuizzes",  "CoverImageUrl",     "TEXT"),
+            ("InteractiveQuizzes",  "TeacherName",       "TEXT"),
+            ("InteractiveQuizzes",  "TeacherImage",      "TEXT"),
+            ("InteractiveQuizzes",  "WhatsappUrl",       "TEXT"),
+            ("InteractiveQuizzes",  "YoutubeUrl",        "TEXT"),
+            ("InteractiveQuizzes",  "FacebookUrl",       "TEXT"),
+            ("InteractiveQuizzes",  "ShowSupportButton", "BOOLEAN NOT NULL DEFAULT TRUE"),
+        };
+        foreach (var (table, col, colDef) in pgAlters)
+        {
+            try
+            {
+                db.Database.ExecuteSqlRaw($@"
+                    DO $$ BEGIN
+                        IF NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns
+                            WHERE table_name = '{table}' AND column_name = '{col}'
+                        ) THEN
+                            ALTER TABLE ""{table}"" ADD COLUMN ""{col}"" {colDef};
+                        END IF;
+                    END $$;");
+            }
+            catch { }
+        }
     }
-    catch { }
+    else
+    {
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN ThumbnailUrl TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE InteractiveQuizzes ADD COLUMN CoverImageUrl TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherName\" TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherImage\" TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"WhatsappUrl\" TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"YoutubeUrl\" TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"FacebookUrl\" TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"ShowSupportButton\" BOOLEAN NOT NULL DEFAULT TRUE;"); } catch { }
+    }
     await DbSeeder.SeedAsync(db);
 }
 

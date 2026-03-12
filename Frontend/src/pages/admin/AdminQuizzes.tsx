@@ -291,7 +291,15 @@ export default function AdminQuizzes() {
   });
 
   const openCreate = () => { setForm(emptyForm); setEditing(null); setModal('create'); };
-  const openEdit = (q: InteractiveQuizSummary) => { setEditing(q); setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true }); setModal('edit'); };
+  const openEdit = async (q: InteractiveQuizSummary) => {
+    setEditing(q);
+    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true });
+    setModal('edit');
+    try {
+      const fresh = await quizzesApi.getById(q.id);
+      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '', showSupportButton: fresh.showSupportButton ?? true });
+    } catch { }
+  };
   const openQuestions = (q: InteractiveQuizSummary) => {
     const saved = localStorage.getItem(`quiz-settings-${q.id}`);
     const def = { stageCount: 3, questionsPerStage: 20, mcqPerStage: 0, tfPerStage: 0, goldenEvery: 10, timerEnabled: false, timerDuration: 30 };
