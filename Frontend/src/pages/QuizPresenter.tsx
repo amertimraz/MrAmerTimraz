@@ -228,6 +228,9 @@ export default function QuizPresenter() {
   const setVolume = (v: number) => { setSoundVolume(v); localStorage.setItem('quiz-sound-volume', String(v)); };
   const toggleSound = () => { const n = !soundEnabled; setSoundEnabled(n); localStorage.setItem('quiz-sound-enabled', String(n)); };
 
+  /* support modal */
+  const [supportOpen, setSupportOpen] = useState(false);
+
   /* settings */
   const [showSettings, setShowSettings] = useState(false);
   const [stageCount, setStageCount] = useState(3);
@@ -942,11 +945,27 @@ export default function QuizPresenter() {
       </div>
 
       {/* Social Banner */}
-      <div className="shrink-0 px-4 pb-3">
+      <div className="shrink-0 px-4 pb-1">
         <div className="max-w-2xl mx-auto">
           <SocialBanner compact />
         </div>
       </div>
+
+      {/* Support Button */}
+      <div className="shrink-0 px-4 pb-3">
+        <div className="max-w-2xl mx-auto">
+          <button
+            onClick={() => setSupportOpen(true)}
+            className="w-full py-2.5 rounded-2xl font-bold text-sm text-white transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
+          >
+            <span>💛</span> ادعم المحتوى المجاني
+          </button>
+        </div>
+      </div>
+
+      {/* Support Modal */}
+      {supportOpen && <SupportModal onClose={() => setSupportOpen(false)} />}
 
       <style>{`
         @keyframes slideUp   { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:translateY(0) } }
@@ -998,6 +1017,95 @@ function TechBackground() {
           }}
         >{item.icon}</span>
       ))}
+    </div>
+  );
+}
+
+/* ─── Support Modal ─────────────────────────────────────── */
+function SupportModal({ onClose }: { onClose: () => void }) {
+  const [copiedVf, setCopiedVf] = useState(false);
+  const [copiedIp, setCopiedIp] = useState(false);
+  const NUMBER = '01096066818';
+
+  const copy = (which: 'vf' | 'ip') => {
+    navigator.clipboard.writeText(NUMBER);
+    if (which === 'vf') { setCopiedVf(true); setTimeout(() => setCopiedVf(false), 2000); }
+    else                { setCopiedIp(true); setTimeout(() => setCopiedIp(false), 2000); }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-sm rounded-3xl p-6 text-right"
+        style={{ background: 'linear-gradient(145deg,#1e1b4b,#1a1a2e)', border: '1px solid rgba(255,255,255,0.12)', animation: 'popIn .3s cubic-bezier(.34,1.56,.64,1) both' }}
+        onClick={e => e.stopPropagation()}
+        dir="rtl"
+      >
+        <button onClick={onClose} className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors">
+          <X size={20} />
+        </button>
+
+        <div className="text-center mb-5">
+          <div className="text-4xl mb-2">💛</div>
+          <h2 className="text-white font-black text-lg leading-snug">ادعم المحتوى التعليمي المجاني</h2>
+          <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+            كل الاختبارات والمراجعات هنا مجانية بالكامل 🎓<br />
+            لو المحتوى ده فادك وحابب تساعدنا نكمل، أي دعم بيفرق معانا جداً 🙏
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {/* Vodafone Cash */}
+          <div className="rounded-2xl p-3.5" style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)' }}>
+            <div className="flex items-center justify-between gap-3">
+              <button
+                onClick={() => copy('vf')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition-all active:scale-95"
+                style={{ background: copiedVf ? '#16a34a' : '#ef4444', color: '#fff' }}
+              >
+                {copiedVf ? '✓ تم النسخ' : 'نسخ'}
+              </button>
+              <div className="flex items-center gap-2 flex-1 justify-end">
+                <div>
+                  <p className="text-red-400 font-bold text-sm">فودافون كاش</p>
+                  <p className="text-white font-mono font-bold text-base tracking-widest">{NUMBER}</p>
+                </div>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#ef4444' }}>
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-.5 17.5c-3.038 0-5.5-2.462-5.5-5.5S8.462 6.5 11.5 6.5c1.8 0 3.39.868 4.383 2.203l-1.763 1.763C13.582 9.573 12.596 9 11.5 9 9.567 9 8 10.567 8 12.5S9.567 16 11.5 16c1.676 0 3.082-1.119 3.41-2.696H11.5v-2h5.476c.033.296.024.579.024.696 0 3.038-2.462 5.5-5.5 5.5z"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* InstaPay */}
+          <div className="rounded-2xl p-3.5" style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)' }}>
+            <div className="flex items-center justify-between gap-3">
+              <button
+                onClick={() => copy('ip')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition-all active:scale-95"
+                style={{ background: copiedIp ? '#16a34a' : '#8b5cf6', color: '#fff' }}
+              >
+                {copiedIp ? '✓ تم النسخ' : 'نسخ'}
+              </button>
+              <div className="flex items-center gap-2 flex-1 justify-end">
+                <div>
+                  <p className="text-purple-400 font-bold text-sm">انستا باي</p>
+                  <p className="text-white font-mono font-bold text-base tracking-widest">{NUMBER}</p>
+                </div>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg,#8b5cf6,#a855f7)' }}>
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white"><path d="M13.5 2C8.806 2 5 5.806 5 10.5c0 1.986.687 3.813 1.828 5.262L5 22l6.413-1.797A8.46 8.46 0 0013.5 20.5c4.694 0 8.5-3.806 8.5-8.5S18.194 2 13.5 2zm0 15.5a6.975 6.975 0 01-3.552-.97l-.255-.152-2.643.74.74-2.563-.166-.265A6.959 6.959 0 016.5 10.5C6.5 6.634 9.634 3.5 13.5 3.5S20.5 6.634 20.5 10.5 17.366 17.5 13.5 17.5zm3.857-5.232c-.211-.106-1.25-.617-1.443-.687-.193-.07-.334-.106-.475.106-.141.211-.546.687-.669.828-.123.141-.246.159-.457.053-.211-.106-.89-.328-1.695-1.046-.626-.559-1.049-1.249-1.172-1.46-.123-.212-.013-.326.092-.432.095-.095.211-.246.317-.37.106-.123.141-.211.211-.352.07-.141.035-.264-.018-.37-.053-.106-.475-1.145-.651-1.568-.171-.411-.345-.355-.475-.362l-.405-.007c-.141 0-.37.053-.563.264-.194.211-.738.722-.738 1.761s.756 2.043.861 2.184c.106.141 1.488 2.271 3.604 3.185.504.218.898.348 1.204.445.506.161.967.138 1.331.084.406-.061 1.25-.511 1.426-1.005.176-.494.176-.917.123-1.005-.053-.088-.194-.141-.405-.246z"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-center text-gray-500 text-xs mt-4">جزاك الله خيراً على دعمك 🤍</p>
+      </div>
     </div>
   );
 }
