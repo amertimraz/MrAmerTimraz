@@ -94,13 +94,6 @@ export default function LoginPage() {
               سجّل الآن
             </Link>
           </p>
-
-          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl text-xs text-gray-500 dark:text-gray-400 space-y-1">
-            <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">بيانات تجريبية:</p>
-            <p>👤 مدير: admin / Admin@123</p>
-            <p>👨‍🏫 مدرس: teacher / Teacher@123</p>
-            <p>👨‍🎓 طالب: student / Student@123</p>
-          </div>
         </div>
       </div>
     </div>
