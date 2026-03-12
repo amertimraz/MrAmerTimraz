@@ -12,9 +12,6 @@ WORKDIR /app
 
 COPY --from=build /app/publish ./
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:5001
 ENV ASPNETCORE_ENVIRONMENT=Production
-
-EXPOSE 5001
 
 ENTRYPOINT ["dotnet", "EduPlatform.API.dll"]
