@@ -169,6 +169,8 @@ function parsePdfText(rawText: string): ParsedQuestion[] {
 }
 
 const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true };
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? '').replace('/api', '');
+const resolveImgUrl = (url: string) => (!url || url.startsWith('http') ? url : `${API_ORIGIN}${url}`);
 
 export default function AdminQuizzes() {
   const qc = useQueryClient();
@@ -730,7 +732,7 @@ export default function AdminQuizzes() {
                         />
                       </div>
                       {form.teacherImage && (
-                        <img src={form.teacherImage} alt="" className="mt-1.5 w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600" onError={e => (e.currentTarget.style.display = 'none')} />
+                        <img src={resolveImgUrl(form.teacherImage)} alt="" className="mt-1.5 w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600" onError={e => (e.currentTarget.style.display = 'none')} />
                       )}
                     </div>
                   </div>

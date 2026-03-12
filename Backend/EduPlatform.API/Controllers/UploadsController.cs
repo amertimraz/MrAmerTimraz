@@ -54,7 +54,7 @@ public class UploadsController : ControllerBase
         await using var stream = System.IO.File.Create(path);
         await file.CopyToAsync(stream);
 
-        var url = $"/uploads/{folder}/{fileName}";
+        var url = $"{Request.Scheme}://{Request.Host}/uploads/{folder}/{fileName}";
         return Ok(new { url });
     }
 }

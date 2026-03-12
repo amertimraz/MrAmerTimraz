@@ -1149,9 +1149,16 @@ interface SocialBannerProps {
   facebookUrl?: string | null;
 }
 
+const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') ?? '';
+function resolveUrl(url: string | null | undefined): string {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `${API_BASE}${url}`;
+}
+
 function SocialBanner({ compact = false, teacherName, teacherImage, whatsappUrl, youtubeUrl, facebookUrl }: SocialBannerProps) {
   const name     = teacherName  || DEFAULT_TEACHER.name;
-  const image    = teacherImage || DEFAULT_TEACHER.image;
+  const image    = resolveUrl(teacherImage) || DEFAULT_TEACHER.image;
   const whatsapp = whatsappUrl  || DEFAULT_TEACHER.whatsapp;
   const youtube  = youtubeUrl   || DEFAULT_TEACHER.youtube;
   const facebook = facebookUrl  || DEFAULT_TEACHER.facebook;
