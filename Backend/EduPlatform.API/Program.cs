@@ -9,16 +9,23 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "5001";
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "";
 var connStr = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
-var useSqlite = connStr.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase)
-             || !connStr.Contains("Server=");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    if (useSqlite)
+    if (!string.IsNullOrEmpty(databaseUrl) && databaseUrl.StartsWith("postgresql"))
+    {
+        options.UseNpgsql(databaseUrl);
+    }
+    else if (connStr.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase) || !connStr.Contains("Server="))
+    {
         options.UseSqlite(connStr.Length > 0 ? connStr : "Data Source=EduPlatform.db");
+    }
     else
+    {
         options.UseSqlServer(connStr);
+    }
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
