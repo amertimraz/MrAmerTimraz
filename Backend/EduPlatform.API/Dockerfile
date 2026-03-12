@@ -1,11 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 WORKDIR /src
 
-COPY *.csproj ./
-RUN dotnet restore
+COPY Backend/EduPlatform.API/EduPlatform.API.csproj Backend/EduPlatform.API/
+RUN dotnet restore Backend/EduPlatform.API/EduPlatform.API.csproj
 
-COPY . ./
-RUN dotnet publish -c Release -o /app/publish --no-restore
+COPY Backend/EduPlatform.API/ Backend/EduPlatform.API/
+RUN dotnet publish Backend/EduPlatform.API/EduPlatform.API.csproj -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
 WORKDIR /app

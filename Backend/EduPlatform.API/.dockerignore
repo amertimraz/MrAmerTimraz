@@ -1,6 +1,8 @@
-bin/
-obj/
-*.db
-uploads/
-.env
-appsettings.Development.json
+Backend/EduPlatform.API/bin/
+Backend/EduPlatform.API/obj/
+Backend/EduPlatform.API/*.db
+Backend/EduPlatform.API/uploads/
+Backend/EduPlatform.API/appsettings.Development.json
+Frontend/
+Games/
+Docs/
