@@ -682,8 +682,8 @@ export default function AdminQuizzes() {
                       {settingsTab === 'general' && (<>
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2"><Layers size={14} /> عدد المراحل: <span className="text-primary-500 font-bold">{quizSettings.stageCount}</span></label>
-                          <input type="range" min={1} max={5} value={quizSettings.stageCount} onChange={e => setQuizSettings(s => ({ ...s, stageCount: Number(e.target.value) }))} className="w-full accent-primary-500" />
-                          <div className="flex justify-between text-xs text-gray-400 mt-1"><span>مرحلة واحدة</span><span>5 مراحل</span></div>
+                          <input type="range" min={1} max={10} value={quizSettings.stageCount} onChange={e => setQuizSettings(s => ({ ...s, stageCount: Number(e.target.value) }))} className="w-full accent-primary-500" />
+                          <div className="flex justify-between text-xs text-gray-400 mt-1"><span>مرحلة واحدة</span><span>10 مراحل</span></div>
                         </div>
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2"><Star size={14} className="text-yellow-500" /> السؤال الذهبي كل: <span className="text-yellow-500 font-bold">{quizSettings.goldenEvery === 0 ? 'معطّل' : `${quizSettings.goldenEvery} سؤال`}</span></label>

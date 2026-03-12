@@ -15,11 +15,16 @@ const OPTION_COLORS = [
 ];
 
 const STAGE_META = [
-  { emoji: '🚀', name: 'الإحماء',   color: 'from-blue-600 to-cyan-500' },
-  { emoji: '🔥', name: 'التحدي',    color: 'from-orange-500 to-red-500' },
-  { emoji: '⚡', name: 'الاندفاع',  color: 'from-purple-600 to-pink-500' },
-  { emoji: '💎', name: 'الماس',     color: 'from-teal-500 to-emerald-400' },
-  { emoji: '🏆', name: 'البطولة',   color: 'from-yellow-400 to-amber-500' },
+  { emoji: '🚀', name: 'الإحماء',      color: 'from-blue-600 to-cyan-500' },
+  { emoji: '🔥', name: 'التحدي',       color: 'from-orange-500 to-red-500' },
+  { emoji: '⚡', name: 'الاندفاع',     color: 'from-purple-600 to-pink-500' },
+  { emoji: '💎', name: 'الماس',        color: 'from-teal-500 to-emerald-400' },
+  { emoji: '🏆', name: 'البطولة',      color: 'from-yellow-400 to-amber-500' },
+  { emoji: '🌪️', name: 'الإعصار',     color: 'from-cyan-600 to-blue-700' },
+  { emoji: '🦁', name: 'الأسد',        color: 'from-amber-600 to-orange-700' },
+  { emoji: '🌟', name: 'النجوم',       color: 'from-indigo-500 to-purple-600' },
+  { emoji: '🎯', name: 'الدقة المطلقة', color: 'from-rose-500 to-red-600' },
+  { emoji: '👑', name: 'التاج الذهبي', color: 'from-yellow-500 to-amber-600' },
 ];
 
 const CORRECT_MSGS  = ['🔥 ممتاز!', '💪 كمل كده!', '🚀 أنت بطل!', '⭐ رائع جداً!', '🎯 إصابة في الصميم!', '🌟 أحسنت!', '👏 برافو عليك!'];
@@ -1082,8 +1087,8 @@ function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuesti
       {typeTab === 'general' && (<>
         <div>
           <label className="text-gray-300 text-sm block mb-2">عدد المراحل: <span className="text-white font-bold">{stageCount}</span></label>
-          <input type="range" min={1} max={5} value={stageCount} onChange={e => setStageCount(Number(e.target.value))} className="w-full accent-primary-500" />
-          <div className="flex justify-between text-xs text-gray-500 mt-1"><span>مرحلة 1</span><span>5 مراحل</span></div>
+          <input type="range" min={1} max={10} value={stageCount} onChange={e => setStageCount(Number(e.target.value))} className="w-full accent-primary-500" />
+          <div className="flex justify-between text-xs text-gray-500 mt-1"><span>مرحلة 1</span><span>10 مراحل</span></div>
         </div>
         <div>
           <label className="text-gray-300 text-sm block mb-2">أسئلة كل مرحلة (إجمالي): <span className="text-white font-bold">{questionsPerStage === 0 ? 'تلقائي' : questionsPerStage}</span></label>
