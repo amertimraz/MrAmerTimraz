@@ -22,7 +22,7 @@ public class InteractiveQuizzesController : ControllerBase
             .OrderByDescending(q => q.CreatedAt)
             .Select(q => new
             {
-                q.Id, q.Title, q.Subject, q.Grade, q.Description, q.CoverImageUrl,
+                q.Id, q.Title, q.Subject, q.Grade, q.Description, q.CoverImageUrl, q.Slug,
                 q.TeacherName, q.TeacherImage, q.WhatsappUrl, q.YoutubeUrl, q.FacebookUrl, q.ShowSupportButton,
                 q.ViewCount, q.CreatedAt,
                 QuestionCount = q.Questions.Count
@@ -37,6 +37,15 @@ public class InteractiveQuizzesController : ControllerBase
         var quiz = await _db.InteractiveQuizzes
             .Include(q => q.Questions.OrderBy(q => q.OrderIndex))
             .FirstOrDefaultAsync(q => q.Id == id);
+        return quiz == null ? NotFound() : Ok(quiz);
+    }
+
+    [HttpGet("slug/{slug}"), AllowAnonymous]
+    public async Task<IActionResult> GetBySlug(string slug)
+    {
+        var quiz = await _db.InteractiveQuizzes
+            .Include(q => q.Questions.OrderBy(q => q.OrderIndex))
+            .FirstOrDefaultAsync(q => q.Slug == slug);
         return quiz == null ? NotFound() : Ok(quiz);
     }
 
@@ -60,6 +69,7 @@ public class InteractiveQuizzesController : ControllerBase
             Grade = dto.Grade,
             Description = dto.Description,
             CoverImageUrl = dto.CoverImageUrl,
+            Slug = dto.Slug,
             TeacherName = dto.TeacherName,
             TeacherImage = dto.TeacherImage,
             WhatsappUrl = dto.WhatsappUrl,
@@ -82,6 +92,7 @@ public class InteractiveQuizzesController : ControllerBase
         quiz.Grade = dto.Grade;
         quiz.Description = dto.Description;
         quiz.CoverImageUrl = dto.CoverImageUrl;
+        quiz.Slug = dto.Slug;
         quiz.TeacherName = dto.TeacherName;
         quiz.TeacherImage = dto.TeacherImage;
         quiz.WhatsappUrl = dto.WhatsappUrl;
@@ -214,6 +225,7 @@ public class CreateQuizDto
     public string? Grade { get; set; }
     public string? Description { get; set; }
     public string? CoverImageUrl { get; set; }
+    public string? Slug { get; set; }
     public string? TeacherName { get; set; }
     public string? TeacherImage { get; set; }
     public string? WhatsappUrl { get; set; }

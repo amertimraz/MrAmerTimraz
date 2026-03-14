@@ -103,6 +103,7 @@ using (var scope = app.Services.CreateScope())
         {
             ("LibraryItems",        "ThumbnailUrl",      "TEXT"),
             ("InteractiveQuizzes",  "CoverImageUrl",     "TEXT"),
+            ("InteractiveQuizzes",  "Slug",              "TEXT"),
             ("InteractiveQuizzes",  "TeacherName",       "TEXT"),
             ("InteractiveQuizzes",  "TeacherImage",      "TEXT"),
             ("InteractiveQuizzes",  "WhatsappUrl",       "TEXT"),

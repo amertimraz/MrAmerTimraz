@@ -17,6 +17,8 @@ public class InteractiveQuiz
 
     public string? CoverImageUrl { get; set; }
 
+    public string? Slug { get; set; }
+
     public string? TeacherName { get; set; }
     public string? TeacherImage { get; set; }
     public string? WhatsappUrl { get; set; }

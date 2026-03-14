@@ -183,9 +183,11 @@ export default function QuizPresenter() {
   const navigate = useNavigate();
   const { isDark, toggleDark } = useAuthStore();
 
+  const isNumeric = !!id && /^\d+$/.test(id);
+
   const { data: quiz, isLoading, error } = useQuery({
-    queryKey: ['interactive-quiz', Number(id)],
-    queryFn: () => quizzesApi.getById(Number(id)),
+    queryKey: ['interactive-quiz', id],
+    queryFn: () => isNumeric ? quizzesApi.getById(Number(id)) : quizzesApi.getBySlug(id!),
     enabled: !!id,
   });
 

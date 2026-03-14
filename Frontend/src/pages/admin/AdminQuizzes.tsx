@@ -615,7 +615,18 @@ export default function AdminQuizzes() {
                         نسخ
                       </button>
                       <button
-                        onClick={() => { localStorage.setItem(`quiz-link-${quiz.id}`, linkEditorUrl); toast.success('تم حفظ الرابط!'); }}
+                        onClick={async () => {
+                          localStorage.setItem(`quiz-link-${quiz.id}`, linkEditorUrl);
+                          const slugMatch = linkEditorUrl.match(/\/quiz\/([^/?#]+)$/);
+                          if (slugMatch) {
+                            const slug = slugMatch[1];
+                            try {
+                              await quizzesApi.update(quiz.id, { title: quiz.title, subject: quiz.subject, grade: quiz.grade, description: quiz.description, coverImageUrl: quiz.coverImageUrl, slug, teacherName: quiz.teacherName, teacherImage: quiz.teacherImage, whatsappUrl: quiz.whatsappUrl, youtubeUrl: quiz.youtubeUrl, facebookUrl: quiz.facebookUrl, showSupportButton: quiz.showSupportButton });
+                              qc.invalidateQueries({ queryKey: ['interactive-quizzes'] });
+                            } catch { }
+                          }
+                          toast.success('تم حفظ الرابط!');
+                        }}
                         className="flex-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-green-600 hover:bg-green-700 transition-colors"
                       >
                         حفظ

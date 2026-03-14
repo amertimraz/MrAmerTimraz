@@ -7,6 +7,7 @@ export interface QuizPayload {
   grade?: string;
   description?: string;
   coverImageUrl?: string;
+  slug?: string;
   teacherName?: string;
   teacherImage?: string;
   whatsappUrl?: string;
@@ -29,6 +30,9 @@ export const quizzesApi = {
 
   getById: (id: number) =>
     client.get<InteractiveQuiz>(`/interactive-quizzes/${id}`).then(r => r.data),
+
+  getBySlug: (slug: string) =>
+    client.get<InteractiveQuiz>(`/interactive-quizzes/slug/${slug}`).then(r => r.data),
 
   create: (data: QuizPayload) =>
     client.post<InteractiveQuiz>('/interactive-quizzes', data).then(r => r.data),
