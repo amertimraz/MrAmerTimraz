@@ -24,7 +24,7 @@ public class InteractiveQuizzesController : ControllerBase
             {
                 q.Id, q.Title, q.Subject, q.Grade, q.Description, q.CoverImageUrl,
                 q.TeacherName, q.TeacherImage, q.WhatsappUrl, q.YoutubeUrl, q.FacebookUrl, q.ShowSupportButton,
-                q.CreatedAt,
+                q.ViewCount, q.CreatedAt,
                 QuestionCount = q.Questions.Count
             })
             .ToListAsync();
@@ -38,6 +38,16 @@ public class InteractiveQuizzesController : ControllerBase
             .Include(q => q.Questions.OrderBy(q => q.OrderIndex))
             .FirstOrDefaultAsync(q => q.Id == id);
         return quiz == null ? NotFound() : Ok(quiz);
+    }
+
+    [HttpPost("{id}/view"), AllowAnonymous]
+    public async Task<IActionResult> IncrementView(int id)
+    {
+        await _db.InteractiveQuizzes
+            .Where(q => q.Id == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(q => q.ViewCount, q => q.ViewCount + 1));
+        var count = await _db.InteractiveQuizzes.Where(q => q.Id == id).Select(q => q.ViewCount).FirstOrDefaultAsync();
+        return Ok(new { viewCount = count });
     }
 
     [HttpPost, Authorize(Roles = "Admin,Teacher")]

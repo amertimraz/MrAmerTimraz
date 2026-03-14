@@ -109,6 +109,7 @@ using (var scope = app.Services.CreateScope())
             ("InteractiveQuizzes",  "YoutubeUrl",        "TEXT"),
             ("InteractiveQuizzes",  "FacebookUrl",       "TEXT"),
             ("InteractiveQuizzes",  "ShowSupportButton", "BOOLEAN NOT NULL DEFAULT TRUE"),
+            ("InteractiveQuizzes",  "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
         };
         foreach (var (table, col, colDef) in pgAlters)
         {

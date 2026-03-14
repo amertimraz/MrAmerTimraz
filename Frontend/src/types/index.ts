@@ -135,6 +135,7 @@ export interface InteractiveQuizSummary {
   youtubeUrl?: string;
   facebookUrl?: string;
   showSupportButton: boolean;
+  viewCount: number;
   createdAt: string;
   questionCount: number;
 }

@@ -231,6 +231,10 @@ export default function QuizPresenter() {
   /* support modal */
   const [supportOpen, setSupportOpen] = useState(false);
 
+  /* view count */
+  const [viewCount, setViewCount] = useState<number | null>(null);
+  const viewCalledRef = useRef(false);
+
   /* settings */
   const [showSettings, setShowSettings] = useState(false);
   const [stageCount, setStageCount] = useState(3);
@@ -246,6 +250,13 @@ export default function QuizPresenter() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /* init questions + load settings */
+  useEffect(() => {
+    if (quiz?.id && !viewCalledRef.current) {
+      viewCalledRef.current = true;
+      quizzesApi.incrementView(quiz.id).then(setViewCount).catch(() => setViewCount(quiz.viewCount ?? null));
+    }
+  }, [quiz?.id]);
+
   useEffect(() => {
     if (quiz?.questions) setQuestions([...quiz.questions]);
     if (quiz?.id) {
@@ -465,6 +476,12 @@ export default function QuizPresenter() {
         )}
         <h1 className="text-3xl font-black text-white mb-1">أهلاً بك! 👋</h1>
         <p className="text-primary-300 font-bold text-lg mb-1">{quiz.title}</p>
+        {viewCount !== null && (
+          <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs mb-2">
+            <Eye size={13} className="text-primary-400" />
+            <span>{viewCount.toLocaleString('ar-EG')} مشارك</span>
+          </div>
+        )}
         <p className="text-gray-400 text-sm mb-8">اكتب اسمك لتسجيل نتيجتك في لوحة المتصدرين</p>
         <div className="space-y-4">
           <input
@@ -554,6 +571,18 @@ export default function QuizPresenter() {
             <div className="text-4xl font-black text-white">{questions.length * 10}</div>
             <div className="text-gray-400 text-sm">نقطة كاملة</div>
           </div>
+          {viewCount !== null && (
+            <>
+              <div className="w-px h-10 bg-white/10" />
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1 text-4xl font-black text-primary-300">
+                  <Eye size={28} className="text-primary-400" />
+                  <span>{viewCount.toLocaleString('ar-EG')}</span>
+                </div>
+                <div className="text-gray-400 text-sm">مشارك</div>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-6 max-w-sm mx-auto">

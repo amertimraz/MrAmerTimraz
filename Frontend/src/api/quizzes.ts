@@ -51,6 +51,9 @@ export const quizzesApi = {
   updateQuestion: (questionId: number, data: QuestionPayload) =>
     client.put(`/interactive-quizzes/questions/${questionId}`, data).then(r => r.data),
 
+  incrementView: (id: number) =>
+    client.post<{ viewCount: number }>(`/interactive-quizzes/${id}/view`).then(r => r.data.viewCount),
+
   duplicate: (id: number) =>
     client.post<InteractiveQuiz>(`/interactive-quizzes/${id}/duplicate`).then(r => r.data),
 };
