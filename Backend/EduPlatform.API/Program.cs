@@ -137,15 +137,20 @@ using (var scope = app.Services.CreateScope())
         {
             try
             {
-                db.Database.ExecuteSqlRaw($@"
-                    DO $$ DECLARE seq_name text; max_id bigint;
+                var sql = $"""
+                    DO $$
+                    DECLARE max_id bigint; seq_name text;
                     BEGIN
-                        SELECT pg_get_serial_sequence('\""{t}""', 'Id') INTO seq_name;
+                        EXECUTE 'SELECT COALESCE(MAX("Id"), 0) + 1 FROM "{t}"' INTO max_id;
+                        seq_name := pg_get_serial_sequence('"{t}"', 'Id');
                         IF seq_name IS NOT NULL THEN
-                            EXECUTE 'SELECT COALESCE(MAX(""Id""), 0) FROM ""{t}""' INTO max_id;
-                            PERFORM setval(seq_name, GREATEST(max_id, 1), true);
+                            PERFORM setval(seq_name, GREATEST(max_id, 1), false);
+                        ELSE
+                            EXECUTE format('ALTER TABLE "{t}" ALTER COLUMN "Id" RESTART WITH %s', GREATEST(max_id, 1));
                         END IF;
-                    END $$;");
+                    END $$;
+                    """;
+                db.Database.ExecuteSqlRaw(sql);
             }
             catch { }
         }
