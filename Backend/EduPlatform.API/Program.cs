@@ -108,8 +108,9 @@ using (var scope = app.Services.CreateScope())
             ("InteractiveQuizzes",  "WhatsappUrl",       "TEXT"),
             ("InteractiveQuizzes",  "YoutubeUrl",        "TEXT"),
             ("InteractiveQuizzes",  "FacebookUrl",       "TEXT"),
-            ("InteractiveQuizzes",  "ShowSupportButton", "BOOLEAN NOT NULL DEFAULT TRUE"),
-            ("InteractiveQuizzes",  "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
+            ("InteractiveQuizzes",   "ShowSupportButton", "BOOLEAN NOT NULL DEFAULT TRUE"),
+            ("InteractiveQuizzes",   "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
+            ("InteractiveQuestions", "Explanation",       "TEXT"),
         };
         foreach (var (table, col, colDef) in pgAlters)
         {
