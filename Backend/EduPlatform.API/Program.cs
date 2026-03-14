@@ -128,6 +128,26 @@ using (var scope = app.Services.CreateScope())
             }
             catch { }
         }
+
+        var seqTables = new[] { "Users", "Courses", "Videos", "Tests", "Questions", "Results",
+            "Enrollments", "Notifications", "PaymentRequests", "LibraryItems",
+            "InteractiveQuizzes", "InteractiveQuestions" };
+        foreach (var t in seqTables)
+        {
+            try
+            {
+                db.Database.ExecuteSqlRaw($@"
+                    DO $$ DECLARE seq_name text; max_id bigint;
+                    BEGIN
+                        SELECT pg_get_serial_sequence('\""{t}""', 'Id') INTO seq_name;
+                        IF seq_name IS NOT NULL THEN
+                            EXECUTE 'SELECT COALESCE(MAX(""Id""), 0) FROM ""{t}""' INTO max_id;
+                            PERFORM setval(seq_name, GREATEST(max_id, 1), true);
+                        END IF;
+                    END $$;");
+            }
+            catch { }
+        }
     }
     else
     {
