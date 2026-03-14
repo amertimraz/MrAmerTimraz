@@ -760,7 +760,10 @@ export default function QuizPresenter() {
               <button 
                 onClick={() => {
                   const msg = `🎓 نتيجة الاختبار: ${quiz.title}\n\n👤 الطالب: ${playerName || 'زائر'}\n📊 النقاط: ${score}\n✅ صحيح: ${totalCorrect}/${questions.length}\n📈 النسبة: ${pct}%\n\n${pct >= 80 ? '🌟 ممتاز!' : pct >= 60 ? '👍 جيد!' : pct >= 40 ? '📚 حاول مجدداً' : '💪 استمر في المراجعة'}`;
-                  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                  let url = quiz.whatsappUrl!.startsWith('http') ? quiz.whatsappUrl! : `https://wa.me/${quiz.whatsappUrl}`;
+                  if (url.includes('?')) url += `&text=${encodeURIComponent(msg)}`;
+                  else url += `?text=${encodeURIComponent(msg)}`;
+                  window.open(url, '_blank');
                 }}
                 className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors flex items-center gap-2"
               >

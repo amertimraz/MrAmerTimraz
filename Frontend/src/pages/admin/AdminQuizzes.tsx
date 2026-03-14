@@ -764,8 +764,9 @@ export default function AdminQuizzes() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">واتساب (رابط القناة)</label>
-                    <input value={form.whatsappUrl} onChange={e => setForm(f => ({ ...f, whatsappUrl: e.target.value }))} className="input-field text-sm" placeholder="https://whatsapp.com/channel/..." dir="ltr" />
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">واتساب (رقم أو رابط)</label>
+                    <input value={form.whatsappUrl} onChange={e => setForm(f => ({ ...f, whatsappUrl: e.target.value }))} className="input-field text-sm" placeholder="201001234567 أو https://whatsapp.com/channel/..." dir="ltr" />
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">• رقم: 201001234567 • قناة: https://whatsapp.com/channel/...</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
