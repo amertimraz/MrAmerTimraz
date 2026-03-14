@@ -43,7 +43,6 @@ public class AuthService : IAuthService
             Name = dto.Name,
             Username = dto.Username,
             PhoneNumber = dto.PhoneNumber,
-            PlainPassword = dto.Password,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Role = dto.Role
         };
@@ -89,7 +88,6 @@ public class AuthService : IAuthService
                 Username = u.Username,
                 PhoneNumber = u.PhoneNumber,
                 Email = u.Email,
-                PlainPassword = u.PlainPassword,
                 Role = u.Role.ToString(),
                 ProfileImage = u.ProfileImage,
                 CreatedAt = u.CreatedAt
@@ -117,7 +115,6 @@ public class AuthService : IAuthService
         user.Role = dto.Role;
         if (!string.IsNullOrEmpty(dto.Password))
         {
-            user.PlainPassword = dto.Password;
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
         }
 
@@ -156,7 +153,6 @@ public class AuthService : IAuthService
         Username = user.Username,
         PhoneNumber = user.PhoneNumber,
         Email = user.Email,
-        PlainPassword = user.PlainPassword,
         Role = user.Role.ToString(),
         ProfileImage = user.ProfileImage,
         CreatedAt = user.CreatedAt

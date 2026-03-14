@@ -42,7 +42,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+                Encoding.UTF8.GetBytes(
+                    Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+                    ?? builder.Configuration["Jwt:Key"]!)),
             ValidateIssuer = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidateAudience = true,
@@ -76,7 +78,7 @@ var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Spli
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
@@ -118,6 +120,7 @@ using (var scope = app.Services.CreateScope())
         {
             try
             {
+#pragma warning disable EF1002
                 db.Database.ExecuteSqlRaw($@"
                     DO $$ BEGIN
                         IF NOT EXISTS (
@@ -127,6 +130,7 @@ using (var scope = app.Services.CreateScope())
                             ALTER TABLE ""{table}"" ADD COLUMN ""{col}"" {colDef};
                         END IF;
                     END $$;");
+#pragma warning restore EF1002
             }
             catch { }
         }
@@ -151,7 +155,9 @@ using (var scope = app.Services.CreateScope())
                         END IF;
                     END $$;
                     """;
+#pragma warning disable EF1002
                 db.Database.ExecuteSqlRaw(sql);
+#pragma warning restore EF1002
             }
             catch { }
         }

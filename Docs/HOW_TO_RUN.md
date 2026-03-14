@@ -117,10 +117,13 @@ Mr Amer Platform/
     "DefaultConnection": "Server=.;Database=EduPlatformDB;Trusted_Connection=True;TrustServerCertificate=True;"
   },
   "Jwt": {
-    "Key": "EduPlatform_SuperSecret_Key_2026_MrAmer_Platform_JWT"
+    "Key": "CHANGE_THIS_TO_A_STRONG_SECRET_KEY_AT_LEAST_32_CHARS"
   }
 }
 ```
+
+> ⚠️ غيّر `Jwt:Key` لمفتاح قوي وسري خاص بيك (32 حرف على الأقل).
+> أو استخدم Environment Variable: `JWT_SECRET_KEY` (مُفضّل في الإنتاج).
 
 > ⚠️ غيّر اسم السيرفر (`.`) إلى اسم سيرفر SQL الخاص بك إذا كان مختلفاً.
 

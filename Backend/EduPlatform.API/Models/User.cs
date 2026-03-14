@@ -23,8 +23,6 @@ public class User
     [Required]
     public string PasswordHash { get; set; } = string.Empty;
 
-    public string? PlainPassword { get; set; }
-
     public UserRole Role { get; set; } = UserRole.Student;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

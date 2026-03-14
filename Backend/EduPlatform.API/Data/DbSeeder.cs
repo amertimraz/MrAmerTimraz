@@ -14,7 +14,6 @@ public static class DbSeeder
             Name = "Admin",
             Username = "admin",
             PhoneNumber = "01000000000",
-            PlainPassword = "Admin@123",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
             Role = UserRole.Admin
         };
@@ -24,7 +23,6 @@ public static class DbSeeder
             Name = "Mr. Ahmed",
             Username = "teacher",
             PhoneNumber = "01100000000",
-            PlainPassword = "Teacher@123",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Teacher@123"),
             Role = UserRole.Teacher
         };
@@ -34,7 +32,6 @@ public static class DbSeeder
             Name = "Ali Student",
             Username = "student",
             PhoneNumber = "01200000000",
-            PlainPassword = "Student@123",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Student@123"),
             Role = UserRole.Student
         };

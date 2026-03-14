@@ -58,7 +58,7 @@ export default function AdminUsers() {
 
   const openEdit = (u: User) => {
     setEditingUser(u);
-    setEditForm({ name: u.name, username: u.username, phoneNumber: u.phoneNumber, password: u.plainPassword ?? '', role: u.role });
+    setEditForm({ name: u.name, username: u.username, phoneNumber: u.phoneNumber, password: '', role: u.role });
     setShowEditPass(false);
   };
 
