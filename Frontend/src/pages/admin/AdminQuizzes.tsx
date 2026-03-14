@@ -568,7 +568,8 @@ export default function AdminQuizzes() {
                         setLinkEditorId(null);
                       } else {
                         setLinkEditorId(quiz.id);
-                        setLinkEditorUrl(`${window.location.origin}/quiz/${quiz.id}`);
+                        const saved = localStorage.getItem(`quiz-link-${quiz.id}`);
+                        setLinkEditorUrl(saved || `${window.location.origin}/quiz/${quiz.id}`);
                       }
                     }}
                     title="الرابط العام (بدون تسجيل)"
@@ -596,13 +597,7 @@ export default function AdminQuizzes() {
                 {linkEditorId === quiz.id && (
                   <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700" dir="rtl">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">🔗 الرابط العام (قابل للتعديل)</p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(linkEditorUrl); toast.success('تم نسخ الرابط!'); }}
-                        className="shrink-0 px-3 py-2 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors"
-                      >
-                        نسخ
-                      </button>
+                    <div className="flex gap-2 mb-2">
                       <input
                         type="text"
                         value={linkEditorUrl}
@@ -611,6 +606,26 @@ export default function AdminQuizzes() {
                         dir="ltr"
                         spellCheck={false}
                       />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(linkEditorUrl); toast.success('تم نسخ الرابط!'); }}
+                        className="flex-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors"
+                      >
+                        نسخ
+                      </button>
+                      <button
+                        onClick={() => { localStorage.setItem(`quiz-link-${quiz.id}`, linkEditorUrl); toast.success('تم حفظ الرابط!'); }}
+                        className="flex-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-green-600 hover:bg-green-700 transition-colors"
+                      >
+                        حفظ
+                      </button>
+                      <button
+                        onClick={() => window.open(linkEditorUrl, '_blank')}
+                        className="flex-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                      >
+                        فتح
+                      </button>
                     </div>
                   </div>
                 )}
