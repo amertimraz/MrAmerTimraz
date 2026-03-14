@@ -10,8 +10,8 @@ public interface ICourseService
     Task<List<CourseDto>> GetAllAsync(bool publishedOnly = false);
     Task<CourseDto?> GetByIdAsync(int id);
     Task<CourseDto> CreateAsync(CreateCourseDto dto, int teacherId);
-    Task<CourseDto?> UpdateAsync(int id, UpdateCourseDto dto, int teacherId);
-    Task<bool> DeleteAsync(int id, int teacherId);
+    Task<CourseDto?> UpdateAsync(int id, UpdateCourseDto dto, int userId, bool isAdmin = false);
+    Task<bool> DeleteAsync(int id, int userId, bool isAdmin = false);
     Task<bool> EnrollAsync(int courseId, int studentId);
     Task<List<CourseDto>> GetTeacherCoursesAsync(int teacherId);
     Task<List<CourseDto>> GetStudentCoursesAsync(int studentId);
@@ -68,10 +68,10 @@ public class CourseService : ICourseService
         return await GetByIdAsync(course.Id) ?? MapToDto(course);
     }
 
-    public async Task<CourseDto?> UpdateAsync(int id, UpdateCourseDto dto, int teacherId)
+    public async Task<CourseDto?> UpdateAsync(int id, UpdateCourseDto dto, int userId, bool isAdmin = false)
     {
         var course = await _db.Courses.FindAsync(id);
-        if (course == null || (course.CreatedBy != teacherId)) return null;
+        if (course == null || (!isAdmin && course.CreatedBy != userId)) return null;
 
         if (dto.Title != null) course.Title = dto.Title;
         if (dto.Description != null) course.Description = dto.Description;
@@ -84,10 +84,10 @@ public class CourseService : ICourseService
         return await GetByIdAsync(id);
     }
 
-    public async Task<bool> DeleteAsync(int id, int teacherId)
+    public async Task<bool> DeleteAsync(int id, int userId, bool isAdmin = false)
     {
         var course = await _db.Courses.FindAsync(id);
-        if (course == null || course.CreatedBy != teacherId) return false;
+        if (course == null || (!isAdmin && course.CreatedBy != userId)) return false;
         _db.Courses.Remove(course);
         await _db.SaveChangesAsync();
         return true;

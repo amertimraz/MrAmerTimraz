@@ -50,16 +50,18 @@ public class CoursesController : ControllerBase
     [HttpPut("{id}"), Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCourseDto dto)
     {
-        var teacherId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var course = await _courses.UpdateAsync(id, dto, teacherId);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var isAdmin = User.IsInRole("Admin");
+        var course = await _courses.UpdateAsync(id, dto, userId, isAdmin);
         return course == null ? NotFound() : Ok(course);
     }
 
     [HttpDelete("{id}"), Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var teacherId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        return await _courses.DeleteAsync(id, teacherId) ? NoContent() : NotFound();
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var isAdmin = User.IsInRole("Admin");
+        return await _courses.DeleteAsync(id, userId, isAdmin) ? NoContent() : NotFound();
     }
 
     [HttpPost("{id}/enroll"), Authorize(Roles = "Student")]
