@@ -162,7 +162,14 @@ public class InteractiveQuizzesController : ControllerBase
             });
         }
 
-        await _db.SaveChangesAsync();
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message, inner = ex.InnerException?.Message });
+        }
         return Ok(new { added = questions.Count });
     }
 
