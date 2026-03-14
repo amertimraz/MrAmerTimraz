@@ -73,6 +73,7 @@ public class InteractiveQuizzesController : ControllerBase
             TeacherName = dto.TeacherName,
             TeacherImage = dto.TeacherImage,
             WhatsappUrl = dto.WhatsappUrl,
+            TeacherWhatsappNumber = dto.TeacherWhatsappNumber,
             YoutubeUrl = dto.YoutubeUrl,
             FacebookUrl = dto.FacebookUrl,
             ShowSupportButton = dto.ShowSupportButton,
@@ -96,6 +97,7 @@ public class InteractiveQuizzesController : ControllerBase
         quiz.TeacherName = dto.TeacherName;
         quiz.TeacherImage = dto.TeacherImage;
         quiz.WhatsappUrl = dto.WhatsappUrl;
+        quiz.TeacherWhatsappNumber = dto.TeacherWhatsappNumber;
         quiz.YoutubeUrl = dto.YoutubeUrl;
         quiz.FacebookUrl = dto.FacebookUrl;
         quiz.ShowSupportButton = dto.ShowSupportButton;
@@ -229,6 +231,7 @@ public class CreateQuizDto
     public string? TeacherName { get; set; }
     public string? TeacherImage { get; set; }
     public string? WhatsappUrl { get; set; }
+    public string? TeacherWhatsappNumber { get; set; }
     public string? YoutubeUrl { get; set; }
     public string? FacebookUrl { get; set; }
     public bool ShowSupportButton { get; set; } = true;

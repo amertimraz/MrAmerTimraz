@@ -107,6 +107,7 @@ using (var scope = app.Services.CreateScope())
             ("InteractiveQuizzes",  "TeacherName",       "TEXT"),
             ("InteractiveQuizzes",  "TeacherImage",      "TEXT"),
             ("InteractiveQuizzes",  "WhatsappUrl",       "TEXT"),
+            ("InteractiveQuizzes",  "TeacherWhatsappNumber", "TEXT"),
             ("InteractiveQuizzes",  "YoutubeUrl",        "TEXT"),
             ("InteractiveQuizzes",  "FacebookUrl",       "TEXT"),
             ("InteractiveQuizzes",   "ShowSupportButton", "BOOLEAN NOT NULL DEFAULT TRUE"),

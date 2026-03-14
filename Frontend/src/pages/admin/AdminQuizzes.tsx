@@ -168,7 +168,7 @@ function parsePdfText(rawText: string): ParsedQuestion[] {
   );
 }
 
-const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true };
+const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', teacherWhatsappNumber: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true };
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? '').replace('/api', '');
 const resolveImgUrl = (url: string) => (!url || url.startsWith('http') ? url : `${API_ORIGIN}${url}`);
 
@@ -296,11 +296,11 @@ export default function AdminQuizzes() {
   const openCreate = () => { setForm(emptyForm); setEditing(null); setModal('create'); };
   const openEdit = async (q: InteractiveQuizSummary) => {
     setEditing(q);
-    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true });
+    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', teacherWhatsappNumber: q.teacherWhatsappNumber ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true });
     setModal('edit');
     try {
       const fresh = await quizzesApi.getById(q.id);
-      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '', showSupportButton: fresh.showSupportButton ?? true });
+      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', teacherWhatsappNumber: fresh.teacherWhatsappNumber ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '', showSupportButton: fresh.showSupportButton ?? true });
     } catch { }
   };
   const openQuestions = (q: InteractiveQuizSummary) => {
@@ -622,7 +622,7 @@ export default function AdminQuizzes() {
                           if (slugMatch) {
                             const slug = slugMatch[1];
                             try {
-                              await quizzesApi.update(quiz.id, { title: quiz.title, subject: quiz.subject, grade: quiz.grade, description: quiz.description, coverImageUrl: quiz.coverImageUrl, slug, teacherName: quiz.teacherName, teacherImage: quiz.teacherImage, whatsappUrl: quiz.whatsappUrl, youtubeUrl: quiz.youtubeUrl, facebookUrl: quiz.facebookUrl, showSupportButton: quiz.showSupportButton });
+                              await quizzesApi.update(quiz.id, { title: quiz.title, subject: quiz.subject, grade: quiz.grade, description: quiz.description, coverImageUrl: quiz.coverImageUrl, slug, teacherName: quiz.teacherName, teacherImage: quiz.teacherImage, whatsappUrl: quiz.whatsappUrl, teacherWhatsappNumber: quiz.teacherWhatsappNumber, youtubeUrl: quiz.youtubeUrl, facebookUrl: quiz.facebookUrl, showSupportButton: quiz.showSupportButton });
                               qc.invalidateQueries({ queryKey: ['interactive-quizzes'] });
                             } catch { }
                           }
@@ -763,10 +763,16 @@ export default function AdminQuizzes() {
                       )}
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">واتساب (رقم أو رابط)</label>
-                    <input value={form.whatsappUrl} onChange={e => setForm(f => ({ ...f, whatsappUrl: e.target.value }))} className="input-field text-sm" placeholder="201001234567 أو https://whatsapp.com/channel/..." dir="ltr" />
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">• رقم: 201001234567 • قناة: https://whatsapp.com/channel/...</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">واتساب (قناة المتابعة)</label>
+                      <input value={form.whatsappUrl} onChange={e => setForm(f => ({ ...f, whatsappUrl: e.target.value }))} className="input-field text-sm" placeholder="https://whatsapp.com/channel/..." dir="ltr" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">واتساب (رقم النتائج) ⭐</label>
+                      <input value={form.teacherWhatsappNumber} onChange={e => setForm(f => ({ ...f, teacherWhatsappNumber: e.target.value }))} className="input-field text-sm" placeholder="201001234567" dir="ltr" />
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">الطلاب سيرسلون النتائج على هذا الرقم</p>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>

@@ -11,6 +11,7 @@ export interface QuizPayload {
   teacherName?: string;
   teacherImage?: string;
   whatsappUrl?: string;
+  teacherWhatsappNumber?: string;
   youtubeUrl?: string;
   facebookUrl?: string;
   showSupportButton?: boolean;

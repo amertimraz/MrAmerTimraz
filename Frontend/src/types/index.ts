@@ -133,6 +133,7 @@ export interface InteractiveQuizSummary {
   teacherName?: string;
   teacherImage?: string;
   whatsappUrl?: string;
+  teacherWhatsappNumber?: string;
   youtubeUrl?: string;
   facebookUrl?: string;
   showSupportButton: boolean;

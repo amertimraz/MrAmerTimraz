@@ -22,6 +22,7 @@ public class InteractiveQuiz
     public string? TeacherName { get; set; }
     public string? TeacherImage { get; set; }
     public string? WhatsappUrl { get; set; }
+    public string? TeacherWhatsappNumber { get; set; }
     public string? YoutubeUrl { get; set; }
     public string? FacebookUrl { get; set; }
     public bool ShowSupportButton { get; set; } = true;
