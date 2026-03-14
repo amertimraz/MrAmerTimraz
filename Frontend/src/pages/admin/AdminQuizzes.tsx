@@ -187,6 +187,7 @@ export default function AdminQuizzes() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiProgress, setAiProgress] = useState('');
+  const [aiForceType, setAiForceType] = useState<'' | 'MCQ' | 'TrueFalse'>('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [modalTab, setModalTab] = useState<'import' | 'questions' | 'settings' | 'results'>('import');
@@ -313,7 +314,7 @@ export default function AdminQuizzes() {
     setPastedText('');
     setModal('questions');
   };
-  const closeModal = () => { setModal(null); setEditing(null); setActiveQuiz(null); setForm(emptyForm); setParsed(null); setPastedText(''); setModalTab('import'); };
+  const closeModal = () => { setModal(null); setEditing(null); setActiveQuiz(null); setForm(emptyForm); setParsed(null); setPastedText(''); setModalTab('import'); setAiForceType(''); };
 
   const saveQuizSettings = () => {
     if (!activeQuiz) return;
@@ -447,7 +448,7 @@ export default function AdminQuizzes() {
     try {
       for (let ci = 0; ci < chunks.length; ci++) {
         setAiProgress(`جاري التحليل... جزء ${ci + 1} من ${chunks.length}`);
-        const res = await aiApi.parseQuiz(chunks[ci]);
+        const res = await aiApi.parseQuiz(chunks[ci], aiForceType || undefined);
         for (const q of res.questions) {
           allQs.push({
             text: q.text,
@@ -989,14 +990,24 @@ export default function AdminQuizzes() {
                           className="input-field min-h-[150px] resize-none font-mono text-sm"
                           placeholder={`1- ما هو أكبر كوكب في المجموعة الشمسية؟\nأ- الأرض\nب- المريخ\nج- زحل\nد- المشتري\nالإجابة: د\n\n2- الشمس نجم (صح/خطأ)`}
                         />
-                        <div className="flex gap-2 flex-wrap">
-                          <button onClick={parsePaste} className="btn-primary flex items-center gap-2 text-sm">
-                            <CheckCircle size={15} /> تحليل يدوي
-                          </button>
-                          <button onClick={() => parseWithAI()} disabled={aiLoading || !pastedText.trim()} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-sm font-medium transition-colors">
-                            <Sparkles size={15} /> تحليل بالذكاء الاصطناعي
-                          </button>
+                        <div className="grid grid-cols-2 gap-3 items-end">
+                          <div>
+                            <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">اختياري: فرض نوع السؤال</label>
+                            <select value={aiForceType} onChange={e => setAiForceType(e.target.value as '' | 'MCQ' | 'TrueFalse')} className="input-field text-sm">
+                              <option value="">استكشاف تلقائي</option>
+                              <option value="MCQ">اختيارات متعددة فقط</option>
+                              <option value="TrueFalse">صح/خطأ فقط</option>
+                            </select>
+                          </div>
+                          <div className="flex gap-2 flex-wrap">
+                            <button onClick={parsePaste} className="btn-primary flex items-center gap-2 text-sm flex-1">
+                              <CheckCircle size={15} /> تحليل يدوي
+                            </button>
+                          </div>
                         </div>
+                        <button onClick={() => parseWithAI()} disabled={aiLoading || !pastedText.trim()} className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-sm font-medium transition-colors">
+                          <Sparkles size={15} /> تحليل بالذكاء الاصطناعي
+                        </button>
                       </div>
                     ) : (
                       <div className="space-y-3">

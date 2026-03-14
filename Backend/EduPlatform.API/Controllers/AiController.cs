@@ -70,6 +70,10 @@ public class AiController : ControllerBase
         var exampleMcq = """{"text":"question text","type":"MCQ","options":["a","b","c","d"],"correctAnswer":"0"}""";
         var exampleTf = """{"text":"statement","type":"TrueFalse","options":["صح","خطأ"],"correctAnswer":"true"}""";
 
+        var typeRule = string.IsNullOrWhiteSpace(req.ForceType) ? 
+            "- type is \"MCQ\" for multiple choice, \"TrueFalse\" for true/false" :
+            $"- ALL questions MUST have type \"{req.ForceType}\" - do not change this type";
+
         var prompt = $"""
 Extract quiz questions from the Arabic text below. Return ONLY a valid JSON array. No explanation, no markdown.
 
@@ -77,7 +81,7 @@ Format each MCQ as: {exampleMcq}
 Format each true/false as: {exampleTf}
 
 Rules:
-- type is "MCQ" for multiple choice, "TrueFalse" for true/false
+{typeRule}
 - correctAnswer for MCQ is index "0","1","2","3" or null if unknown
 - correctAnswer for TrueFalse is "true" or "false" or null
 - Remove question numbers from text
@@ -217,6 +221,7 @@ public class AiDescribeRequest
 public class ParseQuizRequest
 {
     public string Text { get; set; } = string.Empty;
+    public string? ForceType { get; set; }
 }
 
 public class DetectAnswerRequest

@@ -11,8 +11,8 @@ export const aiApi = {
   describe: (title: string, context: string) =>
     client.post<{ description: string }>('/ai/describe', { title, context }).then(r => r.data),
 
-  parseQuiz: (text: string) =>
-    client.post<{ questions: AiParsedQuestion[] }>('/ai/parse-quiz', { text }).then(r => r.data),
+  parseQuiz: (text: string, forceType?: string) =>
+    client.post<{ questions: AiParsedQuestion[] }>('/ai/parse-quiz', { text, forceType }).then(r => r.data),
 
   detectAnswer: (text: string, options: string[], type: string) =>
     client.post<{ correctAnswer: string | null; hint?: string }>('/ai/detect-answer', { text, options, type }).then(r => r.data),
