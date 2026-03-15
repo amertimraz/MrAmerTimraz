@@ -10,7 +10,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import {
   Plus, Pencil, Trash2, Play, BookOpen, X, FileText,
   Upload, ClipboardList, CheckCircle, AlertCircle, Sparkles,
-  Settings, Download, Trophy, Timer, Star, Layers, Link2, Copy, QrCode,
+  Settings, Download, Trophy, Timer, Star, Layers, Link2, Copy,
 } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
@@ -176,7 +176,7 @@ export default function AdminQuizzes() {
   const qc = useQueryClient();
   const navigate = useNavigate();
 
-  const [modal, setModal] = useState<'create' | 'edit' | 'questions' | null>(null);
+  const [modal, setModal] = useState<'create' | 'edit' | 'questions' | 'link' | null>(null);
   const [editing, setEditing] = useState<InteractiveQuizSummary | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [activeQuiz, setActiveQuiz] = useState<InteractiveQuiz | null>(null);
@@ -315,7 +315,7 @@ export default function AdminQuizzes() {
     setPastedText('');
     setModal('questions');
   };
-  const closeModal = () => { setModal(null); setEditing(null); setActiveQuiz(null); setForm(emptyForm); setParsed(null); setPastedText(''); setModalTab('import'); setAiForceType(''); };
+  const closeModal = () => { setModal(null); setEditing(null); setActiveQuiz(null); setForm(emptyForm); setParsed(null); setPastedText(''); setModalTab('import'); setAiForceType(''); setLinkEditorId(null); setShowQrId(null); };
 
   const saveQuizSettings = () => {
     if (!activeQuiz) return;
@@ -582,16 +582,14 @@ export default function AdminQuizzes() {
                     </button>
                     <button
                       onClick={() => {
-                        if (linkEditorId === quiz.id) {
-                          setLinkEditorId(null);
-                        } else {
-                          setLinkEditorId(quiz.id);
-                          const saved = localStorage.getItem(`quiz-link-${quiz.id}`);
-                          setLinkEditorUrl(saved || `${window.location.origin}/quiz/${quiz.id}`);
-                        }
+                        setEditing(quiz);
+                        setLinkEditorId(quiz.id);
+                        const saved = localStorage.getItem(`quiz-link-${quiz.id}`);
+                        setLinkEditorUrl(saved || `${window.location.origin}/quiz/${quiz.id}`);
+                        setModal('link');
                       }}
-                      title="الرابط العام (بدون تسجيل)"
-                      className={`p-2.5 rounded-xl transition-colors ${linkEditorId === quiz.id ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'}`}
+                      title="الرابط العام و QR كود"
+                      className={`p-2.5 rounded-xl transition-colors ${modal === 'link' && editing?.id === quiz.id ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'}`}
                     >
                       <Link2 size={16} />
                     </button>
@@ -612,79 +610,88 @@ export default function AdminQuizzes() {
                     </button>
                   </div>
                 </div>
-
-                {linkEditorId === quiz.id && (
-                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700" dir="rtl">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">🔗 الرابط العام (قابل للتعديل)</p>
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={linkEditorUrl}
-                        onChange={e => setLinkEditorUrl(e.target.value)}
-                        className="flex-1 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs font-mono outline-none focus:border-purple-400 transition-colors text-left"
-                        dir="ltr"
-                        spellCheck={false}
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(linkEditorUrl); toast.success('تم نسخ الرابط!'); }}
-                        className="flex-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors"
-                      >
-                        نسخ
-                      </button>
-                      <button
-                        onClick={async () => {
-                          localStorage.setItem(`quiz-link-${quiz.id}`, linkEditorUrl);
-                          const slugMatch = linkEditorUrl.match(/\/quiz\/([^/?#]+)$/);
-                          if (slugMatch) {
-                            const slug = slugMatch[1];
-                            try {
-                              await quizzesApi.update(quiz.id, { title: quiz.title, subject: quiz.subject, grade: quiz.grade, description: quiz.description, coverImageUrl: quiz.coverImageUrl, slug, teacherName: quiz.teacherName, teacherImage: quiz.teacherImage, whatsappUrl: quiz.whatsappUrl, teacherWhatsappNumber: quiz.teacherWhatsappNumber, youtubeUrl: quiz.youtubeUrl, facebookUrl: quiz.facebookUrl, showSupportButton: quiz.showSupportButton });
-                              qc.invalidateQueries({ queryKey: ['interactive-quizzes'] });
-                            } catch { }
-                          }
-                          toast.success('تم حفظ الرابط!');
-                        }}
-                        className="flex-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-green-600 hover:bg-green-700 transition-colors"
-                      >
-                        حفظ
-                      </button>
-                      <button
-                        onClick={() => window.open(linkEditorUrl, '_blank')}
-                        className="flex-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                      >
-                        فتح
-                      </button>
-                      <button
-                        onClick={() => setShowQrId(showQrId === quiz.id ? null : quiz.id)}
-                        className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${showQrId === quiz.id ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'}`}
-                      >
-                        QR كود
-                      </button>
-                    </div>
-                    {showQrId === quiz.id && (
-                      <div className="mt-4 flex flex-col items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-orange-200 dark:border-orange-900/50 animate-in zoom-in-95 duration-200">
-                        <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(linkEditorUrl)}`}
-                          alt="QR Code"
-                          className="w-40 h-40 bg-white p-2 rounded-lg shadow-sm"
-                        />
-                        <button 
-                          onClick={() => downloadQr(quiz.id, quiz.title)}
-                          className="flex items-center gap-2 px-6 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors"
-                        >
-                          <Download size={14} /> تحميل QR كود
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {modal === 'link' && editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" dir="rtl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Link2 className="text-purple-500" size={20} />
+                إعدادات الرابط و QR كود
+              </h2>
+              <button onClick={closeModal} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"><X size={20} /></button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 font-medium">🔗 الرابط العام للاختبار</p>
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="text"
+                    value={linkEditorUrl}
+                    onChange={e => setLinkEditorUrl(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm font-mono outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all text-left"
+                    dir="ltr"
+                    spellCheck={false}
+                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(linkEditorUrl); toast.success('تم نسخ الرابط!'); }}
+                      className="px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors flex items-center justify-center gap-1"
+                    >
+                      <Copy size={14} /> نسخ
+                    </button>
+                    <button
+                      onClick={async () => {
+                        localStorage.setItem(`quiz-link-${editing.id}`, linkEditorUrl);
+                        const slugMatch = linkEditorUrl.match(/\/quiz\/([^/?#]+)$/);
+                        if (slugMatch) {
+                          const slug = slugMatch[1];
+                          try {
+                            await quizzesApi.update(editing.id, { title: editing.title, subject: editing.subject, grade: editing.grade, description: editing.description, coverImageUrl: editing.coverImageUrl, slug, teacherName: editing.teacherName, teacherImage: editing.teacherImage, whatsappUrl: editing.whatsappUrl, teacherWhatsappNumber: editing.teacherWhatsappNumber, youtubeUrl: editing.youtubeUrl, facebookUrl: editing.facebookUrl, showSupportButton: editing.showSupportButton });
+                            qc.invalidateQueries({ queryKey: ['interactive-quizzes'] });
+                          } catch { }
+                        }
+                        toast.success('تم حفظ الرابط!');
+                      }}
+                      className="px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center gap-1"
+                    >
+                      <CheckCircle size={14} /> حفظ
+                    </button>
+                    <button
+                      onClick={() => window.open(linkEditorUrl, '_blank')}
+                      className="px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
+                    >
+                      <Play size={14} /> فتح
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-gray-100 dark:border-gray-700 flex flex-col items-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-medium">📷 رمز الاستجابة السريعة (QR Code)</p>
+                <div className="bg-white p-4 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-900/50 mb-4">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(linkEditorUrl)}`}
+                    alt="QR Code"
+                    className="w-48 h-48 sm:w-56 sm:h-56"
+                  />
+                </div>
+                <button 
+                  onClick={() => downloadQr(editing.id, editing.title)}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 dark:bg-gray-700 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors"
+                >
+                  <Download size={16} /> تحميل QR كود للطباعة
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {(modal === 'create' || modal === 'edit') && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" dir="rtl">
