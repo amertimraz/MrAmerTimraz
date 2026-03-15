@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { libraryApi } from '../../api/library';
 import { motion } from 'framer-motion';
-import { Download, Search, FolderOpen, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Download, Search, FolderOpen, Eye, Gamepad2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import PdfThumbnail from '../../components/ui/PdfThumbnail';
 import PdfViewerModal from '../../components/ui/PdfViewerModal';
@@ -153,26 +154,37 @@ export default function LibraryPage() {
                   )}
                 </div>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setViewing(item)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold border transition-colors ${
-                      isDark
-                        ? 'border-orange-500/40 text-orange-400 hover:bg-orange-500/10'
-                        : 'border-orange-300 text-orange-600 hover:bg-orange-50'
-                    }`}
-                  >
-                    <Eye size={15} />
-                    عرض
-                  </button>
-                  <a
-                    href={resolveFileUrl(item.fileUrl)}
-                    download
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
-                  >
-                    <Download size={15} />
-                    تحميل
-                  </a>
+                <div className="flex flex-col gap-2">
+                  {item.quizUrl && (
+                    <Link
+                      to={item.quizUrl}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:opacity-90 transition-opacity shadow-md hover:shadow-lg active:scale-95"
+                    >
+                      <Gamepad2 size={16} />
+                      اختبار تفاعلي
+                    </Link>
+                  )}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setViewing(item)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                        isDark
+                          ? 'border-orange-500/40 text-orange-400 hover:bg-orange-500/10'
+                          : 'border-orange-300 text-orange-600 hover:bg-orange-50'
+                      }`}
+                    >
+                      <Eye size={15} />
+                      عرض
+                    </button>
+                    <a
+                      href={resolveFileUrl(item.fileUrl)}
+                      download
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
+                    >
+                      <Download size={15} />
+                      تحميل
+                    </a>
+                  </div>
                 </div>
               </div>
             </motion.div>

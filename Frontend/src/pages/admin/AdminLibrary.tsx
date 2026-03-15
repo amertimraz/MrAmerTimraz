@@ -10,7 +10,7 @@ import PdfThumbnail from '../../components/ui/PdfThumbnail';
 import PdfViewerModal from '../../components/ui/PdfViewerModal';
 import { resolveFileUrl } from '../../config';
 
-const emptyForm = { title: '', description: '', fileUrl: '', category: '', thumbnailUrl: '' };
+const emptyForm = { title: '', description: '', fileUrl: '', category: '', thumbnailUrl: '', quizUrl: '' };
 
 export default function AdminLibrary() {
   const qc = useQueryClient();
@@ -72,6 +72,7 @@ export default function AdminLibrary() {
       fileUrl: item.fileUrl,
       category: item.category ?? '',
       thumbnailUrl: item.thumbnailUrl ?? '',
+      quizUrl: item.quizUrl ?? '',
     });
     setModal('edit');
   };
@@ -87,6 +88,7 @@ export default function AdminLibrary() {
       fileUrl: form.fileUrl,
       category: form.category || '',
       thumbnailUrl: form.thumbnailUrl || '',
+      quizUrl: form.quizUrl || '',
     };
     if (modal === 'edit' && editing) {
       updateMutation.mutate({ id: editing.id, data });
@@ -282,6 +284,17 @@ export default function AdminLibrary() {
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   className="input-field min-h-[80px] resize-none"
                   placeholder="وصف مختصر للمحتوى (اختياري)"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">رابط الاختبار التفاعلي</label>
+                <input
+                  value={form.quizUrl}
+                  onChange={e => setForm(f => ({ ...f, quizUrl: e.target.value }))}
+                  className="input-field"
+                  placeholder="مثال: /q/math-quiz (اختياري)"
+                  dir="ltr"
                 />
               </div>
 

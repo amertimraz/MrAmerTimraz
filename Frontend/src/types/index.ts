@@ -163,5 +163,6 @@ export interface LibraryItem {
   fileUrl: string;
   category?: string;
   thumbnailUrl?: string;
+  quizUrl?: string;
   createdAt: string;
 }

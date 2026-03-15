@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { quizzesApi } from '../api/quizzes';
@@ -1098,20 +1099,20 @@ function SupportModal({ onClose }: { onClose: () => void }) {
     else                { setCopiedIp(true); setTimeout(() => setCopiedIp(false), 2000); }
   };
 
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6"
       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
       onClick={onClose}
+      dir="rtl"
     >
       <div
-        className="relative w-full max-w-sm rounded-3xl p-6 text-right"
+        className="relative w-full max-w-[92%] sm:max-w-md md:max-w-lg lg:max-w-xl rounded-3xl p-6 md:p-8 text-right shadow-2xl"
         style={{ background: 'linear-gradient(145deg,#1e1b4b,#1a1a2e)', border: '1px solid rgba(255,255,255,0.12)', animation: 'popIn .3s cubic-bezier(.34,1.56,.64,1) both' }}
         onClick={e => e.stopPropagation()}
-        dir="rtl"
       >
-        <button onClick={onClose} className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors">
-          <X size={20} />
+        <button onClick={onClose} className="absolute top-4 left-4 p-2 md:top-5 md:left-5 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10">
+          <X size={24} />
         </button>
 
         <div className="text-center mb-5">
@@ -1169,10 +1170,12 @@ function SupportModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        <p className="text-center text-gray-500 text-xs mt-4">جزاك الله خيراً على دعمك 🤍</p>
+        <p className="text-center text-gray-500 text-sm md:text-base mt-5">جزاك الله خيراً على دعمك 🤍</p>
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
 
 /* ─── Social Banner ──────────────────────────────────────── */

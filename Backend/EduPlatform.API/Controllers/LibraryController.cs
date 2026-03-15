@@ -48,6 +48,7 @@ public class LibraryController : ControllerBase
             FileUrl = dto.FileUrl,
             Category = dto.Category,
             ThumbnailUrl = dto.ThumbnailUrl,
+            QuizUrl = dto.QuizUrl,
         };
         _db.LibraryItems.Add(item);
         await _db.SaveChangesAsync();
@@ -66,6 +67,7 @@ public class LibraryController : ControllerBase
         item.FileUrl = dto.FileUrl;
         item.Category = dto.Category;
         item.ThumbnailUrl = dto.ThumbnailUrl;
+        item.QuizUrl = dto.QuizUrl;
 
         await _db.SaveChangesAsync();
         return Ok(item);
@@ -114,4 +116,5 @@ public class LibraryItemDto
     public string FileUrl { get; set; } = string.Empty;
     public string? Category { get; set; }
     public string? ThumbnailUrl { get; set; }
+    public string? QuizUrl { get; set; }
 }

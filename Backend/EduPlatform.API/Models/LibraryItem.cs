@@ -19,5 +19,8 @@ public class LibraryItem
 
     public string? ThumbnailUrl { get; set; }
 
+    [MaxLength(500)]
+    public string? QuizUrl { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

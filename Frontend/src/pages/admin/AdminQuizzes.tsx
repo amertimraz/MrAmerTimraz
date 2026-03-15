@@ -10,7 +10,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import {
   Plus, Pencil, Trash2, Play, BookOpen, X, FileText,
   Upload, ClipboardList, CheckCircle, AlertCircle, Sparkles,
-  Settings, Download, Trophy, Timer, Star, Layers, Link2, Copy,
+  Settings, Download, Trophy, Timer, Star, Layers, Link2, Copy, QrCode,
 } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
@@ -205,6 +205,7 @@ export default function AdminQuizzes() {
   const [savedEditId, setSavedEditId] = useState<number | null>(null);
   const [savedEditData, setSavedEditData] = useState<{ text: string; type: 'MCQ' | 'TrueFalse'; options: string[]; correctAnswer?: string } | null>(null);
   const [savedAiLoadingIds, setSavedAiLoadingIds] = useState<Set<number>>(new Set());
+  const [showQrId, setShowQrId] = useState<number | null>(null);
 
   const { data: quizzes, isLoading } = useQuery({
     queryKey: ['interactive-quizzes'],
@@ -345,6 +346,21 @@ export default function AdminQuizzes() {
     } else {
       createMutation.mutate(form);
     }
+  };
+
+  const downloadQr = (id: number, title: string) => {
+    const url = localStorage.getItem(`quiz-link-${id}`) || `${window.location.origin}/quiz/${id}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(url)}`;
+    fetch(qrUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `quiz-qr-${title}.png`;
+        a.click();
+        toast.success('جاري تحميل QR كود');
+      })
+      .catch(() => toast.error('فشل تحميل QR كود'));
   };
 
   const parsePaste = () => {
@@ -638,7 +654,28 @@ export default function AdminQuizzes() {
                       >
                         فتح
                       </button>
+                      <button
+                        onClick={() => setShowQrId(showQrId === quiz.id ? null : quiz.id)}
+                        className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${showQrId === quiz.id ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'}`}
+                      >
+                        QR كود
+                      </button>
                     </div>
+                    {showQrId === quiz.id && (
+                      <div className="mt-4 flex flex-col items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-orange-200 dark:border-orange-900/50 animate-in zoom-in-95 duration-200">
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(linkEditorUrl)}`}
+                          alt="QR Code"
+                          className="w-40 h-40 bg-white p-2 rounded-lg shadow-sm"
+                        />
+                        <button 
+                          onClick={() => downloadQr(quiz.id, quiz.title)}
+                          className="flex items-center gap-2 px-6 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors"
+                        >
+                          <Download size={14} /> تحميل QR كود
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
