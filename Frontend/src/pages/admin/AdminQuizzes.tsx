@@ -313,7 +313,7 @@ export default function AdminQuizzes() {
     setPastedText('');
     setModal('questions');
   };
-  const closeModal = () => { setModal(null); setEditing(null); setActiveQuiz(null); setForm(emptyForm); setParsed(null); setPastedText(''); setModalTab('import'); setAiForceType(''); setLinkEditorId(null); setShowQrId(null); };
+  const closeModal = () => { setModal(null); setEditing(null); setActiveQuiz(null); setForm(emptyForm); setParsed(null); setPastedText(''); setModalTab('import'); setAiForceType(''); };
 
   const saveQuizSettings = () => {
     if (!activeQuiz) return;
@@ -581,7 +581,6 @@ export default function AdminQuizzes() {
                     <button
                       onClick={() => {
                         setEditing(quiz);
-                        setLinkEditorId(quiz.id);
                         const saved = localStorage.getItem(`quiz-link-${quiz.id}`);
                         setLinkEditorUrl(saved || `${window.location.origin}/quiz/${quiz.id}`);
                         setModal('link');
