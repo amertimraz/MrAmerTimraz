@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { quizzesApi } from '../api/quizzes';
 import type { InteractiveQuestion } from '../types';
-import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, Timer, Star, Layers, Trophy, User, Sun, Moon, Volume2, VolumeX } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, Timer, Star, Layers, Trophy, User, Sun, Moon, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 /* ─── Constants ─────────────────────────────────────────── */
@@ -251,6 +251,24 @@ export default function QuizPresenter() {
   const [timeLeft, setTimeLeft] = useState(30);
   const [, setTimerRunning] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  /* fullscreen */
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
 
   /* init questions + load settings */
   useEffect(() => {
@@ -809,7 +827,7 @@ export default function QuizPresenter() {
   const timerPct = timerDuration > 0 ? (timeLeft / timerDuration) * 100 : 0;
 
   return (
-    <div className={`min-h-screen flex flex-col select-none relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
+    <div className={`min-h-[100dvh] h-[100dvh] flex flex-col select-none relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
       <TechBackground />
 
       {/* Top progress bar */}
@@ -859,6 +877,9 @@ export default function QuizPresenter() {
           </button>
           <button onClick={toggleSound} className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${soundEnabled ? 'text-primary-400' : 'text-gray-600'}`}>
             {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
+          <button onClick={toggleFullscreen} className="p-2 text-gray-500 hover:text-white rounded-xl hover:bg-white/10 transition-colors">
+            {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
           <button onClick={() => setShowSettings(s => !s)} className="p-2 text-gray-500 hover:text-white rounded-xl hover:bg-white/10 transition-colors"><Settings size={18} /></button>
         </div>
@@ -935,8 +956,8 @@ export default function QuizPresenter() {
                 </div>
               </div>
               <div className="flex items-start gap-2" dir="rtl">
-                <span className="text-2xl shrink-0 mt-0.5 leading-none">{q ? getQuestionIcon(q.text) : '💡'}</span>
-                <p className="text-base md:text-lg font-bold text-white leading-snug text-right flex-1">{q?.text}</p>
+                <span className="text-3xl shrink-0 mt-0.5 leading-none">{q ? getQuestionIcon(q.text) : '💡'}</span>
+                <p className="text-xl md:text-3xl font-black text-white leading-tight text-right flex-1">{q?.text}</p>
               </div>
             </div>
           </div>
@@ -970,13 +991,13 @@ export default function QuizPresenter() {
                 return (
                   <button key={i}
                     onClick={() => { if (!revealed) { playSound('select'); setSelectedOption(i); handleRevealResult(i); } }}
-                    className={`p-5 rounded-2xl text-right transition-all duration-300
+                    className={`p-6 rounded-2xl text-right transition-all duration-300
                       ${revealed ? isCorrect ? `${color.bg} scale-[1.03] ring-4 ring-white/40 shadow-2xl` : `${color.dim} opacity-40` : `${color.bg} ${color.hover} active:scale-95 cursor-pointer shadow-md ${isSelected ? 'ring-4 ring-white/50 scale-[1.02]' : ''}`}`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-xl bg-black/25 flex items-center justify-center text-white font-black text-sm shrink-0">{color.letter}</span>
-                      <span className="text-white font-bold text-base leading-snug">{opt}</span>
-                      {isCorrect && <span className="mr-auto text-lg shrink-0">✨</span>}
+                      <span className="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-white font-black text-lg shrink-0">{color.letter}</span>
+                      <span className="text-white font-bold text-lg md:text-xl leading-snug">{opt}</span>
+                      {isCorrect && <span className="mr-auto text-xl shrink-0">✨</span>}
                     </div>
                   </button>
                 );
