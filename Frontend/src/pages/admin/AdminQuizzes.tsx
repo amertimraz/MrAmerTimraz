@@ -13,6 +13,7 @@ import {
   Settings, Download, Trophy, Timer, Star, Layers, Link2, Copy,
 } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import { getMediaUrl } from '../../utils/media';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.mjs',
@@ -169,8 +170,7 @@ function parsePdfText(rawText: string): ParsedQuestion[] {
 }
 
 const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', teacherWhatsappNumber: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true };
-const API_ORIGIN = (import.meta.env.VITE_API_URL ?? '').replace('/api', '');
-const resolveImgUrl = (url: string) => (!url || url.startsWith('http') ? url : `${API_ORIGIN}${url}`);
+
 
 export default function AdminQuizzes() {
   const qc = useQueryClient();
@@ -748,13 +748,12 @@ export default function AdminQuizzes() {
                         toast.error('فشل رفع الصورة');
                       } finally {
                         setCoverImgUploading(false);
-                        e.target.value = '';
                       }
                     }}
                   />
                 </div>
                 {form.coverImageUrl && (
-                  <img src={form.coverImageUrl} alt="" className="mt-2 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-600" onError={e => (e.currentTarget.style.display = 'none')} />
+                  <img src={getMediaUrl(form.coverImageUrl)} alt="" className="mt-2 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-600" onError={e => (e.currentTarget.style.display = 'none')} />
                 )}
               </div>
               <hr className="border-gray-100 dark:border-gray-700" />
@@ -802,7 +801,7 @@ export default function AdminQuizzes() {
                         />
                       </div>
                       {form.teacherImage && (
-                        <img src={resolveImgUrl(form.teacherImage)} alt="" className="mt-1.5 w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600" onError={e => (e.currentTarget.style.display = 'none')} />
+                        <img src={getMediaUrl(form.teacherImage)} alt="" className="mt-1.5 w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600" onError={e => (e.currentTarget.style.display = 'none')} />
                       )}
                     </div>
                   </div>

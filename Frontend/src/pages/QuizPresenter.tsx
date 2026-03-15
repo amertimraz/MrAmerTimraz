@@ -6,6 +6,7 @@ import { quizzesApi } from '../api/quizzes';
 import type { InteractiveQuestion } from '../types';
 import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, Timer, Star, Layers, Trophy, User, Sun, Moon, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { getMediaUrl } from '../utils/media';
 
 /* ─── Constants ─────────────────────────────────────────── */
 const OPTION_COLORS = [
@@ -495,7 +496,7 @@ export default function QuizPresenter() {
       </button>
       <div className="text-center max-w-md w-full relative z-10">
         {quiz.coverImageUrl ? (
-          <img src={quiz.coverImageUrl} alt={quiz.title} className="w-24 h-24 rounded-3xl object-cover mx-auto mb-6 shadow-2xl border-2 border-white/20" onError={e => { e.currentTarget.style.display='none'; }} />
+          <img src={getMediaUrl(quiz.coverImageUrl)} alt={quiz.title} className="w-24 h-24 rounded-3xl object-cover mx-auto mb-6 shadow-2xl border-2 border-white/20" onError={e => { e.currentTarget.style.display='none'; }} />
         ) : (
           <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary-500 to-accent-600 flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary-500/30">
             <User size={40} className="text-white" />
@@ -566,7 +567,7 @@ export default function QuizPresenter() {
       <TechBackground />
       <div className="text-center max-w-2xl w-full relative z-10">
         {quiz.coverImageUrl ? (
-          <img src={quiz.coverImageUrl} alt={quiz.title} className="w-28 h-28 rounded-3xl object-cover mx-auto mb-6 shadow-2xl border-2 border-white/20" onError={e => { e.currentTarget.style.display='none'; }} />
+          <img src={getMediaUrl(quiz.coverImageUrl)} alt={quiz.title} className="w-28 h-28 rounded-3xl object-cover mx-auto mb-6 shadow-2xl border-2 border-white/20" onError={e => { e.currentTarget.style.display='none'; }} />
         ) : (
           <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-500 to-accent-600 flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary-500/30">
             <span className="text-5xl">🎓</span>
@@ -1205,7 +1206,6 @@ function SupportModal({ onClose }: { onClose: () => void }) {
   return createPortal(modalContent, document.body);
 }
 
-/* ─── Social Banner ──────────────────────────────────────── */
 const DEFAULT_TEACHER = {
   name:      'مستر عامر تمراز',
   image:     '/teacher2.png',
@@ -1223,16 +1223,9 @@ interface SocialBannerProps {
   facebookUrl?: string | null;
 }
 
-const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') ?? '';
-function resolveUrl(url: string | null | undefined): string {
-  if (!url) return '';
-  if (url.startsWith('http')) return url;
-  return `${API_BASE}${url}`;
-}
-
 function SocialBanner({ compact = false, teacherName, teacherImage, whatsappUrl, youtubeUrl, facebookUrl }: SocialBannerProps) {
   const name     = teacherName  || DEFAULT_TEACHER.name;
-  const image    = resolveUrl(teacherImage) || DEFAULT_TEACHER.image;
+  const image    = getMediaUrl(teacherImage) || DEFAULT_TEACHER.image;
   const whatsapp = whatsappUrl  || DEFAULT_TEACHER.whatsapp;
   const youtube  = youtubeUrl   || DEFAULT_TEACHER.youtube;
   const facebook = facebookUrl  || DEFAULT_TEACHER.facebook;

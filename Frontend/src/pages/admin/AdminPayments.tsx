@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { paymentsApi } from '../../api/payments';
+import { getMediaUrl } from '../../utils/media';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 import type { PaymentRequest } from '../../types';
 import { CheckCircle, XCircle, Clock, Eye, X } from 'lucide-react';
-import { resolveFileUrl } from '../../config';
 const statusLabel = (s: string) =>
   s === 'Approved' ? 'مقبول' : s === 'Rejected' ? 'مرفوض' : 'قيد المراجعة';
 
@@ -182,9 +182,9 @@ export default function AdminPayments() {
             {viewing.receiptImageUrl && (
               <div>
                 <p className="text-sm text-gray-500 mb-2">إيصال الدفع:</p>
-                <a href={resolveFileUrl(viewing.receiptImageUrl!)} target="_blank" rel="noreferrer">
+                <a href={getMediaUrl(viewing.receiptImageUrl!)} target="_blank" rel="noreferrer">
                   <img
-                    src={resolveFileUrl(viewing.receiptImageUrl!)}
+                    src={getMediaUrl(viewing.receiptImageUrl!)}
                     alt="إيصال الدفع"
                     className="w-full rounded-xl border border-gray-200 dark:border-gray-700 object-contain max-h-48"
                   />

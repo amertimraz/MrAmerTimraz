@@ -7,7 +7,7 @@ import { Download, Search, FolderOpen, Eye, Gamepad2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import PdfThumbnail from '../../components/ui/PdfThumbnail';
 import PdfViewerModal from '../../components/ui/PdfViewerModal';
-import { resolveFileUrl } from '../../config';
+import { getMediaUrl } from '../../utils/media';
 import type { LibraryItem } from '../../types';
 
 const card: import('framer-motion').Variants = {
@@ -132,7 +132,7 @@ export default function LibraryPage() {
                 style={{ aspectRatio: '16/9' }}
                 onClick={() => setViewing(item)}
               >
-                <PdfThumbnail thumbnailUrl={item.thumbnailUrl ? resolveFileUrl(item.thumbnailUrl) : undefined} className="w-full h-full" />
+                <PdfThumbnail thumbnailUrl={item.thumbnailUrl ? getMediaUrl(item.thumbnailUrl) : undefined} className="w-full h-full" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 text-gray-900 text-sm font-semibold shadow-lg">
                     <Eye size={16} />
@@ -177,7 +177,7 @@ export default function LibraryPage() {
                       عرض
                     </button>
                     <a
-                      href={resolveFileUrl(item.fileUrl)}
+                      href={getMediaUrl(item.fileUrl)}
                       download
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
                     >
@@ -194,7 +194,7 @@ export default function LibraryPage() {
 
       {viewing && (
         <PdfViewerModal
-          url={resolveFileUrl(viewing.fileUrl)}
+          url={getMediaUrl(viewing.fileUrl)}
           title={viewing.title}
           onClose={() => setViewing(null)}
         />

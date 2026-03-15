@@ -5,7 +5,8 @@ import { testsApi } from '../../api/tests';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Clock, ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import type { TestResult } from '../../types';
+import type { Test, Question, TestResult } from '../../types';
+import { getMediaUrl } from '../../utils/media';
 
 export default function TakeTest() {
   const { id } = useParams<{ id: string }>();
@@ -181,7 +182,7 @@ export default function TakeTest() {
 
       <div className="card p-6 space-y-6">
         {q.imageUrl && (
-          <img src={q.imageUrl} alt="question" className="w-full max-h-48 object-contain rounded-xl" />
+          <img src={getMediaUrl(q.imageUrl)} alt="question" className="w-full max-h-48 object-contain rounded-xl" />
         )}
         <p className="text-xl font-semibold text-gray-900 dark:text-white leading-relaxed">
           {current + 1}. {q.questionText}

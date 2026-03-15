@@ -8,6 +8,7 @@ import {
   Image as ImageIcon, Star, LayoutList,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getMediaUrl } from '../../utils/media';
 
 type QType = 'MultipleChoice' | 'TrueFalse' | 'FillBlank' | 'Ordering';
 
@@ -201,7 +202,7 @@ export default function AddQuestionPage() {
               placeholder="https://..."
             />
             {form.imageUrl && (
-              <img src={form.imageUrl} alt="q" className="mt-2 max-h-32 rounded-lg object-contain border border-gray-200 dark:border-gray-700" />
+              <img src={getMediaUrl(form.imageUrl)} alt="q" className="mt-2 max-h-32 rounded-lg object-contain border border-gray-200 dark:border-gray-700" />
             )}
           </div>
 
