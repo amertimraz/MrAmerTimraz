@@ -545,70 +545,72 @@ export default function AdminQuizzes() {
         ) : (
           <div className="grid gap-4">
             {quizzes.map(quiz => (
-              <div key={quiz.id} className="card p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-600 flex items-center justify-center shrink-0">
-                  <BookOpen size={22} className="text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 dark:text-white text-lg truncate">{quiz.title}</h3>
-                  <div className="flex items-center gap-3 mt-1 flex-wrap">
-                    {quiz.subject && <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">{quiz.subject}</span>}
-                    {quiz.grade && <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full">{quiz.grade}</span>}
-                    <span className="text-xs text-gray-500 dark:text-gray-400">{quiz.questionCount} سؤال</span>
+              <div key={quiz.id} className="card p-5 hover:shadow-md transition-shadow flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-600 flex items-center justify-center shrink-0">
+                    <BookOpen size={22} className="text-white" />
                   </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => navigate(`/quiz-presenter/${quiz.id}`)}
-                    title="تشغيل العرض التقديمي"
-                    className="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 hover:bg-green-200 transition-colors"
-                  >
-                    <Play size={16} />
-                  </button>
-                  <button
-                    onClick={() => openQuestions(quiz)}
-                    title="إدارة الأسئلة"
-                    className="p-2.5 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 hover:bg-primary-200 transition-colors"
-                  >
-                    <ClipboardList size={16} />
-                  </button>
-                  <button
-                    onClick={() => openEdit(quiz)}
-                    title="تعديل"
-                    className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (linkEditorId === quiz.id) {
-                        setLinkEditorId(null);
-                      } else {
-                        setLinkEditorId(quiz.id);
-                        const saved = localStorage.getItem(`quiz-link-${quiz.id}`);
-                        setLinkEditorUrl(saved || `${window.location.origin}/quiz/${quiz.id}`);
-                      }
-                    }}
-                    title="الرابط العام (بدون تسجيل)"
-                    className={`p-2.5 rounded-xl transition-colors ${linkEditorId === quiz.id ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'}`}
-                  >
-                    <Link2 size={16} />
-                  </button>
-                  <button
-                    onClick={() => { if (window.confirm(`تكرار "${quiz.title}" بكل أسئلته؟`)) duplicateMutation.mutate(quiz.id); }}
-                    title="تكرار الاختبار"
-                    disabled={duplicateMutation.isPending}
-                    className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors disabled:opacity-50"
-                  >
-                    <Copy size={16} />
-                  </button>
-                  <button
-                    onClick={() => { if (window.confirm(`حذف "${quiz.title}"؟`)) deleteMutation.mutate(quiz.id); }}
-                    title="حذف"
-                    className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 dark:text-white text-lg truncate">{quiz.title}</h3>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                      {quiz.subject && <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">{quiz.subject}</span>}
+                      {quiz.grade && <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full">{quiz.grade}</span>}
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{quiz.questionCount} سؤال</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => navigate(`/quiz-presenter/${quiz.id}`)}
+                      title="تشغيل العرض التقديمي"
+                      className="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 hover:bg-green-200 transition-colors"
+                    >
+                      <Play size={16} />
+                    </button>
+                    <button
+                      onClick={() => openQuestions(quiz)}
+                      title="إدارة الأسئلة"
+                      className="p-2.5 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 hover:bg-primary-200 transition-colors"
+                    >
+                      <ClipboardList size={16} />
+                    </button>
+                    <button
+                      onClick={() => openEdit(quiz)}
+                      title="تعديل"
+                      className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (linkEditorId === quiz.id) {
+                          setLinkEditorId(null);
+                        } else {
+                          setLinkEditorId(quiz.id);
+                          const saved = localStorage.getItem(`quiz-link-${quiz.id}`);
+                          setLinkEditorUrl(saved || `${window.location.origin}/quiz/${quiz.id}`);
+                        }
+                      }}
+                      title="الرابط العام (بدون تسجيل)"
+                      className={`p-2.5 rounded-xl transition-colors ${linkEditorId === quiz.id ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'}`}
+                    >
+                      <Link2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => { if (window.confirm(`تكرار "${quiz.title}" بكل أسئلته؟`)) duplicateMutation.mutate(quiz.id); }}
+                      title="تكرار الاختبار"
+                      disabled={duplicateMutation.isPending}
+                      className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors disabled:opacity-50"
+                    >
+                      <Copy size={16} />
+                    </button>
+                    <button
+                      onClick={() => { if (window.confirm(`حذف "${quiz.title}"؟`)) deleteMutation.mutate(quiz.id); }}
+                      title="حذف"
+                      className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
 
                 {linkEditorId === quiz.id && (
