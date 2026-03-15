@@ -199,13 +199,11 @@ export default function AdminQuizzes() {
   const [teacherImgUploading, setTeacherImgUploading] = useState(false);
   const teacherImgRef = useRef<HTMLInputElement>(null);
 
-  const [linkEditorId, setLinkEditorId] = useState<number | null>(null);
   const [linkEditorUrl, setLinkEditorUrl] = useState('');
 
   const [savedEditId, setSavedEditId] = useState<number | null>(null);
   const [savedEditData, setSavedEditData] = useState<{ text: string; type: 'MCQ' | 'TrueFalse'; options: string[]; correctAnswer?: string } | null>(null);
   const [savedAiLoadingIds, setSavedAiLoadingIds] = useState<Set<number>>(new Set());
-  const [showQrId, setShowQrId] = useState<number | null>(null);
 
   const { data: quizzes, isLoading } = useQuery({
     queryKey: ['interactive-quizzes'],
