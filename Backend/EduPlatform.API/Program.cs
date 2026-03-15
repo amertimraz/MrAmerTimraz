@@ -72,8 +72,18 @@ builder.WebHost.ConfigureKestrel(o =>
     o.Limits.MaxRequestBodySize = 500 * 1024 * 1024;
 });
 
-var envOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(',') ?? Array.Empty<string>();
-var defaultOrigins = new[] { "http://localhost:5173", "http://localhost:3000", "http://localhost:5174", "https://mr-amer-timraz.vercel.app" };
+var envOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) 
+    ?? Array.Empty<string>();
+
+var defaultOrigins = new[] { 
+    "http://localhost:5173", 
+    "http://localhost:3000", 
+    "http://localhost:5174", 
+    "https://mr-amer-timraz.vercel.app",
+    "https://mr-amer-timraz.vercel.app/" // with slash
+};
+
 var allowedOrigins = envOrigins.Concat(defaultOrigins).Distinct().ToArray();
 
 builder.Services.AddCors(options =>
@@ -81,7 +91,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
         policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
-              .AllowAnyMethod());
+              .AllowAnyMethod()
+              .AllowCredentials());
 });
 
 builder.Services.AddControllers()
