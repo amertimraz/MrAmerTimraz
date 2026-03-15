@@ -113,10 +113,12 @@ using (var scope = app.Services.CreateScope())
     var isPostgres = db.Database.IsNpgsql();
     if (isPostgres)
     {
-        var pgAlters = new[]
+        var alters = new[]
         {
             ("LibraryItems",        "ThumbnailUrl",      "TEXT"),
             ("LibraryItems",        "QuizUrl",           "TEXT"),
+            ("LibraryItems",        "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
+            ("LibraryItems",        "DownloadCount",     "INTEGER NOT NULL DEFAULT 0"),
             ("InteractiveQuizzes",  "CoverImageUrl",     "TEXT"),
             ("InteractiveQuizzes",  "Slug",              "TEXT"),
             ("InteractiveQuizzes",  "TeacherName",       "TEXT"),
@@ -127,25 +129,13 @@ using (var scope = app.Services.CreateScope())
             ("InteractiveQuizzes",  "FacebookUrl",       "TEXT"),
             ("InteractiveQuizzes",   "ShowSupportButton", "BOOLEAN NOT NULL DEFAULT TRUE"),
             ("InteractiveQuizzes",   "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
-            ("LibraryItems",         "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
-            ("LibraryItems",         "DownloadCount",     "INTEGER NOT NULL DEFAULT 0"),
             ("InteractiveQuestions", "Explanation",       "TEXT"),
         };
-        foreach (var (table, col, colDef) in pgAlters)
+        foreach (var (table, col, colDef) in alters)
         {
             try
             {
-#pragma warning disable EF1002
-                db.Database.ExecuteSqlRaw($@"
-                    DO $$ BEGIN
-                        IF NOT EXISTS (
-                            SELECT 1 FROM information_schema.columns
-                            WHERE table_name = '{table}' AND column_name = '{col}'
-                        ) THEN
-                            ALTER TABLE ""{table}"" ADD COLUMN ""{col}"" {colDef};
-                        END IF;
-                    END $$;");
-#pragma warning restore EF1002
+                db.Database.ExecuteSqlRaw($"ALTER TABLE \"{table}\" ADD COLUMN IF NOT EXISTS \"{col}\" {colDef};");
             }
             catch { }
         }
@@ -179,11 +169,11 @@ using (var scope = app.Services.CreateScope())
     }
     else
     {
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN ThumbnailUrl TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN QuizUrl TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN ViewCount INTEGER NOT NULL DEFAULT 0;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN DownloadCount INTEGER NOT NULL DEFAULT 0;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE InteractiveQuizzes ADD COLUMN CoverImageUrl TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryItems\" ADD COLUMN \"ThumbnailUrl\" TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryItems\" ADD COLUMN \"QuizUrl\" TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryItems\" ADD COLUMN \"ViewCount\" INTEGER NOT NULL DEFAULT 0;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryItems\" ADD COLUMN \"DownloadCount\" INTEGER NOT NULL DEFAULT 0;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"CoverImageUrl\" TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherName\" TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherImage\" TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"WhatsappUrl\" TEXT;"); } catch { }
