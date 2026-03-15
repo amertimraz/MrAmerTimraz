@@ -127,6 +127,8 @@ using (var scope = app.Services.CreateScope())
             ("InteractiveQuizzes",  "FacebookUrl",       "TEXT"),
             ("InteractiveQuizzes",   "ShowSupportButton", "BOOLEAN NOT NULL DEFAULT TRUE"),
             ("InteractiveQuizzes",   "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
+            ("LibraryItems",         "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
+            ("LibraryItems",         "DownloadCount",     "INTEGER NOT NULL DEFAULT 0"),
             ("InteractiveQuestions", "Explanation",       "TEXT"),
         };
         foreach (var (table, col, colDef) in pgAlters)
@@ -179,6 +181,8 @@ using (var scope = app.Services.CreateScope())
     {
         try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN ThumbnailUrl TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN QuizUrl TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN ViewCount INTEGER NOT NULL DEFAULT 0;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN DownloadCount INTEGER NOT NULL DEFAULT 0;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE InteractiveQuizzes ADD COLUMN CoverImageUrl TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherName\" TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherImage\" TEXT;"); } catch { }
