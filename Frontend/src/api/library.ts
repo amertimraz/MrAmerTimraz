@@ -23,4 +23,8 @@ export const libraryApi = {
     client.put<LibraryItem>(`/library/${id}`, data).then(r => r.data),
 
   delete: (id: number) => client.delete(`/library/${id}`),
+  incrementView: (id: number) =>
+    client.post<{ viewCount: number }>(`/library/${id}/view`).then(r => r.data),
+  incrementDownload: (id: number) =>
+    client.post<{ downloadCount: number }>(`/library/${id}/download`).then(r => r.data),
 };

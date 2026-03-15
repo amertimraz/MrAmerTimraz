@@ -96,6 +96,26 @@ public class LibraryController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("{id}/view")]
+    public async Task<IActionResult> IncrementView(int id)
+    {
+        var item = await _db.LibraryItems.FindAsync(id);
+        if (item == null) return NotFound();
+        item.ViewCount++;
+        await _db.SaveChangesAsync();
+        return Ok(new { viewCount = item.ViewCount });
+    }
+
+    [HttpPost("{id}/download")]
+    public async Task<IActionResult> IncrementDownload(int id)
+    {
+        var item = await _db.LibraryItems.FindAsync(id);
+        if (item == null) return NotFound();
+        item.DownloadCount++;
+        await _db.SaveChangesAsync();
+        return Ok(new { downloadCount = item.DownloadCount });
+    }
+
     [HttpGet("categories")]
     public async Task<IActionResult> GetCategories()
     {

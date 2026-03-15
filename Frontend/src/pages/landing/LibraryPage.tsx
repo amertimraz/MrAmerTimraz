@@ -130,7 +130,10 @@ export default function LibraryPage() {
               <div
                 className="relative cursor-pointer overflow-hidden"
                 style={{ aspectRatio: '16/9' }}
-                onClick={() => setViewing(item)}
+                onClick={() => {
+                  setViewing(item);
+                  libraryApi.incrementView(item.id).catch(() => {});
+                }}
               >
                 <PdfThumbnail thumbnailUrl={item.thumbnailUrl ? getMediaUrl(item.thumbnailUrl) : undefined} className="w-full h-full" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
@@ -152,6 +155,16 @@ export default function LibraryPage() {
                   {item.description && (
                     <p className={`text-sm ${subtext} mt-1.5 line-clamp-2`}>{item.description}</p>
                   )}
+                  <div className="flex items-center gap-3 mt-2">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-md">
+                      <Eye size={12} />
+                      <span>{(item.viewCount || 0).toLocaleString('ar-EG')}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-md">
+                      <Download size={12} />
+                      <span>{(item.downloadCount || 0).toLocaleString('ar-EG')}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -166,7 +179,10 @@ export default function LibraryPage() {
                   )}
                   <div className="flex gap-2">
                     <button
-                      onClick={() => setViewing(item)}
+                      onClick={() => {
+                        setViewing(item);
+                        libraryApi.incrementView(item.id).catch(() => {});
+                      }}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold border transition-colors ${
                         isDark
                           ? 'border-orange-500/40 text-orange-400 hover:bg-orange-500/10'
@@ -179,6 +195,9 @@ export default function LibraryPage() {
                     <a
                       href={getMediaUrl(item.fileUrl)}
                       download
+                      onClick={() => {
+                        libraryApi.incrementDownload(item.id).catch(() => {});
+                      }}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
                     >
                       <Download size={15} />

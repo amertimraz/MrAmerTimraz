@@ -164,5 +164,7 @@ export interface LibraryItem {
   category?: string;
   thumbnailUrl?: string;
   quizUrl?: string;
+  viewCount: number;
+  downloadCount: number;
   createdAt: string;
 }
