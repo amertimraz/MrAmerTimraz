@@ -105,6 +105,7 @@ using (var scope = app.Services.CreateScope())
         var pgAlters = new[]
         {
             ("LibraryItems",        "ThumbnailUrl",      "TEXT"),
+            ("LibraryItems",        "QuizUrl",           "TEXT"),
             ("InteractiveQuizzes",  "CoverImageUrl",     "TEXT"),
             ("InteractiveQuizzes",  "Slug",              "TEXT"),
             ("InteractiveQuizzes",  "TeacherName",       "TEXT"),
@@ -166,6 +167,7 @@ using (var scope = app.Services.CreateScope())
     else
     {
         try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN ThumbnailUrl TEXT;"); } catch { }
+        try { db.Database.ExecuteSqlRaw("ALTER TABLE LibraryItems ADD COLUMN QuizUrl TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE InteractiveQuizzes ADD COLUMN CoverImageUrl TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherName\" TEXT;"); } catch { }
         try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherImage\" TEXT;"); } catch { }
