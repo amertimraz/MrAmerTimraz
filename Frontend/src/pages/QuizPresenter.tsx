@@ -853,10 +853,17 @@ export default function QuizPresenter() {
             <Star size={14} fill="currentColor" />
             {score}
             {pointAnim && (
-              <span key={pointAnim.key} className="absolute -top-6 left-1/2 -translate-x-1/2 text-yellow-300 font-black text-base whitespace-nowrap"
-                style={{ animation: 'floatUp 1.2s ease forwards' }}>
-                +{pointAnim.v}
-              </span>
+              <div key={pointAnim.key} className="absolute -top-10 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none"
+                style={{ animation: 'floatUp 1.5s ease-out forwards' }}>
+                <span className={`font-black text-2xl whitespace-nowrap drop-shadow-lg ${isGolden ? 'text-yellow-300 scale-125' : 'text-yellow-400'}`}>
+                  +{pointAnim.v}
+                </span>
+                {isGolden && (
+                  <span className="text-[10px] font-black bg-yellow-500 text-[#1e1b4b] px-1.5 py-0.5 rounded-full mt-1 whitespace-nowrap shadow-lg">
+                    POINTS DOUBLED! 💰
+                  </span>
+                )}
+              </div>
             )}
           </div>
 
@@ -921,10 +928,18 @@ export default function QuizPresenter() {
 
       {/* Golden question badge */}
       {isGolden && (
-        <div className="px-4 mb-2 shrink-0">
-          <div className="flex items-center justify-center gap-2 py-1.5 bg-yellow-500/20 border border-yellow-500/30 rounded-xl text-yellow-400 text-sm font-bold"
-            style={{ animation: 'pulse 1s infinite' }}>
-            ⭐ سؤال ذهبي — نقطتان مضاعفتان (+{pointsForQ})
+        <div className="px-4 mb-2 shrink-0 relative z-10" style={{ animation: 'goldenFloat 3s ease-in-out infinite' }}>
+          <div className="flex items-center justify-center gap-3 py-2 bg-gradient-to-r from-yellow-600 via-yellow-400 to-amber-600 border border-yellow-300/50 rounded-2xl text-[#1e1b4b] shadow-[0_0_25px_rgba(251,191,36,0.3)]"
+            style={{ animation: 'popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+            <div className="flex -space-x-1">
+              <Star size={18} fill="currentColor" className="text-[#1e1b4b] animate-[sparkleRotate_4s_linear_infinite]" />
+              <Star size={18} fill="currentColor" className="text-[#1e1b4b] animate-[sparkleRotate_3s_linear_infinite_reverse]" />
+            </div>
+            <span className="text-base font-black tracking-tight">سؤال ذهبي — فرصة لمضاعفة النقاط! 💰</span>
+            <div className="flex -space-x-1">
+              <Star size={18} fill="currentColor" className="text-[#1e1b4b] animate-[sparkleRotate_3s_linear_infinite]" />
+              <Star size={18} fill="currentColor" className="text-[#1e1b4b] animate-[sparkleRotate_4s_linear_infinite_reverse]" />
+            </div>
           </div>
         </div>
       )}
@@ -944,16 +959,22 @@ export default function QuizPresenter() {
         <div key={animKey} className="w-full max-w-2xl" style={{ animation: 'slideUp 0.35s ease-out' }}>
 
           {/* Question card */}
-          <div className={`relative rounded-3xl border mb-4 overflow-hidden ${isGolden ? 'border-yellow-400/50' : 'border-white/10'}`}>
+          <div className={`relative rounded-3xl border mb-4 overflow-hidden transition-all duration-500 ${isGolden ? 'border-yellow-400/80 shadow-[0_0_30px_rgba(251,191,36,0.2)]' : 'border-white/10'}`}
+               style={isGolden ? { animation: 'goldenPulse 2s infinite ease-in-out' } : {}}>
             {/* Gradient top bar */}
-            <div className={`h-1 w-full ${isGolden ? 'bg-gradient-to-l from-yellow-400 to-amber-500' : `bg-gradient-to-l ${currentMeta.color}`}`} />
-            <div className={`p-5 md:p-6 backdrop-blur-sm ${isGolden ? 'bg-yellow-500/10' : 'bg-white/5'}`}>
+            <div className={`h-1.5 w-full ${isGolden ? 'bg-gradient-to-r from-yellow-600 via-yellow-300 to-amber-600' : `bg-gradient-to-l ${currentMeta.color}`}`} />
+            <div className={`p-5 md:p-6 backdrop-blur-md ${isGolden ? 'bg-gradient-to-br from-yellow-500/10 to-amber-600/10' : 'bg-white/5'}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs font-black px-2.5 py-1 rounded-full bg-gradient-to-r ${currentMeta.color} text-white`}>
+                  <span className={`text-xs font-black px-2.5 py-1 rounded-full ${isGolden ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-[#1e1b4b]' : `bg-gradient-to-r ${currentMeta.color} text-white`}`}>
                     {currentIdx + 1} / {questions.length}
                   </span>
-                  {isGolden && <span className="text-xs text-yellow-400 font-bold animate-pulse">⭐ ذهبي ×2</span>}
+                  {isGolden && (
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/10 rounded-full">
+                      <Star size={12} fill="#fbbf24" className="text-yellow-400 animate-pulse" />
+                      <span className="text-[10px] text-yellow-400 font-black uppercase tracking-widest">Premium Question</span>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex items-start gap-2" dir="rtl">
@@ -993,10 +1014,10 @@ export default function QuizPresenter() {
                   <button key={i}
                     onClick={() => { if (!revealed) { playSound('select'); setSelectedOption(i); handleRevealResult(i); } }}
                     className={`p-6 rounded-2xl text-right transition-all duration-300
-                      ${revealed ? isCorrect ? `${color.bg} scale-[1.03] ring-4 ring-white/40 shadow-2xl` : `${color.dim} opacity-40` : `${color.bg} ${color.hover} active:scale-95 cursor-pointer shadow-md ${isSelected ? 'ring-4 ring-white/50 scale-[1.02]' : ''}`}`}
+                      ${revealed ? isCorrect ? `${isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600' : color.bg} scale-[1.03] ring-4 ring-white/40 shadow-2xl` : `${color.dim} opacity-40` : `${isGolden ? 'bg-white/10 border-2 border-yellow-500/30 hover:bg-yellow-500/10' : color.bg + ' ' + color.hover} active:scale-95 cursor-pointer shadow-md ${isSelected ? 'ring-4 ring-white/50 scale-[1.02]' : ''}`}`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center text-white font-black text-lg shrink-0">{color.letter}</span>
+                      <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 ${isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-[#191d31]' : 'bg-black/25 text-white'}`}>{color.letter}</span>
                       <span className="text-white font-bold text-lg md:text-xl leading-snug">{opt}</span>
                       {isCorrect && <span className="mr-auto text-xl shrink-0">✨</span>}
                     </div>
@@ -1063,8 +1084,23 @@ export default function QuizPresenter() {
 
       <style>{`
         @keyframes slideUp   { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:translateY(0) } }
-        @keyframes floatUp   { from { opacity:1; transform:translateX(-50%) translateY(0) } to { opacity:0; transform:translateX(-50%) translateY(-40px) } }
+        @keyframes floatUp   { from { opacity:1; transform:translateX(-50%) translateY(0) } to { opacity:0; transform:translateX(-50%) translateY(-60px) scale(1.1) } }
         @keyframes popIn     { from { opacity:0; transform:scale(0.8) } to { opacity:1; transform:scale(1) } }
+        @keyframes goldenPulse {
+          0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); border-color: rgba(251, 191, 36, 0.6); }
+          50% { box-shadow: 0 0 20px 10px rgba(251, 191, 36, 0); border-color: rgba(251, 191, 36, 1); }
+          100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); border-color: rgba(251, 191, 36, 0.6); }
+        }
+        @keyframes sparkleRotate {
+          0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+          50% { transform: rotate(180deg) scale(1.2); opacity: 1; }
+          100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
+        }
+        @keyframes goldenFloat {
+          0% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-10px) scale(1.05); }
+          100% { transform: translateY(0) scale(1); }
+        }
         @keyframes fadeOut   { from { opacity:1 } to { opacity:0 } }
         @keyframes fadeIn    { from { opacity:0 } to { opacity:1 } }
         @keyframes bounceIn  { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
