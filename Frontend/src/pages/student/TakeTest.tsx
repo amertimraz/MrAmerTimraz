@@ -5,7 +5,7 @@ import { testsApi } from '../../api/tests';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Clock, ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import type { Test, Question, TestResult } from '../../types';
+import type { TestResult } from '../../types';
 import { getMediaUrl } from '../../utils/media';
 
 export default function TakeTest() {

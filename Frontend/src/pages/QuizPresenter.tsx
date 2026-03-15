@@ -1064,7 +1064,7 @@ export default function QuizPresenter() {
       <style>{`
         @keyframes slideUp   { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:translateY(0) } }
         @keyframes floatUp   { from { opacity:1; transform:translateX(-50%) translateY(0) } to { opacity:0; transform:translateX(-50%) translateY(-40px) } }
-        @keyframes popIn     { from { opacity:0; transform:translate(-50%,-50%) scale(0.5) } to { opacity:1; transform:translate(-50%,-50%) scale(1) } }
+        @keyframes popIn     { from { opacity:0; transform:scale(0.8) } to { opacity:1; transform:scale(1) } }
         @keyframes fadeOut   { from { opacity:1 } to { opacity:0 } }
         @keyframes fadeIn    { from { opacity:0 } to { opacity:1 } }
         @keyframes bounceIn  { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
@@ -1135,8 +1135,13 @@ function SupportModal({ onClose }: { onClose: () => void }) {
       dir="rtl"
     >
       <div
-        className="relative w-full max-w-[92%] sm:max-w-md md:max-w-lg lg:max-w-xl rounded-3xl p-6 md:p-8 text-right shadow-2xl"
-        style={{ background: 'linear-gradient(145deg,#1e1b4b,#1a1a2e)', border: '1px solid rgba(255,255,255,0.12)', animation: 'popIn .3s cubic-bezier(.34,1.56,.64,1) both' }}
+        className="relative w-full max-w-[92%] sm:max-w-md md:max-w-lg lg:max-w-xl rounded-3xl p-6 md:p-8 text-right shadow-2xl overflow-y-auto"
+        style={{ 
+          background: 'linear-gradient(145deg,#1e1b4b,#1a1a2e)', 
+          border: '1px solid rgba(255,255,255,0.12)', 
+          animation: 'popIn .3s cubic-bezier(.34,1.56,.64,1) both',
+          maxHeight: 'min(90vh, 800px)'
+        }}
         onClick={e => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-4 left-4 p-2 md:top-5 md:left-5 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10">
