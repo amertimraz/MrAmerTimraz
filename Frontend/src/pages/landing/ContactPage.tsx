@@ -12,7 +12,7 @@ const socialLinks = [
 ];
 
 const contactInfo = [
-  { icon: <Mail size={20} />,   title: 'البريد الإلكتروني', value: 'amer.timraz@school.edu', accent: '#3b82f6' },
+  { icon: <Mail size={20} />,   title: 'البريد الإلكتروني', value: 'amertimraz@gmail.com', accent: '#3b82f6' },
   { icon: <Phone size={20} />,  title: 'رقم التواصل',       value: '01096066818',             accent: '#22c55e' },
   { icon: <MapPin size={20} />, title: 'الموقع',            value: 'مصر',                     accent: '#a855f7' },
 ];

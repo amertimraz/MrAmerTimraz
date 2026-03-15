@@ -99,7 +99,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-3">
                 <Mail size={16} className="text-green-500 shrink-0" />
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>amer.timraz@school.edu</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>amertimraz@gmail.com</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={16} className="text-green-500 shrink-0" />
