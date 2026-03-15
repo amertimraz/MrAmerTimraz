@@ -317,11 +317,13 @@ export default function QuizPresenter() {
   /* navigate to question */
   const goTo = useCallback((idx: number) => {
     setCurrentIdx(idx);
-    setRevealed(false);
+    // If already answered, show as revealed
+    const alreadyAnswered = answeredCorrect[idx] !== undefined;
+    setRevealed(alreadyAnswered);
     setSelectedOption(null);
     setAnimKey(k => k + 1);
     resetTimer();
-  }, [resetTimer]);
+  }, [resetTimer, answeredCorrect]);
 
   /* reveal answer */
   const reveal = useCallback(() => {
@@ -332,12 +334,18 @@ export default function QuizPresenter() {
 
   /* handle correct/wrong */
   const handleRevealResult = useCallback((optionClicked?: number) => {
-    if (revealed) return;
+    if (revealed || answeredCorrect[currentIdx] !== undefined) return;
     if (optionClicked !== undefined) setSelectedOption(optionClicked);
     reveal();
 
     const q = questions[currentIdx];
     const correct = optionClicked !== undefined && optionClicked === getCorrectIdx(q);
+
+    setAnsweredCorrect(prev => {
+      const a = [...prev];
+      a[currentIdx] = correct;
+      return a;
+    });
 
     if (correct || optionClicked === undefined) {
       const pts = correct ? pointsForQ : 0;
@@ -352,16 +360,14 @@ export default function QuizPresenter() {
       setMotivMsg(msg);
       setShowMotiv(true);
       setTimeout(() => setShowMotiv(false), 2000);
-      setAnsweredCorrect(prev => { const a = [...prev]; a[currentIdx] = correct; return a; });
     } else {
       playSound('wrong');
       const msg = rand(WRONG_MSGS);
       setMotivMsg(msg);
       setShowMotiv(true);
       setTimeout(() => setShowMotiv(false), 2000);
-      setAnsweredCorrect(prev => { const a = [...prev]; a[currentIdx] = false; return a; });
     }
-  }, [revealed, questions, currentIdx, pointsForQ, isGolden, reveal, playSound]);
+  }, [revealed, questions, currentIdx, pointsForQ, isGolden, reveal, playSound, answeredCorrect]);
 
   const saveResultToLeaderboard = useCallback((finalScore: number, correct: number) => {
     if (!quiz || !playerName) return;
