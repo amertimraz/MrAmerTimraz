@@ -208,6 +208,8 @@ export default function QuizPresenter() {
   const [playerNameInput, setPlayerNameInput] = useState('');
   const [leaderboard, setLeaderboard] = useState<{ name: string; score: number; correct: number; total: number; pct: number; date: string }[]>([]);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [expandedLeaderboard, setExpandedLeaderboard] = useState(false);
+  const [leaderboardSearch, setLeaderboardSearch] = useState('');
 
   /* screens */
   const [screen, setScreen] = useState<'name' | 'start' | 'stage-transition' | 'play' | 'end'>('name');
@@ -758,26 +760,103 @@ export default function QuizPresenter() {
           {/* Leaderboard */}
           {leaderboard.length > 0 && (
             <div className="mb-5">
-              <button onClick={() => setShowLeaderboard(s => !s)} className="flex items-center gap-2 mx-auto text-sm text-gray-400 hover:text-white transition-colors mb-3">
-                <Trophy size={14} className="text-yellow-400" />
-                {showLeaderboard ? 'إخفاء' : 'عرض'} لوحة المتصدرين ({leaderboard.length})
-              </button>
+              <div className="flex flex-wrap gap-2 justify-center items-center mb-3">
+                <button onClick={() => setShowLeaderboard(s => !s)} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+                  <Trophy size={14} className="text-yellow-400" />
+                  {showLeaderboard ? 'إخفاء' : 'عرض'} لوحة المتصدرين ({leaderboard.length})
+                </button>
+                {leaderboard.length > 10 && (
+                  <button onClick={() => { setExpandedLeaderboard(true); setLeaderboardSearch(''); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-500/20 hover:bg-primary-500/30 text-primary-300 text-xs font-semibold transition-colors">
+                    <span>📊 عرض كاملة</span>
+                  </button>
+                )}
+              </div>
               {showLeaderboard && (
-                <div className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="space-y-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/[0.02] p-3 border border-white/5">
                   {leaderboard.slice(0, 10).map((r, i) => {
                     const isMe = r.name === playerName && r.score === score && i === myPos;
                     return (
-                      <div key={i} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors ${isMe ? 'bg-primary-500/20 border border-primary-500/40' : 'bg-white/5'}`}>
-                        <span className="text-base w-6 text-center shrink-0">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}</span>
-                        <span className={`flex-1 font-medium text-sm text-right ${isMe ? 'text-primary-300' : 'text-white'}`}>{r.name}{isMe ? ' (أنت)' : ''}</span>
-                        <span className="text-yellow-400 font-bold text-sm">{r.score}</span>
-                        <span className={`text-xs font-bold ${getRank(r.pct).color}`}>{getRank(r.pct).title}</span>
-                        <span className="text-gray-500 text-xs">{r.pct}%</span>
+                      <div key={i} className={`flex items-center gap-3 px-3.5 py-2 rounded-lg transition-all ${isMe ? 'bg-primary-500/20 border border-primary-500/40 shadow-lg shadow-primary-500/10' : 'bg-white/5 hover:bg-white/8'}`}>
+                        <span className="text-lg w-8 text-center shrink-0 font-bold">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-gray-500">{i + 1}</span>}</span>
+                        <div className="flex-1 min-w-0">
+                          <span className={`text-sm font-bold block truncate ${isMe ? 'text-primary-300' : 'text-white'}`}>{r.name}{isMe ? ' ⭐' : ''}</span>
+                          <span className="text-xs text-gray-500">{r.correct}/{r.total}</span>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-yellow-400 font-bold text-base">{r.score}</span>
+                          <span className={`text-xs font-bold block ${getRank(r.pct).color}`}>{r.pct}%</span>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Expanded Leaderboard Modal */}
+          {expandedLeaderboard && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir="rtl">
+              <div className="bg-gradient-to-b from-slate-800 to-slate-900 rounded-3xl w-full max-w-2xl shadow-2xl border border-white/10 flex flex-col max-h-[85vh]">
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+                  <button onClick={() => setExpandedLeaderboard(false)} className="text-gray-400 hover:text-white transition-colors p-1">✕</button>
+                  <div className="text-center flex-1">
+                    <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text">🏆 لوحة المتصدرين</h2>
+                    <p className="text-xs text-gray-400 mt-1">{leaderboard.length} متسابق</p>
+                  </div>
+                  <div className="w-8" />
+                </div>
+
+                {/* Search */}
+                {leaderboard.length > 5 && (
+                  <div className="px-6 py-3 border-b border-white/5 shrink-0">
+                    <input
+                      type="text"
+                      placeholder="🔍 ابحث عن اسم..."
+                      value={leaderboardSearch}
+                      onChange={e => setLeaderboardSearch(e.target.value)}
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500/50"
+                      dir="rtl"
+                    />
+                  </div>
+                )}
+
+                {/* Leaderboard List */}
+                <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+                  {leaderboard.map((r, actualIdx) => {
+                    if (!r.name.toLowerCase().includes(leaderboardSearch.toLowerCase())) return null;
+                    const isMe = r.name === playerName && r.score === score;
+                    const displayIdx = actualIdx + 1;
+                    return (
+                      <div key={actualIdx} className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all border ${isMe ? 'bg-primary-500/15 border-primary-500/40 shadow-lg shadow-primary-500/10' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                        <span className="text-2xl w-10 text-center shrink-0">
+                          {actualIdx === 0 ? '🥇' : actualIdx === 1 ? '🥈' : actualIdx === 2 ? '🥉' : <span className={`font-bold ${displayIdx < 10 ? 'text-gray-400' : 'text-gray-600'}`}>{displayIdx}</span>}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-bold text-sm truncate ${isMe ? 'text-primary-300' : 'text-white'}`}>
+                            {r.name}{isMe ? ' ⭐ (أنت)' : ''}
+                          </p>
+                          <div className="flex gap-2 text-xs text-gray-500 mt-0.5">
+                            <span>✅ {r.correct}/{r.total}</span>
+                            <span>•</span>
+                            <span>{r.date}</span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="text-yellow-400 font-black text-lg">{r.score}</div>
+                          <div className={`text-xs font-bold ${getRank(r.pct).color}`}>{r.pct}%</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {leaderboard.filter(r => r.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).length === 0 && (
+                    <div className="text-center py-8 text-gray-400">
+                      <p className="text-sm">لا توجد نتائج 🔍</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
