@@ -26,6 +26,7 @@ public class InteractiveQuiz
     public string? YoutubeUrl { get; set; }
     public string? FacebookUrl { get; set; }
     public bool ShowSupportButton { get; set; } = true;
+    public bool AllowSkipWithoutRegistration { get; set; } = true;
     public int ViewCount { get; set; } = 0;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -136,6 +136,7 @@ export interface InteractiveQuizSummary {
   youtubeUrl?: string;
   facebookUrl?: string;
   showSupportButton: boolean;
+  allowSkipWithoutRegistration?: boolean;
   viewCount: number;
   createdAt: string;
   questionCount: number;

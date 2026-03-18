@@ -15,6 +15,7 @@ export interface QuizPayload {
   youtubeUrl?: string;
   facebookUrl?: string;
   showSupportButton?: boolean;
+  allowSkipWithoutRegistration?: boolean;
 }
 
 export interface QuestionPayload {

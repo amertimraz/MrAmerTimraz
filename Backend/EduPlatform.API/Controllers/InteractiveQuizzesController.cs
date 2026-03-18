@@ -77,6 +77,7 @@ public class InteractiveQuizzesController : ControllerBase
             YoutubeUrl = dto.YoutubeUrl,
             FacebookUrl = dto.FacebookUrl,
             ShowSupportButton = dto.ShowSupportButton,
+            AllowSkipWithoutRegistration = dto.AllowSkipWithoutRegistration,
         };
         _db.InteractiveQuizzes.Add(quiz);
         await _db.SaveChangesAsync();
@@ -101,6 +102,7 @@ public class InteractiveQuizzesController : ControllerBase
         quiz.YoutubeUrl = dto.YoutubeUrl;
         quiz.FacebookUrl = dto.FacebookUrl;
         quiz.ShowSupportButton = dto.ShowSupportButton;
+        quiz.AllowSkipWithoutRegistration = dto.AllowSkipWithoutRegistration;
         await _db.SaveChangesAsync();
         return Ok(quiz);
     }
@@ -235,6 +237,7 @@ public class CreateQuizDto
     public string? YoutubeUrl { get; set; }
     public string? FacebookUrl { get; set; }
     public bool ShowSupportButton { get; set; } = true;
+    public bool AllowSkipWithoutRegistration { get; set; } = true;
 }
 
 public class CreateIQuestionDto

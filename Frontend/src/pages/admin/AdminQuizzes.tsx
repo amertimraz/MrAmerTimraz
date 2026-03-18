@@ -169,7 +169,7 @@ function parsePdfText(rawText: string): ParsedQuestion[] {
   );
 }
 
-const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', teacherWhatsappNumber: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true };
+const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', teacherWhatsappNumber: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true, allowSkipWithoutRegistration: true };
 
 
 export default function AdminQuizzes() {
@@ -295,11 +295,11 @@ export default function AdminQuizzes() {
   const openCreate = () => { setForm(emptyForm); setEditing(null); setModal('create'); };
   const openEdit = async (q: InteractiveQuizSummary) => {
     setEditing(q);
-    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', teacherWhatsappNumber: q.teacherWhatsappNumber ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true });
+    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', teacherWhatsappNumber: q.teacherWhatsappNumber ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true, allowSkipWithoutRegistration: q.allowSkipWithoutRegistration ?? true });
     setModal('edit');
     try {
       const fresh = await quizzesApi.getById(q.id);
-      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', teacherWhatsappNumber: fresh.teacherWhatsappNumber ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '', showSupportButton: fresh.showSupportButton ?? true });
+      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', teacherWhatsappNumber: fresh.teacherWhatsappNumber ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '', showSupportButton: fresh.showSupportButton ?? true, allowSkipWithoutRegistration: fresh.allowSkipWithoutRegistration ?? true });
     } catch { }
   };
   const openQuestions = (q: InteractiveQuizSummary) => {
@@ -826,15 +826,26 @@ export default function AdminQuizzes() {
                       <input value={form.facebookUrl} onChange={e => setForm(f => ({ ...f, facebookUrl: e.target.value }))} className="input-field text-sm" placeholder="https://facebook.com/..." dir="ltr" />
                     </div>
                   </div>
-                  <label className="flex items-center gap-3 cursor-pointer select-none">
-                    <div
-                      onClick={() => setForm(f => ({ ...f, showSupportButton: !f.showSupportButton }))}
-                      className={`w-10 h-6 rounded-full transition-colors relative shrink-0 ${form.showSupportButton ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'}`}
-                    >
-                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${form.showSupportButton ? 'right-1' : 'left-1'}`} />
-                    </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">إظهار زر الدعم المادي 💛</span>
-                  </label>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                      <div
+                        onClick={() => setForm(f => ({ ...f, showSupportButton: !f.showSupportButton }))}
+                        className={`w-10 h-6 rounded-full transition-colors relative shrink-0 ${form.showSupportButton ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                      >
+                        <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${form.showSupportButton ? 'right-1' : 'left-1'}`} />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">إظهار زر الدعم المادي 💛</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                      <div
+                        onClick={() => setForm(f => ({ ...f, allowSkipWithoutRegistration: !f.allowSkipWithoutRegistration }))}
+                        className={`w-10 h-6 rounded-full transition-colors relative shrink-0 ${form.allowSkipWithoutRegistration ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                      >
+                        <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${form.allowSkipWithoutRegistration ? 'right-1' : 'left-1'}`} />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">السماح بـ "تخطي بدون تسجيل" 👤</span>
+                    </label>
+                  </div>
                 </div>
               </div>
               <div className="flex gap-3 pt-2">

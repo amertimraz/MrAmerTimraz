@@ -529,9 +529,11 @@ export default function QuizPresenter() {
           >
             🚀 ابدأ الاختبار
           </button>
-          <button onClick={() => { setPlayerName('زائر'); setScreen('start'); }} className="w-full py-3 bg-white/5 text-gray-400 rounded-2xl hover:bg-white/10 transition-colors text-sm">
-            تخطي — بدون تسجيل
-          </button>
+          {quiz.allowSkipWithoutRegistration !== false && (
+            <button onClick={() => { setPlayerName('زائر'); setScreen('start'); }} className="w-full py-3 bg-white/5 text-gray-400 rounded-2xl hover:bg-white/10 transition-colors text-sm">
+              تخطي — بدون تسجيل
+            </button>
+          )}
         </div>
 
         {leaderboard.length > 0 && (
