@@ -31,6 +31,7 @@ export default function CourseManager() {
   const [videoForm, setVideoForm]   = useState({ ...emptyVideoForm });
   const [testForm, setTestForm]     = useState({ ...emptyTestForm });
   const [isUploading, setIsUploading] = useState(false);
+  const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
 
   const courseId = Number(id);
 
@@ -56,6 +57,18 @@ export default function CourseManager() {
       setVideoForm({ ...emptyVideoForm });
     },
     onError: () => toast.error('فشل في إضافة الدرس'),
+  });
+
+  const updateLesson = useMutation({
+    mutationFn: ({ lid, data }: { lid: number; data: object }) => videosApi.update(lid, data),
+    onSuccess: () => {
+      toast.success('✅ تم تعديل الدرس!');
+      qc.invalidateQueries({ queryKey: ['videos', id] });
+      setVideoModal(false);
+      setVideoForm({ ...emptyVideoForm });
+      setEditingLessonId(null);
+    },
+    onError: () => toast.error('فشل في تعديل الدرس'),
   });
 
   const deleteLesson = useMutation({
@@ -271,6 +284,25 @@ export default function CourseManager() {
                             </button>
                             <button
                               onClick={() => {
+                                setEditingLessonId(lesson.id);
+                                setVideoForm({
+                                  title: lesson.title,
+                                  url: lesson.url,
+                                  description: lesson.description || '',
+                                  source: lesson.source,
+                                  durationSeconds: lesson.durationSeconds,
+                                  orderIndex: lesson.orderIndex,
+                                  slug: lesson.slug || '',
+                                  pdfUrl: lesson.pdfUrl || '',
+                                });
+                                setVideoModal(true);
+                              }}
+                              className="btn-secondary text-sm flex items-center gap-2 justify-center"
+                            >
+                              <Pencil size={15} /> تعديل الدرس
+                            </button>
+                            <button
+                              onClick={() => {
                                 if (confirm(`هل تريد حذف درس "${lesson.title}"؟`))
                                   deleteLesson.mutate(lesson.id);
                               }}
@@ -395,10 +427,17 @@ export default function CourseManager() {
         </div>
       )}
 
-      {/* ═══════════════ MODAL: Add Lesson ═══════════════ */}
-      <Modal isOpen={videoModal} onClose={() => setVideoModal(false)} title="➕ إضافة درس جديد">
+      {/* ═══════════════ MODAL: Add / Edit Lesson ═══════════════ */}
+      <Modal isOpen={videoModal} onClose={() => { setVideoModal(false); setEditingLessonId(null); setVideoForm({ ...emptyVideoForm }); }} title={editingLessonId ? '✏️ تعديل الدرس' : '➕ إضافة درس جديد'}>
         <form
-          onSubmit={e => { e.preventDefault(); addLesson.mutate({ ...videoForm, courseId }); }}
+          onSubmit={e => {
+            e.preventDefault();
+            if (editingLessonId) {
+              updateLesson.mutate({ lid: editingLessonId, data: { ...videoForm, courseId } });
+            } else {
+              addLesson.mutate({ ...videoForm, courseId });
+            }
+          }}
           className="space-y-4"
         >
           <div>
@@ -525,10 +564,16 @@ export default function CourseManager() {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="btn-primary flex-1" disabled={addLesson.isPending || isUploading}>
-              {addLesson.isPending ? 'جارٍ الإضافة...' : isUploading ? 'جارٍ الرفع...' : '✅ إضافة الدرس'}
+            <button type="submit" className="btn-primary flex-1" disabled={addLesson.isPending || updateLesson.isPending || isUploading}>
+              {addLesson.isPending || updateLesson.isPending
+                ? (editingLessonId ? 'جارٍ التعديل...' : 'جارٍ الإضافة...')
+                : isUploading
+                  ? 'جارٍ الرفع...'
+                  : editingLessonId
+                    ? '✏️ حفظ التعديلات'
+                    : '✅ إضافة الدرس'}
             </button>
-            <button type="button" onClick={() => setVideoModal(false)} className="btn-secondary">
+            <button type="button" onClick={() => { setVideoModal(false); setEditingLessonId(null); setVideoForm({ ...emptyVideoForm }); }} className="btn-secondary">
               إلغاء
             </button>
           </div>
