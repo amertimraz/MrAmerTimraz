@@ -166,6 +166,51 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 
+    // Safety-net: Ensure new columns and tables from AddLessonEnhancements exist.
+    // These may not have been created if the migration was marked as applied
+    // but its SQL was never actually executed (EnsureCreated legacy scenario).
+    if (isPostgres)
+    {
+        var safetyAlters = new[]
+        {
+            "ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"Slug\" TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"PdfUrl\" TEXT",
+            """
+            CREATE TABLE IF NOT EXISTS "VideoComments" (
+                "Id" SERIAL PRIMARY KEY,
+                "VideoId" INTEGER NOT NULL REFERENCES "Videos"("Id") ON DELETE CASCADE,
+                "StudentId" INTEGER NOT NULL REFERENCES "Users"("Id") ON DELETE CASCADE,
+                "Content" TEXT NOT NULL,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_VideoComments_VideoId\" ON \"VideoComments\"(\"VideoId\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_VideoComments_StudentId\" ON \"VideoComments\"(\"StudentId\")",
+        };
+
+        foreach (var sql in safetyAlters)
+        {
+            try
+            {
+#pragma warning disable EF1002
+                db.Database.ExecuteSqlRaw(sql);
+#pragma warning restore EF1002
+            }
+            catch { }
+        }
+
+        // Try to create the unique index on Slug, but don't fail if slugs have duplicates
+        try
+        {
+#pragma warning disable EF1002
+            db.Database.ExecuteSqlRaw("""
+                CREATE UNIQUE INDEX IF NOT EXISTS "IX_Videos_Slug" ON "Videos"("Slug")
+                """);
+#pragma warning restore EF1002
+        }
+        catch { /* Ignore if there are duplicate slugs */ }
+    }
+
     if (isPostgres)
     {
         // Reset sequences to avoid ID conflicts after bulk imports
