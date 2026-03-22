@@ -1,5 +1,5 @@
 import client from './client';
-import type { InteractiveQuiz, InteractiveQuizSummary } from '../types';
+import type { InteractiveQuiz, InteractiveQuizSummary, InteractiveQuizResult } from '../types';
 
 export interface QuizPayload {
   title: string;
@@ -62,4 +62,10 @@ export const quizzesApi = {
 
   duplicate: (id: number) =>
     client.post<InteractiveQuiz>(`/interactive-quizzes/${id}/duplicate`).then(r => r.data),
+
+  getLeaderboard: (id: number) =>
+    client.get<InteractiveQuizResult[]>(`/interactive-quizzes/${id}/leaderboard`).then(r => r.data),
+
+  submitResult: (id: number, data: Omit<InteractiveQuizResult, 'date'>) =>
+    client.post(`/interactive-quizzes/${id}/results`, data).then(r => r.data),
 };

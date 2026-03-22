@@ -143,7 +143,7 @@ using (var scope = app.Services.CreateScope())
 
         var seqTables = new[] { "Users", "Courses", "Videos", "Tests", "Questions", "Results",
             "Enrollments", "Notifications", "PaymentRequests", "LibraryItems",
-            "InteractiveQuizzes", "InteractiveQuestions" };
+            "InteractiveQuizzes", "InteractiveQuestions", "InteractiveQuizResults" };
         foreach (var t in seqTables)
         {
             try

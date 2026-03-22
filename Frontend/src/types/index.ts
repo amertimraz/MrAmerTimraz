@@ -157,6 +157,16 @@ export interface InteractiveQuiz extends InteractiveQuizSummary {
   questions: InteractiveQuestion[];
 }
 
+export interface InteractiveQuizResult {
+  sessionId: string;
+  name: string;
+  score: number;
+  correct: number;
+  total: number;
+  pct: number;
+  date: string;
+}
+
 export interface LibraryItem {
   id: number;
   title: string;

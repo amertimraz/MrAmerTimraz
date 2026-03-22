@@ -19,6 +19,7 @@ public class AppDbContext : DbContext
     public DbSet<LibraryItem> LibraryItems => Set<LibraryItem>();
     public DbSet<InteractiveQuiz> InteractiveQuizzes => Set<InteractiveQuiz>();
     public DbSet<InteractiveQuestion> InteractiveQuestions => Set<InteractiveQuestion>();
+    public DbSet<InteractiveQuizResult> InteractiveQuizResults => Set<InteractiveQuizResult>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -122,7 +123,17 @@ public class AppDbContext : DbContext
                   .WithMany(qz => qz.Questions)
                   .HasForeignKey(q => q.QuizId)
                   .OnDelete(DeleteBehavior.Cascade);
-            entity.Property(q => q.Type).HasConversion<string>();
+             entity.Property(q => q.Type).HasConversion<string>();
+        });
+ 
+        modelBuilder.Entity<InteractiveQuizResult>(entity =>
+        {
+            entity.HasOne(r => r.Quiz)
+                  .WithMany()
+                  .HasForeignKey(r => r.QuizId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(r => new { r.QuizId, r.SessionId }).IsUnique();
         });
     }
 }

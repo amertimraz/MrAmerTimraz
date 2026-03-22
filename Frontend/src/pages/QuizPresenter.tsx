@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { quizzesApi } from '../api/quizzes';
-import type { InteractiveQuestion } from '../types';
+import type { InteractiveQuestion, InteractiveQuizResult } from '../types';
 import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, Timer, Star, Layers, Trophy, User, Sun, Moon, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { getMediaUrl } from '../utils/media';
@@ -206,9 +206,44 @@ export default function QuizPresenter() {
   /* player */
   const [playerName, setPlayerName] = useState('');
   const [playerNameInput, setPlayerNameInput] = useState('');
-  const [leaderboard, setLeaderboard] = useState<{ name: string; score: number; correct: number; total: number; pct: number; date: string }[]>([]);
+  const sessionId = useMemo(() => crypto.randomUUID(), []);
+  
+  const { data: globalLeaderboard = [], refetch: refetchLeaderboard } = useQuery({
+    queryKey: ['quiz-leaderboard', quiz?.id],
+    queryFn: () => quizzesApi.getLeaderboard(quiz!.id),
+    enabled: !!quiz?.id,
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: (data: Omit<InteractiveQuizResult, 'date'>) => quizzesApi.submitResult(quiz!.id, data),
+    onSuccess: () => refetchLeaderboard(),
+  });
+
+  const saveResultToLeaderboard = useCallback((finalScore: number, correct: number) => {
+    if (!quiz || !playerName) return;
+    const pct = Math.round((correct / questions.length) * 100);
+    
+    // Save to server
+    submitMutation.mutate({
+      sessionId,
+      name: playerName,
+      score: finalScore,
+      correct,
+      total: questions.length,
+      pct,
+    });
+
+    // Also update local for immediate feedback if needed, 
+    // but the global query will refetch on success.
+    const entry = { name: playerName, score: finalScore, correct, total: questions.length, pct, date: new Date().toLocaleDateString('ar-EG') };
+    const key = `quiz-leaderboard-${quiz.id}`;
+    const existing = JSON.parse(localStorage.getItem(key) ?? '[]');
+    localStorage.setItem(key, JSON.stringify([...existing, entry].sort((a, b) => b.score - a.score).slice(0, 50)));
+  }, [quiz, playerName, questions.length, submitMutation, sessionId]);
+
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [expandedLeaderboard, setExpandedLeaderboard] = useState(false);
+  const [expandedNameScreenLeaderboard, setExpandedNameScreenLeaderboard] = useState(false);
   const [leaderboardSearch, setLeaderboardSearch] = useState('');
 
   /* screens */
@@ -295,8 +330,6 @@ export default function QuizPresenter() {
         if (s.timerEnabled !== undefined) setTimerEnabled(s.timerEnabled);
         if (s.timerDuration) { setTimerDuration(s.timerDuration); setTimeLeft(s.timerDuration); }
       } catch { }
-      const lb = localStorage.getItem(`quiz-leaderboard-${quiz.id}`);
-      if (lb) try { setLeaderboard(JSON.parse(lb)); } catch { }
     }
   }, [quiz]);
 
@@ -388,18 +421,13 @@ export default function QuizPresenter() {
       setShowMotiv(true);
       setTimeout(() => setShowMotiv(false), 2000);
     }
-  }, [revealed, questions, currentIdx, pointsForQ, isGolden, reveal, playSound, answeredCorrect]);
 
-  const saveResultToLeaderboard = useCallback((finalScore: number, correct: number) => {
-    if (!quiz || !playerName) return;
-    const pct = Math.round((correct / questions.length) * 100);
-    const entry = { name: playerName, score: finalScore, correct, total: questions.length, pct, date: new Date().toLocaleDateString('ar-EG') };
-    const key = `quiz-leaderboard-${quiz.id}`;
-    const existing: { name: string; score: number; correct: number; total: number; pct: number; date: string }[] = JSON.parse(localStorage.getItem(key) ?? '[]');
-    const updated = [...existing, entry].sort((a, b) => b.score - a.score).slice(0, 50);
-    localStorage.setItem(key, JSON.stringify(updated));
-    setLeaderboard(updated);
-  }, [quiz, playerName, questions.length]);
+    // Live update leaderboard
+    const currentCorrect = answeredCorrect.filter(Boolean).length + (correct ? 1 : 0);
+    const currentScore = score + (correct ? pointsForQ : 0);
+    saveResultToLeaderboard(currentScore, currentCorrect);
+
+  }, [revealed, questions, currentIdx, pointsForQ, isGolden, reveal, playSound, answeredCorrect, score, saveResultToLeaderboard]);
 
   /* next question / stage transition / end */
   const next = useCallback(() => {
@@ -523,31 +551,74 @@ export default function QuizPresenter() {
             autoFocus
           />
           <button
-            onClick={() => { if (playerNameInput.trim()) { setPlayerName(playerNameInput.trim()); setScreen('start'); } }}
+            onClick={() => { if (playerNameInput.trim()) { const name = playerNameInput.trim(); setPlayerName(name); saveResultToLeaderboard(0, 0); setScreen('start'); } }}
             disabled={!playerNameInput.trim()}
             className="w-full py-4 bg-gradient-to-r from-primary-500 to-accent-600 text-white text-xl font-bold rounded-2xl hover:opacity-90 transition-opacity shadow-2xl shadow-primary-500/30 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             🚀 ابدأ الاختبار
           </button>
           {quiz.allowSkipWithoutRegistration !== false && (
-            <button onClick={() => { setPlayerName('زائر'); setScreen('start'); }} className="w-full py-3 bg-white/5 text-gray-400 rounded-2xl hover:bg-white/10 transition-colors text-sm">
+            <button onClick={() => { setPlayerName('زائر'); saveResultToLeaderboard(0, 0); setScreen('start'); }} className="w-full py-3 bg-white/5 text-gray-400 rounded-2xl hover:bg-white/10 transition-colors text-sm">
               تخطي — بدون تسجيل
             </button>
           )}
         </div>
 
-        {leaderboard.length > 0 && (
-          <div className="mt-8">
-            <h3 className="text-gray-400 text-sm mb-3 flex items-center gap-2 justify-center"><Trophy size={14} /> أفضل المتصدرين</h3>
+        {globalLeaderboard.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-gray-400 text-sm flex items-center gap-2"><Trophy size={14} className="text-yellow-400" /> أفضل المتصدرين</h3>
+              {globalLeaderboard.length > 5 && (
+                <button onClick={() => setExpandedNameScreenLeaderboard(true)} className="text-xs px-2 py-1 rounded bg-primary-500/20 text-primary-300 hover:bg-primary-500/30 transition-colors">
+                  عرض الكل ({globalLeaderboard.length})
+                </button>
+              )}
+            </div>
             <div className="space-y-2">
-              {leaderboard.slice(0, 5).map((r, i) => (
-                <div key={i} className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-2.5">
+              {globalLeaderboard.slice(0, 5).map((r, i) => (
+                <div key={i} className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-2.5 hover:bg-white/10 transition-colors">
                   <span className="text-lg w-6 text-center">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}</span>
                   <span className="flex-1 text-white text-sm font-medium text-right">{r.name}</span>
                   <span className="text-yellow-400 font-bold text-sm">{r.score}</span>
                   <span className="text-gray-500 text-xs">{r.pct}%</span>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {expandedNameScreenLeaderboard && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir="rtl">
+            <div className="bg-gradient-to-b from-slate-800 to-slate-900 rounded-3xl w-full max-w-3xl shadow-2xl border border-white/10 flex flex-col max-h-[85vh]">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+                <button onClick={() => setExpandedNameScreenLeaderboard(false)} className="text-gray-400 hover:text-white transition-colors p-1">✕</button>
+                <div className="text-center flex-1">
+                  <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text">🏆 لوحة المتصدرين</h2>
+                  <p className="text-xs text-gray-400 mt-1">{globalLeaderboard.length} متسابق</p>
+                </div>
+                <div className="w-8" />
+              </div>
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+                {globalLeaderboard.map((r, i) => (
+                  <div key={i} className="flex items-center gap-4 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                    <span className="text-2xl w-10 text-center shrink-0">
+                      {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="font-bold text-gray-400">{i + 1}</span>}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm text-white truncate">{r.name}</p>
+                      <div className="flex gap-2 text-xs text-gray-500 mt-0.5">
+                        <span>✅ {r.correct}/{r.total}</span>
+                        <span>•</span>
+                        <span>{r.date}</span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-yellow-400 font-black text-lg">{r.score}</div>
+                      <div className="text-xs font-bold text-gray-400">{r.pct}%</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -636,6 +707,29 @@ export default function QuizPresenter() {
           <span>1-4 = اختيار</span>
         </div>
 
+        {globalLeaderboard.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-gray-400 text-sm flex items-center gap-2"><Trophy size={14} className="text-yellow-400" /> أفضل المتصدرين</h3>
+              {globalLeaderboard.length > 5 && (
+                <button onClick={() => setExpandedNameScreenLeaderboard(true)} className="text-xs px-2 py-1 rounded bg-primary-500/20 text-primary-300 hover:bg-primary-500/30 transition-colors">
+                  عرض الكل ({globalLeaderboard.length})
+                </button>
+              )}
+            </div>
+            <div className="space-y-2">
+              {globalLeaderboard.slice(0, 5).map((r, i) => (
+                <div key={i} className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-2.5 hover:bg-white/10 transition-colors">
+                  <span className="text-lg w-6 text-center">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}</span>
+                  <span className="flex-1 text-white text-sm font-medium text-right">{r.name}</span>
+                  <span className="text-yellow-400 font-bold text-sm">{r.score}</span>
+                  <span className="text-gray-500 text-xs">{r.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-3 justify-center">
           <button onClick={startQuiz} className="px-10 py-4 bg-gradient-to-r from-primary-500 to-accent-600 text-white text-xl font-bold rounded-2xl hover:opacity-90 transition-opacity shadow-2xl shadow-primary-500/30 active:scale-95">
             🚀 ابدأ الاختبار
@@ -721,7 +815,7 @@ export default function QuizPresenter() {
     const pct = Math.round((totalCorrect / questions.length) * 100);
     const rank = getRank(pct);
     const msg = pct >= 80 ? 'ممتاز! أداء رائع' : pct >= 60 ? 'جيد جداً! واصل' : pct >= 40 ? 'كويس، حاول تحسّن' : 'احتاج مزيد من المراجعة';
-    const myPos = leaderboard.findIndex(r => r.name === playerName && r.score === score);
+    const myPos = globalLeaderboard.findIndex((r: any) => r.name === playerName && r.score === score);
     return (
       <div className={`min-h-screen flex items-center justify-center p-6 overflow-y-auto relative ${isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
         <div className="text-center max-w-xl w-full py-6">
@@ -760,14 +854,14 @@ export default function QuizPresenter() {
           )}
 
           {/* Leaderboard */}
-          {leaderboard.length > 0 && (
+          {globalLeaderboard.length > 0 && (
             <div className="mb-5">
               <div className="flex flex-wrap gap-2 justify-center items-center mb-3">
                 <button onClick={() => setShowLeaderboard(s => !s)} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
                   <Trophy size={14} className="text-yellow-400" />
-                  {showLeaderboard ? 'إخفاء' : 'عرض'} لوحة المتصدرين ({leaderboard.length})
+                  {showLeaderboard ? 'إخفاء' : 'عرض'} لوحة المتصدرين ({globalLeaderboard.length})
                 </button>
-                {leaderboard.length > 10 && (
+                {globalLeaderboard.length > 10 && (
                   <button onClick={() => { setExpandedLeaderboard(true); setLeaderboardSearch(''); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-500/20 hover:bg-primary-500/30 text-primary-300 text-xs font-semibold transition-colors">
                     <span>📊 عرض كاملة</span>
                   </button>
@@ -775,7 +869,7 @@ export default function QuizPresenter() {
               </div>
               {showLeaderboard && (
                 <div className="space-y-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/[0.02] p-3 border border-white/5">
-                  {leaderboard.slice(0, 10).map((r, i) => {
+                  {globalLeaderboard.slice(0, 10).map((r, i) => {
                     const isMe = r.name === playerName && r.score === score && i === myPos;
                     return (
                       <div key={i} className={`flex items-center gap-3 px-3.5 py-2 rounded-lg transition-all ${isMe ? 'bg-primary-500/20 border border-primary-500/40 shadow-lg shadow-primary-500/10' : 'bg-white/5 hover:bg-white/8'}`}>
@@ -805,13 +899,13 @@ export default function QuizPresenter() {
                   <button onClick={() => setExpandedLeaderboard(false)} className="text-gray-400 hover:text-white transition-colors p-1">✕</button>
                   <div className="text-center flex-1">
                     <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text">🏆 لوحة المتصدرين</h2>
-                    <p className="text-xs text-gray-400 mt-1">{leaderboard.length} متسابق</p>
+                    <p className="text-xs text-gray-400 mt-1">{globalLeaderboard.length} متسابق</p>
                   </div>
                   <div className="w-8" />
                 </div>
 
                 {/* Search */}
-                {leaderboard.length > 5 && (
+                {globalLeaderboard.length > 5 && (
                   <div className="px-6 py-3 border-b border-white/5 shrink-0">
                     <input
                       type="text"
@@ -826,7 +920,7 @@ export default function QuizPresenter() {
 
                 {/* Leaderboard List */}
                 <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
-                  {leaderboard.map((r, actualIdx) => {
+                  {globalLeaderboard.map((r, actualIdx) => {
                     if (!r.name.toLowerCase().includes(leaderboardSearch.toLowerCase())) return null;
                     const isMe = r.name === playerName && r.score === score;
                     const displayIdx = actualIdx + 1;
@@ -852,7 +946,7 @@ export default function QuizPresenter() {
                       </div>
                     );
                   })}
-                  {leaderboard.filter(r => r.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).length === 0 && (
+                  {globalLeaderboard.filter(r => r.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).length === 0 && (
                     <div className="text-center py-8 text-gray-400">
                       <p className="text-sm">لا توجد نتائج 🔍</p>
                     </div>

@@ -24,6 +24,7 @@ public class InteractiveQuizzesController : ControllerBase
             {
                 q.Id, q.Title, q.Subject, q.Grade, q.Description, q.CoverImageUrl, q.Slug,
                 q.TeacherName, q.TeacherImage, q.WhatsappUrl, q.YoutubeUrl, q.FacebookUrl, q.ShowSupportButton,
+                q.AllowSkipWithoutRegistration,
                 q.ViewCount, q.CreatedAt,
                 QuestionCount = q.Questions.Count
             })
@@ -164,28 +165,39 @@ public class InteractiveQuizzesController : ControllerBase
 
         var maxOrder = quiz.Questions.Any() ? quiz.Questions.Max(q => q.OrderIndex) : -1;
 
-        foreach (var (dto, i) in questions.Select((q, i) => (q, i)))
-        {
-            quiz.Questions.Add(new InteractiveQuestion
-            {
-                Text = dto.Text,
-                Type = dto.Type == "TrueFalse" ? IQType.TrueFalse : IQType.MCQ,
-                Options = dto.Options,
-                CorrectAnswer = dto.CorrectAnswer,
-                Explanation = dto.Explanation,
-                OrderIndex = maxOrder + 1 + i
-            });
-        }
-
         try
         {
+            foreach (var (dto, i) in questions.Select((q, i) => (q, i)))
+            {
+                quiz.Questions.Add(new InteractiveQuestion
+                {
+                    Text = dto.Text,
+                    Type = dto.Type == "TrueFalse" ? IQType.TrueFalse : IQType.MCQ,
+                    Options = dto.Options,
+                    CorrectAnswer = dto.CorrectAnswer,
+                    Explanation = dto.Explanation,
+                    OrderIndex = maxOrder + 1 + i
+                });
+            }
+
             await _db.SaveChangesAsync();
+            return Ok(new { added = questions.Count });
+        }
+        catch (DbUpdateException dex) when (dex.InnerException?.Message.Contains("duplicate key") == true)
+        {
+            try
+            {
+#pragma warning disable EF1002
+                await _db.Database.ExecuteSqlRawAsync("""SELECT setval(pg_get_serial_sequence('public."InteractiveQuestions"', 'Id'), (SELECT MAX("Id") FROM "InteractiveQuestions") + 1);""");
+#pragma warning restore EF1002
+            }
+            catch { }
+            return StatusCode(500, new { error = "تم إعادة تعيين الأسئلة، حاول مرة أخرى" });
         }
         catch (Exception ex)
         {
             return StatusCode(500, new { error = ex.Message, inner = ex.InnerException?.Message });
         }
-        return Ok(new { added = questions.Count });
     }
 
     [HttpDelete("{id}/questions"), Authorize(Roles = "Admin,Teacher")]
@@ -220,6 +232,66 @@ public class InteractiveQuizzesController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok();
     }
+ 
+    [HttpGet("{id}/leaderboard"), AllowAnonymous]
+    public async Task<IActionResult> GetLeaderboard(int id)
+    {
+        var leaderboard = await _db.InteractiveQuizResults
+            .Where(r => r.QuizId == id)
+            .OrderByDescending(r => r.Score)
+            .ThenByDescending(r => r.Percentage)
+            .ThenBy(r => r.CompletedAt)
+            .Take(50)
+            .Select(r => new
+            {
+                name = r.PlayerName,
+                score = r.Score,
+                correct = r.CorrectCount,
+                total = r.TotalCount,
+                pct = r.Percentage,
+                date = r.CompletedAt.ToString("yyyy/MM/dd")
+            })
+            .ToListAsync();
+        return Ok(leaderboard);
+    }
+ 
+    [HttpPost("{id}/results"), AllowAnonymous]
+    public async Task<IActionResult> SubmitResult(int id, [FromBody] SubmitQuizResultDto dto)
+    {
+        var quiz = await _db.InteractiveQuizzes.FindAsync(id);
+        if (quiz == null) return NotFound();
+ 
+        var existing = await _db.InteractiveQuizResults
+            .FirstOrDefaultAsync(r => r.QuizId == id && r.SessionId == dto.sessionId);
+
+        if (existing != null)
+        {
+            existing.PlayerName = dto.name;
+            existing.Score = dto.score;
+            existing.CorrectCount = dto.correct;
+            existing.TotalCount = dto.total;
+            existing.Percentage = dto.pct;
+            existing.CompletedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return Ok(existing);
+        }
+
+        var result = new InteractiveQuizResult
+        {
+            QuizId = id,
+            SessionId = dto.sessionId,
+            PlayerName = dto.name,
+            Score = dto.score,
+            CorrectCount = dto.correct,
+            TotalCount = dto.total,
+            Percentage = dto.pct,
+            CompletedAt = DateTime.UtcNow
+        };
+ 
+        _db.InteractiveQuizResults.Add(result);
+        await _db.SaveChangesAsync();
+        return Ok(result);
+    }
 }
 
 public class CreateQuizDto
@@ -247,4 +319,14 @@ public class CreateIQuestionDto
     public string? Options { get; set; }
     public string? CorrectAnswer { get; set; }
     public string? Explanation { get; set; }
+}
+ 
+public class SubmitQuizResultDto
+{
+    public string sessionId { get; set; } = string.Empty;
+    public string name { get; set; } = string.Empty;
+    public int score { get; set; }
+    public int correct { get; set; }
+    public int total { get; set; }
+    public double pct { get; set; }
 }
