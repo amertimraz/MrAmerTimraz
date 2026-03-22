@@ -9,6 +9,8 @@ export const notificationsApi = {
 
   markRead: (id: number) => client.put(`/notifications/${id}/read`),
 
-  broadcast: (data: { title: string; message: string }) =>
-    client.post('/notifications/broadcast', data).then(r => r.data),
+  broadcast: (data: FormData) =>
+    client.post('/notifications/broadcast', data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
 };

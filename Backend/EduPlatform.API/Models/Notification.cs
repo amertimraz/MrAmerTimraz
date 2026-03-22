@@ -19,5 +19,7 @@ public class Notification
 
     public string? Link { get; set; }
 
+    public string? ImageUrl { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

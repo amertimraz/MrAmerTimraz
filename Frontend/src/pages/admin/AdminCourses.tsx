@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { coursesApi } from '../../api/courses';
-import { notificationsApi } from '../../api/notifications';
+
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Modal from '../../components/ui/Modal';
 import { Search, Trash2, Eye, EyeOff, Send, DollarSign } from 'lucide-react';
@@ -11,8 +11,6 @@ import toast from 'react-hot-toast';
 export default function AdminCourses() {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
-  const [broadcastModal, setBroadcastModal] = useState(false);
-  const [broadcast, setBroadcast] = useState({ title: '', message: '' });
   const [pricingCourse, setPricingCourse] = useState<Course | null>(null);
   const [priceInput, setPriceInput] = useState('');
 
@@ -39,11 +37,6 @@ export default function AdminCourses() {
     onError: () => toast.error('فشل تحديث السعر'),
   });
 
-  const sendBroadcast = useMutation({
-    mutationFn: (data: { title: string; message: string }) => notificationsApi.broadcast(data),
-    onSuccess: () => { toast.success('تم إرسال الإشعار للجميع!'); setBroadcastModal(false); setBroadcast({ title: '', message: '' }); },
-    onError: () => toast.error('فشل الإرسال'),
-  });
 
   const filtered = courses?.filter(c =>
     c.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -59,9 +52,9 @@ export default function AdminCourses() {
           <Search size={18} className="absolute right-3 top-3.5 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} className="input-field pr-10" placeholder="ابحث بالعنوان أو اسم المدرّس..." />
         </div>
-        <button onClick={() => setBroadcastModal(true)} className="btn-primary flex items-center gap-2">
+        <a href="/admin/notifications" className="btn-primary flex items-center gap-2">
           <Send size={18} /> إشعار جماعي
-        </button>
+        </a>
       </div>
 
       <div className="card overflow-hidden">
@@ -151,25 +144,7 @@ export default function AdminCourses() {
         </form>
       </Modal>
 
-      <Modal isOpen={broadcastModal} onClose={() => setBroadcastModal(false)} title="إرسال إشعار جماعي">
-        <form onSubmit={e => { e.preventDefault(); sendBroadcast.mutate(broadcast); }} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">عنوان الإشعار *</label>
-            <input value={broadcast.title} onChange={e => setBroadcast(p => ({ ...p, title: e.target.value }))} className="input-field" placeholder="عنوان الإشعار" required />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نص الإشعار *</label>
-            <textarea value={broadcast.message} onChange={e => setBroadcast(p => ({ ...p, message: e.target.value }))} className="input-field resize-none" rows={4} placeholder="اكتب نص الإشعار هنا..." required />
-          </div>
-          <p className="text-xs text-gray-400">سيتم إرسال هذا الإشعار لجميع المستخدمين في المنصة</p>
-          <div className="flex gap-3 pt-2">
-            <button type="submit" className="btn-primary flex-1" disabled={sendBroadcast.isPending}>
-              <Send size={16} className="inline ml-2" /> إرسال للجميع
-            </button>
-            <button type="button" onClick={() => setBroadcastModal(false)} className="btn-secondary">إلغاء</button>
-          </div>
-        </form>
-      </Modal>
+
     </div>
   );
 }

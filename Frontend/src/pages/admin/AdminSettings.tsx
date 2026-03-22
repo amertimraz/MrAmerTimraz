@@ -1,42 +1,8 @@
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { notificationsApi } from '../../api/notifications';
-import { Send, Shield, Database, Bell } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { Shield, Database } from 'lucide-react';
 
 export default function AdminSettings() {
-  const [broadcast, setBroadcast] = useState({ title: '', message: '' });
-
-  const sendBroadcast = useMutation({
-    mutationFn: (data: { title: string; message: string }) => notificationsApi.broadcast(data),
-    onSuccess: () => { toast.success('تم إرسال الإشعار!'); setBroadcast({ title: '', message: '' }); },
-    onError: () => toast.error('فشل الإرسال'),
-  });
-
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
-      <div className="card p-6">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center">
-            <Bell size={20} className="text-blue-600" />
-          </div>
-          <h3 className="font-bold text-gray-900 dark:text-white">إشعار جماعي</h3>
-        </div>
-        <form onSubmit={e => { e.preventDefault(); sendBroadcast.mutate(broadcast); }} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">العنوان</label>
-            <input value={broadcast.title} onChange={e => setBroadcast(p => ({ ...p, title: e.target.value }))} className="input-field" placeholder="عنوان الإشعار" required />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الرسالة</label>
-            <textarea value={broadcast.message} onChange={e => setBroadcast(p => ({ ...p, message: e.target.value }))} className="input-field resize-none" rows={3} placeholder="نص الإشعار..." required />
-          </div>
-          <button type="submit" className="btn-primary flex items-center gap-2" disabled={sendBroadcast.isPending}>
-            <Send size={16} /> إرسال لجميع المستخدمين
-          </button>
-        </form>
-      </div>
-
       <div className="card p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center">

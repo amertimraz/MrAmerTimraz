@@ -11,8 +11,13 @@ namespace EduPlatform.API.Controllers;
 public class NotificationsController : ControllerBase
 {
     private readonly INotificationService _notifications;
+    private readonly IWebHostEnvironment _env;
 
-    public NotificationsController(INotificationService notifications) => _notifications = notifications;
+    public NotificationsController(INotificationService notifications, IWebHostEnvironment env)
+    {
+        _notifications = notifications;
+        _env = env;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetMy()
@@ -36,15 +41,48 @@ public class NotificationsController : ControllerBase
     }
 
     [HttpPost("broadcast"), Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Broadcast([FromBody] BroadcastDto dto)
+    public async Task<IActionResult> Broadcast([FromForm] SendNotificationDto dto)
     {
-        await _notifications.SendToAllAsync(dto.Title, dto.Message);
-        return Ok(new { message = "Notification sent to all users" });
+        string? imageUrl = null;
+        if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+        {
+            var ext = Path.GetExtension(dto.ImageFile.FileName).ToLowerInvariant();
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif" };
+            if (allowed.Contains(ext))
+            {
+                var root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var dir = Path.Combine(root, "uploads", "notifications");
+                Directory.CreateDirectory(dir);
+
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var path = Path.Combine(dir, fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await dto.ImageFile.CopyToAsync(stream);
+                }
+                imageUrl = $"/uploads/notifications/{fileName}";
+            }
+        }
+
+        await _notifications.BroadcastAsync(dto, imageUrl);
+        return Ok(new { message = "Notification sent." });
     }
 }
 
-public class BroadcastDto
+public class SendNotificationDto
 {
     public string Title { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
+    public string? LinkUrl { get; set; }
+    
+    public IFormFile? ImageFile { get; set; }
+
+    // "All", "Teachers", "Students", "Course", "SpecificUsers"
+    public string TargetType { get; set; } = "All";
+    
+    [FromForm(Name = "TargetUserIds")]
+    public string? TargetUserIdsJson { get; set; } // Since it's from form, we might send JSON array string "[1,2,3]"
+    
+    public int? TargetCourseId { get; set; }
 }

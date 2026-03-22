@@ -40,6 +40,7 @@ import TestGeneratorPage     from './pages/teacher/TestGeneratorPage';
 import AdminDashboard        from './pages/admin/AdminDashboard';
 import AdminUsers            from './pages/admin/AdminUsers';
 import AdminCourses          from './pages/admin/AdminCourses';
+import AdminNotifications    from './pages/admin/AdminNotifications';
 import AdminSettings         from './pages/admin/AdminSettings';
 import AdminCategories       from './pages/admin/AdminCategories';
 import AdminPayments         from './pages/admin/AdminPayments';
@@ -118,7 +119,7 @@ export default function App() {
             <Route path="courses"         element={<AdminCourses />} />
             <Route path="payments"        element={<AdminPayments />} />
             <Route path="tests"           element={<AdminCourses />} />
-            <Route path="notifications"   element={<NotificationsPage />} />
+            <Route path="notifications"   element={<AdminNotifications />} />
             <Route path="settings"        element={<AdminSettings />} />
             <Route path="categories"      element={<AdminCategories />} />
             <Route path="library"         element={<AdminLibrary />} />

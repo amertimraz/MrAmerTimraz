@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationsApi } from '../../api/notifications';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Bell, CheckCheck } from 'lucide-react';
+import { getMediaUrl } from '../../utils/media';
 
 export default function NotificationsPage() {
   const qc = useQueryClient();
@@ -38,8 +39,8 @@ export default function NotificationsPage() {
         <div className="space-y-3">
           {notifications.map(n => (
             <div key={n.id}
-              className={`card p-4 flex gap-4 transition-all ${!n.isRead ? 'border-r-4 border-r-primary-500' : ''}`}>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0
+              className={`card p-4 flex gap-4 transition-all ${!n.isRead ? 'border-r-4 border-r-primary-500 bg-primary-50/10 dark:bg-primary-900/10' : ''}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-1
                 ${n.isRead ? 'bg-gray-100 dark:bg-gray-700' : 'bg-primary-100 dark:bg-primary-900'}`}>
                 <Bell size={18} className={n.isRead ? 'text-gray-400' : 'text-primary-600'} />
               </div>
@@ -47,14 +48,27 @@ export default function NotificationsPage() {
                 <p className={`font-semibold ${n.isRead ? 'text-gray-600 dark:text-gray-300' : 'text-gray-900 dark:text-white'}`}>
                   {n.title}
                 </p>
-                <p className="text-sm text-gray-500 mt-1">{n.message}</p>
-                <p className="text-xs text-gray-400 mt-2">
+                <div className="text-sm text-gray-500 mt-1 whitespace-pre-wrap">{n.message}</div>
+                
+                {n.imageUrl && (
+                  <div className="mt-3 rounded-lg overflow-hidden border">
+                    <img src={getMediaUrl(n.imageUrl)} alt="Notification Attachment" className="w-full max-w-sm h-auto object-cover rounded-lg" />
+                  </div>
+                )}
+                  
+                {n.link && (
+                  <a href={n.link} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 px-4 py-2 bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg text-sm font-medium hover:bg-primary-100 transition-colors">
+                    🔗 فتح الرابط المرفق
+                  </a>
+                )}
+                
+                <p className="text-xs text-gray-400 mt-3 inline-block ml-3 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                   {new Date(n.createdAt).toLocaleString('ar-EG')}
                 </p>
               </div>
               {!n.isRead && (
                 <button onClick={() => markRead.mutate(n.id)}
-                  className="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900 transition-colors shrink-0"
+                  className="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900 transition-colors shrink-0 items-start self-start"
                   title="تحديد كمقروء">
                   <CheckCheck size={18} />
                 </button>

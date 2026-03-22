@@ -128,6 +128,7 @@ export interface Notification {
   message: string;
   isRead: boolean;
   link?: string;
+  imageUrl?: string;
   createdAt: string;
 }
 
