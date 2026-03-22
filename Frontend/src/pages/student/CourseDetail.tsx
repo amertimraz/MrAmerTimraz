@@ -1,19 +1,24 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { coursesApi } from '../../api/courses';
 import { videosApi } from '../../api/videos';
 import { testsApi } from '../../api/tests';
+import type { Video } from '../../types';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { Play, FileText, ArrowRight, Clock, Youtube, Download } from 'lucide-react';
+import { Play, FileText, ArrowRight, Clock, Youtube, Download, MessageCircle, Send, User as UserIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { resolveFileUrl } from '../../config';
 
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
-  const [activeVideoData, setActiveVideoData] = useState<{ pdfUrl?: string } | null>(null);
+  const [activeVideoData, setActiveVideoData] = useState<Video | null>(null);
   const [tab, setTab] = useState<'videos' | 'tests'>('videos');
+  const [comment, setComment] = useState('');
+
 
   const { data: course, isLoading } = useQuery({
     queryKey: ['course', id],
@@ -28,6 +33,22 @@ export default function CourseDetail() {
   const { data: tests } = useQuery({
     queryKey: ['tests', id],
     queryFn: () => testsApi.getByCourse(Number(id)),
+  });
+
+  const { data: videoComments = [], refetch: refetchComments } = useQuery({
+    queryKey: ['video-comments', activeVideoId],
+    queryFn: () => videosApi.getComments(activeVideoId!),
+    enabled: !!activeVideoId,
+  });
+
+  const addComment = useMutation({
+    mutationFn: (text: string) => videosApi.addComment(activeVideoId!, text),
+    onSuccess: () => {
+      setComment('');
+      refetchComments();
+      toast.success('تم إضافة تعليقك');
+    },
+    onError: () => toast.error('فشل في إضافة التعليق'),
   });
 
   const getYouTubeId = (url: string) => {
@@ -73,7 +94,7 @@ export default function CourseDetail() {
             <video src={activeVideo} controls className="w-full aspect-video bg-black" />
           )}
           {activeVideoData?.pdfUrl && (
-            <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20">
               <a
                 href={resolveUrl(activeVideoData.pdfUrl)}
                 target="_blank"
@@ -85,6 +106,61 @@ export default function CourseDetail() {
               </a>
             </div>
           )}
+          
+          {/* Comments Section for Active Video */}
+          <div className="p-6 border-t border-gray-100 dark:border-gray-700">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-6">
+              <MessageCircle size={20} className="text-primary-600" /> التعليقات ({videoComments.length})
+            </h2>
+
+            {/* Post Comment */}
+            <div className="flex gap-3 mb-8">
+              <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center text-gray-400">
+                <UserIcon size={20} />
+              </div>
+              <div className="flex-1 space-y-3">
+                <textarea
+                  value={comment}
+                  onChange={e => setComment(e.target.value)}
+                  placeholder="ضع استفسارك أو تعليقك هنا..."
+                  className="w-full input-field resize-none min-h-[80px] text-sm"
+                />
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => { if (comment.trim()) addComment.mutate(comment.trim()); }}
+                    disabled={!comment.trim() || addComment.isPending}
+                    className="btn-primary py-1.5 px-4 text-sm flex items-center gap-2"
+                  >
+                    <Send size={14} className="-rotate-45" /> إرسال
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Comments List */}
+            <div className="space-y-4">
+              {videoComments.map(c => (
+                <div key={c.id} className="flex gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700">
+                  <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
+                    {c.student.profileImage ? (
+                      <img src={resolveUrl(c.student.profileImage)} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600">
+                        <UserIcon size={20} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-sm text-gray-900 dark:text-white">{c.student.name}</h4>
+                      <span className="text-[10px] text-gray-400">{new Date(c.createdAt).toLocaleDateString('ar-EG')}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{c.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
@@ -102,8 +178,8 @@ export default function CourseDetail() {
           {!videos?.length ? (
             <div className="card p-8 text-center text-gray-400">لا توجد فيديوهات بعد</div>
           ) : videos.map((v, i) => (
-            <div key={v.id} onClick={() => { setActiveVideo(getEmbedUrl(v.url, v.source)); setActiveVideoData(v); }}
-              className="card p-4 flex items-center gap-4 hover:shadow-md cursor-pointer transition-all group">
+            <div key={v.id} onClick={() => { setActiveVideoId(v.id); setActiveVideo(getEmbedUrl(v.url, v.source)); setActiveVideoData(v); }}
+              className={`card p-4 flex items-center gap-4 hover:shadow-md cursor-pointer transition-all group ${activeVideoId === v.id ? 'ring-2 ring-primary-500 bg-primary-50/10' : ''}`}>
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-xl flex items-center justify-center text-primary-600 font-bold group-hover:bg-primary-600 group-hover:text-white transition-colors">
                 {i + 1}
               </div>

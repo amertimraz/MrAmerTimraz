@@ -60,22 +60,24 @@ export default function LessonPage() {
   );
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-fade-in p-4" dir="rtl">
+    <div className="max-w-5xl mx-auto space-y-6 animate-fade-in p-4" dir="rtl">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-          <ArrowRight size={20} />
-        </button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{video.title}</h1>
-          <p className="text-sm text-gray-400 mt-1">
-             رابط الدرس المباشر
-          </p>
+      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-500 hover:text-primary-600 transition-colors">
+        <ArrowRight size={18} /> العودة
+      </button>
+
+      <div className="card p-6 bg-gradient-to-l from-primary-50 to-accent-50 dark:from-gray-700 dark:to-gray-800 border-none shadow-sm">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{video.title}</h1>
+        {video.description && <p className="text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">{video.description}</p>}
+        <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
+           <span className="flex items-center gap-1.5"><UserIcon size={14} /> مستر عامر</span>
+           <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+           <span className="text-primary-600 font-medium">رابط الدرس المباشر</span>
         </div>
       </div>
 
       {/* Video Player */}
-      <div className="card overflow-hidden shadow-2xl shadow-primary-500/10 border-none bg-black">
+      <div className="card overflow-hidden shadow-2xl shadow-primary-500/10 border-none bg-black ring-1 ring-gray-200 dark:ring-gray-800">
         {video.source === 'YouTube' || video.source === 'Vimeo' ? (
           <iframe 
             src={getEmbedUrl(video.url, video.source)} 
@@ -88,133 +90,103 @@ export default function LessonPage() {
         )}
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {/* Left Column: Description & PDF */}
-        <div className="md:col-span-2 space-y-6">
-          <div className="card p-6">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Play size={20} className="text-primary-600" /> وصف الدرس
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-              {video.description || 'لا يوجد وصف لهذا الدرس'}
-            </p>
-            
-            {video.pdfUrl && (
-              <div className="mt-8 p-6 bg-orange-50 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center text-orange-600">
-                    <FileText size={24} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white uppercase">المذكرة المرفقة</h3>
-                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">ملف بصيغة PDF</p>
-                  </div>
+      <div className="space-y-6">
+        {/* Description & PDF */}
+        <div className="card p-6 border-none shadow-sm">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Play size={20} className="text-primary-600" /> وصف الدرس
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+            {video.description || 'لا يوجد وصف لهذا الدرس'}
+          </p>
+          
+          {video.pdfUrl && (
+            <div className="mt-8 p-6 bg-orange-50 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center text-orange-600">
+                  <FileText size={24} />
                 </div>
-                <a
-                  href={resolveFileUrl(video.pdfUrl)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-primary bg-orange-600 hover:bg-orange-700 border-none shadow-orange-500/20 flex items-center gap-2"
-                >
-                  <Download size={18} /> تحميل
-                </a>
-              </div>
-            )}
-          </div>
-
-          {/* Comments Section */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 px-2">
-              <MessageCircle size={22} className="text-primary-600" /> التعليقات ({comments.length})
-            </h2>
-
-            {/* Post Comment */}
-            <div className="card p-4">
-              <div className="flex gap-3">
-                <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center text-gray-400">
-                  <UserIcon size={20} />
-                </div>
-                <div className="flex-1 space-y-3">
-                  <textarea
-                    value={comment}
-                    onChange={e => setComment(e.target.value)}
-                    placeholder="ضع استفسارك أو تعليقك هنا..."
-                    className="w-full input-field resize-none min-h-[100px] border-gray-200 focus:border-primary-500 focus:ring-primary-500"
-                  />
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => { if (comment.trim()) addComment.mutate(comment.trim()); }}
-                      disabled={!comment.trim() || addComment.isPending}
-                      className="btn-primary flex items-center gap-2"
-                    >
-                      {addComment.isPending ? 'جارٍ الإرسال...' : (
-                        <>
-                          إرسال التعليق <Send size={16} className="-rotate-45" />
-                        </>
-                      )}
-                    </button>
-                  </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 dark:text-white uppercase">المذكرة المرفقة</h3>
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">ملف بصيغة PDF</p>
                 </div>
               </div>
+              <a
+                href={resolveFileUrl(video.pdfUrl)}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-primary bg-orange-600 hover:bg-orange-700 border-none shadow-orange-500/20 flex items-center gap-2"
+              >
+                <Download size={18} /> تحميل
+              </a>
             </div>
-
-            {/* Comments List */}
-            <div className="space-y-4">
-              {comments.length === 0 ? (
-                <div className="text-center py-10 text-gray-400 bg-gray-50/50 dark:bg-gray-800/20 rounded-2xl border-2 border-dashed border-gray-100 dark:border-gray-700">
-                  لا توجد تعليقات بعد. كن أول من يعلق!
-                </div>
-              ) : comments.map(c => (
-                <div key={c.id} className="card p-5 group hover:shadow-lg transition-shadow">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-gray-700 shadow-sm shrink-0">
-                      {c.student.profileImage ? (
-                        <img src={resolveFileUrl(c.student.profileImage)} alt={c.student.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary-500 to-accent-600 flex items-center justify-center text-white">
-                          <UserIcon size={24} />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-gray-900 dark:text-white">{c.student.name}</h4>
-                        <span className="text-[10px] text-gray-400">{new Date(c.createdAt).toLocaleDateString('ar-EG', { dateStyle: 'long' })}</span>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                        {c.content}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Right Column: Sidebar */}
-        <div className="space-y-6">
-          <div className="card p-6 bg-primary-600 text-white border-none shadow-xl shadow-primary-500/20">
-            <h3 className="text-lg font-bold mb-2">تعليمات</h3>
-            <p className="text-sm opacity-90 leading-relaxed">
-              يمكنك متابعة الدرس وتحميل المذكرة المرفقة. في حال كان لديك أي سؤال، يمكنك تركه في قسم التعليقات وسنقوم بالرد عليك في أقرب وقت.
-            </p>
-          </div>
+        {/* Comments Section */}
+        <div className="card p-6 border-none shadow-sm bg-gray-50/30 dark:bg-black/10">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-8">
+            <MessageCircle size={22} className="text-primary-600" /> التعليقات ({comments.length})
+          </h2>
 
-          <div className="card p-6">
-            <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-               معلومات الدرس
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm py-2 border-b border-gray-50 dark:border-gray-700">
-                <span className="text-gray-400">المدة</span>
-                <span className="font-medium text-gray-700 dark:text-gray-200">{Math.floor(video.durationSeconds / 60)} دقيقة</span>
-              </div>
-              <div className="flex items-center justify-between text-sm py-2">
-                <span className="text-gray-400">تاريخ الإضافة</span>
-                <span className="font-medium text-gray-700 dark:text-gray-200">{new Date(video.createdAt).toLocaleDateString('ar-EG')}</span>
+          {/* Post Comment */}
+          <div className="flex gap-4 mb-10">
+            <div className="w-12 h-12 bg-white dark:bg-gray-700 rounded-2xl shadow-sm flex items-center justify-center text-gray-400 shrink-0">
+              <UserIcon size={24} />
+            </div>
+            <div className="flex-1 space-y-3">
+              <textarea
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+                placeholder="ضع استفسارك أو تعليقك هنا..."
+                className="w-full input-field resize-none min-h-[100px] border-none shadow-sm focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-800"
+              />
+              <div className="flex justify-end">
+                <button
+                  onClick={() => { if (comment.trim()) addComment.mutate(comment.trim()); }}
+                  disabled={!comment.trim() || addComment.isPending}
+                  className="btn-primary flex items-center gap-2 shadow-lg shadow-primary-500/20 px-8"
+                >
+                  {addComment.isPending ? 'جارٍ الإرسال...' : (
+                    <>
+                      إرسال التعليق <Send size={16} className="-rotate-45" />
+                    </>
+                  )}
+                </button>
               </div>
             </div>
+          </div>
+
+          {/* Comments List */}
+          <div className="space-y-4">
+            {comments.length === 0 ? (
+              <div className="text-center py-12 text-gray-400 text-sm border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl">
+                لا توجد تعليقات بعد. كن أول من يضيف تعليقاً!
+              </div>
+            ) : comments.map(c => (
+              <div key={c.id} className="flex gap-4 p-5 rounded-3xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 transition-all hover:border-primary-100 dark:hover:border-primary-900/50">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-sm">
+                  {c.student.profileImage ? (
+                    <img src={resolveFileUrl(c.student.profileImage)} alt={c.student.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/40 dark:to-primary-800/20 flex items-center justify-center text-primary-600 dark:text-primary-400">
+                      <UserIcon size={24} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wide">{c.student.name}</h4>
+                    <span className="text-[10px] text-gray-400 bg-gray-50 dark:bg-gray-700 px-2 py-0.5 rounded-full font-medium">
+                      {new Date(c.createdAt).toLocaleDateString('ar-EG', { dateStyle: 'long' })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {c.content}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
