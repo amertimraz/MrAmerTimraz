@@ -6,7 +6,6 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Play, FileText, ArrowRight, Download, MessageCircle, Send, User as UserIcon } from 'lucide-react';
 import { resolveFileUrl } from '../../config';
 import toast from 'react-hot-toast';
-import type { Video, VideoComment } from '../../types';
 
 export default function LessonPage() {
   const { slug } = useParams<{ slug: string }>();
