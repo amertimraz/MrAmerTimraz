@@ -24,7 +24,7 @@ public class VideosController : ControllerBase
         return video == null ? NotFound() : Ok(video);
     }
 
-    [HttpGet("slug/{slug}"), AllowAnonymous]
+    [HttpGet("slug/{slug}")]
     public async Task<IActionResult> GetBySlug(string slug)
     {
         var video = await _videos.GetBySlugAsync(slug);

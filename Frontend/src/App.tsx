@@ -128,7 +128,7 @@ export default function App() {
 
           <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
           <Route path="/quiz/:id" element={<QuizPresenter />} />
-          <Route path="/lessons/:slug" element={<LessonPage />} />
+          <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
