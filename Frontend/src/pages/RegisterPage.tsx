@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
   const [form, setForm] = useState({ name: '', username: '', phoneNumber: '', password: '', role: 'Student' });
+  const [countryCode, setCountryCode] = useState('+20');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +17,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await authApi.register(form);
+      const fullPhone = `${countryCode}${form.phoneNumber}`;
+      const res = await authApi.register({ ...form, phoneNumber: fullPhone });
       setAuth(res.user, res.token);
       toast.success('تم إنشاء الحساب بنجاح!');
       navigate('/student');
@@ -61,10 +63,42 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رقم الهاتف</label>
-              <div className="relative">
-                <Phone size={18} className="absolute right-3 top-3.5 text-gray-400" />
-                <input type="tel" value={form.phoneNumber} onChange={e => setForm(p => ({ ...p, phoneNumber: e.target.value }))}
-                  className="input-field pr-10" placeholder="01xxxxxxxxx" required />
+              <div className="flex gap-2" dir="ltr">
+                <div className="relative w-32 shrink-0">
+                  <select
+                    value={countryCode}
+                    onChange={e => setCountryCode(e.target.value)}
+                    className="input-field w-full appearance-none px-2 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 cursor-pointer text-left font-medium"
+                  >
+                    <option value="+20">🇪🇬 +20</option>
+                    <option value="+966">🇸🇦 +966</option>
+                    <option value="+971">🇦🇪 +971</option>
+                    <option value="+965">🇰🇼 +965</option>
+                    <option value="+974">🇶🇦 +974</option>
+                    <option value="+973">🇧🇭 +973</option>
+                    <option value="+968">🇴🇲 +968</option>
+                    <option value="+218">🇱🇾 +218</option>
+                    <option value="+249">🇸🇩 +249</option>
+                    <option value="+962">🇯🇴 +962</option>
+                    <option value="+970">🇵🇸 +970</option>
+                    <option value="+964">🇮🇶 +964</option>
+                    <option value="+963">🇸🇾 +963</option>
+                    <option value="+961">🇱🇧 +961</option>
+                    <option value="+213">🇩🇿 +213</option>
+                    <option value="+212">🇲🇦 +212</option>
+                    <option value="+216">🇹🇳 +216</option>
+                    <option value="+967">🇾🇪 +967</option>
+                  </select>
+                </div>
+                <div className="relative flex-1">
+                  <Phone size={18} className="absolute left-3 top-3.5 text-gray-400" />
+                  <input type="tel" value={form.phoneNumber}
+                    onChange={e => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setForm(p => ({ ...p, phoneNumber: val }));
+                    }}
+                    className="input-field pl-10" placeholder="1xxxxxxxxx" required />
+                </div>
               </div>
             </div>
 
