@@ -109,41 +109,20 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+    
+    // Use Migrate instead of EnsureCreated to support migrations properly
+    db.Database.Migrate();
+
     var isPostgres = db.Database.IsNpgsql();
     if (isPostgres)
     {
-        var alters = new[]
-        {
-            ("LibraryItems",        "ThumbnailUrl",      "TEXT"),
-            ("LibraryItems",        "QuizUrl",           "TEXT"),
-            ("LibraryItems",        "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
-            ("LibraryItems",        "DownloadCount",     "INTEGER NOT NULL DEFAULT 0"),
-            ("InteractiveQuizzes",  "CoverImageUrl",     "TEXT"),
-            ("InteractiveQuizzes",  "Slug",              "TEXT"),
-            ("InteractiveQuizzes",  "TeacherName",       "TEXT"),
-            ("InteractiveQuizzes",  "TeacherImage",      "TEXT"),
-            ("InteractiveQuizzes",  "WhatsappUrl",       "TEXT"),
-            ("InteractiveQuizzes",  "TeacherWhatsappNumber", "TEXT"),
-            ("InteractiveQuizzes",  "YoutubeUrl",        "TEXT"),
-            ("InteractiveQuizzes",  "FacebookUrl",       "TEXT"),
-            ("InteractiveQuizzes",   "ShowSupportButton", "BOOLEAN NOT NULL DEFAULT TRUE"),
-            ("InteractiveQuizzes",   "AllowSkipWithoutRegistration", "BOOLEAN NOT NULL DEFAULT TRUE"),
-            ("InteractiveQuizzes",   "ViewCount",         "INTEGER NOT NULL DEFAULT 0"),
-            ("InteractiveQuestions", "Explanation",       "TEXT"),
-        };
-        foreach (var (table, col, colDef) in alters)
-        {
-            try
-            {
-                db.Database.ExecuteSqlRaw($"ALTER TABLE \"{table}\" ADD COLUMN IF NOT EXISTS \"{col}\" {colDef};");
-            }
-            catch { }
-        }
-
-        var seqTables = new[] { "Users", "Courses", "Videos", "Tests", "Questions", "Results",
+        // Keep the sequence reset logic for PostgreSQL to avoid ID conflicts after bulk imports
+        var seqTables = new[] { 
+            "Users", "Courses", "Videos", "Tests", "Questions", "Results",
             "Enrollments", "Notifications", "PaymentRequests", "LibraryItems",
-            "InteractiveQuizzes", "InteractiveQuestions", "InteractiveQuizResults" };
+            "InteractiveQuizzes", "InteractiveQuestions", "InteractiveQuizResults",
+            "VideoComments" 
+        };
         foreach (var t in seqTables)
         {
             try
@@ -168,20 +147,7 @@ using (var scope = app.Services.CreateScope())
             catch { }
         }
     }
-    else
-    {
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryItems\" ADD COLUMN \"ThumbnailUrl\" TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryItems\" ADD COLUMN \"QuizUrl\" TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryItems\" ADD COLUMN \"ViewCount\" INTEGER NOT NULL DEFAULT 0;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryItems\" ADD COLUMN \"DownloadCount\" INTEGER NOT NULL DEFAULT 0;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"CoverImageUrl\" TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherName\" TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"TeacherImage\" TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"WhatsappUrl\" TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"YoutubeUrl\" TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"FacebookUrl\" TEXT;"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN \"ShowSupportButton\" BOOLEAN NOT NULL DEFAULT TRUE;"); } catch { }
-    }
+    
     await DbSeeder.SeedAsync(db);
 }
 
