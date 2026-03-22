@@ -96,16 +96,41 @@ public class TestService : ITestService
         _db.Tests.Add(test);
         await _db.SaveChangesAsync();
 
-        var testQuestions = quiz.Questions.Select((q, index) => new Question
-        {
-            TestId = test.Id,
-            QuestionText = q.Text,
-            QuestionType = q.Type == IQType.TrueFalse ? QuestionType.TrueFalse : QuestionType.MultipleChoice,
-            Options = q.Options,
-            CorrectAnswer = q.CorrectAnswer,
-            Points = 1,
-            OrderIndex = index,
-            ImageUrl = null
+        var testQuestions = quiz.Questions.Select((q, index) => {
+            string? correctText = q.CorrectAnswer;
+            try
+            {
+                if (!string.IsNullOrEmpty(q.Options))
+                {
+                    var optionsList = JsonSerializer.Deserialize<List<string>>(q.Options);
+                    if (optionsList != null && optionsList.Any())
+                    {
+                        if (q.Type == IQType.TrueFalse)
+                        {
+                            int idx = (q.CorrectAnswer?.ToLower() == "true") ? 0 : 1;
+                            if (idx < optionsList.Count) correctText = optionsList[idx];
+                        }
+                        else if (int.TryParse(q.CorrectAnswer, out int optIndex))
+                        {
+                            if (optIndex >= 0 && optIndex < optionsList.Count)
+                                correctText = optionsList[optIndex];
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return new Question
+            {
+                TestId = test.Id,
+                QuestionText = q.Text,
+                QuestionType = q.Type == IQType.TrueFalse ? QuestionType.TrueFalse : QuestionType.MultipleChoice,
+                Options = q.Options,
+                CorrectAnswer = correctText,
+                Points = 1,
+                OrderIndex = index,
+                ImageUrl = null
+            };
         }).ToList();
 
         _db.Questions.AddRange(testQuestions);
