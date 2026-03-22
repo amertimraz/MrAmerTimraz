@@ -17,6 +17,14 @@ public class CreateTestDto
     public int PassingScore { get; set; } = 60;
 }
 
+public class ImportQuizDto
+{
+    public int CourseId { get; set; }
+    public int QuizId { get; set; }
+    public int DurationMinutes { get; set; } = 30;
+    public int PassingScore { get; set; } = 60;
+}
+
 public class CreateQuestionDto
 {
     [Required]

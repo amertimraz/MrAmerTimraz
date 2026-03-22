@@ -9,6 +9,9 @@ export const testsApi = {
 
   create: (data: object) => client.post<Test>('/tests', data).then(r => r.data),
 
+  importQuiz: (data: { courseId: number; quizId: number; durationMinutes: number; passingScore: number }) =>
+    client.post<Test>('/tests/import-quiz', data).then(r => r.data),
+
   addQuestion: (testId: number, data: object) =>
     client.post(`/tests/${testId}/questions`, data).then(r => r.data),
 
