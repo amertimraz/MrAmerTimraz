@@ -36,7 +36,8 @@ const adminLinks: NavItem[] = [
   { to: '/admin/notifications', icon: <Bell size={20} />, label: 'الإشعارات' },
   { to: '/admin/categories',    icon: <Tag size={20} />,      label: 'الأقسام الدراسية' },
   { to: '/admin/library',       icon: <FolderOpen size={20} />, label: 'المكتبة التعليمية' },
-  { to: '/admin/quizzes',       icon: <div className="relative"><Layers size={20} /><span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span></div>, label: 'الاختبارات التفاعلية (قريباً)' },
+  { to: '/admin/quizzes',       icon: <Layers size={20} />,     label: 'الاختبارات التفاعلية' },
+  { to: '/student/games',       icon: <div className="relative"><Gamepad2 size={20} /><span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span></div>, label: 'الألعاب التعليمية (قريباً)' },
   { to: '/admin/settings',      icon: <Settings size={20} />, label: 'الإعدادات' },
 ];
 
