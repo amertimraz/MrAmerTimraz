@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { coursesApi } from '../../api/courses';
 import { videosApi } from '../../api/videos';
 import { testsApi } from '../../api/tests';
+import { uploadsApi } from '../../api/uploads';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Modal from '../../components/ui/Modal';
 import toast from 'react-hot-toast';
@@ -14,7 +15,7 @@ import {
   Clock, Eye, EyeOff, Pencil, Link2, Youtube,
 } from 'lucide-react';
 import { resolveFileUrl } from '../../config';
-const emptyVideoForm = { title: '', url: '', description: '', source: 'YouTube', durationSeconds: 0, orderIndex: 0 };
+const emptyVideoForm = { title: '', url: '', description: '', source: 'YouTube', durationSeconds: 0, orderIndex: 0, slug: '', pdfUrl: '' };
 const emptyTestForm  = { title: '', description: '', durationMinutes: 30, passingScore: 60 };
 
 export default function CourseManager() {
@@ -29,6 +30,7 @@ export default function CourseManager() {
   const [testModal, setTestModal]   = useState(false);
   const [videoForm, setVideoForm]   = useState({ ...emptyVideoForm });
   const [testForm, setTestForm]     = useState({ ...emptyTestForm });
+  const [isUploading, setIsUploading] = useState(false);
 
   const courseId = Number(id);
 
@@ -257,15 +259,25 @@ export default function CourseManager() {
                           >
                             <Play size={15} /> مشاهدة الفيديو
                           </a>
-                          <button
-                            onClick={() => {
-                              if (confirm(`هل تريد حذف درس "${lesson.title}"؟`))
-                                deleteLesson.mutate(lesson.id);
-                            }}
-                            className="btn-danger text-sm flex items-center gap-2 justify-center"
-                          >
-                            <Trash2 size={15} /> حذف الدرس
-                          </button>
+                            <button
+                              onClick={() => {
+                                const link = `${window.location.origin}/lessons/${lesson.slug}`;
+                                navigator.clipboard.writeText(link);
+                                toast.success('تم نسخ الرابط!');
+                              }}
+                              className="btn-secondary text-sm flex items-center gap-2 justify-center"
+                            >
+                              <Link2 size={15} /> نسخ رابط الدرس
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`هل تريد حذف درس "${lesson.title}"؟`))
+                                  deleteLesson.mutate(lesson.id);
+                              }}
+                              className="btn-danger text-sm flex items-center gap-2 justify-center"
+                            >
+                              <Trash2 size={15} /> حذف الدرس
+                            </button>
                         </div>
                       </div>
                     </div>
@@ -411,6 +423,55 @@ export default function CourseManager() {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              اسم الرابط المخصص (Slug) *
+            </label>
+            <div className="flex gap-2">
+              <input
+                value={videoForm.slug}
+                onChange={e => setVideoForm(p => ({ ...p, slug: e.target.value.replace(/\s+/g, '-').toLowerCase() }))}
+                className="input-field" placeholder="مثال: math-lesson-1" required
+              />
+              <button
+                type="button"
+                onClick={() => setVideoForm(p => ({ ...p, slug: p.title.replace(/\s+/g, '-').toLowerCase() }))}
+                className="btn-secondary text-xs px-3"
+              >
+                توليد
+              </button>
+            </div>
+            <p className="text-[10px] text-gray-400 mt-1">هذا الاسم سيظهر في الرابط: {window.location.origin}/lessons/{videoForm.slug || '...'}</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              المذكرة (PDF)
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="file" accept=".pdf"
+                onChange={async e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setIsUploading(true);
+                  try {
+                    const url = await uploadsApi.pdf(file);
+                    setVideoForm(p => ({ ...p, pdfUrl: url }));
+                    toast.success('تم رفع الملف بنجاح');
+                  } catch {
+                    toast.error('فشل رفع الملف');
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+              />
+              {videoForm.pdfUrl && <CheckCircle size={20} className="text-green-500" />}
+            </div>
+            {videoForm.pdfUrl && <p className="text-[10px] text-green-600 mt-1 truncate">تم اختيار: {videoForm.pdfUrl}</p>}
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -464,8 +525,8 @@ export default function CourseManager() {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="btn-primary flex-1" disabled={addLesson.isPending}>
-              {addLesson.isPending ? 'جارٍ الإضافة...' : '✅ إضافة الدرس'}
+            <button type="submit" className="btn-primary flex-1" disabled={addLesson.isPending || isUploading}>
+              {addLesson.isPending ? 'جارٍ الإضافة...' : isUploading ? 'جارٍ الرفع...' : '✅ إضافة الدرس'}
             </button>
             <button type="button" onClick={() => setVideoModal(false)} className="btn-secondary">
               إلغاء

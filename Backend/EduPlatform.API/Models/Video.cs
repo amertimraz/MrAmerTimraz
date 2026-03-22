@@ -14,6 +14,9 @@ public class Video
     [Required, MaxLength(200)]
     public string Title { get; set; } = string.Empty;
 
+    [Required, MaxLength(200)]
+    public string Slug { get; set; } = string.Empty;
+
     public string? Description { get; set; }
 
     [Required]

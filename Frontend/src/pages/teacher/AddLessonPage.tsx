@@ -30,6 +30,7 @@ export default function AddLessonPage() {
     source: 'YouTube' as VideoSource,
     durationSeconds: 0,
     orderIndex: 1,
+    slug: '',
   });
   const [pdfUrl, setPdfUrl] = useState('');
   const [showPreview, setShowPreview] = useState(false);
@@ -118,6 +119,29 @@ export default function AddLessonPage() {
               placeholder="مثال: خدمات الإنترنت وتطبيقاته في الحياة"
               required
             />
+          </div>
+
+          {/* Slug */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              اسم الرابط المخصص (Slug) <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-2">
+              <input
+                value={form.slug}
+                onChange={e => setForm(p => ({ ...p, slug: e.target.value.replace(/\s+/g, '-').toLowerCase() }))}
+                className="input-field"
+                placeholder="مثال: custom-lesson-link"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setForm(p => ({ ...p, slug: form.title.replace(/\s+/g, '-').toLowerCase() }))}
+                className="btn-secondary text-xs px-4"
+              >
+                توليد
+              </button>
+            </div>
           </div>
 
           {/* Description */}

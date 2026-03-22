@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<InteractiveQuiz> InteractiveQuizzes => Set<InteractiveQuiz>();
     public DbSet<InteractiveQuestion> InteractiveQuestions => Set<InteractiveQuestion>();
     public DbSet<InteractiveQuizResult> InteractiveQuizResults => Set<InteractiveQuizResult>();
+    public DbSet<VideoComment> VideoComments => Set<VideoComment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -134,6 +135,24 @@ public class AppDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(r => new { r.QuizId, r.SessionId }).IsUnique();
+        });
+
+        modelBuilder.Entity<Video>(entity =>
+        {
+            entity.HasIndex(v => v.Slug).IsUnique();
+        });
+
+        modelBuilder.Entity<VideoComment>(entity =>
+        {
+            entity.HasOne(c => c.Video)
+                  .WithMany()
+                  .HasForeignKey(c => c.VideoId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(c => c.Student)
+                  .WithMany()
+                  .HasForeignKey(c => c.StudentId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -14,15 +14,24 @@ public class CreateVideoDto
     public int DurationSeconds { get; set; }
     public int OrderIndex { get; set; }
     public string? PdfUrl { get; set; }
+    public string Slug { get; set; } = string.Empty;
+}
+
+public class CommentDto
+{
+    public string Content { get; set; } = string.Empty;
 }
 
 public interface IVideoService
 {
     Task<List<Video>> GetByCourseAsync(int courseId);
     Task<Video?> GetByIdAsync(int id);
+    Task<Video?> GetBySlugAsync(string slug);
     Task<Video> CreateAsync(CreateVideoDto dto);
     Task<bool> DeleteAsync(int id);
     Task<bool> UpdateAsync(int id, CreateVideoDto dto);
+    Task<List<VideoComment>> GetCommentsAsync(int videoId);
+    Task<VideoComment> AddCommentAsync(int videoId, int userId, string content);
 }
 
 public class VideoService : IVideoService
@@ -52,12 +61,47 @@ public class VideoService : IVideoService
             Source = dto.Source,
             DurationSeconds = dto.DurationSeconds,
             OrderIndex = dto.OrderIndex,
-            PdfUrl = dto.PdfUrl
+            PdfUrl = dto.PdfUrl,
+            Slug = dto.Slug
         };
 
         _db.Videos.Add(video);
         await _db.SaveChangesAsync();
         return video;
+    }
+
+    public async Task<Video?> GetBySlugAsync(string slug)
+    {
+        return await _db.Videos
+            .FirstOrDefaultAsync(v => v.Slug == slug);
+    }
+
+    public async Task<List<VideoComment>> GetCommentsAsync(int videoId)
+    {
+        return await _db.VideoComments
+            .Include(c => c.Student)
+            .Where(c => c.VideoId == videoId)
+            .OrderByDescending(c => c.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<VideoComment> AddCommentAsync(int videoId, int userId, string content)
+    {
+        var comment = new VideoComment
+        {
+            VideoId = videoId,
+            StudentId = userId,
+            Content = content,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.VideoComments.Add(comment);
+        await _db.SaveChangesAsync();
+        
+        // Reload to include student info
+        return await _db.VideoComments
+            .Include(c => c.Student)
+            .FirstAsync(c => c.Id == comment.Id);
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -81,6 +125,7 @@ public class VideoService : IVideoService
         video.DurationSeconds = dto.DurationSeconds;
         video.OrderIndex = dto.OrderIndex;
         video.PdfUrl = dto.PdfUrl;
+        video.Slug = dto.Slug;
 
         await _db.SaveChangesAsync();
         return true;

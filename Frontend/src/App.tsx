@@ -22,6 +22,8 @@ import TakeTest              from './pages/student/TakeTest';
 import StudentResults        from './pages/student/StudentResults';
 import GamesPage             from './pages/student/GamesPage';
 import NotificationsPage     from './pages/student/NotificationsPage';
+import LessonPage            from './pages/student/LessonPage';
+
 
 import TeacherDashboard      from './pages/teacher/TeacherDashboard';
 import TeacherCourses        from './pages/teacher/TeacherCourses';
@@ -125,6 +127,7 @@ export default function App() {
 
           <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
           <Route path="/quiz/:id" element={<QuizPresenter />} />
+          <Route path="/lessons/:slug" element={<LessonPage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

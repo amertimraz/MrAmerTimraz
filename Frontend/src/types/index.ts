@@ -63,6 +63,16 @@ export interface Video {
   durationSeconds: number;
   orderIndex: number;
   pdfUrl?: string;
+  slug: string;
+  createdAt: string;
+}
+
+export interface VideoComment {
+  id: number;
+  videoId: number;
+  studentId: number;
+  student: User;
+  content: string;
   createdAt: string;
 }
 

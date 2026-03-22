@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using EduPlatform.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,27 @@ public class VideosController : ControllerBase
     {
         var video = await _videos.GetByIdAsync(id);
         return video == null ? NotFound() : Ok(video);
+    }
+
+    [HttpGet("slug/{slug}"), AllowAnonymous]
+    public async Task<IActionResult> GetBySlug(string slug)
+    {
+        var video = await _videos.GetBySlugAsync(slug);
+        return video == null ? NotFound() : Ok(video);
+    }
+
+    [HttpGet("{id}/comments")]
+    public async Task<IActionResult> GetComments(int id)
+        => Ok(await _videos.GetCommentsAsync(id));
+
+    [HttpPost("{id}/comments"), Authorize]
+    public async Task<IActionResult> AddComment(int id, [FromBody] CommentDto dto)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        if (userId == 0) return Unauthorized();
+        
+        var comment = await _videos.AddCommentAsync(id, userId, dto.Content);
+        return Ok(comment);
     }
 
     [HttpPost, Authorize(Roles = "Teacher,Admin")]

@@ -1,5 +1,5 @@
 import client from './client';
-import type { Video } from '../types';
+import type { Video, VideoComment } from '../types';
 
 export const videosApi = {
   getByCourse: (courseId: number) =>
@@ -7,9 +7,15 @@ export const videosApi = {
 
   getById: (id: number) => client.get<Video>(`/videos/${id}`).then(r => r.data),
 
-  create: (data: object) => client.post<Video>('/videos', data).then(r => r.data),
+  getBySlug: (slug: string) => client.get<Video>(`/videos/slug/${slug}`).then(r => r.data),
 
-  update: (id: number, data: object) => client.put(`/videos/${id}`, data),
+  create: (data: Partial<Video>) => client.post<Video>('/videos', data).then(r => r.data),
+
+  update: (id: number, data: Partial<Video>) => client.put(`/videos/${id}`, data),
 
   delete: (id: number) => client.delete(`/videos/${id}`),
+
+  getComments: (videoId: number) => client.get<VideoComment[]>(`/videos/${videoId}/comments`).then(r => r.data),
+
+  addComment: (videoId: number, content: string) => client.post<VideoComment>(`/videos/${videoId}/comments`, { content }).then(r => r.data),
 };
