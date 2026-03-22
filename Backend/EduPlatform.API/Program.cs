@@ -109,11 +109,73 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    
-    // Use Migrate instead of EnsureCreated to support migrations properly
-    db.Database.Migrate();
 
     var isPostgres = db.Database.IsNpgsql();
+    if (isPostgres)
+    {
+        // Create the migrations history table if it doesn't exist yet
+        try
+        {
+            db.Database.ExecuteSqlRaw("""
+                CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+                    "MigrationId" character varying(150) NOT NULL,
+                    "ProductVersion" character varying(32) NOT NULL,
+                    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+                );
+                """);
+        }
+        catch { }
+
+        // Check if the DB has existing tables (created by old EnsureCreated strategy)
+        // but the migration history is empty (no managed migrations yet)
+        int historyCount = 0;
+        bool usersTableExists = false;
+        try
+        {
+#pragma warning disable EF1002
+            historyCount = db.Database.SqlQueryRaw<int>(
+                "SELECT COUNT(*)::int FROM \"__EFMigrationsHistory\""
+            ).First();
+
+            usersTableExists = db.Database.SqlQueryRaw<int>(
+                "SELECT COUNT(*)::int FROM information_schema.tables WHERE table_name = 'Users'"
+            ).First() > 0;
+#pragma warning restore EF1002
+        }
+        catch { }
+
+        // If the tables already exist but the migration history is empty,
+        // seed the history to mark all past migrations as already applied.
+        // This prevents EF Core from trying to re-create tables that already exist.
+        if (usersTableExists && historyCount == 0)
+        {
+            var existingMigrations = new[]
+            {
+                ("20260315084036_AddQuizUrlToLibraryItem",   "9.0.1"),
+                ("20260322131337_AddInteractiveQuizResults",  "9.0.1"),
+                ("20260322132816_AddLessonEnhancements",      "9.0.1"),
+                ("20260322135422_FixModelMismatch",           "9.0.1"),
+            };
+
+            foreach (var (migId, version) in existingMigrations)
+            {
+                try
+                {
+#pragma warning disable EF1002
+                    db.Database.ExecuteSqlRaw(
+                        $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") " +
+                        $"VALUES ('{migId}', '{version}') ON CONFLICT DO NOTHING;"
+                    );
+#pragma warning restore EF1002
+                }
+                catch { }
+            }
+        }
+    }
+
+    // Now run any pending migrations (will be skipped for already-applied ones)
+    db.Database.Migrate();
+
     if (isPostgres)
     {
         // Keep the sequence reset logic for PostgreSQL to avoid ID conflicts after bulk imports
