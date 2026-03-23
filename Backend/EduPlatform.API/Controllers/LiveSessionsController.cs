@@ -119,17 +119,7 @@ public class LiveSessionsController : ControllerBase
         
         return NoContent();
     }
-}
 
-public class CreateLiveSessionDto
-{
-    public string Title { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public DateTime ScheduledAt { get; set; }
-    public string JoinUrl { get; set; } = string.Empty;
-    public decimal Price { get; set; }
-}
-    // Admin: Delete session
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
@@ -141,4 +131,13 @@ public class CreateLiveSessionDto
         await _db.SaveChangesAsync();
         return NoContent();
     }
+}
+
+public class CreateLiveSessionDto
+{
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public DateTime ScheduledAt { get; set; }
+    public string JoinUrl { get; set; } = string.Empty;
+    public decimal Price { get; set; }
 }
