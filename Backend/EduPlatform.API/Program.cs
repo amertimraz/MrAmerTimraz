@@ -186,6 +186,28 @@ using (var scope = app.Services.CreateScope())
             """,
             "CREATE INDEX IF NOT EXISTS \"IX_VideoComments_VideoId\" ON \"VideoComments\"(\"VideoId\")",
             "CREATE INDEX IF NOT EXISTS \"IX_VideoComments_StudentId\" ON \"VideoComments\"(\"StudentId\")",
+            """
+            CREATE TABLE IF NOT EXISTS "LiveSessions" (
+                "Id" SERIAL PRIMARY KEY,
+                "Title" VARCHAR(200) NOT NULL,
+                "Description" TEXT,
+                "ScheduledAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                "JoinUrl" TEXT NOT NULL,
+                "Price" DECIMAL(18,2) NOT NULL DEFAULT 0,
+                "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS "LiveSessionEnrollments" (
+                "Id" SERIAL PRIMARY KEY,
+                "LiveSessionId" INTEGER NOT NULL REFERENCES "LiveSessions"("Id") ON DELETE CASCADE,
+                "StudentId" INTEGER NOT NULL REFERENCES "Users"("Id") ON DELETE CASCADE,
+                "EnrolledAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_LiveSessionEnrollments_StudentId_LiveSessionId\" ON \"LiveSessionEnrollments\"(\"StudentId\", \"LiveSessionId\")",
+            "ALTER TABLE \"PaymentRequests\" ADD COLUMN IF NOT EXISTS \"LiveSessionId\" INTEGER REFERENCES \"LiveSessions\"(\"Id\") ON DELETE CASCADE",
         };
 
         foreach (var sql in safetyAlters)
