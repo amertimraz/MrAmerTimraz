@@ -54,7 +54,7 @@ export default function AdminLiveSessions() {
     const data = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
-      scheduledAt: formData.get('scheduledAt') as string,
+      scheduledAt: new Date(formData.get('scheduledAt') as string).toISOString(),
       joinUrl: formData.get('joinUrl') as string,
       price: Number(formData.get('price')),
       isActive: true,

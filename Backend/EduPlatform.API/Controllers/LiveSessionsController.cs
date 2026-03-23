@@ -74,11 +74,21 @@ public class LiveSessionsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create([FromBody] LiveSession session)
+    public async Task<IActionResult> Create([FromBody] CreateLiveSessionDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         
         try {
+            var session = new LiveSession
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                ScheduledAt = DateTime.SpecifyKind(dto.ScheduledAt, DateTimeKind.Utc),
+                JoinUrl = dto.JoinUrl,
+                Price = dto.Price,
+                IsActive = true
+            };
+            
             _db.LiveSessions.Add(session);
             await _db.SaveChangesAsync();
             return Ok(session);
@@ -87,14 +97,19 @@ public class LiveSessionsController : ControllerBase
         }
     }
 
-    // Admin: Update session
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, [FromBody] LiveSession session)
+    public async Task<IActionResult> Update(int id, [FromBody] CreateLiveSessionDto dto)
     {
-        if (id != session.Id) return BadRequest();
-        _db.Entry(session).State = EntityState.Modified;
-        
+        var session = await _db.LiveSessions.FindAsync(id);
+        if (session == null) return NotFound();
+
+        session.Title = dto.Title;
+        session.Description = dto.Description;
+        session.ScheduledAt = DateTime.SpecifyKind(dto.ScheduledAt, DateTimeKind.Utc);
+        session.JoinUrl = dto.JoinUrl;
+        session.Price = dto.Price;
+
         try {
             await _db.SaveChangesAsync();
         } catch (DbUpdateConcurrencyException) {
@@ -104,7 +119,16 @@ public class LiveSessionsController : ControllerBase
         
         return NoContent();
     }
+}
 
+public class CreateLiveSessionDto
+{
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public DateTime ScheduledAt { get; set; }
+    public string JoinUrl { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+}
     // Admin: Delete session
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
