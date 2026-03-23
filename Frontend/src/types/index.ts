@@ -33,6 +33,18 @@ export interface Course {
   enrolledCount: number;
 }
 
+export interface LiveSession {
+  id: number;
+  title: string;
+  description?: string;
+  scheduledAt: string;
+  joinUrl?: string; // May be null if not enrolled
+  price: number;
+  isActive: boolean;
+  isEnrolled?: boolean;
+  createdAt: string;
+}
+
 export type PaymentStatus = 'Pending' | 'Approved' | 'Rejected';
 
 export interface PaymentRequest {
@@ -41,9 +53,15 @@ export interface PaymentRequest {
   studentName: string;
   studentUsername: string;
   studentPhone: string;
-  courseId: number;
-  courseTitle: string;
-  coursePrice: number;
+  
+  courseId?: number;
+  courseTitle?: string;
+  coursePrice?: number;
+
+  liveSessionId?: number;
+  liveSessionTitle?: string;
+  liveSessionPrice?: number;
+
   amountPaid: number;
   receiptImageUrl?: string;
   notes?: string;
@@ -149,6 +167,7 @@ export interface InteractiveQuizSummary {
   showSupportButton: boolean;
   allowSkipWithoutRegistration?: boolean;
   viewCount: number;
+  theme?: string;
   createdAt: string;
   questionCount: number;
 }

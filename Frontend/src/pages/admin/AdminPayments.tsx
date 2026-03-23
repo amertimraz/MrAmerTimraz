@@ -78,7 +78,7 @@ export default function AdminPayments() {
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">الطالب</th>
-                <th className="text-right px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">الكورس</th>
+                <th className="text-right px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">النوع / المحتوى</th>
                 <th className="text-right px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">المبلغ</th>
                 <th className="text-right px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">الحالة</th>
                 <th className="text-right px-4 py-3 font-semibold text-gray-600 dark:text-gray-300">التاريخ</th>
@@ -98,8 +98,10 @@ export default function AdminPayments() {
                     <p className="text-xs text-gray-400">@{req.studentUsername} · {req.studentPhone}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-700 dark:text-gray-300">{req.courseTitle}</p>
-                    <p className="text-xs text-gray-400">سعر الكورس: {req.coursePrice} ج.م</p>
+                    <p className="font-medium text-gray-700 dark:text-gray-300">{req.courseTitle || req.liveSessionTitle}</p>
+                    <p className="text-xs text-gray-400">
+                      {req.courseId ? 'كورس' : 'حصة مباشرة'} · السعر: {req.coursePrice || req.liveSessionPrice} ج.م
+                    </p>
                   </td>
                   <td className="px-4 py-3 font-semibold text-green-600 dark:text-green-400">
                     {req.amountPaid} ج.م
@@ -148,12 +150,12 @@ export default function AdminPayments() {
                 <span className="font-medium text-gray-900 dark:text-white">{viewing.studentPhone}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">الكورس</span>
-                <span className="font-medium text-gray-900 dark:text-white">{viewing.courseTitle}</span>
+                <span className="text-gray-500">{viewing.courseId ? 'الكورس' : 'الحصة المباشرة'}</span>
+                <span className="font-medium text-gray-900 dark:text-white">{viewing.courseTitle || viewing.liveSessionTitle}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">سعر الكورس</span>
-                <span className="font-medium">{viewing.coursePrice} ج.م</span>
+                <span className="text-gray-500">سعر المحتوى</span>
+                <span className="font-medium">{viewing.coursePrice || viewing.liveSessionPrice} ج.م</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">المبلغ المدفوع</span>

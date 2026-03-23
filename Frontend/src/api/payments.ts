@@ -2,9 +2,11 @@ import client from './client';
 import type { PaymentRequest } from '../types';
 
 export const paymentsApi = {
-  createRequest: (courseId: number, amountPaid: number, notes: string, receipt?: File) => {
+  createRequest: (courseId: number | null, amountPaid: number, notes: string, receipt?: File, liveSessionId?: number | null) => {
     const form = new FormData();
-    form.append('courseId', String(courseId));
+    if (courseId) form.append('courseId', String(courseId));
+    if (liveSessionId) form.append('liveSessionId', String(liveSessionId));
+    
     form.append('amountPaid', String(amountPaid));
     form.append('notes', notes);
     if (receipt) form.append('receipt', receipt);

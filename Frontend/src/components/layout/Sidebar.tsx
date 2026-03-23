@@ -2,7 +2,7 @@ import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, FileText, Trophy,
   Gamepad2, Bell, Users, LogOut, GraduationCap, Settings,
-  Database, Zap, Tag, Home, CreditCard, FolderOpen, Layers,
+  Database, Zap, Tag, Home, CreditCard, FolderOpen, Layers, Video,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -11,6 +11,7 @@ interface NavItem { to: string; icon: React.ReactNode; label: string }
 const studentLinks: NavItem[] = [
   { to: '/student', icon: <LayoutDashboard size={20} />, label: 'لوحة التحكم' },
   { to: '/student/courses', icon: <BookOpen size={20} />, label: 'دروسي' },
+  { to: '/student/live-sessions', icon: <Video size={20} />, label: 'الحصص المباشرة' },
   { to: '/student/tests', icon: <FileText size={20} />, label: 'الاختبارات' },
   { to: '/student/results', icon: <Trophy size={20} />, label: 'نتائجي' },
   { to: '/student/games', icon: <div className="relative"><Gamepad2 size={20} /><span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span></div>, label: 'الألعاب التعليمية (قريباً)' },
@@ -31,6 +32,7 @@ const adminLinks: NavItem[] = [
   { to: '/admin', icon: <LayoutDashboard size={20} />, label: 'لوحة التحكم' },
   { to: '/admin/users', icon: <Users size={20} />, label: 'المستخدمون' },
   { to: '/admin/courses', icon: <BookOpen size={20} />, label: 'الدروس' },
+  { to: '/admin/live-sessions', icon: <Video size={20} />, label: 'الحصص المباشرة' },
   { to: '/admin/payments', icon: <CreditCard size={20} />, label: 'طلبات الدفع' },
   { to: '/admin/tests', icon: <FileText size={20} />, label: 'الاختبارات' },
   { to: '/admin/notifications', icon: <Bell size={20} />, label: 'الإشعارات' },

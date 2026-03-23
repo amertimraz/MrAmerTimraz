@@ -169,7 +169,7 @@ function parsePdfText(rawText: string): ParsedQuestion[] {
   );
 }
 
-const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', teacherWhatsappNumber: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true, allowSkipWithoutRegistration: true };
+const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', teacherWhatsappNumber: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true, allowSkipWithoutRegistration: true, theme: 'Default' };
 
 
 export default function AdminQuizzes() {
@@ -295,11 +295,11 @@ export default function AdminQuizzes() {
   const openCreate = () => { setForm(emptyForm); setEditing(null); setModal('create'); };
   const openEdit = async (q: InteractiveQuizSummary) => {
     setEditing(q);
-    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', teacherWhatsappNumber: q.teacherWhatsappNumber ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true, allowSkipWithoutRegistration: q.allowSkipWithoutRegistration ?? true });
+    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', teacherWhatsappNumber: q.teacherWhatsappNumber ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true, allowSkipWithoutRegistration: q.allowSkipWithoutRegistration ?? true, theme: q.theme ?? 'Default' });
     setModal('edit');
     try {
       const fresh = await quizzesApi.getById(q.id);
-      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', teacherWhatsappNumber: fresh.teacherWhatsappNumber ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '', showSupportButton: fresh.showSupportButton ?? true, allowSkipWithoutRegistration: fresh.allowSkipWithoutRegistration ?? true });
+      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', teacherWhatsappNumber: fresh.teacherWhatsappNumber ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '', showSupportButton: fresh.showSupportButton ?? true, allowSkipWithoutRegistration: fresh.allowSkipWithoutRegistration ?? true, theme: fresh.theme ?? 'Default' });
     } catch { }
   };
   const openQuestions = (q: InteractiveQuizSummary) => {
@@ -713,6 +713,17 @@ export default function AdminQuizzes() {
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">الصف</label>
                   <input value={form.grade} onChange={e => setForm(f => ({ ...f, grade: e.target.value }))} className="input-field" placeholder="الصف الرابع" />
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">🎨 تصميم الاختبار (الثيم)</label>
+                <select 
+                  value={form.theme} 
+                  onChange={e => setForm(f => ({ ...f, theme: e.target.value }))} 
+                  className="input-field"
+                >
+                  <option value="Default">الافتراضي (ملون)</option>
+                  <option value="Cyber">Cyber 🤖 (للبرمجة والذكاء الاصطناعي)</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">الوصف</label>

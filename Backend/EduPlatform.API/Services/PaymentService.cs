@@ -11,7 +11,7 @@ public interface IPaymentService
     Task<List<PaymentRequestDto>> GetAllRequestsAsync();
     Task<List<PaymentRequestDto>> GetStudentRequestsAsync(int studentId);
     Task<PaymentRequestDto?> ReviewRequestAsync(int id, ReviewPaymentDto dto);
-    Task<bool> HasPendingOrApprovedAsync(int courseId, int studentId);
+    Task<bool> HasPendingOrApprovedAsync(int? courseId, int? sessionId, int studentId);
 }
 
 public class PaymentService : IPaymentService
@@ -22,21 +22,42 @@ public class PaymentService : IPaymentService
 
     public async Task<PaymentRequestDto?> CreateRequestAsync(CreatePaymentRequestDto dto, int studentId, string? receiptUrl)
     {
-        var course = await _db.Courses.FindAsync(dto.CourseId);
-        if (course == null) return null;
+        if (dto.CourseId.HasValue)
+        {
+            var course = await _db.Courses.FindAsync(dto.CourseId);
+            if (course == null) return null;
 
-        if (await _db.Enrollments.AnyAsync(e => e.CourseId == dto.CourseId && e.StudentId == studentId))
-            return null;
+            if (await _db.Enrollments.AnyAsync(e => e.CourseId == dto.CourseId && e.StudentId == studentId))
+                return null;
 
-        if (await _db.PaymentRequests.AnyAsync(p =>
-            p.CourseId == dto.CourseId && p.StudentId == studentId &&
-            (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
+            if (await _db.PaymentRequests.AnyAsync(p =>
+                p.CourseId == dto.CourseId && p.StudentId == studentId &&
+                (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
+                return null;
+        }
+        else if (dto.LiveSessionId.HasValue)
+        {
+            var session = await _db.LiveSessions.FindAsync(dto.LiveSessionId);
+            if (session == null) return null;
+
+            if (await _db.LiveSessionEnrollments.AnyAsync(e => e.LiveSessionId == dto.LiveSessionId && e.StudentId == studentId))
+                return null;
+
+            if (await _db.PaymentRequests.AnyAsync(p =>
+                p.LiveSessionId == dto.LiveSessionId && p.StudentId == studentId &&
+                (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
+                return null;
+        }
+        else
+        {
             return null;
+        }
 
         var request = new PaymentRequest
         {
             StudentId = studentId,
             CourseId = dto.CourseId,
+            LiveSessionId = dto.LiveSessionId,
             AmountPaid = dto.AmountPaid,
             Notes = dto.Notes,
             ReceiptImageUrl = receiptUrl
@@ -53,6 +74,7 @@ public class PaymentService : IPaymentService
         return await _db.PaymentRequests
             .Include(p => p.Student)
             .Include(p => p.Course)
+            .Include(p => p.LiveSession)
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => MapToDto(p))
             .ToListAsync();
@@ -64,6 +86,7 @@ public class PaymentService : IPaymentService
             .Where(p => p.StudentId == studentId)
             .Include(p => p.Student)
             .Include(p => p.Course)
+            .Include(p => p.LiveSession)
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => MapToDto(p))
             .ToListAsync();
@@ -74,6 +97,7 @@ public class PaymentService : IPaymentService
         var request = await _db.PaymentRequests
             .Include(p => p.Student)
             .Include(p => p.Course)
+            .Include(p => p.LiveSession)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (request == null || request.Status != PaymentStatus.Pending) return null;
@@ -84,22 +108,43 @@ public class PaymentService : IPaymentService
 
         if (dto.Approve)
         {
-            var alreadyEnrolled = await _db.Enrollments
-                .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == request.StudentId);
+            if (request.CourseId.HasValue)
+            {
+                var alreadyEnrolled = await _db.Enrollments
+                    .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == request.StudentId);
 
-            if (!alreadyEnrolled)
-                _db.Enrollments.Add(new Enrollment { CourseId = request.CourseId, StudentId = request.StudentId });
+                if (!alreadyEnrolled)
+                    _db.Enrollments.Add(new Enrollment { CourseId = request.CourseId.Value, StudentId = request.StudentId });
+            }
+            else if (request.LiveSessionId.HasValue)
+            {
+                var alreadyEnrolled = await _db.LiveSessionEnrollments
+                    .AnyAsync(e => e.LiveSessionId == request.LiveSessionId && e.StudentId == request.StudentId);
+
+                if (!alreadyEnrolled)
+                    _db.LiveSessionEnrollments.Add(new LiveSessionEnrollment { LiveSessionId = request.LiveSessionId.Value, StudentId = request.StudentId });
+            }
         }
 
         await _db.SaveChangesAsync();
         return MapToDto(request);
     }
 
-    public async Task<bool> HasPendingOrApprovedAsync(int courseId, int studentId)
+    public async Task<bool> HasPendingOrApprovedAsync(int? courseId, int? sessionId, int studentId)
     {
-        return await _db.PaymentRequests.AnyAsync(p =>
-            p.CourseId == courseId && p.StudentId == studentId &&
-            (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved));
+        if (courseId.HasValue)
+        {
+            return await _db.PaymentRequests.AnyAsync(p =>
+                p.CourseId == courseId && p.StudentId == studentId &&
+                (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved));
+        }
+        if (sessionId.HasValue)
+        {
+            return await _db.PaymentRequests.AnyAsync(p =>
+                p.LiveSessionId == sessionId && p.StudentId == studentId &&
+                (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved));
+        }
+        return false;
     }
 
     private async Task<PaymentRequestDto?> GetDtoById(int id)
@@ -107,6 +152,7 @@ public class PaymentService : IPaymentService
         var p = await _db.PaymentRequests
             .Include(p => p.Student)
             .Include(p => p.Course)
+            .Include(p => p.LiveSession)
             .FirstOrDefaultAsync(p => p.Id == id);
         return p == null ? null : MapToDto(p);
     }
@@ -121,6 +167,9 @@ public class PaymentService : IPaymentService
         CourseId = p.CourseId,
         CourseTitle = p.Course?.Title ?? "",
         CoursePrice = p.Course?.Price ?? 0,
+        LiveSessionId = p.LiveSessionId,
+        LiveSessionTitle = p.LiveSession?.Title ?? "",
+        LiveSessionPrice = p.LiveSession?.Price ?? 0,
         AmountPaid = p.AmountPaid,
         ReceiptImageUrl = p.ReceiptImageUrl,
         Notes = p.Notes,

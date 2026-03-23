@@ -7,6 +7,7 @@ import type { InteractiveQuestion, InteractiveQuizResult } from '../types';
 import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, Timer, Star, Layers, Trophy, User, Sun, Moon, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { getMediaUrl } from '../utils/media';
+import { CodeBlock } from '../components/ui/CodeBlock';
 
 /* ─── Constants ─────────────────────────────────────────── */
 const OPTION_COLORS = [
@@ -178,6 +179,29 @@ function useSoundFX(volume: number, enabled: boolean) {
     } catch { /* AudioContext not available */ }
   }, [volume, enabled]);
 }
+
+const renderContent = (text: string) => {
+  if (!text.includes('```')) return <>{text}</>;
+  
+  const parts = text.split(/(```[\s\S]*?```)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith('```') && part.endsWith('```')) {
+          const content = part.slice(3, -3).trim();
+          // Extract language if present (e.g., ```python)
+          const firstLine = content.split('\n')[0].trim();
+          const hasLang = /^[a-z]+$/i.test(firstLine);
+          const lang = hasLang ? firstLine : 'code';
+          const code = hasLang ? content.slice(firstLine.length).trim() : content;
+          
+          return <CodeBlock key={i} code={code} language={lang} className="my-4" />;
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+};
 
 /* ─── Component ──────────────────────────────────────────── */
 export default function QuizPresenter() {
@@ -517,10 +541,12 @@ export default function QuizPresenter() {
     </div>
   );
 
+  const isCyber = quiz?.theme === 'Cyber';
+
   /* ── NAME SCREEN ── */
   if (screen === 'name') return (
-    <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl">
-      <TechBackground />
+    <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl">
+      {isCyber ? <CyberBackground /> : <TechBackground />}
       <button onClick={toggleDark} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors z-10">
         {isDark ? <Sun size={20} /> : <Moon size={20} />}
       </button>
@@ -638,8 +664,8 @@ export default function QuizPresenter() {
 
   /* ── START SCREEN ── */
   if (screen === 'start') return (
-    <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl">
-      <TechBackground />
+    <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl">
+      {isCyber ? <CyberBackground /> : <TechBackground />}
       <div className="text-center max-w-2xl w-full relative z-10">
         {quiz.coverImageUrl ? (
           <img src={getMediaUrl(quiz.coverImageUrl)} alt={quiz.title} className="w-28 h-28 rounded-3xl object-cover mx-auto mb-6 shadow-2xl border-2 border-white/20" onError={e => { e.currentTarget.style.display='none'; }} />
@@ -764,9 +790,9 @@ export default function QuizPresenter() {
     const meta = getStageMeta(pendingStageIdx);
     const prevCorrect = answeredCorrect.filter(Boolean).length;
     return (
-      <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl"
+      <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl"
         style={{ animation: 'fadeIn 0.5s ease' }}>
-        <TechBackground />
+        {isCyber ? <CyberBackground /> : <TechBackground />}
         <div className="text-center max-w-lg w-full relative z-10">
           <div className="text-8xl mb-4" style={{ animation: 'bounceIn 0.6s ease' }}>{meta.emoji}</div>
           <h2 className={`text-4xl font-black mb-2 bg-gradient-to-r ${meta.color} bg-clip-text text-transparent`}>
@@ -817,7 +843,8 @@ export default function QuizPresenter() {
     const msg = pct >= 80 ? 'ممتاز! أداء رائع' : pct >= 60 ? 'جيد جداً! واصل' : pct >= 40 ? 'كويس، حاول تحسّن' : 'احتاج مزيد من المراجعة';
     const myPos = globalLeaderboard.findIndex((r: any) => r.name === playerName && r.score === score);
     return (
-      <div className={`min-h-screen flex items-center justify-center p-6 overflow-y-auto relative ${isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
+      <div className={`min-h-screen flex items-center justify-center p-6 overflow-y-auto relative ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
+        {isCyber ? <CyberBackground /> : null}
         <div className="text-center max-w-xl w-full py-6">
           <div className="text-7xl mb-3">{rank.emoji}</div>
           <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border text-lg font-black mb-4 ${rank.bg} ${rank.color}`}>
@@ -1003,8 +1030,8 @@ export default function QuizPresenter() {
   const timerPct = timerDuration > 0 ? (timeLeft / timerDuration) * 100 : 0;
 
   return (
-    <div className={`min-h-[100dvh] h-[100dvh] flex flex-col select-none relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
-      <TechBackground />
+    <div className={`min-h-[100dvh] h-[100dvh] flex flex-col select-none relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
+      {isCyber ? <CyberBackground /> : <TechBackground />}
 
       {/* Top progress bar */}
       <div className={`h-1.5 w-full shrink-0 bg-white/10`}>
@@ -1137,8 +1164,19 @@ export default function QuizPresenter() {
           <div className={`relative rounded-3xl border mb-4 overflow-hidden transition-all duration-500 ${isGolden ? 'border-yellow-400/80 shadow-[0_0_30px_rgba(251,191,36,0.2)]' : 'border-white/10'}`}
                style={isGolden ? { animation: 'goldenPulse 2s infinite ease-in-out' } : {}}>
             {/* Gradient top bar */}
-            <div className={`h-1.5 w-full ${isGolden ? 'bg-gradient-to-r from-yellow-600 via-yellow-300 to-amber-600' : `bg-gradient-to-l ${currentMeta.color}`}`} />
-            <div className={`p-5 md:p-6 backdrop-blur-md ${isGolden ? 'bg-gradient-to-br from-yellow-500/10 to-amber-600/10' : 'bg-white/5'}`}>
+            {isCyber ? (
+              <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-primary-500/30">
+                <div className="flex gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-red-500/30" />
+                  <div className="w-2 h-2 rounded-full bg-yellow-500/30" />
+                  <div className="w-2 h-2 rounded-full bg-green-500/30" />
+                </div>
+                <div className="text-[10px] font-mono text-primary-500/50 uppercase tracking-[0.2em]">System.Diagnostic.Quiz</div>
+              </div>
+            ) : (
+              <div className={`h-1.5 w-full ${isGolden ? 'bg-gradient-to-r from-yellow-600 via-yellow-300 to-amber-600' : `bg-gradient-to-l ${currentMeta.color}`}`} />
+            )}
+            <div className={`p-5 md:p-6 backdrop-blur-md ${isCyber ? 'bg-black/80' : isGolden ? 'bg-gradient-to-br from-yellow-500/10 to-amber-600/10' : 'bg-white/5'}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <span className={`text-xs font-black px-2.5 py-1 rounded-full ${isGolden ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-[#1e1b4b]' : `bg-gradient-to-r ${currentMeta.color} text-white`}`}>
@@ -1154,7 +1192,9 @@ export default function QuizPresenter() {
               </div>
               <div className="flex items-start gap-2" dir="rtl">
                 <span className="text-3xl shrink-0 mt-0.5 leading-none">{q ? getQuestionIcon(q.text) : '💡'}</span>
-                <p className="text-xl md:text-3xl font-black text-white leading-tight text-right flex-1">{q?.text}</p>
+                <div className={`text-xl md:text-3xl font-black text-white leading-tight text-right flex-1 ${isCyber ? 'text-primary-400' : ''}`}>
+                  {renderContent(q?.text || '')}
+                </div>
               </div>
             </div>
           </div>
@@ -1192,8 +1232,10 @@ export default function QuizPresenter() {
                       ${revealed ? isCorrect ? `${isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600' : color.bg} scale-[1.03] ring-4 ring-white/40 shadow-2xl` : `${color.dim} opacity-40` : `${isGolden ? 'bg-white/10 border-2 border-yellow-500/30 hover:bg-yellow-500/10' : color.bg + ' ' + color.hover} active:scale-95 cursor-pointer shadow-md ${isSelected ? 'ring-4 ring-white/50 scale-[1.02]' : ''}`}`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 ${isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-[#191d31]' : 'bg-black/25 text-white'}`}>{color.letter}</span>
-                      <span className="text-white font-bold text-lg md:text-xl leading-snug">{opt}</span>
+                      <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 ${isCyber ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-[#191d31]' : 'bg-black/25 text-white'}`}>{color.letter}</span>
+                      <div className={`font-bold text-lg md:text-xl leading-snug flex-1 ${isCyber ? 'text-gray-300' : 'text-white'}`}>
+                        {renderContent(opt)}
+                      </div>
                       {isCorrect && <span className="mr-auto text-xl shrink-0">✨</span>}
                     </div>
                   </button>
@@ -1280,7 +1322,37 @@ export default function QuizPresenter() {
         @keyframes fadeIn    { from { opacity:0 } to { opacity:1 } }
         @keyframes bounceIn  { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
         @keyframes techFloat { from { transform: translateY(0px) rotate(var(--r,0deg)); } to { transform: translateY(-12px) rotate(var(--r,0deg)); } }
+        @keyframes cyberScan { from { top: -10%; } to { top: 110%; } }
+        @keyframes cyberGrid { from { transform: translateY(0); } to { transform: translateY(50px); } }
       `}</style>
+    </div>
+  );
+}
+
+/* ─── Cyber Background ──────────────────────────────────── */
+function CyberBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden>
+      {/* Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.05)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)]" 
+           style={{ animation: 'cyberGrid 3s linear infinite' }} />
+      
+      {/* Scanning Line */}
+      <div className="absolute left-0 right-0 h-px bg-primary-500/20 shadow-[0_0_15px_rgba(13,148,136,0.5)] z-0"
+           style={{ animation: 'cyberScan 6s ease-in-out infinite' }} />
+
+      {/* Floating Elements (Binary / Code) */}
+      {[...Array(12)].map((_, i) => (
+        <div key={i} className="absolute text-[8px] font-mono text-primary-500/10 whitespace-nowrap"
+             style={{ 
+               left: `${Math.random() * 100}%`, 
+               top: `${Math.random() * 100}%`,
+               transform: `rotate(${Math.random() * 90 - 45}deg)`,
+               fontSize: `${Math.random() * 10 + 8}px`
+             }}>
+          {Math.random() > 0.5 ? '0101100101101' : 'function_deploy_AI()'}
+        </div>
+      ))}
     </div>
   );
 }

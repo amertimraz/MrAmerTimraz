@@ -16,6 +16,7 @@ export interface QuizPayload {
   facebookUrl?: string;
   showSupportButton?: boolean;
   allowSkipWithoutRegistration?: boolean;
+  theme?: string;
 }
 
 export interface QuestionPayload {

@@ -2,7 +2,8 @@ namespace EduPlatform.API.DTOs;
 
 public class CreatePaymentRequestDto
 {
-    public int CourseId { get; set; }
+    public int? CourseId { get; set; }
+    public int? LiveSessionId { get; set; }
     public decimal AmountPaid { get; set; }
     public string? Notes { get; set; }
 }
@@ -20,9 +21,15 @@ public class PaymentRequestDto
     public string StudentName { get; set; } = string.Empty;
     public string StudentUsername { get; set; } = string.Empty;
     public string StudentPhone { get; set; } = string.Empty;
-    public int CourseId { get; set; }
+    
+    public int? CourseId { get; set; }
     public string CourseTitle { get; set; } = string.Empty;
     public decimal CoursePrice { get; set; }
+
+    public int? LiveSessionId { get; set; }
+    public string LiveSessionTitle { get; set; } = string.Empty;
+    public decimal LiveSessionPrice { get; set; }
+
     public decimal AmountPaid { get; set; }
     public string? ReceiptImageUrl { get; set; }
     public string? Notes { get; set; }

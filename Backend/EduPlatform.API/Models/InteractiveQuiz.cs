@@ -28,6 +28,7 @@ public class InteractiveQuiz
     public bool ShowSupportButton { get; set; } = true;
     public bool AllowSkipWithoutRegistration { get; set; } = true;
     public int ViewCount { get; set; } = 0;
+    public string? Theme { get; set; } = "Default";
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

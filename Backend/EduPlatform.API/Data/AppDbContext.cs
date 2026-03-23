@@ -30,6 +30,8 @@ public class AppDbContext : DbContext
     public DbSet<InteractiveQuestion> InteractiveQuestions => Set<InteractiveQuestion>();
     public DbSet<InteractiveQuizResult> InteractiveQuizResults => Set<InteractiveQuizResult>();
     public DbSet<VideoComment> VideoComments => Set<VideoComment>();
+    public DbSet<LiveSession> LiveSessions => Set<LiveSession>();
+    public DbSet<LiveSessionEnrollment> LiveSessionEnrollments => Set<LiveSessionEnrollment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -161,6 +163,29 @@ public class AppDbContext : DbContext
             entity.HasOne(c => c.Student)
                   .WithMany()
                   .HasForeignKey(c => c.StudentId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<LiveSessionEnrollment>(entity =>
+        {
+            entity.HasOne(e => e.Student)
+                  .WithMany()
+                  .HasForeignKey(e => e.StudentId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.LiveSession)
+                  .WithMany(ls => ls.Enrollments)
+                  .HasForeignKey(e => e.LiveSessionId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.StudentId, e.LiveSessionId }).IsUnique();
+        });
+
+        modelBuilder.Entity<PaymentRequest>(entity =>
+        {
+            entity.HasOne(p => p.LiveSession)
+                  .WithMany()
+                  .HasForeignKey(p => p.LiveSessionId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
     }

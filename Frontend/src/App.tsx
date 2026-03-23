@@ -23,6 +23,7 @@ import StudentResults        from './pages/student/StudentResults';
 import GamesPage             from './pages/student/GamesPage';
 import NotificationsPage     from './pages/student/NotificationsPage';
 import LessonPage            from './pages/student/LessonPage';
+import LiveSessionsPage      from './pages/student/LiveSessionsPage';
 
 
 import TeacherDashboard      from './pages/teacher/TeacherDashboard';
@@ -46,6 +47,7 @@ import AdminCategories       from './pages/admin/AdminCategories';
 import AdminPayments         from './pages/admin/AdminPayments';
 import AdminLibrary          from './pages/admin/AdminLibrary';
 import AdminQuizzes          from './pages/admin/AdminQuizzes';
+import AdminLiveSessions     from './pages/admin/AdminLiveSessions';
 import LibraryPage           from './pages/landing/LibraryPage';
 import QuizPresenter         from './pages/QuizPresenter';
 
@@ -92,6 +94,7 @@ export default function App() {
             <Route path="tests/:id"       element={<TakeTest />} />
             <Route path="results"         element={<StudentResults />} />
             <Route path="games"           element={<GamesPage />} />
+            <Route path="live-sessions"   element={<LiveSessionsPage />} />
             <Route path="notifications"   element={<NotificationsPage />} />
           </Route>
 
@@ -124,6 +127,7 @@ export default function App() {
             <Route path="categories"      element={<AdminCategories />} />
             <Route path="library"         element={<AdminLibrary />} />
             <Route path="quizzes"         element={<AdminQuizzes />} />
+            <Route path="live-sessions"   element={<AdminLiveSessions />} />
           </Route>
 
           <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />

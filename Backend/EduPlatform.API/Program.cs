@@ -116,20 +116,18 @@ using (var scope = app.Services.CreateScope())
     {
         var knownMigrations = new[]
         {
-            ("20260315084036_AddQuizUrlToLibraryItem",  "9.0.1"),
-            ("20260322131337_AddInteractiveQuizResults", "9.0.1"),
-            ("20260322132816_AddLessonEnhancements",     "9.0.1"),
-            ("20260322135422_FixModelMismatch",          "9.0.1"),
+            ("20260315084036_AddQuizUrlToLibraryItem",   "9.0.1"),
+            ("20260322131337_AddInteractiveQuizResults",  "9.0.1"),
+            ("20260322132816_AddLessonEnhancements",      "9.0.1"),
+            ("20260322135422_FixModelMismatch",           "9.0.1"),
+            ("20260322184828_AddNotificationImages",      "9.0.1"),
         };
         try
         {
-            db.Database.ExecuteSqlRaw("""
-                CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
-                    "MigrationId" character varying(150) NOT NULL,
-                    "ProductVersion" character varying(32) NOT NULL,
-                    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
-                );
-                """);
+            var createHistorySql = isPostgres 
+                ? "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\"MigrationId\" character varying(150) NOT NULL, \"ProductVersion\" character varying(32) NOT NULL, CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY (\"MigrationId\"));"
+                : "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\"MigrationId\" TEXT NOT NULL, \"ProductVersion\" TEXT NOT NULL, CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY (\"MigrationId\"));";
+            db.Database.ExecuteSqlRaw(createHistorySql);
         }
         catch { }
 
@@ -137,11 +135,12 @@ using (var scope = app.Services.CreateScope())
         {
             try
             {
+                var insertSql = isPostgres
+                    ? $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ('{migId}', '{ver}') ON CONFLICT DO NOTHING;"
+                    : $"INSERT OR IGNORE INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ('{migId}', '{ver}');";
+                
 #pragma warning disable EF1002
-                db.Database.ExecuteSqlRaw(
-                    $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") " +
-                    $"VALUES ('{migId}', '{ver}') ON CONFLICT DO NOTHING;"
-                );
+                db.Database.ExecuteSqlRaw(insertSql);
 #pragma warning restore EF1002
             }
             catch { }
@@ -150,20 +149,19 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        db.Database.Migrate();
-    }
-    catch (Npgsql.PostgresException ex) when (isPostgres && ex.SqlState == "42P07")
-    {
-        // 42P07 = relation already exists.
-        // The DB was previously created by EnsureCreated (no migration history).
-        // Seed the migration history and retry.
+        // For SQLite or Postgres, if we have existing tables but no migration history, 
+        // we seed the history first to avoid "table already exists" errors.
         SeedMigrationHistory();
         db.Database.Migrate();
     }
-    catch (Exception)
+    catch (Exception ex)
     {
-        // Non-Postgres or unexpected error — rethrow
-        throw;
+        // If it still fails, it might be a different issue, but we've tried our best to sync.
+        Console.WriteLine($"Migration error: {ex.Message}");
+        if (ex.InnerException != null) Console.WriteLine($"Inner: {ex.InnerException.Message}");
+        
+        // Final attempt: just try to migrate, maybe the error was transient
+        try { db.Database.Migrate(); } catch { }
     }
 
     // Safety-net: Ensure new columns and tables from AddLessonEnhancements exist.

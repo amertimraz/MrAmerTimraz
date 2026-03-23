@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, BookOpen, Upload, X, CreditCard, Clock } from 'lucide-react';
+import { Search, BookOpen, CreditCard, Clock } from 'lucide-react';
 import { coursesApi } from '../../api/courses';
 import { paymentsApi } from '../../api/payments';
 import CourseCard from '../../components/ui/CourseCard';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PaymentModal from '../../components/courses/PaymentModal';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import type { Course } from '../../types';
@@ -16,10 +17,6 @@ export default function StudentCourses() {
   const [tab, setTab] = useState<'all' | 'my'>('my');
 
   const [payingCourse, setPayingCourse] = useState<Course | null>(null);
-  const [amount, setAmount] = useState('');
-  const [notes, setNotes] = useState('');
-  const [receipt, setReceipt] = useState<File | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: myCourses, isLoading: loadingMy } = useQuery({
     queryKey: ['student-courses'],
@@ -47,26 +44,8 @@ export default function StudentCourses() {
     onError: () => toast.error('أنت مسجّل في هذا الدرس مسبقاً'),
   });
 
-  const submitPayment = useMutation({
-    mutationFn: () => paymentsApi.createRequest(
-      payingCourse!.id,
-      parseFloat(amount),
-      notes,
-      receipt ?? undefined
-    ),
-    onSuccess: () => {
-      toast.success('تم إرسال طلب الدفع! سيتم مراجعته من الإدارة.');
-      qc.invalidateQueries({ queryKey: ['my-payment-requests'] });
-      closePayModal();
-    },
-    onError: () => toast.error('فشل إرسال الطلب. ربما أرسلت طلباً من قبل.'),
-  });
-
   const closePayModal = () => {
     setPayingCourse(null);
-    setAmount('');
-    setNotes('');
-    setReceipt(null);
   };
 
   const myIds = new Set(myCourses?.map(c => c.id));
@@ -102,7 +81,7 @@ export default function StudentCourses() {
       );
     }
     return (
-      <button onClick={() => { setPayingCourse(course); setAmount(String(course.price)); }}
+      <button onClick={() => setPayingCourse(course)}
         className="w-full flex items-center justify-center gap-2 py-2 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-xl transition-colors">
         <CreditCard size={15} /> ادفع وسجّل — {course.price} ج.م
       </button>
@@ -146,56 +125,13 @@ export default function StudentCourses() {
       )}
 
       {payingCourse && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={closePayModal}>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4" dir="rtl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white">طلب التسجيل في الكورس</h3>
-              <button onClick={closePayModal} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 space-y-1">
-              <p className="font-semibold text-gray-900 dark:text-white">{payingCourse.title}</p>
-              <p className="text-sm text-gray-500">سعر الكورس: <span className="font-bold text-orange-600">{payingCourse.price} ج.م</span></p>
-            </div>
-
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-sm text-blue-700 dark:text-blue-300">
-              قم بتحويل المبلغ على رقم الواتساب: <span className="font-bold">01096066818</span> ثم ارفع إيصال التحويل هنا.
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">المبلغ المدفوع (ج.م) *</label>
-              <input type="number" value={amount} onChange={e => setAmount(e.target.value)}
-                className="input-field" placeholder="أدخل المبلغ" min={0} required />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">إيصال الدفع (صورة)</label>
-              <input ref={fileRef} type="file" accept="image/*" className="hidden"
-                onChange={e => setReceipt(e.target.files?.[0] ?? null)} />
-              <button type="button" onClick={() => fileRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-500 hover:border-primary-400 hover:text-primary-500 transition-colors">
-                <Upload size={18} />
-                {receipt ? receipt.name : 'اضغط لرفع صورة الإيصال'}
-              </button>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ملاحظات (اختياري)</label>
-              <textarea value={notes} onChange={e => setNotes(e.target.value)}
-                className="input-field resize-none" rows={2} placeholder="أي معلومات إضافية..." />
-            </div>
-
-            <div className="flex gap-3 pt-1">
-              <button onClick={() => submitPayment.mutate()} disabled={!amount || submitPayment.isPending}
-                className="flex-1 btn-primary">
-                {submitPayment.isPending ? 'جاري الإرسال...' : 'إرسال طلب التسجيل'}
-              </button>
-              <button onClick={closePayModal} className="btn-secondary">إلغاء</button>
-            </div>
-          </div>
-        </div>
+        <PaymentModal
+          isOpen={!!payingCourse}
+          onClose={closePayModal}
+          courseId={payingCourse.id}
+          courseTitle={payingCourse.title}
+          coursePrice={payingCourse.price}
+        />
       )}
     </div>
   );

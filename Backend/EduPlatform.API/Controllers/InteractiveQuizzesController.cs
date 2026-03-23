@@ -25,7 +25,7 @@ public class InteractiveQuizzesController : ControllerBase
                 q.Id, q.Title, q.Subject, q.Grade, q.Description, q.CoverImageUrl, q.Slug,
                 q.TeacherName, q.TeacherImage, q.WhatsappUrl, q.YoutubeUrl, q.FacebookUrl, q.ShowSupportButton,
                 q.AllowSkipWithoutRegistration,
-                q.ViewCount, q.CreatedAt,
+                q.ViewCount, q.Theme, q.CreatedAt,
                 QuestionCount = q.Questions.Count
             })
             .ToListAsync();
@@ -79,6 +79,7 @@ public class InteractiveQuizzesController : ControllerBase
             FacebookUrl = dto.FacebookUrl,
             ShowSupportButton = dto.ShowSupportButton,
             AllowSkipWithoutRegistration = dto.AllowSkipWithoutRegistration,
+            Theme = dto.Theme ?? "Default"
         };
         _db.InteractiveQuizzes.Add(quiz);
         await _db.SaveChangesAsync();
@@ -104,6 +105,7 @@ public class InteractiveQuizzesController : ControllerBase
         quiz.FacebookUrl = dto.FacebookUrl;
         quiz.ShowSupportButton = dto.ShowSupportButton;
         quiz.AllowSkipWithoutRegistration = dto.AllowSkipWithoutRegistration;
+        quiz.Theme = dto.Theme ?? "Default";
         await _db.SaveChangesAsync();
         return Ok(quiz);
     }
@@ -139,6 +141,7 @@ public class InteractiveQuizzesController : ControllerBase
             YoutubeUrl = original.YoutubeUrl,
             FacebookUrl = original.FacebookUrl,
             ShowSupportButton = original.ShowSupportButton,
+            Theme = original.Theme,
             Questions = original.Questions.Select((q, i) => new InteractiveQuestion
             {
                 Text = q.Text,
@@ -310,6 +313,7 @@ public class CreateQuizDto
     public string? FacebookUrl { get; set; }
     public bool ShowSupportButton { get; set; } = true;
     public bool AllowSkipWithoutRegistration { get; set; } = true;
+    public string? Theme { get; set; } = "Default";
 }
 
 public class CreateIQuestionDto

@@ -9,8 +9,11 @@ public class PaymentRequest
     public int StudentId { get; set; }
     public User Student { get; set; } = null!;
 
-    public int CourseId { get; set; }
-    public Course Course { get; set; } = null!;
+    public int? CourseId { get; set; }
+    public Course? Course { get; set; }
+
+    public int? LiveSessionId { get; set; }
+    public LiveSession? LiveSession { get; set; }
 
     public string? ReceiptImageUrl { get; set; }
 
