@@ -121,6 +121,8 @@ using (var scope = app.Services.CreateScope())
             ("20260322132816_AddLessonEnhancements",      "9.0.1"),
             ("20260322135422_FixModelMismatch",           "9.0.1"),
             ("20260322184828_AddNotificationImages",      "9.0.1"),
+            ("20260323113205_AddLiveSessions",            "9.0.1"),
+            ("20260323122140_AddQuizTheme",               "9.0.1"),
         };
         try
         {

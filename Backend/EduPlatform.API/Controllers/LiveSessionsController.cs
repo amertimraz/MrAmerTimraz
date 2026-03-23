@@ -72,14 +72,19 @@ public class LiveSessionsController : ControllerBase
             .ToListAsync());
     }
 
-    // Admin: Create session
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] LiveSession session)
     {
-        _db.LiveSessions.Add(session);
-        await _db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetSessionDetails), new { id = session.Id }, session);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        
+        try {
+            _db.LiveSessions.Add(session);
+            await _db.SaveChangesAsync();
+            return Ok(session);
+        } catch (Exception ex) {
+            return StatusCode(500, new { error = ex.Message, inner = ex.InnerException?.Message });
+        }
     }
 
     // Admin: Update session
