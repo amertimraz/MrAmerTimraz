@@ -114,6 +114,21 @@ using (var scope = app.Services.CreateScope())
     // Helper: seed migration history for databases created via the old EnsureCreated approach
     void SeedMigrationHistory()
     {
+        // Safety: only seed history if we detect that the database is NOT fresh
+        // (i.e. 'Users' table exists but '__EFMigrationsHistory' might be missing)
+        try
+        {
+            var checkUsersSql = isPostgres 
+                ? "SELECT 1 FROM \"Users\" LIMIT 1;" 
+                : "SELECT 1 FROM \"Users\" LIMIT 1;";
+            db.Database.ExecuteSqlRaw(checkUsersSql);
+        }
+        catch
+        {
+            // Users table doesn't exist -> Fresh DB -> Let Migrate() handle everything
+            return;
+        }
+
         var knownMigrations = new[]
         {
             ("20260315084036_AddQuizUrlToLibraryItem",   "9.0.1"),
