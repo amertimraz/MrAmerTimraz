@@ -239,7 +239,7 @@ public class InteractiveQuizzesController : ControllerBase
     [HttpGet("{id}/leaderboard"), AllowAnonymous]
     public async Task<IActionResult> GetLeaderboard(int id)
     {
-        var leaderboard = await _db.InteractiveQuizResults
+        var rawResults = await _db.InteractiveQuizResults
             .Where(r => r.QuizId == id)
             .OrderByDescending(r => r.Score)
             .ThenByDescending(r => r.Percentage)
@@ -247,14 +247,25 @@ public class InteractiveQuizzesController : ControllerBase
             .Take(50)
             .Select(r => new
             {
-                name = r.PlayerName,
-                score = r.Score,
-                correct = r.CorrectCount,
-                total = r.TotalCount,
-                pct = r.Percentage,
-                date = r.CompletedAt.ToString("yyyy/MM/dd")
+                r.PlayerName,
+                r.Score,
+                r.CorrectCount,
+                r.TotalCount,
+                r.Percentage,
+                r.CompletedAt
             })
             .ToListAsync();
+
+        var leaderboard = rawResults.Select(r => new
+        {
+            name = r.PlayerName,
+            score = r.Score,
+            correct = r.CorrectCount,
+            total = r.TotalCount,
+            pct = r.Percentage,
+            date = r.CompletedAt.ToString("yyyy/MM/dd")
+        });
+
         return Ok(leaderboard);
     }
  

@@ -314,6 +314,18 @@ export default function QuizPresenter() {
   const [, setTimerRunning] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  /* zoom */
+  const [zoom, setZoom] = useState(() => {
+    const v = localStorage.getItem('quiz-zoom');
+    return v !== null ? Number(v) : 1.0;
+  });
+  const changeZoom = (delta: number) => {
+    const n = Math.min(Math.max(zoom + delta, 0.7), 2.0);
+    setZoom(n);
+    localStorage.setItem('quiz-zoom', String(n));
+  };
+  const resetZoom = () => { setZoom(1.0); localStorage.removeItem('quiz-zoom'); };
+
   /* fullscreen */
   const [isFullscreen, setIsFullscreen] = useState(false);
   const toggleFullscreen = () => {
@@ -1031,6 +1043,18 @@ export default function QuizPresenter() {
 
   return (
     <div className={`min-h-[100dvh] h-[100dvh] flex flex-col select-none relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
+      {/* Floating Zoom Controls */}
+      <div className="absolute bottom-24 left-4 z-[60] flex flex-col gap-2">
+        <button onClick={() => changeZoom(0.1)} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md flex items-center justify-center transition-all active:scale-90" title="تكبير">
+          <span className="text-xl font-bold">+</span>
+        </button>
+        <button onClick={() => changeZoom(-0.1)} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md flex items-center justify-center transition-all active:scale-90" title="تصغير">
+          <span className="text-xl font-bold">-</span>
+        </button>
+        <button onClick={resetZoom} className="w-10 h-10 rounded-full bg-primary-500/20 hover:bg-primary-500/40 text-primary-300 border border-primary-500/30 backdrop-blur-md flex items-center justify-center transition-all active:scale-90" title="إعادة ضبط">
+          <RotateCcw size={16} />
+        </button>
+      </div>
       {isCyber ? <CyberBackground /> : <TechBackground />}
 
       {/* Top progress bar */}
@@ -1156,9 +1180,10 @@ export default function QuizPresenter() {
         </div>
       )}
 
-      {/* Question + Options Container */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-2 overflow-hidden">
-        <div key={animKey} className="w-full max-w-2xl" style={{ animation: 'slideUp 0.35s ease-out' }}>
+      {/* Question + Options Container (Scrollable) */}
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 custom-scrollbar">
+        <div className="min-h-full flex flex-col items-center justify-center py-4">
+          <div key={animKey} className="w-full max-w-3xl" style={{ animation: 'slideUp 0.35s ease-out', fontSize: `${zoom}rem` }}>
 
           {/* Question card */}
           <div className={`relative rounded-3xl border mb-4 overflow-hidden transition-all duration-500 ${isGolden ? 'border-yellow-400/80 shadow-[0_0_30px_rgba(251,191,36,0.2)]' : 'border-white/10'}`}
@@ -1243,6 +1268,7 @@ export default function QuizPresenter() {
               })}
             </div>
           )}
+          </div>
         </div>
       </div>
 
@@ -1324,6 +1350,11 @@ export default function QuizPresenter() {
         @keyframes techFloat { from { transform: translateY(0px) rotate(var(--r,0deg)); } to { transform: translateY(-12px) rotate(var(--r,0deg)); } }
         @keyframes cyberScan { from { top: -10%; } to { top: 110%; } }
         @keyframes cyberGrid { from { transform: translateY(0); } to { transform: translateY(50px); } }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
       `}</style>
     </div>
   );
