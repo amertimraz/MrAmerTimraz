@@ -30,4 +30,12 @@ export const paymentsApi = {
     if (bookletId) params.append('bookletId', String(bookletId));
     return client.get<{ hasPendingOrApproved: boolean }>(`/payments/status?${params}`).then(r => r.data);
   },
+
+  getAccessStatus: (courseId?: number, sessionId?: number, bookletId?: number) => {
+    const params = new URLSearchParams();
+    if (courseId) params.append('courseId', String(courseId));
+    if (sessionId) params.append('sessionId', String(sessionId));
+    if (bookletId) params.append('bookletId', String(bookletId));
+    return client.get<{ hasAccess: boolean }>(`/payments/access?${params}`).then(r => r.data);
+  },
 };

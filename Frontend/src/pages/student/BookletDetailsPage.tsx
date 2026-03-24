@@ -22,6 +22,12 @@ export default function BookletDetailsPage() {
     enabled: !!id
   });
 
+  const { data: accessStatus } = useQuery({
+    queryKey: ['booklet-access', id],
+    queryFn: () => paymentsApi.getAccessStatus(undefined, undefined, Number(id)),
+    enabled: !!id
+  });
+
   const handlePurchase = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!booklet || (booklet.price > 0 && !receiptFile)) return;
@@ -46,7 +52,7 @@ export default function BookletDetailsPage() {
   if (isLoading) return <div className="p-8 text-center animate-pulse text-gray-400">جاري التحميل...</div>;
   if (!booklet) return <div className="p-8 text-center text-red-500 font-bold">الملزمة غير موجودة.</div>;
 
-  const hasAccess = booklet.price === 0 || paymentStatus?.hasPendingOrApproved;
+  const hasAccess = booklet.price === 0 || accessStatus?.hasAccess;
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">

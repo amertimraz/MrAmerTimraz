@@ -12,6 +12,7 @@ public interface IPaymentService
     Task<List<PaymentRequestDto>> GetStudentRequestsAsync(int studentId);
     Task<PaymentRequestDto?> ReviewRequestAsync(int id, ReviewPaymentDto dto);
     Task<bool> HasPendingOrApprovedAsync(int? courseId, int? sessionId, int? bookletId, int studentId);
+    Task<bool> HasApprovedOnlyAsync(int? courseId, int? sessionId, int? bookletId, int studentId);
 }
 
 public class PaymentService : IPaymentService
@@ -163,6 +164,29 @@ public class PaymentService : IPaymentService
             return await _db.PaymentRequests.AnyAsync(p =>
                 p.BookletId == bookletId && p.StudentId == studentId &&
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved));
+        }
+        return false;
+    }
+
+    public async Task<bool> HasApprovedOnlyAsync(int? courseId, int? sessionId, int? bookletId, int studentId)
+    {
+        if (courseId.HasValue)
+        {
+            return await _db.PaymentRequests.AnyAsync(p =>
+                p.CourseId == courseId && p.StudentId == studentId &&
+                p.Status == PaymentStatus.Approved);
+        }
+        if (sessionId.HasValue)
+        {
+            return await _db.PaymentRequests.AnyAsync(p =>
+                p.LiveSessionId == sessionId && p.StudentId == studentId &&
+                p.Status == PaymentStatus.Approved);
+        }
+        if (bookletId.HasValue)
+        {
+            return await _db.PaymentRequests.AnyAsync(p =>
+                p.BookletId == bookletId && p.StudentId == studentId &&
+                p.Status == PaymentStatus.Approved);
         }
         return false;
     }
