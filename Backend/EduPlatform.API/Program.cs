@@ -322,7 +322,9 @@ app.UseExceptionHandler(appError =>
             {
                 statusCode = 500,
                 message = "Internal Server Error",
-                detailed = contextFeature.Error.Message
+                detailed = contextFeature.Error.Message,
+                stackTrace = contextFeature.Error.ToString(),
+                innerException = contextFeature.Error.InnerException?.ToString()
             }));
         }
     });
