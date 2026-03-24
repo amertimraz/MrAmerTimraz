@@ -1,5 +1,6 @@
 import { ArrowLeft, Clock, BookOpen, Play, TrendingUp } from 'lucide-react';
 import { motion, type Variants } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const courses = [
