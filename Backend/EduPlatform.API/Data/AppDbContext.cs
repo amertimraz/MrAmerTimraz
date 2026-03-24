@@ -201,10 +201,6 @@ public class AppDbContext : DbContext
             bookletEntity.Property(b => b.CreatedAt).HasColumnType("timestamp without time zone");
             bookletEntity.Property(b => b.IsPublished).HasColumnType("boolean");
             bookletEntity.Property(b => b.Price).HasColumnType("numeric");
-            
-            // Also fix PaymentRequest's Booklet-related fields if needed
-            var payEntity = modelBuilder.Entity<PaymentRequest>();
-            payEntity.Property(p => p.AmountPaid).HasColumnType("numeric");
         }
     }
 }
