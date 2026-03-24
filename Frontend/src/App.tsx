@@ -99,10 +99,14 @@ export default function App() {
             <Route path="results"         element={<StudentResults />} />
             <Route path="games"           element={<GamesPage />} />
             <Route path="live-sessions"   element={<LiveSessionsPage />} />
-            <Route path="booklets"        element={<BookletsPage />} />
-            <Route path="booklets/:id"    element={<BookletDetailsPage />} />
             <Route path="my-booklets"     element={<MyBookletsPage />} />
             <Route path="notifications"   element={<NotificationsPage />} />
+          </Route>
+
+          {/* Common Authenticated Routes (Booklets, etc.) */}
+          <Route element={<RequireAuth><DashboardLayout /></RequireAuth>}>
+            <Route path="/booklets"        element={<BookletsPage />} />
+            <Route path="/booklets/:id"    element={<BookletDetailsPage />} />
           </Route>
 
           {/* Teacher Routes */}
