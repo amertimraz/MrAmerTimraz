@@ -1,13 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { paymentsApi } from '../../api/payments';
-import { BookOpen, Eye, FileText, ArrowLeft, Clock } from 'lucide-react';
+import { BookOpen, Eye, FileText, ArrowLeft, Clock, X, Receipt, Banknote, MessageSquare, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import type { PaymentRequest } from '../../types';
+import { getMediaUrl } from '../../api/client';
 
 export default function MyBookletsPage() {
   const { data: payments, isLoading } = useQuery({
     queryKey: ['student-payments'],
     queryFn: paymentsApi.getMy,
   });
+
+  const [viewingPayment, setViewingPayment] = useState<PaymentRequest | null>(null);
 
   const bookletPayments = payments?.filter(p => p.bookletId != null) || [];
 
@@ -37,7 +42,7 @@ export default function MyBookletsPage() {
           </div>
         ) : (
           bookletPayments.map(payment => (
-            <div key={payment.id} className="glass-dark rounded-3xl p-6 border border-gray-800 hover:border-emerald-500/50 transition-colors flex flex-col h-full relative overflow-hidden">
+            <div key={payment.id} onClick={() => setViewingPayment(payment)} className="glass-dark rounded-3xl p-6 border border-gray-800 hover:border-emerald-500/50 transition-colors flex flex-col h-full relative overflow-hidden cursor-pointer">
                {payment.status === 'Pending' && (
                  <div className="absolute top-0 right-0 w-full h-1 bg-amber-500" title="قيد المراجعة" />
                )}
@@ -75,7 +80,7 @@ export default function MyBookletsPage() {
                   </div>
                   
                   {payment.status === 'Approved' ? (
-                    <Link to={`/booklets/${payment.bookletId}`} className="mt-4 w-full py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold rounded-xl flex items-center justify-center gap-2 transition">
+                    <Link to={`/booklets/${payment.bookletId}`} onClick={e => e.stopPropagation()} className="mt-4 w-full py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-bold rounded-xl flex items-center justify-center gap-2 transition">
                       <Eye size={18} />
                       فتح تفاصيل الملزمة
                     </Link>
@@ -85,11 +90,108 @@ export default function MyBookletsPage() {
                        في انتظار التأكيد من الإدارة
                      </div>
                   ) : null}
+
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setViewingPayment(payment); }}
+                    className="mt-3 w-full py-2.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 font-medium rounded-xl flex items-center justify-center gap-2 transition"
+                  >
+                    <Receipt size={16} />
+                    عرض بيانات الدفع
+                  </button>
                </div>
             </div>
           ))
         )}
       </div>
+
+      {viewingPayment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setViewingPayment(null)}>
+          <div className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4 border border-gray-700" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                <Receipt className="text-emerald-500" size={20} />
+                بيانات الدفع
+              </h3>
+              <button onClick={() => setViewingPayment(null)} className="p-1 rounded-lg hover:bg-gray-800 text-gray-400">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                <span className="text-gray-400 flex items-center gap-1"><BookOpen size={14} /> الملزمة</span>
+                <span className="font-medium text-white">{viewingPayment.bookletTitle}</span>
+              </div>
+
+              <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                <span className="text-gray-400 flex items-center gap-1"><Banknote size={14} /> سعر الملزمة</span>
+                <span className="font-medium text-white">{viewingPayment.bookletPrice} ج.م</span>
+              </div>
+
+              <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                <span className="text-gray-400 flex items-center gap-1"><Banknote size={14} /> المبلغ المدفوع</span>
+                <span className="font-bold text-emerald-400">{viewingPayment.amountPaid} ج.م</span>
+              </div>
+
+              <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                <span className="text-gray-400">حالة الطلب</span>
+                <span className={`px-2 py-1 rounded text-xs font-bold ${
+                  viewingPayment.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400' :
+                  viewingPayment.status === 'Pending' ? 'bg-amber-500/20 text-amber-400' :
+                  'bg-red-500/20 text-red-400'
+                }`}>
+                  {viewingPayment.status === 'Approved' ? 'مقبول' :
+                   viewingPayment.status === 'Pending' ? 'قيد المراجعة' :
+                   'مرفوض'}
+                </span>
+              </div>
+
+              {viewingPayment.notes && (
+                <div className="py-2 border-b border-gray-800">
+                  <span className="text-gray-400 flex items-center gap-1 mb-1"><MessageSquare size={14} /> ملاحظاتك</span>
+                  <p className="text-gray-300 bg-gray-800/50 p-2 rounded-lg mt-1">{viewingPayment.notes}</p>
+                </div>
+              )}
+
+              {viewingPayment.adminNote && (
+                <div className="py-2 border-b border-gray-800">
+                  <span className="text-gray-400 flex items-center gap-1 mb-1"><AlertCircle size={14} /> ملاحظة الإدارة</span>
+                  <p className="text-amber-300 bg-amber-500/10 p-2 rounded-lg mt-1">{viewingPayment.adminNote}</p>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center py-2">
+                <span className="text-gray-400">تاريخ الشراء</span>
+                <span className="text-gray-300">{new Date(viewingPayment.createdAt).toLocaleDateString('ar-EG')}</span>
+              </div>
+            </div>
+
+            {viewingPayment.receiptImageUrl ? (
+              <div>
+                <p className="text-sm text-gray-400 mb-2">إيصال الدفع:</p>
+                <a href={getMediaUrl(viewingPayment.receiptImageUrl)} target="_blank" rel="noreferrer">
+                  <img
+                    src={getMediaUrl(viewingPayment.receiptImageUrl)}
+                    alt="إيصال الدفع"
+                    className="w-full rounded-xl border border-gray-700 object-contain max-h-48 hover:border-emerald-500/50 transition"
+                  />
+                </a>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-3 bg-gray-800/50 rounded-xl">
+                لم يتم رفع إيصال للدفع
+              </p>
+            )}
+
+            <button
+              onClick={() => setViewingPayment(null)}
+              className="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-xl transition"
+            >
+              إغلاق
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
