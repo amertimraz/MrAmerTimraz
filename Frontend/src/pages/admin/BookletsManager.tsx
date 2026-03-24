@@ -263,9 +263,16 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
            </div>
 
            {mutation.isError && (
-             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm flex gap-3 mt-4">
-                <AlertCircle size={18} className="shrink-0" />
-                حدث خطأ أثناء حفظ البيانات، يرجى المحاولة مرة أخرى.
+             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm flex flex-col gap-1 mt-4">
+                <div className="flex gap-3">
+                  <AlertCircle size={18} className="shrink-0" />
+                  <span>{(mutation.error as any)?.response?.data?.error || 'حدث خطأ أثناء حفظ البيانات، يرجى المحاولة مرة أخرى.'}</span>
+                </div>
+                {(mutation.error as any)?.response?.data?.details && (
+                  <div className="mr-7 mt-1 text-xs opacity-70 break-all select-all font-mono">
+                    Details: {(mutation.error as any)?.response?.data?.details}
+                  </div>
+                )}
              </div>
            )}
 
