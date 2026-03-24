@@ -264,6 +264,19 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"IsActive\" TYPE boolean USING (\"IsActive\"::integer::boolean)",
             "ALTER TABLE \"InteractiveQuizzes\" ALTER COLUMN \"AllowSkipWithoutRegistration\" TYPE boolean USING (\"AllowSkipWithoutRegistration\"::integer::boolean)",
             "ALTER TABLE \"InteractiveQuizzes\" ALTER COLUMN \"ShowSupportButton\" TYPE boolean USING (\"ShowSupportButton\"::integer::boolean)",
+
+            // Fix Id columns that might have been created as plain integers by SQLite-based migrations
+            "CREATE SEQUENCE IF NOT EXISTS \"Booklets_Id_seq\"",
+            "ALTER TABLE \"Booklets\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"Booklets_Id_seq\"')",
+            "SELECT setval('\"Booklets_Id_seq\"', COALESCE(MAX(\"Id\"), 0) + 1, false) FROM \"Booklets\"",
+            
+            "CREATE SEQUENCE IF NOT EXISTS \"LiveSessions_Id_seq\"",
+            "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"LiveSessions_Id_seq\"')",
+            "SELECT setval('\"LiveSessions_Id_seq\"', COALESCE(MAX(\"Id\"), 0) + 1, false) FROM \"LiveSessions\"",
+            
+            "CREATE SEQUENCE IF NOT EXISTS \"LiveSessionEnrollments_Id_seq\"",
+            "ALTER TABLE \"LiveSessionEnrollments\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"LiveSessionEnrollments_Id_seq\"')",
+            "SELECT setval('\"LiveSessionEnrollments_Id_seq\"', COALESCE(MAX(\"Id\"), 0) + 1, false) FROM \"LiveSessionEnrollments\"",
         };
 
         foreach (var sql in safetyAlters)
