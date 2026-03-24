@@ -223,6 +223,24 @@ using (var scope = app.Services.CreateScope())
             """,
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_LiveSessionEnrollments_StudentId_LiveSessionId\" ON \"LiveSessionEnrollments\"(\"StudentId\", \"LiveSessionId\")",
             "ALTER TABLE \"PaymentRequests\" ADD COLUMN IF NOT EXISTS \"LiveSessionId\" INTEGER REFERENCES \"LiveSessions\"(\"Id\") ON DELETE CASCADE",
+            "ALTER TABLE \"LibraryItems\" ADD COLUMN IF NOT EXISTS \"DownloadCount\" INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE \"LibraryItems\" ADD COLUMN IF NOT EXISTS \"ViewCount\" INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"AllowSkipWithoutRegistration\" BOOLEAN NOT NULL DEFAULT FALSE",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Theme\" TEXT",
+            """
+            CREATE TABLE IF NOT EXISTS "InteractiveQuizResults" (
+                "Id" SERIAL PRIMARY KEY,
+                "QuizId" INTEGER NOT NULL REFERENCES "InteractiveQuizzes"("Id") ON DELETE CASCADE,
+                "SessionId" VARCHAR(100) NOT NULL,
+                "PlayerName" VARCHAR(100) NOT NULL,
+                "Score" INTEGER NOT NULL,
+                "CorrectCount" INTEGER NOT NULL,
+                "TotalCount" INTEGER NOT NULL,
+                "Percentage" DOUBLE PRECISION NOT NULL,
+                "CompletedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_InteractiveQuizResults_QuizId_SessionId\" ON \"InteractiveQuizResults\"(\"QuizId\", \"SessionId\")",
         };
 
         foreach (var sql in safetyAlters)
