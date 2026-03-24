@@ -16,6 +16,7 @@ public class BookletsController : ControllerBase
     public BookletsController(AppDbContext db) => _db = db;
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll(bool all = false)
     {
         try
@@ -37,6 +38,7 @@ public class BookletsController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
         var booklet = await _db.Booklets.FindAsync(id);
