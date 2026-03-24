@@ -194,5 +194,21 @@ public class AppDbContext : DbContext
                   .HasForeignKey(p => p.BookletId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
+
+        if (Database.IsNpgsql())
+        {
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entity.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                        property.SetColumnType("timestamp without time zone");
+                    else if (property.ClrType == typeof(bool))
+                        property.SetColumnType("boolean");
+                    else if (property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?))
+                        property.SetColumnType("numeric");
+                }
+            }
+        }
     }
 }
