@@ -259,6 +259,11 @@ using (var scope = app.Services.CreateScope())
             )
             """,
             "ALTER TABLE \"PaymentRequests\" ADD COLUMN IF NOT EXISTS \"BookletId\" INTEGER REFERENCES \"Booklets\"(\"Id\") ON DELETE CASCADE",
+            // Fix boolean types if they were created as integers by SQLite-based migrations
+            "ALTER TABLE \"Booklets\" ALTER COLUMN \"IsPublished\" TYPE boolean USING (\"IsPublished\"::integer::boolean)",
+            "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"IsActive\" TYPE boolean USING (\"IsActive\"::integer::boolean)",
+            "ALTER TABLE \"InteractiveQuizzes\" ALTER COLUMN \"AllowSkipWithoutRegistration\" TYPE boolean USING (\"AllowSkipWithoutRegistration\"::integer::boolean)",
+            "ALTER TABLE \"InteractiveQuizzes\" ALTER COLUMN \"ShowSupportButton\" TYPE boolean USING (\"ShowSupportButton\"::integer::boolean)",
         };
 
         foreach (var sql in safetyAlters)
