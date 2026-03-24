@@ -1183,7 +1183,7 @@ export default function QuizPresenter() {
       {/* Question + Options Container (Scrollable) */}
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 custom-scrollbar">
         <div className="min-h-full flex flex-col items-center justify-center py-4">
-          <div key={animKey} className="w-full max-w-3xl" style={{ animation: 'slideUp 0.35s ease-out', fontSize: `${zoom}rem` }}>
+          <div key={animKey} className="w-full max-w-3xl" style={{ animation: 'slideUp 0.35s ease-out', zoom: zoom }}>
 
           {/* Question card */}
           <div className={`relative rounded-3xl border mb-4 overflow-hidden transition-all duration-500 ${isGolden ? 'border-yellow-400/80 shadow-[0_0_30px_rgba(251,191,36,0.2)]' : 'border-white/10'}`}
