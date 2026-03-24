@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5001";
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -138,6 +140,7 @@ using (var scope = app.Services.CreateScope())
             ("20260322184828_AddNotificationImages",      "9.0.1"),
             ("20260323113205_AddLiveSessions",            "9.0.1"),
             ("20260323122140_AddQuizTheme",               "9.0.1"),
+            ("20260324115540_AddBooklets",                "9.0.1"),
         };
         try
         {
@@ -241,6 +244,21 @@ using (var scope = app.Services.CreateScope())
             )
             """,
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_InteractiveQuizResults_QuizId_SessionId\" ON \"InteractiveQuizResults\"(\"QuizId\", \"SessionId\")",
+            """
+            CREATE TABLE IF NOT EXISTS "Booklets" (
+                "Id" SERIAL PRIMARY KEY,
+                "Title" TEXT NOT NULL,
+                "Description" TEXT,
+                "PdfUrl" TEXT NOT NULL,
+                "CoverImageUrl" TEXT,
+                "Subject" TEXT,
+                "GradeLevel" TEXT,
+                "Price" DECIMAL(18,2) NOT NULL,
+                "IsPublished" BOOLEAN NOT NULL DEFAULT TRUE,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "ALTER TABLE \"PaymentRequests\" ADD COLUMN IF NOT EXISTS \"BookletId\" INTEGER REFERENCES \"Booklets\"(\"Id\") ON DELETE CASCADE",
         };
 
         foreach (var sql in safetyAlters)
@@ -273,7 +291,7 @@ using (var scope = app.Services.CreateScope())
             "Users", "Courses", "Videos", "Tests", "Questions", "Results",
             "Enrollments", "Notifications", "PaymentRequests", "LibraryItems",
             "InteractiveQuizzes", "InteractiveQuestions", "InteractiveQuizResults",
-            "VideoComments"
+            "VideoComments", "LiveSessions", "LiveSessionEnrollments", "Booklets"
         };
         foreach (var t in seqTables)
         {
