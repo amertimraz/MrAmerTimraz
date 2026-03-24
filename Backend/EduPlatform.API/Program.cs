@@ -270,13 +270,18 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Booklets\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"Booklets_Id_seq\"')",
             "SELECT setval('\"Booklets_Id_seq\"', COALESCE(MAX(\"Id\"), 0) + 1, false) FROM \"Booklets\"",
             
-            "CREATE SEQUENCE IF NOT EXISTS \"LiveSessions_Id_seq\"",
-            "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"LiveSessions_Id_seq\"')",
-            "SELECT setval('\"LiveSessions_Id_seq\"', COALESCE(MAX(\"Id\"), 0) + 1, false) FROM \"LiveSessions\"",
-            
-            "CREATE SEQUENCE IF NOT EXISTS \"LiveSessionEnrollments_Id_seq\"",
-            "ALTER TABLE \"LiveSessionEnrollments\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"LiveSessionEnrollments_Id_seq\"')",
-            "SELECT setval('\"LiveSessionEnrollments_Id_seq\"', COALESCE(MAX(\"Id\"), 0) + 1, false) FROM \"LiveSessionEnrollments\"",
+            // Fix Column Types that might have been created as TEXT/INTEGER by SQLite-based migrations
+            "ALTER TABLE \"Booklets\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
+            "ALTER TABLE \"Booklets\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",
+            "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"ScheduledAt\" TYPE timestamp without time zone USING \"ScheduledAt\"::timestamp without time zone",
+            "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
+            "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",
+            "ALTER TABLE \"LiveSessionEnrollments\" ALTER COLUMN \"EnrolledAt\" TYPE timestamp without time zone USING \"EnrolledAt\"::timestamp without time zone",
+            "ALTER TABLE \"InteractiveQuizzes\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
+            "ALTER TABLE \"InteractiveQuizResults\" ALTER COLUMN \"CompletedAt\" TYPE timestamp without time zone USING \"CompletedAt\"::timestamp without time zone",
+            "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"AmountPaid\" TYPE numeric USING \"AmountPaid\"::numeric",
+            "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
+            "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"ReviewedAt\" TYPE timestamp without time zone USING \"ReviewedAt\"::timestamp without time zone",
         };
 
         foreach (var sql in safetyAlters)

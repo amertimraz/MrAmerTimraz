@@ -20,8 +20,6 @@ public class BookletsController : ControllerBase
     {
         try
         {
-            // DIAGNOSTIC BYPASS: Return dummy list to check if error is DB-related
-            /*
             var query = _db.Booklets.AsQueryable();
 
             if (!all || !User.IsInRole("Admin"))
@@ -29,8 +27,6 @@ public class BookletsController : ControllerBase
 
             var booklets = await query.OrderByDescending(b => b.CreatedAt).ToListAsync();
             return Ok(booklets);
-            */
-            return Ok(new[] { new { id = 1, title = "Test Booklet", createdAt = DateTime.UtcNow } });
         }
         catch (Exception ex)
         {
