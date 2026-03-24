@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace EduPlatform.API.Models;
 
 public enum PaymentStatus { Pending, Approved, Rejected }
@@ -20,6 +22,7 @@ public class PaymentRequest
 
     public string? ReceiptImageUrl { get; set; }
 
+    [Column(TypeName = "numeric")]
     public decimal AmountPaid { get; set; }
 
     public string? Notes { get; set; }
@@ -28,6 +31,7 @@ public class PaymentRequest
 
     public string? AdminNote { get; set; }
 
+    [Column(TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? ReviewedAt { get; set; }

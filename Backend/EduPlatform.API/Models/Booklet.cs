@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EduPlatform.API.Models;
 
@@ -22,10 +23,13 @@ public class Booklet
     [MaxLength(50)]
     public string? GradeLevel { get; set; }
 
+    [Column(TypeName = "numeric")]
     public decimal Price { get; set; } = 0;
 
+    [Column(TypeName = "boolean")]
     public bool IsPublished { get; set; } = false;
 
+    [Column(TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<PaymentRequest> PaymentRequests { get; set; } = new List<PaymentRequest>();

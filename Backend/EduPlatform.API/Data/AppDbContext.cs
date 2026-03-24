@@ -194,13 +194,5 @@ public class AppDbContext : DbContext
                   .HasForeignKey(p => p.BookletId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
-
-        if (Database.IsNpgsql())
-        {
-            var bookletEntity = modelBuilder.Entity<Booklet>();
-            bookletEntity.Property(b => b.CreatedAt).HasColumnType("timestamp without time zone");
-            bookletEntity.Property(b => b.IsPublished).HasColumnType("boolean");
-            bookletEntity.Property(b => b.Price).HasColumnType("numeric");
-        }
     }
 }
