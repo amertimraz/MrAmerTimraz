@@ -60,13 +60,38 @@
   .badge-yellow {
     @apply badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
   }
+
+  /* Premium Utilities */
+  .glass {
+    @apply backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border border-white/20 dark:border-white/10 shadow-xl;
+  }
+  .glass-dark {
+    @apply backdrop-blur-xl bg-gray-950/40 border border-white/10 shadow-2xl;
+  }
+  .text-gradient-green {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600;
+  }
+  .mesh-bg {
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(142, 69%, 58%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(142, 69%, 58%, 0.1) 0px, transparent 50%);
+  }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }

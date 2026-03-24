@@ -1,74 +1,79 @@
+import { Facebook, Youtube, Send, Mail, Phone, ArrowUpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Facebook, Youtube, Instagram } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
+import { motion } from 'framer-motion';
+
+const footerLinks = {
+  platform: [
+    { label: 'الرئيسية', to: '/' },
+    { label: 'جميع الدروس', to: '/courses' },
+    { label: 'المكتبة الرقمية', to: '/library' },
+    { label: 'عن مستر عامر', to: '/about' },
+  ],
+  support: [
+    { label: 'الأسئلة الشائعة', to: '#' },
+    { label: 'تواصل معنا', to: '/contact' },
+    { label: 'سياسة الخصوصية', to: '#' },
+    { label: 'شروط الإستخدام', to: '#' },
+  ],
+};
+
+const socialLinks = [
+  { icon: <Facebook size={20} />, href: 'https://facebook.com/mramer', color: 'bg-[#1877F2]' },
+  { icon: <Youtube size={20} />, href: 'https://youtube.com/mramer',  color: 'bg-[#FF0000]' },
+  { icon: <Send size={20} />,    href: 'https://t.me/mramer',      color: 'bg-[#229ED9]' },
+];
 
 export default function Footer() {
-  const { isDark } = useAuthStore();
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <footer
-      dir="rtl"
-      style={{
-        background: isDark ? 'rgba(5,8,15,0.95)' : 'rgba(241,245,249,0.95)',
-        borderTop: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.08)',
-        transition: 'background 0.3s ease',
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-
+    <footer dir="rtl" className="bg-[#0a0e27] border-t border-white/5 relative overflow-hidden">
+      {/* Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent" />
+      
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
+          
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-green-500/40 shadow-md">
-                <img src="/teacher2.png" alt="عامر تمراز" className="w-full h-full object-cover object-top"
-                  onError={(e) => {
-                    const p = e.currentTarget.parentElement!;
-                    p.className = 'w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black text-white';
-                    p.style.background = 'linear-gradient(135deg,#22c55e,#15803d)';
-                    e.currentTarget.replaceWith(document.createTextNode('عا'));
-                  }}
-                />
-              </div>
-              <div>
-                <p className={`font-bold text-base ${isDark ? 'text-white' : 'text-gray-900'}`}>منصة مستر عامر</p>
-                <p className="text-xs text-green-500">التعليم الإلكتروني</p>
-              </div>
-            </div>
-            <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              منصة تعليمية إلكترونية متكاملة تقدم دروساً في التقنية والحاسب والبرمجة لجميع المراحل الدراسية.
+            <Link to="/" className="flex items-center gap-4 group mb-8">
+               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-black text-xl shadow-2xl group-hover:rotate-6 transition-transform">
+                عا
+               </div>
+               <div>
+                  <h3 className="text-xl font-black text-white tracking-tight">MR. AMER <span className="text-green-500">TIMRAZ</span></h3>
+                  <p className="text-green-500/60 text-[10px] font-bold uppercase tracking-widest mt-0.5">Educational Platform</p>
+               </div>
+            </Link>
+            <p className="text-white/40 text-sm leading-relaxed mb-8 font-medium italic">
+              "نهدف لتغيير مفهوم التعليم الإلكتروني وتوفير تجربة تعليمية فريدة وممتعة تساعد الطلاب على التفوق الدراسي وبناء مستقبل واعد."
             </p>
-            <div className="flex items-center gap-3 mt-5">
-              {[
-                { href: 'https://www.facebook.com/Mr.AmerTimraz', bg: 'bg-blue-600 hover:bg-blue-700', icon: <Facebook size={18} /> },
-                { href: 'https://www.youtube.com/@AmerTimraz',  bg: 'bg-red-600 hover:bg-red-700',   icon: <Youtube size={18} /> },
-                { href: 'https://instagram.com',bg: 'bg-pink-600 hover:bg-pink-700', icon: <Instagram size={18} /> },
-              ].map((s, i) => (
-                <a key={i} href={s.href} target="_blank" rel="noreferrer"
-                  className={`w-9 h-9 ${s.bg} rounded-lg flex items-center justify-center transition-colors`}>
-                  <span className="text-white">{s.icon}</span>
-                </a>
+            <div className="flex gap-4">
+              {socialLinks.map((social, i) => (
+                <motion.a
+                  key={i}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ y: -5, scale: 1.1 }}
+                  className={`w-10 h-10 rounded-xl ${social.color} text-white flex items-center justify-center shadow-xl shadow-${social.color}/20`}
+                >
+                  {social.icon}
+                </motion.a>
               ))}
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Links 1 */}
           <div>
-            <h3 className={`font-bold mb-5 text-base ${isDark ? 'text-white' : 'text-gray-900'}`}>روابط سريعة</h3>
-            <ul className="space-y-3 text-sm">
-              {[
-                { to: '/',        label: 'الرئيسية' },
-                { to: '/courses', label: 'الدروس' },
-                { to: '/about',   label: 'عن مستر' },
-                { to: '/contact', label: 'تواصل معنا' },
-                { to: '/login',   label: 'تسجيل الدخول' },
-                { to: '/register',label: 'إنشاء حساب' },
-              ].map(link => (
-                <li key={link.to}>
-                  <Link to={link.to}
-                    className={`transition-colors flex items-center gap-2 ${isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-600 hover:text-green-600'}`}
-                  >
-                    <span className="w-1 h-1 bg-green-500 rounded-full inline-block" />
+            <h4 className="text-white font-black text-lg mb-8 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+              المنصة
+            </h4>
+            <ul className="space-y-4">
+              {footerLinks.platform.map(link => (
+                <li key={link.label}>
+                  <Link to={link.to} className="text-white/40 hover:text-green-400 text-sm font-bold transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -76,17 +81,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Courses */}
+          {/* Links 2 */}
           <div>
-            <h3 className={`font-bold mb-5 text-base ${isDark ? 'text-white' : 'text-gray-900'}`}>المواد الدراسية</h3>
-            <ul className="space-y-3 text-sm">
-              {['تقنية المعلومات - ابتدائي', 'الحاسب الآلي - إعدادي', 'البرمجة - أول ثانوي'].map(course => (
-                <li key={course} className="flex items-center gap-2">
-                  <span className="w-1 h-1 bg-green-500 rounded-full inline-block" />
-                  <Link to="/courses"
-                    className={`transition-colors ${isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-600 hover:text-green-600'}`}
-                  >
-                    {course}
+            <h4 className="text-white font-black text-lg mb-8 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              الدعم والمساعدة
+            </h4>
+            <ul className="space-y-4">
+              {footerLinks.support.map(link => (
+                <li key={link.label}>
+                  <Link to={link.to} className="text-white/40 hover:text-blue-400 text-sm font-bold transition-colors">
+                    {link.label}
                   </Link>
                 </li>
               ))}
@@ -95,31 +100,65 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className={`font-bold mb-5 text-base ${isDark ? 'text-white' : 'text-gray-900'}`}>تواصل معنا</h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center gap-3">
-                <Mail size={16} className="text-green-500 shrink-0" />
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>amertimraz@gmail.com</span>
+            <h4 className="text-white font-black text-lg mb-8 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+              تواصل مباشرة
+            </h4>
+            <ul className="space-y-6">
+              <li className="flex items-center gap-4 group">
+                <div className="w-10 h-10 rounded-xl glass-dark border-white/5 flex items-center justify-center text-white/40 group-hover:text-purple-400 transition-colors">
+                  <Mail size={18} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">البريد الإلكتروني</p>
+                  <a href="mailto:info@mramer.com" className="text-white/60 hover:text-white text-sm font-bold transition-all underline decoration-purple-500/30">info@mramer.com</a>
+                </div>
               </li>
-              <li className="flex items-center gap-3">
-                <Phone size={16} className="text-green-500 shrink-0" />
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>01096066818</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <MapPin size={16} className="text-green-500 shrink-0 mt-0.5" />
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>مصر</span>
+              <li className="flex items-center gap-4 group">
+                <div className="w-10 h-10 rounded-xl glass-dark border-white/5 flex items-center justify-center text-white/40 group-hover:text-green-400 transition-colors">
+                  <Phone size={18} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">رقم الهاتف</p>
+                  <span className="text-white/60 text-sm font-bold tracking-wider">0123456789 (واتساب)</span>
+                </div>
               </li>
             </ul>
           </div>
+
         </div>
 
-        <div
-          className={`mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs ${isDark ? 'text-gray-600 border-t border-gray-800' : 'text-gray-500 border-t border-gray-200'}`}
-        >
-          <p>© {new Date().getFullYear()} منصة مستر عامر. جميع الحقوق محفوظة.</p>
-          <p>صُمِّمت بـ ❤️ للطلاب</p>
+        {/* Bottom */}
+        <div className="mt-24 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
+          <p className="text-white/20 text-xs font-bold uppercase tracking-widest text-center md:text-right">
+             جميع الحقوق محفوظة © {new Date().getFullYear()} لـ <span className="text-white/40">مستر عامر تمراز</span> — تم التطوير بكل <Heart size={10} className="inline fill-red-500/50 text-transparent" />
+          </p>
+          
+          <div className="flex items-center gap-8">
+            <button 
+              onClick={scrollToTop}
+              className="group flex items-center gap-3 text-white/20 hover:text-white transition-all"
+            >
+               <span className="text-[10px] font-black uppercase tracking-widest">إلى الأعلى</span>
+               <ArrowUpCircle size={24} className="group-hover:-translate-y-1 transition-transform" />
+            </button>
+          </div>
         </div>
       </div>
     </footer>
+  );
+}
+
+function Heart({ size, className }: { size: number, className: string }) {
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="currentColor" 
+      className={className}
+    >
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+    </svg>
   );
 }
