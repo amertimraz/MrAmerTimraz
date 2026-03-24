@@ -1,3 +1,4 @@
+using EduPlatform.API.Data;
 using EduPlatform.API.DTOs;
 using EduPlatform.API.Models;
 using Microsoft.AspNetCore.Authorization;
