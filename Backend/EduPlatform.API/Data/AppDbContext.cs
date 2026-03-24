@@ -197,18 +197,14 @@ public class AppDbContext : DbContext
 
         if (Database.IsNpgsql())
         {
-            foreach (var entity in modelBuilder.Model.GetEntityTypes())
-            {
-                foreach (var property in entity.GetProperties())
-                {
-                    if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
-                        property.SetColumnType("timestamp without time zone");
-                    else if (property.ClrType == typeof(bool))
-                        property.SetColumnType("boolean");
-                    else if (property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?))
-                        property.SetColumnType("numeric");
-                }
-            }
+            var bookletEntity = modelBuilder.Entity<Booklet>();
+            bookletEntity.Property(b => b.CreatedAt).HasColumnType("timestamp without time zone");
+            bookletEntity.Property(b => b.IsPublished).HasColumnType("boolean");
+            bookletEntity.Property(b => b.Price).HasColumnType("numeric");
+            
+            // Also fix PaymentRequest's Booklet-related fields if needed
+            var payEntity = modelBuilder.Entity<PaymentRequest>();
+            payEntity.Property(p => p.AmountPaid).HasColumnType("numeric");
         }
     }
 }
