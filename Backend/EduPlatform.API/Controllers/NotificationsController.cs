@@ -11,12 +11,12 @@ namespace EduPlatform.API.Controllers;
 public class NotificationsController : ControllerBase
 {
     private readonly INotificationService _notifications;
-    private readonly IFileStorageService _storage;
+    private readonly IWebHostEnvironment _env;
 
-    public NotificationsController(INotificationService notifications, IFileStorageService storage)
+    public NotificationsController(INotificationService notifications, IWebHostEnvironment env)
     {
         _notifications = notifications;
-        _storage = storage;
+        _env = env;
     }
 
     [HttpGet]
@@ -50,9 +50,18 @@ public class NotificationsController : ControllerBase
             var allowed = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif" };
             if (allowed.Contains(ext))
             {
+                var root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var dir = Path.Combine(root, "uploads", "notifications");
+                Directory.CreateDirectory(dir);
+
                 var fileName = $"{Guid.NewGuid()}{ext}";
-                await using var stream = dto.ImageFile.OpenReadStream();
-                imageUrl = await _storage.UploadAsync(stream, fileName, "notifications");
+                var path = Path.Combine(dir, fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await dto.ImageFile.CopyToAsync(stream);
+                }
+                imageUrl = $"/uploads/notifications/{fileName}";
             }
         }
 

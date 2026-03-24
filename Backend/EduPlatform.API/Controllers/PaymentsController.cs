@@ -12,12 +12,12 @@ namespace EduPlatform.API.Controllers;
 public class PaymentsController : ControllerBase
 {
     private readonly IPaymentService _payments;
-    private readonly IFileStorageService _storage;
+    private readonly IWebHostEnvironment _env;
 
-    public PaymentsController(IPaymentService payments, IFileStorageService storage)
+    public PaymentsController(IPaymentService payments, IWebHostEnvironment env)
     {
         _payments = payments;
-        _storage = storage;
+        _env = env;
     }
 
     [HttpPost("request")]
@@ -28,9 +28,13 @@ public class PaymentsController : ControllerBase
         string? receiptUrl = null;
         if (receipt != null && receipt.Length > 0)
         {
+            var uploadsDir = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", "receipts");
+            Directory.CreateDirectory(uploadsDir);
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(receipt.FileName)}";
-            await using var stream = receipt.OpenReadStream();
-            receiptUrl = await _storage.UploadAsync(stream, fileName, "receipts");
+            var filePath = Path.Combine(uploadsDir, fileName);
+            await using var stream = System.IO.File.Create(filePath);
+            await receipt.CopyToAsync(stream);
+            receiptUrl = $"/uploads/receipts/{fileName}";
         }
 
         var result = await _payments.CreateRequestAsync(dto, studentId, receiptUrl);

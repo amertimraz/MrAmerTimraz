@@ -1,6 +1,6 @@
-import { ArrowLeft, Clock, BookOpen, Play, TrendingUp } from 'lucide-react';
-import { motion, type Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { ArrowLeft, Clock, BookOpen, Play } from 'lucide-react';
+import { motion, type Variants } from 'framer-motion';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const courses = [
@@ -8,34 +8,43 @@ const courses = [
     id: 1,
     emoji: '💻',
     title: 'تقنية المعلومات',
-    level: 'المرحلة الابتدائية',
-    description: 'دروس شاملة في أساسيات الحاسب، مهارات الإنترنت، والسلامة الرقمية بأسلوب مبسط للصغار.',
+    level: 'ابتدائي',
+    levelColor: 'bg-blue-100 text-blue-700',
+    description: 'دروس شاملة في تقنية المعلومات للمرحلة الابتدائية. تشمل أساسيات الحاسب، مهارات الإنترنت، والسلامة الرقمية.',
     lessons: 12,
     hours: 8,
-    accent: 'blue',
-    gradient: 'from-blue-500 to-cyan-400',
+    gradient: 'from-blue-500 to-cyan-500',
+    bg: 'from-blue-50 to-cyan-50',
+    border: 'border-blue-100',
+    shadow: 'hover:shadow-blue-200/60',
   },
   {
     id: 2,
     emoji: '🖥️',
     title: 'الحاسب الآلي',
-    level: 'المرحلة الإعدادية',
-    description: 'تغطية كاملة لبرامج المكتب، أساسيات الشبكات، والأمن المعلوماتي والذكاء الاصطناعي.',
+    level: 'إعدادي',
+    levelColor: 'bg-purple-100 text-purple-700',
+    description: 'منهج الحاسب الآلي للمرحلة الإعدادية. يغطي برامج Office، أساسيات الشبكات، والأمن المعلوماتي.',
     lessons: 16,
     hours: 12,
-    accent: 'purple',
-    gradient: 'from-purple-500 to-indigo-400',
+    gradient: 'from-purple-500 to-indigo-500',
+    bg: 'from-purple-50 to-indigo-50',
+    border: 'border-purple-100',
+    shadow: 'hover:shadow-purple-200/60',
   },
   {
     id: 3,
     emoji: '⌨️',
     title: 'البرمجة',
-    level: 'الصف الأول الثانوي',
-    description: 'مدخل احترافي لعالم البرمجة باستخدام Python و Scratch مع بناء مشاريع واقعية وتفاعلية.',
+    level: 'أول ثانوي',
+    levelColor: 'bg-green-100 text-green-700',
+    description: 'مدخل إلى عالم البرمجة لطلاب أول ثانوي. يشمل Scratch, Python الأساسية، وبناء مشاريع تفاعلية.',
     lessons: 20,
     hours: 16,
-    accent: 'green',
-    gradient: 'from-green-500 to-emerald-400',
+    gradient: 'from-green-500 to-emerald-500',
+    bg: 'from-green-50 to-emerald-50',
+    border: 'border-green-100',
+    shadow: 'hover:shadow-green-200/60',
   },
 ];
 
@@ -45,8 +54,8 @@ const containerVariants: Variants = {
 };
 
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6 } },
 };
 
 export default function CoursesSection() {
@@ -54,35 +63,30 @@ export default function CoursesSection() {
   const { ref: cardsRef, isInView: cardsInView } = useScrollReveal();
 
   return (
-    <section dir="rtl" className="py-32 relative bg-[#0a0e27] overflow-hidden" id="courses">
-      {/* Decorative Blur */}
-      <div className="absolute top-1/2 left-0 w-[30%] h-[30%] rounded-full bg-blue-500/5 blur-[120px]" />
-      <div className="absolute bottom-0 right-0 w-[20%] h-[20%] rounded-full bg-green-500/5 blur-[120px]" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+    <section dir="rtl" className="py-20 bg-white" id="courses">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <motion.div
           ref={headerRef}
-          className="text-center mb-20"
+          className="text-center mb-14"
           initial={{ opacity: 0, y: 30 }}
           animate={headerInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark border-blue-500/20 mb-6 font-cairo">
-            <TrendingUp size={14} className="text-blue-400" />
-            <span className="text-xs font-black text-blue-400 uppercase tracking-widest">مستقبلك يبدأ هنا</span>
-          </div>
-          <h2 className="text-5xl sm:text-6xl font-black text-white mb-6">الدروس المميزة</h2>
-          <p className="text-white/40 text-lg max-w-2xl mx-auto font-medium leading-relaxed">
-            محتوى تعليمي عالي الجودة مُصمَّم بمعايير عالمية ليناسب تطلعاتك في كل مرحلة دراسية.
+          <span className="inline-block bg-blue-50 text-blue-600 font-semibold text-sm px-4 py-2 rounded-full mb-4">
+            📚 مواد دراسية
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">الدروس المتاحة</h2>
+          <p className="text-gray-500 text-lg max-w-xl mx-auto">
+            محتوى تعليمي عالي الجودة مُصمَّم خصيصاً لكل مرحلة دراسية
           </p>
         </motion.div>
 
         {/* Cards */}
         <motion.div
           ref={cardsRef}
-          className="grid md:grid-cols-3 gap-8 mb-16"
+          className="grid md:grid-cols-3 gap-8 mb-12"
           variants={containerVariants}
           initial="hidden"
           animate={cardsInView ? 'visible' : 'hidden'}
@@ -91,67 +95,64 @@ export default function CoursesSection() {
             <motion.div
               key={course.id}
               variants={cardVariants}
-              whileHover={{ y: -12 }}
-              className="group relative rounded-[40px] p-1 glass-dark border-white/5 transition-all duration-500 h-full flex flex-col"
+              className={`group relative rounded-3xl border ${course.border} bg-gradient-to-br ${course.bg} p-8 hover:shadow-2xl ${course.shadow} transition-shadow duration-300`}
+              whileHover={{ y: -8 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
-              <div className="p-8 flex-1 flex flex-col">
-                {/* Icon */}
-                <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${course.gradient} flex items-center justify-center text-4xl shadow-2xl mb-8 group-hover:scale-110 transition-transform duration-500`}>
-                  {course.emoji}
+              {/* Icon */}
+              <motion.div
+                className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${course.gradient} flex items-center justify-center text-3xl shadow-lg mb-6`}
+                whileHover={{ scale: 1.15, rotate: 5 }}
+                transition={{ type: 'spring', stiffness: 400 }}
+              >
+                {course.emoji}
+              </motion.div>
+
+              <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full mb-3 ${course.levelColor}`}>
+                {course.level}
+              </span>
+
+              <h3 className="text-xl font-bold text-gray-900 mb-3">{course.title}</h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-6">{course.description}</p>
+
+              <div className="flex items-center gap-5 text-sm text-gray-500 mb-6">
+                <div className="flex items-center gap-1.5">
+                  <BookOpen size={15} className="text-gray-400" />
+                  <span>{course.lessons} درس</span>
                 </div>
-
-                <div className="flex items-center gap-2 mb-4">
-                  <span className={`w-2 h-2 rounded-full bg-current ${course.accent === 'blue' ? 'text-blue-400' : course.accent === 'purple' ? 'text-purple-400' : 'text-green-400'}`} />
-                  <span className="text-xs font-black text-white/50 uppercase tracking-widest">{course.level}</span>
+                <div className="flex items-center gap-1.5">
+                  <Clock size={15} className="text-gray-400" />
+                  <span>{course.hours} ساعة</span>
                 </div>
-
-                <h3 className="text-2xl font-black text-white mb-4 leading-tight">{course.title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed mb-8 flex-1 font-medium italic">
-                  "{course.description}"
-                </p>
-
-                <div className="flex items-center gap-6 pt-6 border-t border-white/5 mb-8">
-                  <div className="flex items-center gap-2">
-                    <BookOpen size={16} className="text-white/20" />
-                    <span className="text-sm font-bold text-white/60">{course.lessons} درس</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-white/20" />
-                    <span className="text-sm font-bold text-white/60">{course.hours} ساعة</span>
-                  </div>
-                </div>
-
-                <Link
-                  to="/register"
-                  className={`group/btn relative h-14 rounded-2xl bg-gradient-to-r ${course.gradient} p-0.5 overflow-hidden transition-all active:scale-95 shadow-2xl`}
-                >
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 pointer-events-none" />
-                  <div className="relative w-full h-full flex items-center justify-center gap-2 px-6">
-                    <Play size={18} className="fill-white" />
-                    <span className="font-black text-white text-sm">ابدأ رحلة التعلم</span>
-                  </div>
-                </Link>
               </div>
+
+              <Link
+                to="/register"
+                className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-l ${course.gradient} text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all active:scale-95`}
+              >
+                <Play size={16} />
+                ابدأ التعلم
+              </Link>
             </motion.div>
           ))}
         </motion.div>
 
         {/* View All */}
         <motion.div
-          className="flex justify-center"
-          initial={{ opacity: 0 }}
-          animate={cardsInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.6 }}
+          className="text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={cardsInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <Link
-            to="/courses"
-            className="group flex items-center gap-4 px-10 py-5 rounded-2xl glass-dark border-white/5 text-white font-black hover:bg-white/5 transition-all"
-          >
-            <span>استكشف كل المناهج المتاحة</span>
-            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-all">
-               <ArrowLeft size={20} />
-            </div>
-          </Link>
+          <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+            <Link
+              to="/courses"
+              className="inline-flex items-center gap-2 px-8 py-3.5 border-2 border-blue-600 text-blue-600 font-bold rounded-2xl hover:bg-blue-600 hover:text-white transition-all duration-200"
+            >
+              عرض جميع الدروس
+              <ArrowLeft size={18} />
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
     </section>

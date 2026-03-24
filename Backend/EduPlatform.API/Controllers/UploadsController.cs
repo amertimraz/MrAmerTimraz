@@ -1,4 +1,3 @@
-using EduPlatform.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ namespace EduPlatform.API.Controllers;
 [Authorize]
 public class UploadsController : ControllerBase
 {
-    private readonly IFileStorageService _storage;
+    private readonly IWebHostEnvironment _env;
 
     private static readonly string[] AllowedImages = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"];
     private static readonly string[] AllowedPdfs   = [".pdf"];
@@ -19,7 +18,7 @@ public class UploadsController : ControllerBase
     private const long MaxPdfSize   = 50 * 1024 * 1024;
     private const long MaxVideoSize  = 500 * 1024 * 1024;
 
-    public UploadsController(IFileStorageService storage) => _storage = storage;
+    public UploadsController(IWebHostEnvironment env) => _env = env;
 
     [HttpPost("image")]
     public async Task<IActionResult> UploadImage(IFormFile file)
@@ -45,10 +44,17 @@ public class UploadsController : ControllerBase
         if (file.Length > maxSize)
             return BadRequest($"حجم الملف كبير جداً. الحد الأقصى: {maxSize / 1024 / 1024} MB");
 
-        var fileName = $"{Guid.NewGuid()}{ext}";
-        await using var stream = file.OpenReadStream();
-        var url = await _storage.UploadAsync(stream, fileName, folder);
+        var root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var dir  = Path.Combine(root, "uploads", folder);
+        Directory.CreateDirectory(dir);
 
+        var fileName = $"{Guid.NewGuid()}{ext}";
+        var path     = Path.Combine(dir, fileName);
+
+        await using var stream = System.IO.File.Create(path);
+        await file.CopyToAsync(stream);
+
+        var url = $"/uploads/{folder}/{fileName}";
         return Ok(new { url });
     }
 }

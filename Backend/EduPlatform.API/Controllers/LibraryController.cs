@@ -1,6 +1,5 @@
 using EduPlatform.API.Data;
 using EduPlatform.API.Models;
-using EduPlatform.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +11,12 @@ namespace EduPlatform.API.Controllers;
 public class LibraryController : ControllerBase
 {
     private readonly AppDbContext _db;
-    private readonly IFileStorageService _storage;
+    private readonly IWebHostEnvironment _env;
 
-    public LibraryController(AppDbContext db, IFileStorageService storage)
+    public LibraryController(AppDbContext db, IWebHostEnvironment env)
     {
         _db = db;
-        _storage = storage;
+        _env = env;
     }
 
     [HttpGet]
@@ -83,9 +82,12 @@ public class LibraryController : ControllerBase
 
         foreach (var url in new[] { item.FileUrl, item.ThumbnailUrl })
         {
-            if (!string.IsNullOrEmpty(url))
+            if (!string.IsNullOrEmpty(url) && url.StartsWith("/uploads/"))
             {
-                await _storage.DeleteAsync(url);
+                var root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var filePath = Path.Combine(root, url.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(filePath))
+                    System.IO.File.Delete(filePath);
             }
         }
 
