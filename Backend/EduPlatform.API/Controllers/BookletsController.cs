@@ -1,4 +1,4 @@
-using EduPlatform.API.Data;
+using EduPlatform.API.DTOs;
 using EduPlatform.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,31 +37,61 @@ public class BookletsController : ControllerBase
     }
 
     [HttpPost, Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(Booklet booklet)
+    public async Task<IActionResult> Create(BookletDto dto)
     {
-        booklet.CreatedAt = DateTime.UtcNow;
-        _db.Booklets.Add(booklet);
-        await _db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = booklet.Id }, booklet);
+        try
+        {
+            var booklet = new Booklet
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                PdfUrl = dto.PdfUrl,
+                CoverImageUrl = dto.CoverImageUrl,
+                Subject = dto.Subject,
+                GradeLevel = dto.GradeLevel,
+                Price = dto.Price,
+                IsPublished = dto.IsPublished,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _db.Booklets.Add(booklet);
+            await _db.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetById), new { id = booklet.Id }, booklet);
+        }
+        catch (Exception ex)
+        {
+            var msg = ex.Message;
+            if (ex.InnerException != null) msg += " | Inner: " + ex.InnerException.Message;
+            return StatusCode(500, new { error = "خطأ في حفظ الملزمة", details = msg });
+        }
     }
 
     [HttpPut("{id}"), Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, Booklet bookletIn)
+    public async Task<IActionResult> Update(int id, BookletDto dto)
     {
-        var booklet = await _db.Booklets.FindAsync(id);
-        if (booklet == null) return NotFound("الملزمة غير موجودة");
+        try
+        {
+            var booklet = await _db.Booklets.FindAsync(id);
+            if (booklet == null) return NotFound("الملزمة غير موجودة");
 
-        booklet.Title = bookletIn.Title;
-        booklet.Description = bookletIn.Description;
-        booklet.PdfUrl = bookletIn.PdfUrl;
-        booklet.CoverImageUrl = bookletIn.CoverImageUrl;
-        booklet.Subject = bookletIn.Subject;
-        booklet.GradeLevel = bookletIn.GradeLevel;
-        booklet.Price = bookletIn.Price;
-        booklet.IsPublished = bookletIn.IsPublished;
+            booklet.Title = dto.Title;
+            booklet.Description = dto.Description;
+            booklet.PdfUrl = dto.PdfUrl;
+            booklet.CoverImageUrl = dto.CoverImageUrl;
+            booklet.Subject = dto.Subject;
+            booklet.GradeLevel = dto.GradeLevel;
+            booklet.Price = dto.Price;
+            booklet.IsPublished = dto.IsPublished;
 
-        await _db.SaveChangesAsync();
-        return Ok(booklet);
+            await _db.SaveChangesAsync();
+            return Ok(booklet);
+        }
+        catch (Exception ex)
+        {
+            var msg = ex.Message;
+            if (ex.InnerException != null) msg += " | Inner: " + ex.InnerException.Message;
+            return StatusCode(500, new { error = "خطأ في تحديث الملزمة", details = msg });
+        }
     }
 
     [HttpDelete("{id}"), Authorize(Roles = "Admin")]

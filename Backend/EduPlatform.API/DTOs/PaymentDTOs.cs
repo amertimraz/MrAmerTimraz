@@ -9,6 +9,18 @@ public class CreatePaymentRequestDto
     public string? Notes { get; set; }
 }
 
+public class BookletDto
+{
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string PdfUrl { get; set; } = string.Empty;
+    public string? CoverImageUrl { get; set; }
+    public string? Subject { get; set; }
+    public string? GradeLevel { get; set; }
+    public decimal Price { get; set; }
+    public bool IsPublished { get; set; }
+}
+
 public class ReviewPaymentDto
 {
     public bool Approve { get; set; }
