@@ -62,10 +62,10 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpGet("status")]
-    public async Task<IActionResult> GetStatus(int? courseId, int? sessionId)
+    public async Task<IActionResult> GetStatus(int? courseId, int? sessionId, int? bookletId)
     {
         var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var has = await _payments.HasPendingOrApprovedAsync(courseId, sessionId, studentId);
+        var has = await _payments.HasPendingOrApprovedAsync(courseId, sessionId, bookletId, studentId);
         return Ok(new { hasPendingOrApproved = has });
     }
 }

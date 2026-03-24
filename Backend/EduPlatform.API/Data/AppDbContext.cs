@@ -32,6 +32,7 @@ public class AppDbContext : DbContext
     public DbSet<VideoComment> VideoComments => Set<VideoComment>();
     public DbSet<LiveSession> LiveSessions => Set<LiveSession>();
     public DbSet<LiveSessionEnrollment> LiveSessionEnrollments => Set<LiveSessionEnrollment>();
+    public DbSet<Booklet> Booklets => Set<Booklet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -186,6 +187,11 @@ public class AppDbContext : DbContext
             entity.HasOne(p => p.LiveSession)
                   .WithMany()
                   .HasForeignKey(p => p.LiveSessionId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(p => p.Booklet)
+                  .WithMany(b => b.PaymentRequests)
+                  .HasForeignKey(p => p.BookletId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
     }

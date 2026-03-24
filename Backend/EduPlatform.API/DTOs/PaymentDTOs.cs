@@ -4,6 +4,7 @@ public class CreatePaymentRequestDto
 {
     public int? CourseId { get; set; }
     public int? LiveSessionId { get; set; }
+    public int? BookletId { get; set; }
     public decimal AmountPaid { get; set; }
     public string? Notes { get; set; }
 }
@@ -29,6 +30,10 @@ public class PaymentRequestDto
     public int? LiveSessionId { get; set; }
     public string LiveSessionTitle { get; set; } = string.Empty;
     public decimal LiveSessionPrice { get; set; }
+
+    public int? BookletId { get; set; }
+    public string BookletTitle { get; set; } = string.Empty;
+    public decimal BookletPrice { get; set; }
 
     public decimal AmountPaid { get; set; }
     public string? ReceiptImageUrl { get; set; }

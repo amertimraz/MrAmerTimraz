@@ -11,7 +11,7 @@ public interface IPaymentService
     Task<List<PaymentRequestDto>> GetAllRequestsAsync();
     Task<List<PaymentRequestDto>> GetStudentRequestsAsync(int studentId);
     Task<PaymentRequestDto?> ReviewRequestAsync(int id, ReviewPaymentDto dto);
-    Task<bool> HasPendingOrApprovedAsync(int? courseId, int? sessionId, int studentId);
+    Task<bool> HasPendingOrApprovedAsync(int? courseId, int? sessionId, int? bookletId, int studentId);
 }
 
 public class PaymentService : IPaymentService
@@ -48,6 +48,16 @@ public class PaymentService : IPaymentService
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
                 return null;
         }
+        else if (dto.BookletId.HasValue)
+        {
+            var booklet = await _db.Booklets.FindAsync(dto.BookletId);
+            if (booklet == null) return null;
+
+            if (await _db.PaymentRequests.AnyAsync(p =>
+                p.BookletId == dto.BookletId && p.StudentId == studentId &&
+                (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
+                return null;
+        }
         else
         {
             return null;
@@ -58,6 +68,7 @@ public class PaymentService : IPaymentService
             StudentId = studentId,
             CourseId = dto.CourseId,
             LiveSessionId = dto.LiveSessionId,
+            BookletId = dto.BookletId,
             AmountPaid = dto.AmountPaid,
             Notes = dto.Notes,
             ReceiptImageUrl = receiptUrl
@@ -75,6 +86,7 @@ public class PaymentService : IPaymentService
             .Include(p => p.Student)
             .Include(p => p.Course)
             .Include(p => p.LiveSession)
+            .Include(p => p.Booklet)
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => MapToDto(p))
             .ToListAsync();
@@ -87,6 +99,7 @@ public class PaymentService : IPaymentService
             .Include(p => p.Student)
             .Include(p => p.Course)
             .Include(p => p.LiveSession)
+            .Include(p => p.Booklet)
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => MapToDto(p))
             .ToListAsync();
@@ -98,6 +111,7 @@ public class PaymentService : IPaymentService
             .Include(p => p.Student)
             .Include(p => p.Course)
             .Include(p => p.LiveSession)
+            .Include(p => p.Booklet)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (request == null || request.Status != PaymentStatus.Pending) return null;
@@ -130,7 +144,7 @@ public class PaymentService : IPaymentService
         return MapToDto(request);
     }
 
-    public async Task<bool> HasPendingOrApprovedAsync(int? courseId, int? sessionId, int studentId)
+    public async Task<bool> HasPendingOrApprovedAsync(int? courseId, int? sessionId, int? bookletId, int studentId)
     {
         if (courseId.HasValue)
         {
@@ -144,6 +158,12 @@ public class PaymentService : IPaymentService
                 p.LiveSessionId == sessionId && p.StudentId == studentId &&
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved));
         }
+        if (bookletId.HasValue)
+        {
+            return await _db.PaymentRequests.AnyAsync(p =>
+                p.BookletId == bookletId && p.StudentId == studentId &&
+                (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved));
+        }
         return false;
     }
 
@@ -153,6 +173,7 @@ public class PaymentService : IPaymentService
             .Include(p => p.Student)
             .Include(p => p.Course)
             .Include(p => p.LiveSession)
+            .Include(p => p.Booklet)
             .FirstOrDefaultAsync(p => p.Id == id);
         return p == null ? null : MapToDto(p);
     }
@@ -170,6 +191,9 @@ public class PaymentService : IPaymentService
         LiveSessionId = p.LiveSessionId,
         LiveSessionTitle = p.LiveSession?.Title ?? "",
         LiveSessionPrice = p.LiveSession?.Price ?? 0,
+        BookletId = p.BookletId,
+        BookletTitle = p.Booklet?.Title ?? "",
+        BookletPrice = p.Booklet?.Price ?? 0,
         AmountPaid = p.AmountPaid,
         ReceiptImageUrl = p.ReceiptImageUrl,
         Notes = p.Notes,

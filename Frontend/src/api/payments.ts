@@ -2,10 +2,11 @@ import client from './client';
 import type { PaymentRequest } from '../types';
 
 export const paymentsApi = {
-  createRequest: (courseId: number | null, amountPaid: number, notes: string, receipt?: File, liveSessionId?: number | null) => {
+  createRequest: (courseId: number | null, amountPaid: number, notes: string, receipt?: File, liveSessionId?: number | null, bookletId?: number | null) => {
     const form = new FormData();
     if (courseId) form.append('courseId', String(courseId));
     if (liveSessionId) form.append('liveSessionId', String(liveSessionId));
+    if (bookletId) form.append('bookletId', String(bookletId));
     
     form.append('amountPaid', String(amountPaid));
     form.append('notes', notes);
@@ -22,6 +23,11 @@ export const paymentsApi = {
   review: (id: number, approve: boolean, adminNote?: string) =>
     client.put<PaymentRequest>(`/payments/${id}/review`, { approve, adminNote }).then(r => r.data),
 
-  getStatus: (courseId: number) =>
-    client.get<{ hasPendingOrApproved: boolean }>(`/payments/status/${courseId}`).then(r => r.data),
+  getStatus: (courseId?: number, sessionId?: number, bookletId?: number) => {
+    const params = new URLSearchParams();
+    if (courseId) params.append('courseId', String(courseId));
+    if (sessionId) params.append('sessionId', String(sessionId));
+    if (bookletId) params.append('bookletId', String(bookletId));
+    return client.get<{ hasPendingOrApproved: boolean }>(`/payments/status?${params}`).then(r => r.data);
+  },
 };

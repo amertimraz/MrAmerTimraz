@@ -58,6 +58,10 @@ export interface PaymentRequest {
   courseTitle?: string;
   coursePrice?: number;
 
+  bookletId?: number;
+  bookletTitle?: string;
+  bookletPrice?: number;
+
   liveSessionId?: number;
   liveSessionTitle?: string;
   liveSessionPrice?: number;
@@ -207,5 +211,18 @@ export interface LibraryItem {
   quizUrl?: string;
   viewCount: number;
   downloadCount: number;
+  createdAt: string;
+}
+
+export interface Booklet {
+  id: number;
+  title: string;
+  description?: string;
+  pdfUrl: string;
+  coverImageUrl?: string;
+  subject?: string;
+  gradeLevel?: string;
+  price: number;
+  isPublished: boolean;
   createdAt: string;
 }

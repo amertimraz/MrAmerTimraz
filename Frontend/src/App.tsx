@@ -24,6 +24,9 @@ import GamesPage             from './pages/student/GamesPage';
 import NotificationsPage     from './pages/student/NotificationsPage';
 import LessonPage            from './pages/student/LessonPage';
 import LiveSessionsPage      from './pages/student/LiveSessionsPage';
+import BookletsPage          from './pages/student/BookletsPage';
+import BookletDetailsPage    from './pages/student/BookletDetailsPage';
+import MyBookletsPage        from './pages/student/MyBookletsPage';
 
 
 import TeacherDashboard      from './pages/teacher/TeacherDashboard';
@@ -48,6 +51,7 @@ import AdminPayments         from './pages/admin/AdminPayments';
 import AdminLibrary          from './pages/admin/AdminLibrary';
 import AdminQuizzes          from './pages/admin/AdminQuizzes';
 import AdminLiveSessions     from './pages/admin/AdminLiveSessions';
+import BookletsManager       from './pages/admin/BookletsManager';
 import LibraryPage           from './pages/landing/LibraryPage';
 import QuizPresenter         from './pages/QuizPresenter';
 
@@ -95,6 +99,9 @@ export default function App() {
             <Route path="results"         element={<StudentResults />} />
             <Route path="games"           element={<GamesPage />} />
             <Route path="live-sessions"   element={<LiveSessionsPage />} />
+            <Route path="booklets"        element={<BookletsPage />} />
+            <Route path="booklets/:id"    element={<BookletDetailsPage />} />
+            <Route path="my-booklets"     element={<MyBookletsPage />} />
             <Route path="notifications"   element={<NotificationsPage />} />
           </Route>
 
@@ -127,6 +134,7 @@ export default function App() {
             <Route path="categories"      element={<AdminCategories />} />
             <Route path="library"         element={<AdminLibrary />} />
             <Route path="quizzes"         element={<AdminQuizzes />} />
+            <Route path="booklets"        element={<BookletsManager />} />
             <Route path="live-sessions"   element={<AdminLiveSessions />} />
           </Route>
 

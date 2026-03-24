@@ -15,6 +15,9 @@ public class PaymentRequest
     public int? LiveSessionId { get; set; }
     public LiveSession? LiveSession { get; set; }
 
+    public int? BookletId { get; set; }
+    public Booklet? Booklet { get; set; }
+
     public string? ReceiptImageUrl { get; set; }
 
     public decimal AmountPaid { get; set; }
