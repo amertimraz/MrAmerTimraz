@@ -17,13 +17,22 @@ public class BookletsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(bool all = false)
     {
-        var query = _db.Booklets.AsQueryable();
+        try
+        {
+            var query = _db.Booklets.AsQueryable();
 
-        if (!all || !User.IsInRole("Admin"))
-            query = query.Where(b => b.IsPublished);
+            if (!all || !User.IsInRole("Admin"))
+                query = query.Where(b => b.IsPublished);
 
-        var booklets = await query.OrderByDescending(b => b.CreatedAt).ToListAsync();
-        return Ok(booklets);
+            var booklets = await query.OrderByDescending(b => b.CreatedAt).ToListAsync();
+            return Ok(booklets);
+        }
+        catch (Exception ex)
+        {
+            var msg = ex.Message;
+            if (ex.InnerException != null) msg += " | Inner: " + ex.InnerException.Message;
+            return StatusCode(500, new { error = "خطأ في استرجاع الملازم", details = msg });
+        }
     }
 
     [HttpGet("{id}")]
