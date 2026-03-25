@@ -440,7 +440,7 @@ using (var scope = app.Services.CreateScope())
     // Force clear old sample data to ensure the new 11-challenge test is seeded
     var defaultTest = await db.TofasTests.Include(t => t.Questions)
                                         .FirstOrDefaultAsync(t => t.Slug == "tofas-test-1");
-    if (defaultTest != null && defaultTest.Questions.Count < 16)
+    if (defaultTest != null && defaultTest.Questions.Count < 20)
     {
         db.TofasTests.Remove(defaultTest);
         await db.SaveChangesAsync();

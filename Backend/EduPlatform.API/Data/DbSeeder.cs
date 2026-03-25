@@ -279,6 +279,66 @@ namespace EduPlatform.API.Data
                                 new ChallengeSnippet { OrderIndex = 2, Code = "let vehicle = \"سيارة\";\nvehicle = \"طائرة\";\nconsole.log(vehicle);", AnalysisType = "Logic", AnalysisMessage = "خطأ! هذا سيطبع 'طائرة' فقط." },
                                 new ChallengeSnippet { OrderIndex = 3, Code = "let vehicle = \"طائرة\";\nconsole.log(vehicle);", AnalysisType = "Logic", AnalysisMessage = "خطأ! مخرجات ناقصة." }
                             }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي القيم المنطقية",
+                            Slug = "challenge-16",
+                            Description = "حدد البرنامج الذي يستخدم القيمة المنطقية الصحيحة لإظهار الرسالة.",
+                            TargetOutput = "تم تفعيل الوضع الليلي",
+                            OrderIndex = 16,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let isDarkMode = true;\nif (isDarkMode) {\n  console.log(\"تم تفعيل الوضع الليلي\");\n}", AnalysisType = "Correct", AnalysisMessage = "أحسنت! القيمة true تسمح بتنفيذ ما داخل if." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let isDarkMode = false;\nif (isDarkMode) {\n  console.log(\"تم تفعيل الوضع الليلي\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! القيمة false ستمنع التنفيذ." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let isDarkMode = \"true\";\nif (isDarkMode == true) {\n  console.log(\"تم تفعيل الوضع الليلي\");\n}", AnalysisType = "Logic", AnalysisMessage = "تنبيه! النص \"true\" لا يساوي القيمة المنطقية true." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let isDarkMode = true;\nif (!isDarkMode) {\n  console.log(\"تم تفعيل الوضع الليلي\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! استخدام (!) يعكس القيمة." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي طقس الغد",
+                            Slug = "challenge-18",
+                            Description = "حدد البرنامج الذي يتوقع طقساً غير مستقر بناءً على القيمة 'ممطر'.",
+                            TargetOutput = "الطقس لن يكون جيداً غداً.",
+                            OrderIndex = 17,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let tomorrowWeather = \"ممطر\";\nif (tomorrowWeather == \"مشمس\") {\n  console.log(\"سيكون الطقس لطيفاً غداً.\");\n} else {\n  console.log(\"الطقس لن يكون جيداً غداً.\");\n}", AnalysisType = "Correct", AnalysisMessage = "صحيح! بما أنها ممطرة، سينتقل التنفيذ إلى else." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let tomorrowWeather = \"ممطر\";\nif (tomorrowWeather == \"مشمس\") {\n  console.log(\"سيكون الطقس لطيفاً غداً.\");\n} if {\n  console.log(\"الطقس لن يكون جيداً غداً.\");\n}", AnalysisType = "Syntax", AnalysisMessage = "خطأ برمجي! لا يمكن كتابة if بدون شرط بعدها. يجب استخدام else." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "if (tomorrowWeather == \"مشمس\") {\n  console.log(\"سيكون الطقس لطيفاً غداً.\");\n} else {\n  console.log(\"الطقس لن يكون جيداً غداً.\");\n}\nlet tomorrowWeather = \"ممطر\";", AnalysisType = "Syntax", AnalysisMessage = "خطأ! لا يمكن استخدام المتغير قبل تعريفه." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let tomorrowWeather = \"مشمس\";\nif (tomorrowWeather == \"مشمس\") {\n  console.log(\"الطقس لن يكون جيداً غداً.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! المنطق متعارض مع المخرجات المطلوبة." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي حجم التفاحة",
+                            Slug = "challenge-19",
+                            Description = "حدد الكود الذي يصنف وزن 300 جرام كحجم متوسط (Medium).",
+                            TargetOutput = "إنه حجم Medium.",
+                            OrderIndex = 18,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let appleWeight = 300;\nif (appleWeight > 400) {\n  console.log(\"إنه حجم Large\");\n} else if (appleWeight > 200) {\n  console.log(\"إنه حجم Medium\");\n} else {\n  console.log(\"إنه حجم Small\");\n}", AnalysisType = "Correct", AnalysisMessage = "أحسنت! 300 ليست أكبر من 400، لكنها أكبر من 200." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "if (appleWeight > 400) { ... } else { ... }\nlet appleWeight = 300;", AnalysisType = "Syntax", AnalysisMessage = "خطأ! المتغير غير معرف في بداية الكود." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let appleWeight = 300;\nif (appleWeight == 300) {\n  console.log(\"إنه حجم Large\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! الشرط سيخرج Large وهو غير المطلوب." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let appleWeight = 300;\nif (appleWeight < 200) {\n  console.log(\"إنه حجم Medium\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ منطقي! 300 ليست أصغر من 200." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي سعة القاعة",
+                            Slug = "challenge-20",
+                            Description = "حدد الكود الذي يسمح بالدخول عند توفر مساحة كافية.",
+                            TargetOutput = "الجميع يمكنه الدخول.",
+                            OrderIndex = 19,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let peopleNum = 180;\nlet venueCapacity = 200;\nif (peopleNum > venueCapacity) {\n  console.log(\"تم تجاوز السعة المحددة.\");\n} else if (peopleNum < venueCapacity) {\n  console.log(\"الجميع يمكنه الدخول.\");\n} else {\n  console.log(\"ممتلئ تماماً\");\n}", AnalysisType = "Correct", AnalysisMessage = "صحيح! 180 أقل من 200 سعة القاعة." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "if (peopleNum > venueCapacity) { ... }\nlet peopleNum = 180;\nlet venueCapacity = 200;", AnalysisType = "Syntax", AnalysisMessage = "خطأ! المتغيرات مستخدمة قبل تعريفها." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let peopleNum = 180;\nlet venueCapacity = 200;\nif (peopleNum == venueCapacity) {\n  console.log(\"الجميع يمكنه الدخول.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! 180 لا تساوي 200." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let peopleNum = 180;\nlet venueCapacity = 200;\nif (peopleNum > venueCapacity) {\n  console.log(\"الجميع يمكنه الدخول.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ منطقي في الشرط." }
+                            }
                         }
                     }
                 };
