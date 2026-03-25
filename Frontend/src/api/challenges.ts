@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+import client from './client';
 
 export interface ChallengeSnippet {
   id?: number;
@@ -23,28 +21,22 @@ export interface Challenge {
 
 export const challengesApi = {
   // Student
-  getVisible: async () => {
-    const { data } = await axios.get<Challenge[]>(`${API_URL}/challenges`);
-    return data;
-  },
-  getBySlug: async (slug: string) => {
-    const { data } = await axios.get<Challenge>(`${API_URL}/challenges/slug/${slug}`);
-    return data;
-  },
+  getVisible: () =>
+    client.get<Challenge[]>('/challenges').then(r => r.data),
+
+  getBySlug: (slug: string) =>
+    client.get<Challenge>(`/challenges/slug/${slug}`).then(r => r.data),
 
   // Admin
-  getAllAdmin: async () => {
-    const { data } = await axios.get<Challenge[]>(`${API_URL}/challenges/admin`);
-    return data;
-  },
-  create: async (challenge: Partial<Challenge>) => {
-    const { data } = await axios.post<Challenge>(`${API_URL}/challenges`, challenge);
-    return data;
-  },
-  update: async (id: number, challenge: Partial<Challenge>) => {
-    await axios.put(`${API_URL}/challenges/${id}`, challenge);
-  },
-  delete: async (id: number) => {
-    await axios.delete(`${API_URL}/challenges/${id}`);
-  }
+  getAllAdmin: () =>
+    client.get<Challenge[]>('/challenges/admin').then(r => r.data),
+
+  create: (challenge: Partial<Challenge>) =>
+    client.post<Challenge>('/challenges', challenge).then(r => r.data),
+
+  update: (id: number, challenge: Partial<Challenge>) =>
+    client.put<Challenge>(`/challenges/${id}`, challenge).then(r => r.data),
+
+  delete: (id: number) =>
+    client.delete(`/challenges/${id}`)
 };
