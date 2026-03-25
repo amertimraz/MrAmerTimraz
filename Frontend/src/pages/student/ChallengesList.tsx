@@ -19,10 +19,10 @@ export default function ChallengesList() {
           <div className="w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
             <Layers size={28} />
           </div>
-          ورش العمل التفاعلية
+          إختبارات Tofas
         </h1>
         <p className="text-lg text-slate-500 font-medium max-w-2xl">
-          تحدى نفسك مع الألغاز البرمجية التفاعلية. حل المشكلات، حلل الأكواد، وطور مهاراتك بطريقة مبتكرة.
+          اختبر مهاراتك مع تحديات Tofas التفاعلية. حل المشكلات، حلل الأكواد، وطور مهاراتك البرمجية.
         </p>
       </div>
 

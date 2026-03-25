@@ -80,7 +80,7 @@ export default function ChallengePage() {
           <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-xl shadow-sm hover:shadow-md transition">
             <ArrowLeft size={20} className="text-gray-600" />
           </button>
-          <h1 className="text-xl font-black text-slate-800">ورشة العمل: {challenge.title}</h1>
+          <h1 className="text-xl font-black text-slate-800">إختبار Tofas: {challenge.title}</h1>
         </div>
 
         <div className="flex items-center gap-3">

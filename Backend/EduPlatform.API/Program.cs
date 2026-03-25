@@ -300,6 +300,33 @@ using (var scope = app.Services.CreateScope())
             "CREATE SEQUENCE IF NOT EXISTS \"AppSettings_Id_seq\"",
             "ALTER TABLE \"AppSettings\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"AppSettings_Id_seq\"')",
             "ALTER TABLE \"AppSettings\" ALTER COLUMN \"UpdatedAt\" TYPE timestamp without time zone USING \"UpdatedAt\"::timestamp without time zone",
+            """
+            CREATE TABLE IF NOT EXISTS "Challenges" (
+                "Id" SERIAL PRIMARY KEY,
+                "Title" VARCHAR(200) NOT NULL,
+                "Slug" VARCHAR(200) NOT NULL,
+                "Description" TEXT,
+                "TargetOutput" TEXT NOT NULL,
+                "Price" DECIMAL(18,2) NOT NULL DEFAULT 0,
+                "IsVisible" BOOLEAN NOT NULL DEFAULT TRUE,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Challenges_Slug\" ON \"Challenges\"(\"Slug\")",
+            """
+            CREATE TABLE IF NOT EXISTS "ChallengeSnippets" (
+                "Id" SERIAL PRIMARY KEY,
+                "ChallengeId" INTEGER NOT NULL REFERENCES "Challenges"("Id") ON DELETE CASCADE,
+                "Code" TEXT NOT NULL,
+                "AnalysisType" VARCHAR(50) NOT NULL DEFAULT 'Logic',
+                "AnalysisMessage" TEXT,
+                "OrderIndex" INTEGER NOT NULL DEFAULT 0
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_ChallengeSnippets_ChallengeId\" ON \"ChallengeSnippets\"(\"ChallengeId\")",
+            "ALTER TABLE \"Challenges\" ALTER COLUMN \"IsVisible\" TYPE boolean USING (\"IsVisible\"::integer::boolean)",
+            "ALTER TABLE \"Challenges\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
+            "ALTER TABLE \"Challenges\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric"
         };
 
         foreach (var sql in safetyAlters)

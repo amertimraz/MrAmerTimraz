@@ -98,9 +98,9 @@ export default function AdminChallenges() {
         <div>
           <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
             <Layout className="text-primary-500" size={32} />
-            إدارة ورش العمل التفاعلية
+            إدارة إختبارات Tofas
           </h1>
-          <p className="text-slate-500 mt-1 font-medium">تحكم في التحديات، الأسعار، والروابط الخاصة بالأحاجي البرمجية.</p>
+          <p className="text-slate-500 mt-1 font-medium">تحكم في التحديات، الأسعار، والروابط الخاصة بإختبارات Tofas.</p>
         </div>
         <button 
           onClick={() => { setEditingChallenge({ title: '', slug: '', description: '', targetOutput: '', price: 0, isVisible: true, snippets: [] }); setIsModalOpen(true); }}
