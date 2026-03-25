@@ -233,7 +233,7 @@ export default function ChallengePage() {
                      </div>
                   </div>
 
-                  <pre className="font-mono text-slate-800 text-lg leading-relaxed whitespace-pre-wrap pr-12">
+                  <pre className="font-mono text-slate-800 text-lg leading-relaxed whitespace-pre-wrap pl-16 text-left" dir="ltr">
                      {snippet.code}
                   </pre>
 
