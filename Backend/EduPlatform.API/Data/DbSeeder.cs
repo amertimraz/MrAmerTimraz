@@ -1,88 +1,66 @@
 using EduPlatform.API.Models;
-using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace EduPlatform.API.Data;
-
-public static class DbSeeder
+namespace EduPlatform.API.Data
 {
-    public static async Task SeedAsync(AppDbContext context)
+    public static class DbSeeder
     {
-        // Seed Users if empty
-        if (!context.Users.Any())
+        public static async Task SeedAsync(AppDbContext context)
         {
-            var admin = new User
+            // Seed Tofas Test if the specific one is missing
+            if (!context.TofasTests.Any(t => t.Slug == "tofas-test-1"))
             {
-                Name = "Admin",
-                Username = "admin",
-                PhoneNumber = "01000000000",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
-                Role = UserRole.Admin
-            };
-
-            var teacher = new User
-            {
-                Name = "Mr. Ahmed",
-                Username = "teacher",
-                PhoneNumber = "01100000000",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Teacher@123"),
-                Role = UserRole.Teacher
-            };
-
-            var student = new User
-            {
-                Name = "Ali Student",
-                Username = "student",
-                PhoneNumber = "01200000000",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Student@123"),
-                Role = UserRole.Student
-            };
-
-            context.Users.AddRange(admin, teacher, student);
-            await context.SaveChangesAsync();
-        }
-
-        // Seed Tofas Test if empty
-        if (!context.Challenges.Any(c => c.Slug == "tofas-test-1"))
-        {
-            var challenge = new Challenge
-            {
-                Title = "إختبار Tofas الأول",
-                Slug = "tofas-test-1",
-                Description = "مجموعة من الأسئلة التفاعلية لقياس مهارات التفكير البرمجي.",
-                TargetOutput = "50",
-                Price = 0,
-                IsVisible = true,
-                CreatedAt = DateTime.UtcNow,
-                Snippets = new List<ChallengeSnippet>
+                var test = new TofasTest
                 {
-                    new ChallengeSnippet { 
-                        Code = "let 5;\nlet 10;\n\nnum1 = num2 * num1;\nconsole.log(num1);", 
-                        AnalysisType = "Syntax", 
-                        AnalysisMessage = "خطأ قواعدي (Syntax):\nلا يمكن تسمية المتغيرات بأرقام فقط. يجب أن يبدأ اسم المتغير بحرف.",
-                        OrderIndex = 1
-                    },
-                    new ChallengeSnippet { 
-                        Code = "let 5;\nlet 10;\n\nnum1 = num2 / num1;\nconsole.log(num1);", 
-                        AnalysisType = "Syntax", 
-                        AnalysisMessage = "خطأ قواعدي (Syntax):\nبدأ اسم المتغير برقم وهذا غير مسموح.",
-                        OrderIndex = 2
-                    },
-                    new ChallengeSnippet { 
-                        Code = "let num1 = 5;\nlet num2 = 10;\n\nnum1 = num2 / num1;\nconsole.log(num1);", 
-                        AnalysisType = "Logic", 
-                        AnalysisMessage = "خطأ حسابي (Logic):\nالعملية هنا قسمة 10/5 = 2.\nالنتيجة لا تساوي الهدف (50).",
-                        OrderIndex = 3
-                    },
-                    new ChallengeSnippet { 
-                        Code = "let num1 = 5;\nlet num2 = 10;\n\nnum1 = num2 * num1;\nconsole.log(num1);", 
-                        AnalysisType = "Correct", 
-                        AnalysisMessage = "الإجابة الصحيحة ✅\nالمتغيرات مسماة بشكل صحيح، والعملية الحسابية دقيقة: 10 * 5 = 50.",
-                        OrderIndex = 4
+                    Title = "إختبار Tofas التجريبي",
+                    Slug = "tofas-test-1",
+                    Description = "اختبار مهارات البرمجة والمنطق البرمجي من خلال تحليل الأكواد واستنتاج المخرجات الصحيحة.",
+                    Price = 0,
+                    IsVisible = true,
+                    TimeLimitMinutes = 15,
+                    Questions = new List<Challenge>
+                    {
+                        new Challenge
+                        {
+                            Title = "تحدي المتغيرات والعمليات الحسابية",
+                            Slug = "coding-challenge-1",
+                            Description = "حلل الكود التالي واختر الإجابة التي تعطي المخرج المطلوب (50).",
+                            TargetOutput = "50",
+                            OrderIndex = 0,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet
+                                {
+                                    Code = "let num1 = 5;\nlet num2 = 10;\nnum1 = num2 * num1;\nconsole.log(num1);",
+                                    AnalysisType = "Correct",
+                                    AnalysisMessage = "إجابة صحيحة! قمت بضرب 10 في 5 وحصلت على 50 مع تسمية متغيرات سليمة.",
+                                    OrderIndex = 0
+                                },
+                                new ChallengeSnippet
+                                {
+                                    Code = "let 1num = 5;\nlet 2num = 10;\n1num = 2num * 1num;\nconsole.log(1num);",
+                                    AnalysisType = "Syntax",
+                                    AnalysisMessage = "خطأ قواعدي! أسماء المتغيرات لا يمكن أن تبدأ بأرقام في JavaScript.",
+                                    OrderIndex = 1
+                                },
+                                new ChallengeSnippet
+                                {
+                                    Code = "let num1 = 5;\nlet num2 = 10;\nnum1 = num2 / num1;\nconsole.log(num1);",
+                                    AnalysisType = "Logic",
+                                    AnalysisMessage = "خطأ منطقي! لقد استخدمت علامة القسمة (/) بدلاً من الضرب (*). المخرج سيكون 2 وليس 50.",
+                                    OrderIndex = 2
+                                }
+                            }
+                        }
                     }
-                }
-            };
-            context.Challenges.Add(challenge);
-            await context.SaveChangesAsync();
+                };
+
+                context.TofasTests.Add(test);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

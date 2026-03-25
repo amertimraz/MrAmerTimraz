@@ -34,6 +34,7 @@ public class AppDbContext : DbContext
     public DbSet<LiveSessionEnrollment> LiveSessionEnrollments => Set<LiveSessionEnrollment>();
     public DbSet<Booklet> Booklets => Set<Booklet>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
+    public DbSet<TofasTest> TofasTests => Set<TofasTest>();
     public DbSet<Challenge> Challenges => Set<Challenge>();
     public DbSet<ChallengeSnippet> ChallengeSnippets => Set<ChallengeSnippet>();
 
@@ -198,17 +199,29 @@ public class AppDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
+        modelBuilder.Entity<TofasTest>(entity =>
+        {
+            entity.HasIndex(t => t.Slug).IsUnique();
+            entity.HasMany(t => t.Questions)
+                  .WithOne(q => q.Test)
+                  .HasForeignKey(q => q.TestId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Challenge>(entity =>
+        {
+            // Slug on Challenge is no longer globally unique, only unique within a test? 
+            // For simplicity, let's keep it unique or remove unique index if needed.
+            // The user wants "أكثر من سؤال", usually they'd have an OrderIndex.
+            entity.HasIndex(c => c.Slug).IsUnique(); 
+        });
+
         modelBuilder.Entity<ChallengeSnippet>(entity =>
         {
             entity.HasOne<Challenge>()
                   .WithMany(c => c.Snippets)
                   .HasForeignKey(s => s.ChallengeId)
                   .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        modelBuilder.Entity<Challenge>(entity =>
-        {
-            entity.HasIndex(c => c.Slug).IsUnique();
         });
     }
 }

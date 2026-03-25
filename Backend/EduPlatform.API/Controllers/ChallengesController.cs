@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace EduPlatform.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/challenges")] // Keep generic route for compatibility or update to "tofastests"
     public class ChallengesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -24,60 +24,114 @@ namespace EduPlatform.API.Controllers
         // --- Student Endpoints ---
 
         [HttpGet, Authorize]
-        public async Task<ActionResult<IEnumerable<ChallengeDTO>>> GetVisibleChallenges()
+        public async Task<ActionResult<IEnumerable<TofasTestDTO>>> GetVisibleTests()
         {
-            var challenges = await _context.Challenges
-                .Where(c => c.IsVisible)
-                .OrderByDescending(c => c.CreatedAt)
-                .Select(c => MapToDTO(c, false))
+            var tests = await _context.TofasTests
+                .Where(t => t.IsVisible)
+                .OrderByDescending(t => t.CreatedAt)
+                .Select(t => MapTestToDTO(t, false))
                 .ToListAsync();
 
-            return Ok(challenges);
+            return Ok(tests);
         }
 
         [HttpGet("slug/{slug}"), Authorize]
-        public async Task<ActionResult<ChallengeDTO>> GetBySlug(string slug)
+        public async Task<ActionResult<TofasTestDTO>> GetBySlug(string slug)
         {
-            var challenge = await _context.Challenges
-                .Include(c => c.Snippets)
-                .FirstOrDefaultAsync(c => c.Slug.ToLower() == slug.ToLower());
+            var test = await _context.TofasTests
+                .Include(t => t.Questions)
+                    .ThenInclude(q => q.Snippets)
+                .FirstOrDefaultAsync(t => t.Slug.ToLower() == slug.ToLower());
 
-            if (challenge == null) return NotFound();
+            if (test == null) return NotFound();
 
-            // Check if it's visible or user is admin
-            if (!challenge.IsVisible && !User.IsInRole("Admin")) return NotFound();
+            if (!test.IsVisible && !User.IsInRole("Admin")) return NotFound();
 
-            return Ok(MapToDTO(challenge, true));
+            return Ok(MapTestToDTO(test, true));
         }
 
-        // --- Admin Endpoints ---
+        // --- Admin Endpoints (Tests) ---
 
         [HttpGet("admin"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<ChallengeDTO>>> GetAllChallenges()
+        public async Task<ActionResult<IEnumerable<TofasTestDTO>>> GetAllTests()
         {
-            var challenges = await _context.Challenges
-                .OrderByDescending(c => c.CreatedAt)
-                .Select(c => MapToDTO(c, false))
+            var tests = await _context.TofasTests
+                .OrderByDescending(t => t.CreatedAt)
+                .Select(t => MapTestToDTO(t, false))
                 .ToListAsync();
 
-            return Ok(challenges);
+            return Ok(tests);
         }
 
         [HttpPost, Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChallengeDTO>> Create(CreateChallengeDTO dto)
+        public async Task<ActionResult<TofasTestDTO>> CreateTest(CreateTofasTestDTO dto)
         {
-            if (await _context.Challenges.AnyAsync(c => c.Slug == dto.Slug))
+            if (await _context.TofasTests.AnyAsync(t => t.Slug == dto.Slug))
                 return BadRequest("هذا الرابط (Slug) مستخدم بالفعل.");
 
-            var challenge = new Challenge
+            var test = new TofasTest
             {
                 Title = dto.Title,
                 Slug = dto.Slug,
                 Description = dto.Description,
-                TargetOutput = dto.TargetOutput,
                 Price = dto.Price,
                 IsVisible = dto.IsVisible,
-                TimeLimitMinutes = dto.TimeLimitMinutes,
+                TimeLimitMinutes = dto.TimeLimitMinutes
+            };
+
+            _context.TofasTests.Add(test);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetBySlug), new { slug = test.Slug }, MapTestToDTO(test, false));
+        }
+
+        [HttpPut("{id}"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateTest(int id, CreateTofasTestDTO dto)
+        {
+            var test = await _context.TofasTests.FindAsync(id);
+            if (test == null) return NotFound();
+
+            if (await _context.TofasTests.AnyAsync(t => t.Slug == dto.Slug && t.Id != id))
+                return BadRequest("هذا الرابط (Slug) مستخدم بالفعل.");
+
+            test.Title = dto.Title;
+            test.Slug = dto.Slug;
+            test.Description = dto.Description;
+            test.Price = dto.Price;
+            test.IsVisible = dto.IsVisible;
+            test.TimeLimitMinutes = dto.TimeLimitMinutes;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteTest(int id)
+        {
+            var test = await _context.TofasTests.FindAsync(id);
+            if (test == null) return NotFound();
+
+            _context.TofasTests.Remove(test);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // --- Admin Endpoints (Questions/Challenges) ---
+
+        [HttpPost("{testId}/questions"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ChallengeDTO>> AddQuestion(int testId, CreateChallengeDTO dto)
+        {
+            var test = await _context.TofasTests.FindAsync(testId);
+            if (test == null) return NotFound("Test not found");
+
+            var question = new Challenge
+            {
+                TestId = testId,
+                Title = dto.Title,
+                Slug = dto.Slug,
+                Description = dto.Description,
+                TargetOutput = dto.TargetOutput,
+                OrderIndex = dto.OrderIndex,
                 Snippets = dto.Snippets.Select(s => new ChallengeSnippet
                 {
                     Code = s.Code,
@@ -87,35 +141,29 @@ namespace EduPlatform.API.Controllers
                 }).ToList()
             };
 
-            _context.Challenges.Add(challenge);
+            _context.Challenges.Add(question);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetBySlug), new { slug = challenge.Slug }, MapToDTO(challenge, true));
+            return Ok(MapQuestionToDTO(question));
         }
 
-        [HttpPut("{id}"), Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(int id, CreateChallengeDTO dto)
+        [HttpPut("questions/{id}"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateQuestion(int id, CreateChallengeDTO dto)
         {
-            var challenge = await _context.Challenges
-                .Include(c => c.Snippets)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var question = await _context.Challenges
+                .Include(q => q.Snippets)
+                .FirstOrDefaultAsync(q => q.Id == id);
 
-            if (challenge == null) return NotFound();
+            if (question == null) return NotFound();
 
-            if (await _context.Challenges.AnyAsync(c => c.Slug == dto.Slug && c.Id != id))
-                return BadRequest("هذا الرابط (Slug) مستخدم بالفعل.");
+            question.Title = dto.Title;
+            question.Slug = dto.Slug;
+            question.Description = dto.Description;
+            question.TargetOutput = dto.TargetOutput;
+            question.OrderIndex = dto.OrderIndex;
 
-            challenge.Title = dto.Title;
-            challenge.Slug = dto.Slug;
-            challenge.Description = dto.Description;
-            challenge.TargetOutput = dto.TargetOutput;
-            challenge.Price = dto.Price;
-            challenge.IsVisible = dto.IsVisible;
-            challenge.TimeLimitMinutes = dto.TimeLimitMinutes;
-
-            // Simple replace of snippets
-            _context.ChallengeSnippets.RemoveRange(challenge.Snippets);
-            challenge.Snippets = dto.Snippets.Select(s => new ChallengeSnippet
+            _context.ChallengeSnippets.RemoveRange(question.Snippets);
+            question.Snippets = dto.Snippets.Select(s => new ChallengeSnippet
             {
                 Code = s.Code,
                 AnalysisType = s.AnalysisType,
@@ -127,37 +175,54 @@ namespace EduPlatform.API.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("questions/{id}"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteQuestion(int id)
         {
-            var challenge = await _context.Challenges.FindAsync(id);
-            if (challenge == null) return NotFound();
+            var question = await _context.Challenges.FindAsync(id);
+            if (question == null) return NotFound();
 
-            _context.Challenges.Remove(challenge);
+            _context.Challenges.Remove(question);
             await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        private static ChallengeDTO MapToDTO(Challenge c, bool includeSnippets)
+        // --- Helpers ---
+
+        private static TofasTestDTO MapTestToDTO(TofasTest t, bool includeQuestions)
+        {
+            return new TofasTestDTO
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Slug = t.Slug,
+                Description = t.Description,
+                Price = t.Price,
+                IsVisible = t.IsVisible,
+                TimeLimitMinutes = t.TimeLimitMinutes,
+                CreatedAt = t.CreatedAt,
+                Questions = includeQuestions ? t.Questions.OrderBy(q => q.OrderIndex).Select(MapQuestionToDTO).ToList() : new List<ChallengeDTO>()
+            };
+        }
+
+        private static ChallengeDTO MapQuestionToDTO(Challenge q)
         {
             return new ChallengeDTO
             {
-                Id = c.Id,
-                Title = c.Title,
-                Slug = c.Slug,
-                Description = c.Description,
-                TargetOutput = c.TargetOutput,
-                Price = c.Price,
-                IsVisible = c.IsVisible,
-                TimeLimitMinutes = c.TimeLimitMinutes,
-                Snippets = includeSnippets ? c.Snippets.OrderBy(s => s.OrderIndex).Select(s => new ChallengeSnippetDTO
+                Id = q.Id,
+                Title = q.Title,
+                Slug = q.Slug,
+                Description = q.Description,
+                TargetOutput = q.TargetOutput,
+                TestId = q.TestId,
+                OrderIndex = q.OrderIndex,
+                Snippets = q.Snippets.OrderBy(s => s.OrderIndex).Select(s => new ChallengeSnippetDTO
                 {
                     Id = s.Id,
                     Code = s.Code,
                     AnalysisType = s.AnalysisType,
                     AnalysisMessage = s.AnalysisMessage,
                     OrderIndex = s.OrderIndex
-                }).ToList() : new List<ChallengeSnippetDTO>()
+                }).ToList()
             };
         }
     }

@@ -15,18 +15,16 @@ namespace EduPlatform.API.Models
         public string Slug { get; set; } = string.Empty;
         
         public string Description { get; set; } = string.Empty;
-        
         public string TargetOutput { get; set; } = string.Empty;
         
-        public decimal Price { get; set; } = 0;
+        public int TestId { get; set; }
         
-        public bool IsVisible { get; set; } = true;
-        
-        public int TimeLimitMinutes { get; set; } = 15;
-        
+        public int OrderIndex { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation property
+        public TofasTest? Test { get; set; }
         public List<ChallengeSnippet> Snippets { get; set; } = new();
     }
 

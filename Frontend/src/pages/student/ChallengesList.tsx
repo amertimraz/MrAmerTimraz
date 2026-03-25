@@ -41,7 +41,7 @@ export default function ChallengesList() {
                <Brain className="text-white/20 absolute -bottom-4 -left-4" size={120} />
                <div className="relative z-10 flex justify-between items-start">
                   <div className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black text-white uppercase tracking-widest border border-white/20">
-                    Workshop #{challenge.id}
+                    Test #{challenge.id}
                   </div>
                   {challenge.price > 0 && (
                     <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500 text-slate-900 rounded-full text-xs font-black shadow-lg">
@@ -53,9 +53,14 @@ export default function ChallengesList() {
             </div>
 
             <div className="p-8 flex-1 flex flex-col gap-4">
-              <h3 className="text-2xl font-black text-slate-800 group-hover:text-primary-600 transition">
-                {challenge.title}
-              </h3>
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-black text-slate-800 group-hover:text-primary-600 transition truncate max-w-[70%]">
+                  {challenge.title}
+                </h3>
+                <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded-lg">
+                  {challenge.questions?.length || 0} أسئلة
+                </span>
+              </div>
               <p className="text-slate-500 text-sm font-medium line-clamp-2 leading-relaxed">
                 {challenge.description || 'لا يوجد وصف متاح لهذا التحدي التفاعلي.'}
               </p>

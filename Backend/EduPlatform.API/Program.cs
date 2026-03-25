@@ -301,14 +301,27 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"AppSettings\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"AppSettings_Id_seq\"')",
             "ALTER TABLE \"AppSettings\" ALTER COLUMN \"UpdatedAt\" TYPE timestamp without time zone USING \"UpdatedAt\"::timestamp without time zone",
             """
-            CREATE TABLE IF NOT EXISTS "Challenges" (
+            CREATE TABLE IF NOT EXISTS "TofasTests" (
                 "Id" SERIAL PRIMARY KEY,
                 "Title" VARCHAR(200) NOT NULL,
                 "Slug" VARCHAR(200) NOT NULL,
                 "Description" TEXT,
-                "TargetOutput" TEXT NOT NULL,
                 "Price" DECIMAL(18,2) NOT NULL DEFAULT 0,
                 "IsVisible" BOOLEAN NOT NULL DEFAULT TRUE,
+                "TimeLimitMinutes" INTEGER NOT NULL DEFAULT 15,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_TofasTests_Slug\" ON \"TofasTests\"(\"Slug\")",
+            """
+            CREATE TABLE IF NOT EXISTS "Challenges" (
+                "Id" SERIAL PRIMARY KEY,
+                "TestId" INTEGER NOT NULL REFERENCES "TofasTests"("Id") ON DELETE CASCADE,
+                "Title" VARCHAR(200) NOT NULL,
+                "Slug" VARCHAR(200) NOT NULL,
+                "Description" TEXT,
+                "TargetOutput" TEXT NOT NULL,
+                "OrderIndex" INTEGER NOT NULL DEFAULT 0,
                 "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
             )
             """,
@@ -360,7 +373,7 @@ using (var scope = app.Services.CreateScope())
             "Users", "Courses", "Videos", "Tests", "Questions", "Results",
             "Enrollments", "Notifications", "PaymentRequests", "LibraryItems",
             "InteractiveQuizzes", "InteractiveQuestions", "InteractiveQuizResults",
-            "VideoComments", "LiveSessions", "LiveSessionEnrollments", "Booklets", "AppSettings"
+            "VideoComments", "LiveSessions", "LiveSessionEnrollments", "Booklets", "AppSettings", "TofasTests", "Challenges", "ChallengeSnippets"
         };
         foreach (var t in seqTables)
         {
