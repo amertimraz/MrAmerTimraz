@@ -377,6 +377,31 @@ using (var scope = app.Services.CreateScope())
         }
         catch { }
     }
+    else // SQLite Support
+    {
+        var sqliteAlters = new[]
+        {
+            "CREATE TABLE IF NOT EXISTS \"AppSettings\" (\"Id\" INTEGER PRIMARY KEY AUTOINCREMENT, \"Key\" TEXT NOT NULL UNIQUE, \"Value\" TEXT, \"CreatedAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, \"UpdatedAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+            "CREATE TABLE IF NOT EXISTS \"TofasTests\" (\"Id\" INTEGER PRIMARY KEY AUTOINCREMENT, \"Title\" VARCHAR(200) NOT NULL, \"Slug\" VARCHAR(200) NOT NULL, \"Description\" TEXT, \"Price\" DECIMAL(18,2) NOT NULL DEFAULT 0, \"IsVisible\" BOOLEAN NOT NULL DEFAULT TRUE, \"TimeLimitMinutes\" INTEGER NOT NULL DEFAULT 15, \"CreatedAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+            "CREATE TABLE IF NOT EXISTS \"Challenges\" (\"Id\" INTEGER PRIMARY KEY AUTOINCREMENT, \"TestId\" INTEGER NOT NULL REFERENCES \"TofasTests\"(\"Id\") ON DELETE CASCADE, \"Title\" VARCHAR(200) NOT NULL, \"Slug\" VARCHAR(200) NOT NULL, \"Description\" TEXT, \"TargetOutput\" TEXT NOT NULL, \"OrderIndex\" INTEGER NOT NULL DEFAULT 0, \"CreatedAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+            "CREATE TABLE IF NOT EXISTS \"ChallengeSnippets\" (\"Id\" INTEGER PRIMARY KEY AUTOINCREMENT, \"ChallengeId\" INTEGER NOT NULL REFERENCES \"Challenges\"(\"Id\") ON DELETE CASCADE, \"Code\" TEXT NOT NULL, \"AnalysisType\" VARCHAR(50) NOT NULL DEFAULT 'Logic', \"AnalysisMessage\" TEXT, \"OrderIndex\" INTEGER NOT NULL DEFAULT 0)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_AppSettings_Key\" ON \"AppSettings\"(\"Key\")",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_TofasTests_Slug\" ON \"TofasTests\"(\"Slug\")",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Challenges_Slug\" ON \"Challenges\"(\"Slug\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_ChallengeSnippets_ChallengeId\" ON \"ChallengeSnippets\"(\"ChallengeId\")"
+        };
+
+        foreach (var sql in sqliteAlters)
+        {
+            try
+            {
+#pragma warning disable EF1002
+                db.Database.ExecuteSqlRaw(sql);
+#pragma warning restore EF1002
+            }
+            catch { }
+        }
+    }
 
     if (isPostgres)
     {
