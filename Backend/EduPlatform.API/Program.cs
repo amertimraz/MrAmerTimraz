@@ -437,18 +437,13 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Force clear old sample data to ensure the new 3-choice challenge is seeded
-    var oldChallenge = await db.Challenges.FirstOrDefaultAsync(c => c.Slug == "challenge-1");
-    if (oldChallenge != null && oldChallenge.Title == "تحدي المتغيرات والعمليات الحسابية")
+    // Force clear old sample data to ensure the new 11-challenge test is seeded
+    var defaultTest = await db.TofasTests.Include(t => t.Questions)
+                                        .FirstOrDefaultAsync(t => t.Slug == "tofas-test-1");
+    if (defaultTest != null && defaultTest.Questions.Count < 11)
     {
-        var totalQuestions = await db.Challenges.CountAsync(c => c.TestId == oldChallenge.TestId);
-        if (totalQuestions < 11) 
-        {
-            // Remove the whole test to re-seed everything fresh
-            var test = await db.TofasTests.FindAsync(oldChallenge.TestId);
-            if (test != null) db.TofasTests.Remove(test);
-            await db.SaveChangesAsync();
-        }
+        db.TofasTests.Remove(defaultTest);
+        await db.SaveChangesAsync();
     }
 
     await DbSeeder.SeedAsync(db);
