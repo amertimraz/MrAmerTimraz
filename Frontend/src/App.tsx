@@ -106,6 +106,8 @@ export default function App() {
             <Route path="live-sessions"   element={<LiveSessionsPage />} />
             <Route path="my-booklets"     element={<MyBookletsPage />} />
             <Route path="notifications"   element={<NotificationsPage />} />
+            <Route path="/challenges"     element={<ChallengesList />} />
+            <Route path="/challenges/:slug" element={<ChallengePage />} />
           </Route>
 
           {/* Common Authenticated Routes (Booklets, etc.) */}
@@ -152,9 +154,7 @@ export default function App() {
 
           <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
           <Route path="/quiz/:id" element={<QuizPresenter />} />
-          <Route path="/quiz/:id" element={<QuizPresenter />} />
-          <Route path="/challenges" element={<RequireAuth><ChallengesList /></RequireAuth>} />
-          <Route path="/challenges/:slug" element={<RequireAuth><ChallengePage /></RequireAuth>} />
+
           <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
           <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
 

@@ -42,7 +42,7 @@ public static class DbSeeder
         }
 
         // Seed Tofas Test if empty
-        if (!context.Challenges.Any())
+        if (!context.Challenges.Any(c => c.Slug == "tofas-test-1"))
         {
             var challenge = new Challenge
             {
