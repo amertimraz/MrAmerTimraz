@@ -50,12 +50,14 @@ import AdminCategories       from './pages/admin/AdminCategories';
 import AdminPayments         from './pages/admin/AdminPayments';
 import AdminLibrary          from './pages/admin/AdminLibrary';
 import AdminQuizzes          from './pages/admin/AdminQuizzes';
+import AdminChallenges       from './pages/admin/AdminChallenges';
 import AdminLiveSessions     from './pages/admin/AdminLiveSessions';
 import AdminBookletStats     from './pages/admin/AdminBookletStats';
 import AdminPaymentSettings  from './pages/admin/AdminPaymentSettings';
 import BookletsManager       from './pages/admin/BookletsManager';
 import LibraryPage           from './pages/landing/LibraryPage';
 import QuizPresenter         from './pages/QuizPresenter';
+import ChallengesList       from './pages/student/ChallengesList';
 import ChallengePage         from './pages/student/ChallengePage';
 
 const queryClient = new QueryClient({
@@ -141,6 +143,7 @@ export default function App() {
             <Route path="categories"      element={<AdminCategories />} />
             <Route path="library"         element={<AdminLibrary />} />
             <Route path="quizzes"         element={<AdminQuizzes />} />
+            <Route path="challenges"      element={<AdminChallenges />} />
             <Route path="booklets"        element={<BookletsManager />} />
             <Route path="booklet-stats"    element={<AdminBookletStats />} />
             <Route path="payment-settings" element={<AdminPaymentSettings />} />
@@ -150,6 +153,7 @@ export default function App() {
           <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
           <Route path="/quiz/:id" element={<QuizPresenter />} />
           <Route path="/quiz/:id" element={<QuizPresenter />} />
+          <Route path="/challenges" element={<RequireAuth><ChallengesList /></RequireAuth>} />
           <Route path="/challenges/:slug" element={<RequireAuth><ChallengePage /></RequireAuth>} />
           <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
           <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />

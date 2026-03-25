@@ -1,53 +1,28 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, HelpCircle, Search, Trophy, Printer, ArrowLeft, Share2 } from 'lucide-react';
+import { Clock, HelpCircle, Search, Trophy, Printer, ArrowLeft, Share2, Lock } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-
-interface Snippet {
-  id: number;
-  code: string;
-  analysis?: {
-    type: 'syntax' | 'logic' | 'correct';
-    message: string;
-    position: 'top' | 'bottom' | 'inline';
-  };
-}
-
-const PUZZLE_DATA = {
-  title: "اللغز الأول: العمليات الحسابية والمتغيرات",
-  targetOutput: "50",
-  question: "حدد البرنامج الذي يقوم بإخراج ما يلي:",
-  snippets: [
-    { 
-      id: 1, 
-      code: "let 5;\nlet 10;\n\nnum1 = num2 * num1;\nconsole.log(num1);",
-      analysis: { type: 'syntax', message: "خطأ قواعدي (Syntax):\nلا يمكن تسمية المتغيرات بأرقام فقط. يجب أن يبدأ اسم المتغير بحرف.", position: 'inline' }
-    },
-    { 
-      id: 2, 
-      code: "let 5;\nlet 10;\n\nnum1 = num2 / num1;\nconsole.log(num1);",
-      analysis: { type: 'syntax', message: "خطأ قواعدي (Syntax):\nبدأ اسم المتغير برقم وهذا غير مسموح.", position: 'inline' }
-    },
-    { 
-      id: 3, 
-      code: "let num1 = 5;\nlet num2 = 10;\n\nnum1 = num2 / num1;\nconsole.log(num1);",
-      analysis: { type: 'logic', message: "خطأ حسابي (Logic):\nالعملية هنا قسمة 10/5 = 2.\nالنتيجة لا تساوي الهدف (50).", position: 'inline' }
-    },
-    { 
-      id: 4, 
-      code: "let num1 = 5;\nlet num2 = 10;\n\nnum1 = num2 * num1;\nconsole.log(num1);",
-      analysis: { type: 'correct', message: "الإجابة الصحيحة ✅\nالمتغيرات مسماة بشكل صحيح، والعملية الحسابية دقيقة: 10 * 5 = 50.", position: 'inline' }
-    }
-  ] as Snippet[]
-};
+import { challengesApi } from '../../api/challenges';
+import type { Challenge } from '../../api/challenges';
 
 export default function ChallengePage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
+
+  useEffect(() => {
+    if (slug) {
+      challengesApi.getBySlug(slug)
+        .then(setChallenge)
+        .catch(() => toast.error('فشل في تحميل التحدي البرمجي'))
+        .finally(() => setLoading(false));
+    }
+  }, [slug]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -74,6 +49,9 @@ export default function ChallengePage() {
     navigator.clipboard.writeText(window.location.href);
     toast.success('تم نسخ الرابط المباشر لهذا التحدي');
   };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-slate-500">جاري تحميل التحدي...</div>;
+  if (!challenge) return <div className="min-h-screen flex items-center justify-center font-bold text-rose-500">التحدي غير موجود</div>;
 
   return (
     <div className="min-h-screen bg-slate-200 flex flex-col items-center py-8 px-4 print:p-0 print:bg-white overflow-x-hidden" dir="rtl">
@@ -102,7 +80,7 @@ export default function ChallengePage() {
           <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-xl shadow-sm hover:shadow-md transition">
             <ArrowLeft size={20} className="text-gray-600" />
           </button>
-          <h1 className="text-xl font-black text-slate-800">وضع التحدي الخاص</h1>
+          <h1 className="text-xl font-black text-slate-800">ورشة العمل: {challenge.title}</h1>
         </div>
 
         <div className="flex items-center gap-3">
@@ -129,7 +107,7 @@ export default function ChallengePage() {
         </div>
       </div>
 
-      {/* A4 Landscape Container (297mm x 210mm) */}
+      {/* A4 Landscape Container */}
       <div className="print-area w-full max-w-[1123px] aspect-[297/210] bg-white shadow-2xl rounded-[2.5rem] border border-slate-300 relative overflow-hidden flex flex-col transition-all duration-500">
         
         {/* Notebook Grid Background */}
@@ -139,9 +117,9 @@ export default function ChallengePage() {
         {/* Decorative Top Bar */}
         <div className="h-14 bg-slate-800 flex items-center justify-between px-10 relative z-20">
            <div className="flex items-center gap-4">
-              <span className="text-white font-black text-lg">Challenge Workshop</span>
+              <span className="text-white font-black text-lg">Workshop Interactive</span>
               <div className="h-4 w-px bg-white/20" />
-              <span className="text-white/60 text-sm">Question 01 of 20</span>
+              <span className="text-white/60 text-sm">{challenge.slug}</span>
            </div>
            <div className="flex gap-2">
               <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -155,30 +133,30 @@ export default function ChallengePage() {
           
           {/* Left: Snippets Column */}
           <div className="w-[55%] p-10 space-y-4 overflow-y-auto border-l border-slate-100 relative z-10 flex flex-col justify-center">
-            {PUZZLE_DATA.snippets.map((snippet) => (
+            {challenge.snippets?.map((snippet, idx) => (
               <div key={snippet.id} className="relative">
                 <div 
-                  onClick={() => !isRevealed && setSelectedId(snippet.id)}
+                  onClick={() => !isRevealed && setSelectedId(snippet.id || null)}
                   className={`
                     relative bg-slate-50 border-2 rounded-2xl p-5 cursor-pointer transition-all duration-300
                     ${selectedId === snippet.id ? 'border-primary-500 bg-white ring-8 ring-primary-500/5' : 'border-slate-100 hover:border-slate-300'}
-                    ${isRevealed && snippet.analysis?.type === 'correct' ? 'border-emerald-500 ring-8 ring-emerald-500/10' : ''}
-                    ${isRevealed && selectedId === snippet.id && snippet.analysis?.type !== 'correct' ? 'border-rose-500 ring-8 ring-rose-500/10' : ''}
+                    ${isRevealed && snippet.analysisType === 'Correct' ? 'border-emerald-500 ring-8 ring-emerald-500/10' : ''}
+                    ${isRevealed && selectedId === snippet.id && snippet.analysisType !== 'Correct' ? 'border-rose-500 ring-8 ring-rose-500/10' : ''}
                   `}
                 >
                   <div className="absolute top-4 left-4 flex flex-col items-center gap-2">
                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-black text-sm
                         ${selectedId === snippet.id ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-slate-200 text-slate-400'}
-                        ${isRevealed && snippet.analysis?.type === 'correct' ? 'bg-emerald-600 border-emerald-600 text-white' : ''}
+                        ${isRevealed && snippet.analysisType === 'Correct' ? 'bg-emerald-600 border-emerald-600 text-white' : ''}
                      `}>
-                       {snippet.id}
+                       {idx + 1}
                      </div>
                   </div>
 
                   <pre className="font-mono text-slate-800 text-lg leading-relaxed whitespace-pre-wrap pr-10">
                      {snippet.code.split('\n').map((line, i) => (
                        <div key={i} className="relative">
-                          {isRevealed && snippet.analysis?.type === 'syntax' && (i === 0 || i === 1) && (
+                          {isRevealed && snippet.analysisType === 'Syntax' && (i === 0 || i === 1) && (
                             <span className="absolute bottom-1 left-0 w-full h-1 border-b-4 border-rose-500 opacity-30 border-dotted" />
                           )}
                           {line}
@@ -195,12 +173,12 @@ export default function ChallengePage() {
                         className={`
                           absolute -top-6 -left-12 z-50 p-4 rounded-3xl shadow-2xl max-w-[280px] text-[13px] font-bold leading-snug tracking-tight
                           after:content-[''] after:absolute after:top-full after:left-[80%] after:-translate-x-1/2 after:border-[10px] after:border-transparent
-                          ${snippet.analysis?.type === 'correct' ? 'bg-emerald-600 text-white after:border-t-emerald-600 shadow-emerald-500/20' : ''}
-                          ${snippet.analysis?.type === 'syntax' ? 'bg-rose-600 text-white after:border-t-rose-600 shadow-rose-500/20' : ''}
-                          ${snippet.analysis?.type === 'logic' ? 'bg-amber-500 text-slate-900 after:border-t-amber-500 shadow-amber-500/20' : ''}
+                          ${snippet.analysisType === 'Correct' ? 'bg-emerald-600 text-white after:border-t-emerald-600 shadow-emerald-500/20' : ''}
+                          ${snippet.analysisType === 'Syntax' ? 'bg-rose-600 text-white after:border-t-rose-600 shadow-rose-500/20' : ''}
+                          ${snippet.analysisType === 'Logic' ? 'bg-amber-500 text-slate-900 after:border-t-amber-500 shadow-amber-500/20' : ''}
                         `}
                       >
-                        {snippet.analysis?.message}
+                        {snippet.analysisMessage}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -211,17 +189,17 @@ export default function ChallengePage() {
 
           {/* Right: Info & Logic */}
           <div className="w-[45%] p-14 bg-slate-50/30 flex flex-col justify-center gap-8">
-            <div className="space-y-6">
+            <div className="space-y-6 text-right">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-800 text-white rounded-full text-xs font-black uppercase tracking-widest">
-                Coding Puzzle #01
+                Coding Challenge
               </div>
               
               <h2 className="text-4xl font-black text-slate-800 leading-tight">
-                {PUZZLE_DATA.title}
+                {challenge.title}
               </h2>
               
               <p className="text-xl text-slate-600 font-bold leading-relaxed">
-                {PUZZLE_DATA.question}
+                حدد البرنامج الذي يقوم بإخراج ما يلي:
               </p>
             </div>
 
@@ -229,7 +207,7 @@ export default function ChallengePage() {
                <div className="absolute top-0 left-0 w-full h-2 bg-primary-600" />
                <span className="text-slate-400 font-bold text-sm uppercase">Desired Output</span>
                <div className="text-7xl font-black text-slate-800 font-mono tracking-tighter group-hover:scale-110 transition duration-500">
-                 {PUZZLE_DATA.targetOutput}
+                 {challenge.targetOutput}
                </div>
                <Search size={24} className="text-slate-100 absolute bottom-6 right-6" />
             </div>
@@ -250,7 +228,7 @@ export default function ChallengePage() {
 
             {/* Achievement Badge */}
             <AnimatePresence>
-              {isRevealed && selectedId === 4 && (
+              {isRevealed && challenge.snippets?.find(s => s.id === selectedId)?.analysisType === 'Correct' && (
                 <motion.div 
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -260,8 +238,8 @@ export default function ChallengePage() {
                     <Trophy className="text-white" size={32} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-emerald-800 underline decoration-wavy decoration-emerald-300">أحسنت! إجابة دقيقة</h3>
-                    <p className="text-emerald-700 font-medium text-sm">تم حل التحدي بنجاح.</p>
+                    <h3 className="text-xl font-bold text-emerald-800 underline decoration-wavy decoration-emerald-300 text-right">أحسنت! إجابة دقيقة</h3>
+                    <p className="text-emerald-700 font-medium text-sm text-right">تم حل التحدي بنجاح.</p>
                   </div>
                 </motion.div>
               )}
@@ -276,6 +254,13 @@ export default function ChallengePage() {
            <span>© 2026 Interactive Challenges</span>
         </div>
       </div>
+
+      {!challenge.isVisible && (
+        <div className="mt-8 flex items-center gap-2 text-rose-500 font-bold bg-white px-6 py-2 rounded-xl shadow-sm no-print">
+            <Lock size={18} />
+            هذا التحدي مخفي حالياً عن الطلاب.
+        </div>
+      )}
 
       <p className="mt-8 text-slate-500 text-sm font-medium no-print">
         💡 نصيحة: استخدم متصفح Google Chrome للحصول على أفضل جودة عند حفظ الـ PDF.

@@ -34,6 +34,8 @@ public class AppDbContext : DbContext
     public DbSet<LiveSessionEnrollment> LiveSessionEnrollments => Set<LiveSessionEnrollment>();
     public DbSet<Booklet> Booklets => Set<Booklet>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
+    public DbSet<Challenge> Challenges => Set<Challenge>();
+    public DbSet<ChallengeSnippet> ChallengeSnippets => Set<ChallengeSnippet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -194,6 +196,19 @@ public class AppDbContext : DbContext
                   .WithMany(b => b.PaymentRequests)
                   .HasForeignKey(p => p.BookletId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ChallengeSnippet>(entity =>
+        {
+            entity.HasOne<Challenge>()
+                  .WithMany(c => c.Snippets)
+                  .HasForeignKey(s => s.ChallengeId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Challenge>(entity =>
+        {
+            entity.HasIndex(c => c.Slug).IsUnique();
         });
     }
 }

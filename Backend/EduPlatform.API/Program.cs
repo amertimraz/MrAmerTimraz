@@ -144,6 +144,7 @@ using (var scope = app.Services.CreateScope())
             ("20260323122140_AddQuizTheme",               "9.0.1"),
             ("20260324115540_AddBooklets",                "9.0.1"),
             ("20260325091256_AddAppSettings",             "9.0.1"),
+            ("20260325211614_AddChallenges",              "9.0.1"),
         };
         try
         {
