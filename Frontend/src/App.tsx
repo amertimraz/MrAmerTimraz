@@ -52,6 +52,7 @@ import AdminLibrary          from './pages/admin/AdminLibrary';
 import AdminQuizzes          from './pages/admin/AdminQuizzes';
 import AdminLiveSessions     from './pages/admin/AdminLiveSessions';
 import AdminBookletStats     from './pages/admin/AdminBookletStats';
+import AdminPaymentSettings  from './pages/admin/AdminPaymentSettings';
 import BookletsManager       from './pages/admin/BookletsManager';
 import LibraryPage           from './pages/landing/LibraryPage';
 import QuizPresenter         from './pages/QuizPresenter';
@@ -141,6 +142,7 @@ export default function App() {
             <Route path="quizzes"         element={<AdminQuizzes />} />
             <Route path="booklets"        element={<BookletsManager />} />
             <Route path="booklet-stats"    element={<AdminBookletStats />} />
+            <Route path="payment-settings" element={<AdminPaymentSettings />} />
             <Route path="live-sessions"   element={<AdminLiveSessions />} />
           </Route>
 

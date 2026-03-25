@@ -33,6 +33,7 @@ public class AppDbContext : DbContext
     public DbSet<LiveSession> LiveSessions => Set<LiveSession>();
     public DbSet<LiveSessionEnrollment> LiveSessionEnrollments => Set<LiveSessionEnrollment>();
     public DbSet<Booklet> Booklets => Set<Booklet>();
+    public DbSet<AppSetting> AppSettings => Set<AppSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

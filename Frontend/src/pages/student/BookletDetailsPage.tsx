@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import { bookletsApi } from '../../api/booklets';
 import { paymentsApi } from '../../api/payments';
-import { BookOpen, AlertCircle, ArrowLeft, Download, Eye, CheckCircle2, Lock } from 'lucide-react';
+import { settingsApi } from '../../api/settings';
+import { BookOpen, AlertCircle, ArrowLeft, Download, Eye, CheckCircle2, Lock, Smartphone, Building2, Wallet, Info } from 'lucide-react';
 import React, { useState } from 'react';
 
 export default function BookletDetailsPage() {
@@ -26,6 +27,11 @@ export default function BookletDetailsPage() {
     queryKey: ['booklet-access', id],
     queryFn: () => paymentsApi.getAccessStatus(undefined, undefined, Number(id)),
     enabled: !!id
+  });
+
+  const { data: paymentSettings } = useQuery({
+    queryKey: ['payment-settings'],
+    queryFn: () => settingsApi.getPaymentSettings(),
   });
 
   const handlePurchase = async (e: React.FormEvent) => {
@@ -124,7 +130,56 @@ export default function BookletDetailsPage() {
                   ) : (
                     <form onSubmit={handlePurchase} className="space-y-4">
                        <h3 className="text-white font-bold mb-2">لشراء الملزمة:</h3>
-                       <p className="text-sm text-gray-400 mb-4">يرجى تحويل المبلغ ({booklet.price} ج.م) ثم رفع صورة إيصال التحويل هنا.</p>
+                       <p className="text-sm text-gray-400 mb-4">يرجى تحويل المبلغ ({booklet.price} ج.م) إلى أحد الحسابات التالية، ثم رفع صورة إيصال التحويل:</p>
+                       
+                       {/* Payment Methods */}
+                       <div className="space-y-3 mb-4">
+                         {paymentSettings?.vodafoneCashNumber && (
+                           <div className="bg-gray-800/50 p-3 rounded-xl flex items-center gap-3">
+                             <div className="w-10 h-10 bg-red-500/10 rounded-full flex items-center justify-center">
+                               <Smartphone size={20} className="text-red-400" />
+                             </div>
+                             <div>
+                               <p className="text-xs text-gray-500">فودافون كاش</p>
+                               <p className="text-white font-bold font-mono">{paymentSettings.vodafoneCashNumber}</p>
+                             </div>
+                           </div>
+                         )}
+                         
+                         {paymentSettings?.instapayNumber && (
+                           <div className="bg-gray-800/50 p-3 rounded-xl flex items-center gap-3">
+                             <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                               <Wallet size={20} className="text-blue-400" />
+                             </div>
+                             <div>
+                               <p className="text-xs text-gray-500">انستا باي</p>
+                               <p className="text-white font-bold font-mono">{paymentSettings.instapayNumber}</p>
+                             </div>
+                           </div>
+                         )}
+                         
+                         {paymentSettings?.bankAccountNumber && (
+                           <div className="bg-gray-800/50 p-3 rounded-xl flex items-center gap-3">
+                             <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                               <Building2 size={20} className="text-emerald-400" />
+                             </div>
+                             <div>
+                               <p className="text-xs text-gray-500">{paymentSettings.bankName || 'حساب بنكي'}</p>
+                               <p className="text-white font-bold font-mono">{paymentSettings.bankAccountNumber}</p>
+                               {paymentSettings.bankAccountHolder && (
+                                 <p className="text-xs text-gray-400">{paymentSettings.bankAccountHolder}</p>
+                               )}
+                             </div>
+                           </div>
+                         )}
+                         
+                         {paymentSettings?.paymentInstructions && (
+                           <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl flex items-start gap-3">
+                             <Info size={18} className="text-amber-400 mt-0.5" />
+                             <p className="text-sm text-amber-200/80">{paymentSettings.paymentInstructions}</p>
+                           </div>
+                         )}
+                       </div>
                        
                        <div>
                          <label className="block text-sm text-gray-400 mb-1.5 font-medium">صورة إيصال التحويل</label>
