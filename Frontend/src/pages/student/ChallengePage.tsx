@@ -160,11 +160,7 @@ export default function ChallengePage() {
                 Challenge #{currentIdx + 1}
               </div>
               
-              <h2 className="text-4xl font-black text-slate-800 leading-tight">
-                {currentQuestion.title}
-              </h2>
-              
-              <p className="text-xl text-slate-600 font-bold leading-relaxed">
+              <p className="text-xl text-slate-800 font-bold leading-relaxed pt-4">
                 حلل الأكواد البرمجية الظاهرة أمامك، واختر البرنامج الذي يقوم بإخراج القيمة التالية:
               </p>
             </div>
@@ -172,7 +168,10 @@ export default function ChallengePage() {
             <div className="p-10 bg-white border-2 border-slate-200 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 flex flex-col items-center gap-4 relative overflow-hidden group">
                <div className="absolute top-0 left-0 w-full h-3 bg-slate-800" />
                <span className="text-slate-400 font-black text-xs uppercase tracking-widest">Desired Output</span>
-               <div className="text-7xl font-black text-slate-800 font-mono tracking-tighter transition duration-500">
+               <div className={`font-black text-slate-800 font-mono tracking-tighter transition duration-500 text-center ${
+                 currentQuestion.targetOutput.length > 10 ? 'text-2xl' : 
+                 currentQuestion.targetOutput.length > 5 ? 'text-4xl' : 'text-7xl'
+               }`}>
                  {currentQuestion.targetOutput}
                </div>
                <Search size={24} className="text-slate-100 absolute bottom-6 right-6" />
@@ -233,7 +232,7 @@ export default function ChallengePage() {
                      </div>
                   </div>
 
-                  <pre className="font-mono text-slate-800 text-lg leading-relaxed whitespace-pre-wrap pl-16 text-left" dir="ltr">
+                  <pre className="font-mono text-slate-800 text-sm leading-relaxed whitespace-pre-wrap pl-16 text-left" dir="ltr">
                      {snippet.code}
                   </pre>
 
