@@ -115,6 +115,16 @@ public class InteractiveQuizzesController : ControllerBase
     {
         var quiz = await _db.InteractiveQuizzes.FindAsync(id);
         if (quiz == null) return NotFound();
+
+        // Delete related questions first
+        var questions = await _db.InteractiveQuestions.Where(q => q.QuizId == id).ToListAsync();
+        _db.InteractiveQuestions.RemoveRange(questions);
+
+        // Delete related results
+        var results = await _db.InteractiveQuizResults.Where(r => r.QuizId == id).ToListAsync();
+        _db.InteractiveQuizResults.RemoveRange(results);
+
+        // Now delete the quiz
         _db.InteractiveQuizzes.Remove(quiz);
         await _db.SaveChangesAsync();
         return Ok();
