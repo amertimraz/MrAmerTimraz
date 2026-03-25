@@ -204,6 +204,81 @@ namespace EduPlatform.API.Data
                                 new ChallengeSnippet { OrderIndex = 2, Code = "let batteryPower = \"ممتلئ\";\nif (batteryPower == \"ممتلئ\") {\n  console.log(\"يرجى الشحن.\");\n}", AnalysisType = "Logic", AnalysisMessage = "تناقض! تطلب الشحن والبطارية ممتلئة." },
                                 new ChallengeSnippet { OrderIndex = 3, Code = "let batteryPower = \"فارغ\";\nif (batteryPower != \"فارغ\") {\n  console.log(\"يرجى الشحن.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! الشرط لن يتحقق لأن القيمة تساوي فارغ." }
                             }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي رقم العضوية",
+                            Slug = "challenge-12",
+                            Description = "حدد البرنامج الذي يخرج رسالة 'أنت في المقعد ب.'",
+                            TargetOutput = "أنت في المقعد ب.",
+                            OrderIndex = 11,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let membershipNumber = 140;\nif (membershipNumber < 100) {\n  console.log(\"أنت في المقعد أ.\");\n} else {\n  console.log(\"أنت في المقعد ب.\");\n}", AnalysisType = "Correct", AnalysisMessage = "أحسنت! 140 ليست أصغر من 100، لذا سينتقل التنفيذ إلى else." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let membershipNumber = 140;\nif (membershipNumber > 100) {\n  console.log(\"أنت في المقعد أ.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! هذا الشرط سيخرج 'أنت في المقعد أ.' لأن 140 أكبر من 100." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let membershipNumber = 140;\nif (membershipNumber == 100) {\n  console.log(\"أنت في المقعد ب.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! القيمة لا تساوي 100." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let membershipNumber = 140;\nif (membershipNumber < 100) {\n  console.log(\"أنت في المقعد ب.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! الشرط لن يتحقق لأن 140 ليست أصغر من 100." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي تجاوز السعة",
+                            Slug = "challenge-13",
+                            Description = "حدد الكود الذي سيخرج رسالة 'تم تجاوز السعة المحددة.'",
+                            TargetOutput = "تم تجاوز السعة المحددة.",
+                            OrderIndex = 12,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let peopleNum = 10;\nif (peopleNum < 5) {\n  console.log(\"ضمن السعة...\");\n} else {\n  console.log(\"تم تجاوز السعة المحددة.\");\n}", AnalysisType = "Correct", AnalysisMessage = "صحيح! 10 أكبر من 5، لذا يتم تنفيذ جملة else." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let peopleNum = 10;\nif (peopleNum > 5) {\n  console.log(\"ضمن السعة...\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! هذا سيخرج رسالة 'ضمن السعة المحددة'." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let peopleNum = 10;\nif (peopleNum < 5) {\n  console.log(\"تم تجاوز السعة المحددة.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ منطقي! الشرط لن يتحقق." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let peopleNum = 10;\nif (peopleNum == 5) {\n  console.log(\"تم تجاوز السعة المحددة.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! 10 لا تساوي 5." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي حالة الماء",
+                            Slug = "challenge-14",
+                            Description = "حدد الكود الذي يظهر حالتي الغليان والتجمد بالتتابع.",
+                            TargetOutput = "الماء يغلي\nالماء يتجمد",
+                            OrderIndex = 13,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let waterTemp = 100;\nif (waterTemp == 100) {\n  console.log(\"الماء يغلي\");\n}\nwaterTemp = -5;\nif (waterTemp < 0) {\n  console.log(\"الماء يتجمد\");\n}", AnalysisType = "Correct", AnalysisMessage = "ممتاز! تم تغيير قيمة المتغير والتحقق منها في مرحلتين." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let waterTemp = 100;\nif (waterTemp < 100) {\n  console.log(\"الماء يغلي\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! 100 ليست أصغر من 100." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let waterTemp = 100;\nwaterTemp = -5;\nif (waterTemp == 0) {\n  console.log(\"الماء يتجمد\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! -5 لا تساوي 0." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let waterTemp = 100;\nif (waterTemp == 100) {\n  console.log(\"الماء يغلي\");\n  console.log(\"الماء يتجمد\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! الماء لا يمكن أن يغلي ويتجمد في نفس الدرجة." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي وقت المدرسة",
+                            Slug = "challenge-15",
+                            Description = "حدد الكود السليم الذي يخرج رسالة الذهاب للمدرسة.",
+                            TargetOutput = "انا ذاهب الى المدرسة.",
+                            OrderIndex = 14,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let timeZone = 8;\nif (timeZone == 8) {\n  console.log(\"انا ذاهب الى المدرسة.\");\n}", AnalysisType = "Correct", AnalysisMessage = "صحيح! تم تعريف المتغير قبل استخدامه في الشرط." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "if (timeZone == 8) {\n  console.log(\"انا ذاهب الى المدرسة.\");\n}\nlet timeZone = 8;", AnalysisType = "Syntax", AnalysisMessage = "خطأ برمجي! لا يمكن استخدام المتغير قبل تعريفه بـ let (ReferenceError)." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let timeZone = 7;\nif (timeZone == 8) {\n  console.log(\"انا ذاهب الى المدرسة.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! القيمة 7 لا تساوي 8." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let timeZone = 8;\nif (timeZone != 8) {\n  console.log(\"انا ذاهب الى المدرسة.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! الشرط لن يتحقق." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي تتابع المركبات",
+                            Slug = "challenge-17",
+                            Description = "حدد البرنامج الذي يخرج أسماء المركبات الثلاثة بالترتيب الصحيح.",
+                            TargetOutput = "سيارة\nالشينكانسن (القطار فائق السرعة)\nطائرة",
+                            OrderIndex = 15,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let vehicle = \"سيارة\";\nconsole.log(vehicle);\nvehicle = \"الشينكانسن (القطار فائق السرعة)\";\nconsole.log(vehicle);\nvehicle = \"طائرة\";\nconsole.log(vehicle);", AnalysisType = "Correct", AnalysisMessage = "أحسنت! هذا التتابع يغير قيمة المتغير ويطبعها في كل مرة." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let vehicle = \"سيارة\";\nconsole.log(vehicle);\nlet vehicle = \"طائرة\";\nconsole.log(vehicle);", AnalysisType = "Syntax", AnalysisMessage = "خطأ! لا يمكن إعادة تعريف نفس المتغير بـ let مرتين في نفس النطاق." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let vehicle = \"سيارة\";\nvehicle = \"طائرة\";\nconsole.log(vehicle);", AnalysisType = "Logic", AnalysisMessage = "خطأ! هذا سيطبع 'طائرة' فقط." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let vehicle = \"طائرة\";\nconsole.log(vehicle);", AnalysisType = "Logic", AnalysisMessage = "خطأ! مخرجات ناقصة." }
+                            }
                         }
                     }
                 };
