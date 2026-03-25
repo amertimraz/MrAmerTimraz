@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, HelpCircle, Search, Trophy, Printer, ArrowLeft, Share2, Lock, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { Clock, HelpCircle, Search, Trophy, Printer, ArrowLeft, Share2, Lock, ChevronRight, ChevronLeft, Sparkles, X, Brain } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { challengesApi } from '../../api/challenges';
@@ -19,6 +19,7 @@ export default function ChallengePage() {
   const [isRevealed, setIsRevealed] = useState(false);
   
   const [timeLeft, setTimeLeft] = useState(15 * 60);
+  const [showRules, setShowRules] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -112,6 +113,14 @@ export default function ChallengePage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setShowRules(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-md transition font-bold"
+          >
+            <HelpCircle size={18} />
+            قواعد الـ Tofas
+          </button>
+
           <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-slate-200">
              <Clock size={16} className="text-amber-500" />
              <span className="font-mono font-bold text-slate-700">{formatTime(timeLeft)}</span>
@@ -128,7 +137,67 @@ export default function ChallengePage() {
         </div>
       </div>
 
-      {/* A4 Landscape Container style (Optimized for viewport) */}
+      {/* Rules Modal */}
+      <AnimatePresence>
+        {showRules && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm no-print">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white rounded-[3rem] shadow-2xl max-w-2xl w-full p-10 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-3 bg-amber-500" />
+              <button 
+                onClick={() => setShowRules(false)}
+                className="absolute top-6 left-6 p-2 hover:bg-slate-100 rounded-full transition"
+              >
+                <X size={24} className="text-slate-400" />
+              </button>
+
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
+                  <Brain size={32} />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-black text-slate-800 tracking-tight">قواعد وأسرار البرمجة</h3>
+                  <p className="text-slate-500 font-bold">اتبع هذه القواعد لتتمكن من حل اختبار Tofas بسهولة</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { t: "ترتيب الكود", d: "المتصفح يقرأ الكود من الأعلى للأسفل. لا يمكنك استخدام متغير قبل تعريفه بـ let أو var." },
+                  { t: "دقة الأقواس", d: "جملة if يجب أن يتبعها دائماً ( ) تحتوي على الشرط. الكتابة بدون أقواس تؤدي لخطأ برمجي (Syntax Error)." },
+                  { t: "أسرار المقارنة", d: "استخدم (==) للمقارنة بين قيمتين، بينما (=) واحدة تستخدم فقط لتعيين قيمة للمتغير وليس لفحصه." },
+                  { t: "تسلسل الشروط", d: "في جمل if / else if، الكمبيوتر ينفذ أول شرط يتحقق فقط ثم يتجاهل الباقي. الترتيب مهم جداً!" },
+                  { t: "تتبع المتغيرات", d: "إذا تم تغيير قيمة المتغير في منتصف الكود، فإن الكمبيوتر سيعتمد آخر قيمة وصل إليها عند الطباعة." },
+                  { t: "الأنواع المختلفة", d: "تذكر أن الرقم 5 يختلف عن النص \"5\" والقيمة المنطقية true تختلف عن النص \"true\"." }
+                ].map((rule, i) => (
+                  <div key={i} className="flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-amber-200 hover:bg-amber-50/30 transition">
+                    <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-amber-500 font-black text-sm shrink-0">
+                      {i + 1}
+                    </div>
+                    <div>
+                      <h4 className="font-black text-slate-800 text-lg mb-0.5">{rule.t}</h4>
+                      <p className="text-slate-600 font-medium leading-relaxed">{rule.d}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button 
+                onClick={() => setShowRules(false)}
+                className="w-full mt-8 bg-slate-900 text-white py-4 rounded-2xl font-black text-xl shadow-xl hover:bg-slate-800 transition"
+              >
+                فهمت القواعد، فلنبدأ!
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Notebook Landscape Container style (Optimized for viewport) */}
       <div className="print-area w-full max-w-[1280px] min-h-[750px] h-[85vh] bg-white shadow-2xl rounded-[2.5rem] border border-slate-300 relative overflow-hidden flex flex-col transition-all duration-500">
         
         {/* Notebook Grid Background */}
