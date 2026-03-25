@@ -3,7 +3,7 @@ import { paymentsApi } from '../../api/payments';
 import { FileText, Users, DollarSign, TrendingUp, Calendar, BookOpen } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import StatCard from '../../components/ui/StatCard';
-import type { BookletPurchaseStats, BookletPurchaseItem, BookletSummary } from '../../types';
+import type { BookletPurchaseItem, BookletSummary } from '../../types';
 
 export default function AdminBookletStats() {
   const { data: stats, isLoading } = useQuery({

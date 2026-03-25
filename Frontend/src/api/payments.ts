@@ -1,5 +1,5 @@
 import client from './client';
-import type { PaymentRequest } from '../types';
+import type { PaymentRequest, BookletPurchaseStats } from '../types';
 
 export const paymentsApi = {
   createRequest: (courseId: number | null, amountPaid: number, notes: string, receipt?: File, liveSessionId?: number | null, bookletId?: number | null) => {
