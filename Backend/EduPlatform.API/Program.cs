@@ -441,10 +441,12 @@ using (var scope = app.Services.CreateScope())
     var oldChallenge = await db.Challenges.FirstOrDefaultAsync(c => c.Slug == "challenge-1");
     if (oldChallenge != null && oldChallenge.Title == "تحدي المتغيرات والعمليات الحسابية")
     {
-        var snippetCount = await db.ChallengeSnippets.CountAsync(s => s.ChallengeId == oldChallenge.Id);
-        if (snippetCount < 3) 
+        var totalQuestions = await db.Challenges.CountAsync(c => c.TestId == oldChallenge.TestId);
+        if (totalQuestions < 6) 
         {
-            db.Challenges.Remove(oldChallenge);
+            // Remove the whole test to re-seed everything fresh
+            var test = await db.TofasTests.FindAsync(oldChallenge.TestId);
+            if (test != null) db.TofasTests.Remove(test);
             await db.SaveChangesAsync();
         }
     }
