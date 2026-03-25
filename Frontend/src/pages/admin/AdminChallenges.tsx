@@ -27,7 +27,11 @@ export default function AdminChallenges() {
       toast.success('تم إنشاء التحدي بنجاح');
       setIsModalOpen(false);
     },
-    onError: (err: any) => toast.error(err.response?.data || 'خطأ في إنشاء التحدي')
+    onError: (err: any) => {
+      const errorData = err.response?.data;
+      const errorMessage = typeof errorData === 'string' ? errorData : (errorData?.message || errorData?.title || 'خطأ في إنشاء التحدي');
+      toast.error(errorMessage);
+    }
   });
 
   const updateMutation = useMutation({
@@ -37,7 +41,11 @@ export default function AdminChallenges() {
       toast.success('تم تحديث التحدي بنجاح');
       setIsModalOpen(false);
     },
-    onError: (err: any) => toast.error(err.response?.data || 'خطأ في تحديث التحدي')
+    onError: (err: any) => {
+      const errorData = err.response?.data;
+      const errorMessage = typeof errorData === 'string' ? errorData : (errorData?.message || errorData?.title || 'خطأ في تحديث التحدي');
+      toast.error(errorMessage);
+    }
   });
 
   const deleteMutation = useMutation({
@@ -83,6 +91,11 @@ export default function AdminChallenges() {
     e.preventDefault();
     if (!editingChallenge) return;
     
+    if (!editingChallenge.title?.trim() || !editingChallenge.slug?.trim()) {
+      toast.error('يرجى إدخال العنوان والرابط (Slug)');
+      return;
+    }
+
     if (editingChallenge.id) {
       updateMutation.mutate({ id: editingChallenge.id, data: editingChallenge });
     } else {
