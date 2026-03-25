@@ -324,6 +324,7 @@ using (var scope = app.Services.CreateScope())
             )
             """,
             "CREATE INDEX IF NOT EXISTS \"IX_ChallengeSnippets_ChallengeId\" ON \"ChallengeSnippets\"(\"ChallengeId\")",
+            "ALTER TABLE \"Challenges\" ADD COLUMN IF NOT EXISTS \"TimeLimitMinutes\" INTEGER NOT NULL DEFAULT 15",
             "ALTER TABLE \"Challenges\" ALTER COLUMN \"IsVisible\" TYPE boolean USING (\"IsVisible\"::integer::boolean)",
             "ALTER TABLE \"Challenges\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"Challenges\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric"

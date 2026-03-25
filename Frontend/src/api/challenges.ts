@@ -16,6 +16,7 @@ export interface Challenge {
   targetOutput: string;
   price: number;
   isVisible: boolean;
+  timeLimitMinutes: number;
   snippets?: ChallengeSnippet[];
 }
 

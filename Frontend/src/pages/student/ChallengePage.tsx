@@ -18,7 +18,10 @@ export default function ChallengePage() {
   useEffect(() => {
     if (slug) {
       challengesApi.getBySlug(slug)
-        .then(setChallenge)
+        .then(data => {
+          setChallenge(data);
+          setTimeLeft(data.timeLimitMinutes * 60);
+        })
         .catch(() => toast.error('فشل في تحميل التحدي البرمجي'))
         .finally(() => setLoading(false));
     }
@@ -129,67 +132,11 @@ export default function ChallengePage() {
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-row-reverse overflow-hidden">
           
-          {/* Left: Snippets Column */}
-          <div className="w-[55%] p-10 space-y-4 overflow-y-auto border-l border-slate-100 relative z-10 flex flex-col justify-center">
-            {challenge.snippets?.map((snippet, idx) => (
-              <div key={snippet.id} className="relative">
-                <div 
-                  onClick={() => !isRevealed && setSelectedId(snippet.id || null)}
-                  className={`
-                    relative bg-slate-50 border-2 rounded-2xl p-5 cursor-pointer transition-all duration-300
-                    ${selectedId === snippet.id ? 'border-primary-500 bg-white ring-8 ring-primary-500/5' : 'border-slate-100 hover:border-slate-300'}
-                    ${isRevealed && snippet.analysisType === 'Correct' ? 'border-emerald-500 ring-8 ring-emerald-500/10' : ''}
-                    ${isRevealed && selectedId === snippet.id && snippet.analysisType !== 'Correct' ? 'border-rose-500 ring-8 ring-rose-500/10' : ''}
-                  `}
-                >
-                  <div className="absolute top-4 left-4 flex flex-col items-center gap-2">
-                     <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-black text-sm
-                        ${selectedId === snippet.id ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-slate-200 text-slate-400'}
-                        ${isRevealed && snippet.analysisType === 'Correct' ? 'bg-emerald-600 border-emerald-600 text-white' : ''}
-                     `}>
-                       {idx + 1}
-                     </div>
-                  </div>
-
-                  <pre className="font-mono text-slate-800 text-lg leading-relaxed whitespace-pre-wrap pr-10">
-                     {snippet.code.split('\n').map((line, i) => (
-                       <div key={i} className="relative">
-                          {isRevealed && snippet.analysisType === 'Syntax' && (i === 0 || i === 1) && (
-                            <span className="absolute bottom-1 left-0 w-full h-1 border-b-4 border-rose-500 opacity-30 border-dotted" />
-                          )}
-                          {line}
-                       </div>
-                     ))}
-                  </pre>
-
-                  {/* Bubble Callouts */}
-                  <AnimatePresence>
-                    {isRevealed && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8, x: -20 }}
-                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                        className={`
-                          absolute -top-6 -left-12 z-50 p-4 rounded-3xl shadow-2xl max-w-[280px] text-[13px] font-bold leading-snug tracking-tight
-                          after:content-[''] after:absolute after:top-full after:left-[80%] after:-translate-x-1/2 after:border-[10px] after:border-transparent
-                          ${snippet.analysisType === 'Correct' ? 'bg-emerald-600 text-white after:border-t-emerald-600 shadow-emerald-500/20' : ''}
-                          ${snippet.analysisType === 'Syntax' ? 'bg-rose-600 text-white after:border-t-rose-600 shadow-rose-500/20' : ''}
-                          ${snippet.analysisType === 'Logic' ? 'bg-amber-500 text-slate-900 after:border-t-amber-500 shadow-amber-500/20' : ''}
-                        `}
-                      >
-                        {snippet.analysisMessage}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Right: Info & Logic */}
-          <div className="w-[45%] p-14 bg-slate-50/30 flex flex-col justify-center gap-8">
-            <div className="space-y-6 text-right">
+          {/* Right: Info & Logic (Now on Right side) */}
+          <div className="w-[45%] p-14 bg-slate-50/30 flex flex-col justify-center gap-8 border-l border-slate-100 text-right">
+            <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-800 text-white rounded-full text-xs font-black uppercase tracking-widest">
                 Coding Challenge
               </div>
@@ -244,6 +191,62 @@ export default function ChallengePage() {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+
+          {/* Left: Snippets Column (Now on Left side) */}
+          <div className="w-[55%] p-10 space-y-4 overflow-y-auto relative z-10 flex flex-col justify-center">
+            {challenge.snippets?.map((snippet, idx) => (
+              <div key={snippet.id} className="relative">
+                <div 
+                  onClick={() => !isRevealed && setSelectedId(snippet.id || null)}
+                  className={`
+                    relative bg-slate-50 border-2 rounded-2xl p-5 cursor-pointer transition-all duration-300
+                    ${selectedId === snippet.id ? 'border-primary-500 bg-white ring-8 ring-primary-500/5' : 'border-slate-100 hover:border-slate-300'}
+                    ${isRevealed && snippet.analysisType === 'Correct' ? 'border-emerald-500 ring-8 ring-emerald-500/10' : ''}
+                    ${isRevealed && selectedId === snippet.id && snippet.analysisType !== 'Correct' ? 'border-rose-500 ring-8 ring-rose-500/10' : ''}
+                  `}
+                >
+                  <div className="absolute top-4 left-4 flex flex-col items-center gap-2">
+                     <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-black text-sm
+                        ${selectedId === snippet.id ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-slate-200 text-slate-400'}
+                        ${isRevealed && snippet.analysisType === 'Correct' ? 'bg-emerald-600 border-emerald-600 text-white' : ''}
+                     `}>
+                       {idx + 1}
+                     </div>
+                  </div>
+
+                  <pre className="font-mono text-slate-800 text-lg leading-relaxed whitespace-pre-wrap pr-10">
+                     {snippet.code.split('\n').map((line, i) => (
+                       <div key={i} className="relative">
+                          {isRevealed && snippet.analysisType === 'Syntax' && (i === 0 || i === 1) && (
+                            <span className="absolute bottom-1 left-0 w-full h-1 border-b-4 border-rose-500 opacity-30 border-dotted" />
+                          )}
+                          {line}
+                       </div>
+                     ))}
+                  </pre>
+
+                  {/* Bubble Callouts */}
+                  <AnimatePresence>
+                    {isRevealed && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        className={`
+                          absolute -top-6 -left-12 z-50 p-4 rounded-3xl shadow-2xl max-w-[280px] text-[13px] font-bold leading-snug tracking-tight
+                          after:content-[''] after:absolute after:top-full after:left-[80%] after:-translate-x-1/2 after:border-[10px] after:border-transparent
+                          ${snippet.analysisType === 'Correct' ? 'bg-emerald-600 text-white after:border-t-emerald-600 shadow-emerald-500/20' : ''}
+                          ${snippet.analysisType === 'Syntax' ? 'bg-rose-600 text-white after:border-t-rose-600 shadow-rose-500/20' : ''}
+                          ${snippet.analysisType === 'Logic' ? 'bg-amber-500 text-slate-900 after:border-t-amber-500 shadow-amber-500/20' : ''}
+                        `}
+                      >
+                        {snippet.analysisMessage}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

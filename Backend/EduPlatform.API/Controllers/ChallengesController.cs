@@ -23,7 +23,7 @@ namespace EduPlatform.API.Controllers
 
         // --- Student Endpoints ---
 
-        [HttpGet, AllowAnonymous]
+        [HttpGet, Authorize]
         public async Task<ActionResult<IEnumerable<ChallengeDTO>>> GetVisibleChallenges()
         {
             var challenges = await _context.Challenges
@@ -35,7 +35,7 @@ namespace EduPlatform.API.Controllers
             return Ok(challenges);
         }
 
-        [HttpGet("slug/{slug}"), AllowAnonymous]
+        [HttpGet("slug/{slug}"), Authorize]
         public async Task<ActionResult<ChallengeDTO>> GetBySlug(string slug)
         {
             var challenge = await _context.Challenges
@@ -77,6 +77,7 @@ namespace EduPlatform.API.Controllers
                 TargetOutput = dto.TargetOutput,
                 Price = dto.Price,
                 IsVisible = dto.IsVisible,
+                TimeLimitMinutes = dto.TimeLimitMinutes,
                 Snippets = dto.Snippets.Select(s => new ChallengeSnippet
                 {
                     Code = s.Code,
@@ -110,6 +111,7 @@ namespace EduPlatform.API.Controllers
             challenge.TargetOutput = dto.TargetOutput;
             challenge.Price = dto.Price;
             challenge.IsVisible = dto.IsVisible;
+            challenge.TimeLimitMinutes = dto.TimeLimitMinutes;
 
             // Simple replace of snippets
             _context.ChallengeSnippets.RemoveRange(challenge.Snippets);
@@ -147,6 +149,7 @@ namespace EduPlatform.API.Controllers
                 TargetOutput = c.TargetOutput,
                 Price = c.Price,
                 IsVisible = c.IsVisible,
+                TimeLimitMinutes = c.TimeLimitMinutes,
                 Snippets = includeSnippets ? c.Snippets.OrderBy(s => s.OrderIndex).Select(s => new ChallengeSnippetDTO
                 {
                     Id = s.Id,

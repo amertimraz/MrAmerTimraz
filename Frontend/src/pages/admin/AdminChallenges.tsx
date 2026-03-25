@@ -5,7 +5,7 @@ import type { Challenge, ChallengeSnippet } from '../../api/challenges';
 import { 
   Plus, Edit2, Trash2, Eye, EyeOff, Save, X, PlusCircle, 
   Code as CodeIcon, AlertCircle, Brain, Layout,
-  Settings, DollarSign, Link as LinkIcon
+  Settings, DollarSign, Link as LinkIcon, Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -150,9 +150,14 @@ export default function AdminChallenges() {
                   </div>
                 </td>
                 <td className="p-5">
-                  <span className="font-mono text-sm bg-slate-100 px-3 py-1 rounded-lg text-slate-600">
-                    {c.slug}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-mono text-xs bg-slate-100 px-3 py-1 rounded-lg text-slate-600 w-fit">
+                      {c.slug}
+                    </span>
+                    <div className="text-[10px] text-blue-500 font-bold truncate max-w-[200px]" dir="ltr">
+                      {window.location.origin}/challenges/{c.slug}
+                    </div>
+                  </div>
                 </td>
                 <td className="p-5 text-center">
                   {c.price === 0 ? (
@@ -259,6 +264,16 @@ export default function AdminChallenges() {
                     <input 
                       type="number" value={editingChallenge?.price || 0} 
                       onChange={e => setEditingChallenge({ ...editingChallenge!, price: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-center"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-black text-slate-700 pr-2 flex items-center gap-2">
+                      <Clock className="text-amber-500" size={14} /> الوقت (بالدقائق)
+                    </label>
+                    <input 
+                      type="number" value={editingChallenge?.timeLimitMinutes || 15} 
+                      onChange={e => setEditingChallenge({ ...editingChallenge!, timeLimitMinutes: Number(e.target.value) })}
                       className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-center"
                     />
                   </div>

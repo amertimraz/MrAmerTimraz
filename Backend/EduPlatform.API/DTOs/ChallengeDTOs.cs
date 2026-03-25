@@ -12,6 +12,7 @@ namespace EduPlatform.API.DTOs
         public string TargetOutput { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public bool IsVisible { get; set; }
+        public int TimeLimitMinutes { get; set; }
         public List<ChallengeSnippetDTO> Snippets { get; set; } = new();
     }
 
@@ -36,6 +37,7 @@ namespace EduPlatform.API.DTOs
         public string TargetOutput { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public bool IsVisible { get; set; } = true;
+        public int TimeLimitMinutes { get; set; } = 15;
         public List<CreateChallengeSnippetDTO> Snippets { get; set; } = new();
     }
 

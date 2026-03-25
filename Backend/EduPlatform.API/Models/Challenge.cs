@@ -22,6 +22,8 @@ namespace EduPlatform.API.Models
         
         public bool IsVisible { get; set; } = true;
         
+        public int TimeLimitMinutes { get; set; } = 15;
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation property
