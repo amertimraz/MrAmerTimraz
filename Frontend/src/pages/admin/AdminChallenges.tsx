@@ -32,7 +32,7 @@ export default function AdminChallenges() {
       toast.success('تم إنشاء الاختبار بنجاح');
       setIsTestModalOpen(false);
     },
-    onError: (err: any) => toast.error('خطأ في إنشاء الاختبار')
+    onError: () => toast.error('خطأ في إنشاء الاختبار')
   });
 
   const updateTestMutation = useMutation({

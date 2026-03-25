@@ -4,7 +4,7 @@ import { Clock, HelpCircle, Search, Trophy, Printer, ArrowLeft, Share2, Lock, Ch
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { challengesApi } from '../../api/challenges';
-import type { TofasTest, Challenge } from '../../api/challenges';
+import type { TofasTest } from '../../api/challenges';
 
 export default function ChallengePage() {
   const { slug } = useParams<{ slug: string }>();
