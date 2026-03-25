@@ -44,9 +44,10 @@ public class InteractiveQuizzesController : ControllerBase
     [HttpGet("slug/{slug}"), AllowAnonymous]
     public async Task<IActionResult> GetBySlug(string slug)
     {
+        var slugLower = slug.ToLower().Trim();
         var quiz = await _db.InteractiveQuizzes
             .Include(q => q.Questions.OrderBy(q => q.OrderIndex))
-            .FirstOrDefaultAsync(q => q.Slug == slug);
+            .FirstOrDefaultAsync(q => q.Slug.ToLower() == slugLower);
         return quiz == null ? NotFound() : Ok(quiz);
     }
 

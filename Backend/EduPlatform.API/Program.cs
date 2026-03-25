@@ -83,7 +83,9 @@ var defaultOrigins = new[] {
     "http://localhost:3000", 
     "http://localhost:5174", 
     "https://mr-amer-timraz.vercel.app",
-    "https://mr-amer-timraz.vercel.app/" // with slash
+    "https://mr-amer-timraz.vercel.app/",
+    "https://www.mr-amer-timraz.vercel.app",
+    "https://www.mr-amer-timraz.vercel.app/"
 };
 
 var allowedOrigins = envOrigins.Concat(defaultOrigins).Distinct().ToArray();
