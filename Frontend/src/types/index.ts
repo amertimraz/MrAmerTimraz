@@ -226,3 +226,26 @@ export interface Booklet {
   isPublished: boolean;
   createdAt: string;
 }
+
+export interface BookletPurchaseItem {
+  id: number;
+  studentName: string;
+  studentUsername: string;
+  bookletTitle: string;
+  amountPaid: number;
+  purchaseDate: string;
+}
+
+export interface BookletSummary {
+  bookletId: number;
+  title: string;
+  purchaseCount: number;
+  totalRevenue: number;
+}
+
+export interface BookletPurchaseStats {
+  totalPurchases: number;
+  totalRevenue: number;
+  recentPurchases: BookletPurchaseItem[];
+  topBooklets: BookletSummary[];
+}

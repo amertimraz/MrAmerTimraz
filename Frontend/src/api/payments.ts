@@ -38,4 +38,6 @@ export const paymentsApi = {
     if (bookletId) params.append('bookletId', String(bookletId));
     return client.get<{ hasAccess: boolean }>(`/payments/access?${params}`).then(r => r.data);
   },
+
+  getBookletStats: () => client.get<BookletPurchaseStats>('/payments/booklet-stats').then(r => r.data),
 };

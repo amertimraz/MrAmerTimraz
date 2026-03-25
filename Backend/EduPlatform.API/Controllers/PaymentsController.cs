@@ -76,4 +76,8 @@ public class PaymentsController : ControllerBase
         var has = await _payments.HasApprovedOnlyAsync(courseId, sessionId, bookletId, studentId);
         return Ok(new { hasAccess = has });
     }
+
+    [HttpGet("booklet-stats"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetBookletStats()
+        => Ok(await _payments.GetBookletPurchaseStatsAsync());
 }

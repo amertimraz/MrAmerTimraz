@@ -13,6 +13,7 @@ public interface IPaymentService
     Task<PaymentRequestDto?> ReviewRequestAsync(int id, ReviewPaymentDto dto);
     Task<bool> HasPendingOrApprovedAsync(int? courseId, int? sessionId, int? bookletId, int studentId);
     Task<bool> HasApprovedOnlyAsync(int? courseId, int? sessionId, int? bookletId, int studentId);
+    Task<BookletPurchaseStatsDto> GetBookletPurchaseStatsAsync();
 }
 
 public class PaymentService : IPaymentService
@@ -200,6 +201,50 @@ public class PaymentService : IPaymentService
             .Include(p => p.Booklet)
             .FirstOrDefaultAsync(p => p.Id == id);
         return p == null ? null : MapToDto(p);
+    }
+
+    public async Task<BookletPurchaseStatsDto> GetBookletPurchaseStatsAsync()
+    {
+        var approvedBookletPayments = await _db.PaymentRequests
+            .Where(p => p.BookletId != null && p.Status == PaymentStatus.Approved)
+            .Include(p => p.Student)
+            .Include(p => p.Booklet)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+
+        var recentPurchases = approvedBookletPayments
+            .Take(10)
+            .Select(p => new BookletPurchaseItemDto
+            {
+                Id = p.Id,
+                StudentName = p.Student?.Name ?? "",
+                StudentUsername = p.Student?.Username ?? "",
+                BookletTitle = p.Booklet?.Title ?? "",
+                AmountPaid = p.AmountPaid,
+                PurchaseDate = p.CreatedAt
+            })
+            .ToList();
+
+        var topBooklets = approvedBookletPayments
+            .GroupBy(p => p.BookletId)
+            .Select(g => new BookletSummaryDto
+            {
+                BookletId = g.Key!.Value,
+                Title = g.First().Booklet?.Title ?? "",
+                PurchaseCount = g.Count(),
+                TotalRevenue = g.Sum(p => p.AmountPaid)
+            })
+            .OrderByDescending(b => b.PurchaseCount)
+            .Take(5)
+            .ToList();
+
+        return new BookletPurchaseStatsDto
+        {
+            TotalPurchases = approvedBookletPayments.Count,
+            TotalRevenue = approvedBookletPayments.Sum(p => p.AmountPaid),
+            RecentPurchases = recentPurchases,
+            TopBooklets = topBooklets
+        };
     }
 
     private static PaymentRequestDto MapToDto(PaymentRequest p) => new()

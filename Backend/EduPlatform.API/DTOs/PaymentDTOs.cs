@@ -55,3 +55,29 @@ public class PaymentRequestDto
     public DateTime CreatedAt { get; set; }
     public DateTime? ReviewedAt { get; set; }
 }
+
+public class BookletPurchaseStatsDto
+{
+    public int TotalPurchases { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public List<BookletPurchaseItemDto> RecentPurchases { get; set; } = new();
+    public List<BookletSummaryDto> TopBooklets { get; set; } = new();
+}
+
+public class BookletPurchaseItemDto
+{
+    public int Id { get; set; }
+    public string StudentName { get; set; } = string.Empty;
+    public string StudentUsername { get; set; } = string.Empty;
+    public string BookletTitle { get; set; } = string.Empty;
+    public decimal AmountPaid { get; set; }
+    public DateTime PurchaseDate { get; set; }
+}
+
+public class BookletSummaryDto
+{
+    public int BookletId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public int PurchaseCount { get; set; }
+    public decimal TotalRevenue { get; set; }
+}
