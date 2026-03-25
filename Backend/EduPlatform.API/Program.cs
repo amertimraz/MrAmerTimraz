@@ -294,6 +294,9 @@ using (var scope = app.Services.CreateScope())
             )
             """,
             "CREATE INDEX IF NOT EXISTS \"IX_AppSettings_Key\" ON \"AppSettings\"(\"Key\")",
+            "CREATE SEQUENCE IF NOT EXISTS \"AppSettings_Id_seq\"",
+            "ALTER TABLE \"AppSettings\" ALTER COLUMN \"Id\" SET DEFAULT nextval('\"AppSettings_Id_seq\"')",
+            "ALTER TABLE \"AppSettings\" ALTER COLUMN \"UpdatedAt\" TYPE timestamp without time zone USING \"UpdatedAt\"::timestamp without time zone",
         };
 
         foreach (var sql in safetyAlters)
@@ -316,7 +319,7 @@ using (var scope = app.Services.CreateScope())
                 """);
 #pragma warning restore EF1002
         }
-        catch { /* Ignore if there are duplicate slugs */ }
+        catch { }
     }
 
     if (isPostgres)
@@ -326,7 +329,7 @@ using (var scope = app.Services.CreateScope())
             "Users", "Courses", "Videos", "Tests", "Questions", "Results",
             "Enrollments", "Notifications", "PaymentRequests", "LibraryItems",
             "InteractiveQuizzes", "InteractiveQuestions", "InteractiveQuizResults",
-            "VideoComments", "LiveSessions", "LiveSessionEnrollments", "Booklets"
+            "VideoComments", "LiveSessions", "LiveSessionEnrollments", "Booklets", "AppSettings"
         };
         foreach (var t in seqTables)
         {

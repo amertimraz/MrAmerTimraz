@@ -34,7 +34,7 @@ export default function PaymentModal({ isOpen, onClose, courseId, courseTitle, c
       onClose();
     },
     onError: (err: any) => {
-      const msg = err.response?.data?.message || 'فشل إرسال الطلب. ربما أرسلت طلباً من قبل.';
+      const msg = err.response?.data?.message || 'فشل إرسال الطلب. حاول مرة أخرى.';
       toast.error(msg);
     },
   });

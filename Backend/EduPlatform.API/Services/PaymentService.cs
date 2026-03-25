@@ -7,7 +7,7 @@ namespace EduPlatform.API.Services;
 
 public interface IPaymentService
 {
-    Task<PaymentRequestDto?> CreateRequestAsync(CreatePaymentRequestDto dto, int studentId, string? receiptUrl);
+    Task<(PaymentRequestDto? Result, string? Error)> CreateRequestAsync(CreatePaymentRequestDto dto, int studentId, string? receiptUrl);
     Task<List<PaymentRequestDto>> GetAllRequestsAsync();
     Task<List<PaymentRequestDto>> GetStudentRequestsAsync(int studentId);
     Task<PaymentRequestDto?> ReviewRequestAsync(int id, ReviewPaymentDto dto);
@@ -22,47 +22,47 @@ public class PaymentService : IPaymentService
 
     public PaymentService(AppDbContext db) => _db = db;
 
-    public async Task<PaymentRequestDto?> CreateRequestAsync(CreatePaymentRequestDto dto, int studentId, string? receiptUrl)
+    public async Task<(PaymentRequestDto? Result, string? Error)> CreateRequestAsync(CreatePaymentRequestDto dto, int studentId, string? receiptUrl)
     {
         if (dto.CourseId.HasValue)
         {
             var course = await _db.Courses.FindAsync(dto.CourseId);
-            if (course == null) return null;
+            if (course == null) return (null, "الكورس غير موجود.");
 
             if (await _db.Enrollments.AnyAsync(e => e.CourseId == dto.CourseId && e.StudentId == studentId))
-                return null;
+                return (null, "أنت مسجل في هذا الكورس بالفعل.");
 
             if (await _db.PaymentRequests.AnyAsync(p =>
                 p.CourseId == dto.CourseId && p.StudentId == studentId &&
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
-                return null;
+                return (null, "لديك طلب اشتراك قيد المراجعة أو مقبول لهذا الكورس.");
         }
         else if (dto.LiveSessionId.HasValue)
         {
             var session = await _db.LiveSessions.FindAsync(dto.LiveSessionId);
-            if (session == null) return null;
+            if (session == null) return (null, "الحصة غير موجودة.");
 
             if (await _db.LiveSessionEnrollments.AnyAsync(e => e.LiveSessionId == dto.LiveSessionId && e.StudentId == studentId))
-                return null;
+                return (null, "أنت مسجل في هذه الحصة بالفعل.");
 
             if (await _db.PaymentRequests.AnyAsync(p =>
                 p.LiveSessionId == dto.LiveSessionId && p.StudentId == studentId &&
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
-                return null;
+                return (null, "لديك طلب اشتراك قيد المراجعة أو مقبول لهذه الحصة.");
         }
         else if (dto.BookletId.HasValue)
         {
             var booklet = await _db.Booklets.FindAsync(dto.BookletId);
-            if (booklet == null) return null;
+            if (booklet == null) return (null, "الملزمة غير موجودة.");
 
             if (await _db.PaymentRequests.AnyAsync(p =>
                 p.BookletId == dto.BookletId && p.StudentId == studentId &&
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
-                return null;
+                return (null, "لديك طلب شراء لهذه الملزمة بالفعل.");
         }
         else
         {
-            return null;
+            return (null, "يجب تحديد محتوى (كورس أو حصة أو ملزمة).");
         }
 
         var request = new PaymentRequest
@@ -78,8 +78,8 @@ public class PaymentService : IPaymentService
 
         _db.PaymentRequests.Add(request);
         await _db.SaveChangesAsync();
-
-        return await GetDtoById(request.Id);
+        var result = await GetDtoById(request.Id);
+        return (result, null);
     }
 
     public async Task<List<PaymentRequestDto>> GetAllRequestsAsync()

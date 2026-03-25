@@ -5,6 +5,7 @@ import { paymentsApi } from '../../api/payments';
 import { settingsApi } from '../../api/settings';
 import { BookOpen, AlertCircle, ArrowLeft, Download, Eye, CheckCircle2, Lock, Smartphone, Building2, Wallet, Info } from 'lucide-react';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function BookletDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -50,7 +51,9 @@ export default function BookletDetailsPage() {
       );
       setPurchaseStatus('success');
       checkStatus();
-    } catch {
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'حدث خطأ، يرجى المحاولة مرة أخرى.';
+      toast.error(msg);
       setPurchaseStatus('error');
     }
   };

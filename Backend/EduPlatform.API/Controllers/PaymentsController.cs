@@ -37,8 +37,8 @@ public class PaymentsController : ControllerBase
             receiptUrl = $"/uploads/receipts/{fileName}";
         }
 
-        var result = await _payments.CreateRequestAsync(dto, studentId, receiptUrl);
-        if (result == null) return BadRequest("طلب موجود بالفعل أو الطالب مسجّل في الكورس.");
+        var (result, error) = await _payments.CreateRequestAsync(dto, studentId, receiptUrl);
+        if (error != null) return BadRequest(new { message = error });
         return Ok(result);
     }
 
