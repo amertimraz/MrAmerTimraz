@@ -56,11 +56,12 @@ namespace EduPlatform.API.Controllers
         public async Task<ActionResult<IEnumerable<TofasTestDTO>>> GetAllTests()
         {
             var tests = await _context.TofasTests
+                .Include(t => t.Questions)
+                    .ThenInclude(q => q.Snippets)
                 .OrderByDescending(t => t.CreatedAt)
-                .Select(t => MapTestToDTO(t, false))
                 .ToListAsync();
 
-            return Ok(tests);
+            return Ok(tests.Select(t => MapTestToDTO(t, true)));
         }
 
         [HttpPost, Authorize(Roles = "Admin")]

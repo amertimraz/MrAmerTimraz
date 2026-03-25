@@ -232,9 +232,11 @@ export default function ChallengePage() {
                      </div>
                   </div>
 
-                  <pre className="font-mono text-slate-800 text-sm leading-relaxed whitespace-pre-wrap pl-16 text-left" dir="ltr">
-                     {snippet.code}
-                  </pre>
+                  <div className="flex-1 overflow-x-auto custom-scrollbar-horizontal pl-16">
+                    <pre className="font-mono text-slate-800 text-sm leading-relaxed whitespace-pre text-left" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                       {snippet.code}
+                    </pre>
+                  </div>
 
                   {/* Bubble Callout */}
                   <AnimatePresence>
