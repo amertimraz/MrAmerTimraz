@@ -129,6 +129,81 @@ namespace EduPlatform.API.Data
                                 new ChallengeSnippet { OrderIndex = 2, Code = "let myScore = 85;\nlet friendScore = 85;\nif (myScore != friendScore) {\n  console.log(\"لقد حصلت على نتيجة مساوية...\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! علامة (!=) تعني 'لا يساوي'، والشرط لن يتحقق هنا." },
                                 new ChallengeSnippet { OrderIndex = 3, Code = "let myScore = 85;\nlet friendScore = 85;\nlet (myScore == friendScore) {\n  console.log(\"متساويان\");\n}", AnalysisType = "Syntax", AnalysisMessage = "خطأ! استخدام let بدلاً من if." }
                             }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي الأرقام المفتاحية",
+                            Slug = "challenge-7",
+                            Description = "حدد الكود الذي سيخرج كلمة 'مفتوح'.",
+                            TargetOutput = "مفتوح",
+                            OrderIndex = 6,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let num1 = 5;\nlet num2 = 7;\nlet num3 = 5;\nlet key = 17;\nif ((num1 + num2 + num3) < key) {\n  console.log(\"مفتوح\");\n} else {\n  console.log(\"الرقم غير صحيح\");\n}", AnalysisType = "Correct", AnalysisMessage = "أصبت! مجموع الأرقام هو 17، والشرط يقول أصغر من 17؟ لا لحظة.. 17 ليست أصغر من 17. دقق في الاختيار 4." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let num1 = 5;\nlet num2 = 7;\nlet num3 = 5;\nlet key = 17;\nif ((num1 * num2 * num3) == key) {\n  console.log(\"مفتوح\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! حاصل الضرب أكبر بكثير من 17." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let num1 = 5;\nlet num2 = 7;\nlet num3 = 5;\nlet key = 17;\nif ((num1 + num2 + num3) == key) {\n  console.log(\"مفتوح\");\n}", AnalysisType = "Correct", AnalysisMessage = "صحيح! مجموع 5+7+5 هو 17، والشرط يتحقق عند التساوي." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let num1 = 5;\nlet num2 = 7;\nlet num3 = 5;\nlet key = 17;\nif ((num1 + num2 + num3) < key) {\n  console.log(\"مفتوح\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! 17 ليست أصغر من 17." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي وقود السيارة",
+                            Slug = "challenge-8",
+                            Description = "حدد البرنامج الذي يكتشف أن الوقود ممتلئ (100).",
+                            TargetOutput = "الوقود ممتلئ.",
+                            OrderIndex = 7,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let fuel = 100;\nif (fuel == 100) {\n  console.log(\"الوقود ممتلئ.\");\n}", AnalysisType = "Correct", AnalysisMessage = "إجابة صحيحة ومباشرة." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let fuel = 100;\nif (fuel > 100) {\n  console.log(\"الوقود ممتلئ.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! 100 ليست أكبر من 100." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let fuel = \"100\";\nif (fuel > 100) {\n  console.log(\"الوقود ممتلئ.\");\n}", AnalysisType = "Logic", AnalysisMessage = "تنبيه! استخدام النصوص في العمليات الحسابية قد يؤدي لنتائج غير متوقعة." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let fuel = 100;\nif (fuel != 100) {\n  console.log(\"الوقود ممتلئ.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! الشرط هنا يقول 'إذا كان الوقود لا يساوي 100'." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي قائمة الغداء",
+                            Slug = "challenge-9",
+                            Description = "حدد الكود الذي سيخرج قائمة الغداء البديلة.",
+                            TargetOutput = "ليس لدينا المكونات اللازمة لتحضير أرز الكاري.\nسنصنع غداءً مختلفاً.\nعرض قائمة الغداء\nبيتزا",
+                            OrderIndex = 8,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let lunch = \"أرز بالكاري\";\nif (lunch == \"أرز بالكاري\") {\n  console.log(\"ليس لدينا المكونات...\");\n  console.log(\"سنصنع غداءً مختلفاً.\");\n  lunch = \"بيتزا\";\n}\nconsole.log(\"عرض قائمة الغداء\");\nconsole.log(lunch);", AnalysisType = "Correct", AnalysisMessage = "صحيح! الشرط تحقق فتم تغيير الغداء إلى بيتزا." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let lunch = \"أرز بالكاري\";\nif (lunch != \"أرز بالكاري\") {\n  console.log(\"بيتزا\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! المقارنة غير صحيحة." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let lunch = \"أرز بالكاري\";\nif (lunch < \"أرز بالكاري\") {\n  console.log(\"بيتزا\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! لا يمكن استخدام أصغر من مع النصوص بهذا الشكل." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let lunch = \"بيتزا\";\nif (lunch == \"أرز بالكاري\") {\n  console.log(\"عرض القائمة\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! القيمة الابتدائية هنا ليست المطلوبة." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي سعة السيارة",
+                            Slug = "challenge-10",
+                            Description = "حدد الكود الذي يخبرنا أن السيارة أصبحت ممتلئة تماماً.",
+                            TargetOutput = "هذه السيارة ممتلئة.",
+                            OrderIndex = 9,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let passengersNum = 4;\nlet carCapacity = 6;\npassengersNum = passengersNum + 2;\nif (passengersNum == carCapacity) {\n  console.log(\"هذه السيارة ممتلئة.\");\n}", AnalysisType = "Correct", AnalysisMessage = "أحسنت! 4 + 2 تصبح 6، وهي تساوي سعة السيارة." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let passengersNum = 4;\nlet carCapacity = 6;\nif (passengersNum + 2 > carCapacity) {\n  console.log(\"هذه السيارة ممتلئة.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! 6 ليست أكبر من 6." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let passengersNum = 4;\nif (passengersNum == 6) {\n  console.log(\"ممتلئة\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! القيمة حالياً 4." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let passengersNum = 4;\nlet carCapacity = 6;\nif (passengersNum < carCapacity) {\n  console.log(\"هذه السيارة ممتلئة.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ منطقي! السيارة ليست ممتلئة إذا كان الركاب أقل من السعة." }
+                            }
+                        },
+                        new Challenge
+                        {
+                            Title = "تحدي شحن البطارية",
+                            Slug = "challenge-11",
+                            Description = "حدد الكود الذي سيخرج رسالة 'يرجى الشحن.'",
+                            TargetOutput = "يرجى الشحن.",
+                            OrderIndex = 10,
+                            Snippets = new List<ChallengeSnippet>
+                            {
+                                new ChallengeSnippet { OrderIndex = 0, Code = "let batteryPower = \"فارغ\";\nif (batteryPower == \"ممتلئ\") {\n  console.log(\"لا حاجة للشحن.\");\n} else {\n  console.log(\"يرجى الشحن.\");\n}", AnalysisType = "Correct", AnalysisMessage = "صحيح! بما أن البطارية ليست ممتلئة سيتنقل الكود لـ else." },
+                                new ChallengeSnippet { OrderIndex = 1, Code = "let batteryPower = \"فارغ\";\nif (batteryPower == \"فارغ\") {\n  console.log(\"لا حاجة للشحن.\");\n}", AnalysisType = "Logic", AnalysisMessage = "تنبيه! المنطق مقلوب." },
+                                new ChallengeSnippet { OrderIndex = 2, Code = "let batteryPower = \"ممتلئ\";\nif (batteryPower == \"ممتلئ\") {\n  console.log(\"يرجى الشحن.\");\n}", AnalysisType = "Logic", AnalysisMessage = "تناقض! تطلب الشحن والبطارية ممتلئة." },
+                                new ChallengeSnippet { OrderIndex = 3, Code = "let batteryPower = \"فارغ\";\nif (batteryPower != \"فارغ\") {\n  console.log(\"يرجى الشحن.\");\n}", AnalysisType = "Logic", AnalysisMessage = "خطأ! الشرط لن يتحقق لأن القيمة تساوي فارغ." }
+                            }
                         }
                     }
                 };

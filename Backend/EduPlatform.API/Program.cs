@@ -442,7 +442,7 @@ using (var scope = app.Services.CreateScope())
     if (oldChallenge != null && oldChallenge.Title == "تحدي المتغيرات والعمليات الحسابية")
     {
         var totalQuestions = await db.Challenges.CountAsync(c => c.TestId == oldChallenge.TestId);
-        if (totalQuestions < 6) 
+        if (totalQuestions < 11) 
         {
             // Remove the whole test to re-seed everything fresh
             var test = await db.TofasTests.FindAsync(oldChallenge.TestId);
