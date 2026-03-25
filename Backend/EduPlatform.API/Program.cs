@@ -356,6 +356,8 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedAsync(db);
 }
 
+app.UseCors("AllowFrontend");
+
 app.UseExceptionHandler(appError =>
 {
     appError.Run(async context =>
@@ -382,8 +384,6 @@ app.UseExceptionHandler(appError =>
         }
     });
 });
-
-app.UseCors("AllowFrontend");
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
