@@ -56,7 +56,7 @@ import AdminPaymentSettings  from './pages/admin/AdminPaymentSettings';
 import BookletsManager       from './pages/admin/BookletsManager';
 import LibraryPage           from './pages/landing/LibraryPage';
 import QuizPresenter         from './pages/QuizPresenter';
-import CodingPuzzle          from './pages/student/CodingPuzzle';
+import ChallengePage         from './pages/student/ChallengePage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -149,7 +149,9 @@ export default function App() {
 
           <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
           <Route path="/quiz/:id" element={<QuizPresenter />} />
-          <Route path="/coding-puzzle" element={<CodingPuzzle />} />
+          <Route path="/quiz/:id" element={<QuizPresenter />} />
+          <Route path="/challenges/:slug" element={<RequireAuth><ChallengePage /></RequireAuth>} />
+          <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
           <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
