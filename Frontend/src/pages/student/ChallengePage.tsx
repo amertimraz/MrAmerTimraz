@@ -128,8 +128,8 @@ export default function ChallengePage() {
         </div>
       </div>
 
-      {/* A4 Landscape Container */}
-      <div className="print-area w-full max-w-[1123px] aspect-[297/210] bg-white shadow-2xl rounded-[2.5rem] border border-slate-300 relative overflow-hidden flex flex-col transition-all duration-500">
+      {/* A4 Landscape Container style (Optimized for viewport) */}
+      <div className="print-area w-full max-w-[1280px] min-h-[750px] h-[85vh] bg-white shadow-2xl rounded-[2.5rem] border border-slate-300 relative overflow-hidden flex flex-col transition-all duration-500">
         
         {/* Notebook Grid Background */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 
