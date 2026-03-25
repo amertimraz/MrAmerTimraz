@@ -326,6 +326,18 @@ using (var scope = app.Services.CreateScope())
             )
             """,
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Challenges_Slug\" ON \"Challenges\"(\"Slug\")",
+            // Patch for existing Challenges table in production
+            """
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Challenges' AND column_name='TestId') THEN 
+                    ALTER TABLE "Challenges" ADD COLUMN "TestId" INTEGER REFERENCES "TofasTests"("Id") ON DELETE CASCADE;
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Challenges' AND column_name='OrderIndex') THEN 
+                    ALTER TABLE "Challenges" ADD COLUMN "OrderIndex" INTEGER NOT NULL DEFAULT 0; 
+                END IF;
+            END $$;
+            """,
             """
             CREATE TABLE IF NOT EXISTS "ChallengeSnippets" (
                 "Id" SERIAL PRIMARY KEY,
