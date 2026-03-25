@@ -282,6 +282,17 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"AmountPaid\" TYPE numeric USING \"AmountPaid\"::numeric",
             "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"ReviewedAt\" TYPE timestamp without time zone USING \"ReviewedAt\"::timestamp without time zone",
+            // AppSettings table safety-net
+            """
+            CREATE TABLE IF NOT EXISTS "AppSettings" (
+                "Id" SERIAL PRIMARY KEY,
+                "Key" TEXT NOT NULL UNIQUE,
+                "Value" TEXT,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+                "UpdatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_AppSettings_Key\" ON \"AppSettings\"(\"Key\")",
         };
 
         foreach (var sql in safetyAlters)
