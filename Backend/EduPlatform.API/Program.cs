@@ -437,6 +437,18 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
+    // Force clear old sample data to ensure the new 3-choice challenge is seeded
+    var oldChallenge = await db.Challenges.FirstOrDefaultAsync(c => c.Slug == "challenge-1");
+    if (oldChallenge != null && oldChallenge.Title == "تحدي المتغيرات والعمليات الحسابية")
+    {
+        var snippetCount = await db.ChallengeSnippets.CountAsync(s => s.ChallengeId == oldChallenge.Id);
+        if (snippetCount < 3) 
+        {
+            db.Challenges.Remove(oldChallenge);
+            await db.SaveChangesAsync();
+        }
+    }
+
     await DbSeeder.SeedAsync(db);
 }
 

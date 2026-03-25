@@ -150,7 +150,7 @@ export default function ChallengePage() {
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 flex flex-row-reverse overflow-hidden">
+        <div className="flex-1 flex flex-row overflow-hidden">
           
           {/* Right: Info & Logic (Stay on Right in RTL) */}
           <div className="w-[45%] p-14 bg-slate-50/10 flex flex-col justify-center gap-8 border-l border-slate-100 text-right relative overflow-hidden">
