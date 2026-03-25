@@ -271,7 +271,7 @@ export default function ChallengePage() {
                   <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIdx ? 'w-12 bg-primary-500' : 'w-4 bg-slate-200'}`} />
                 ))}
               </div>
-              <button onClick={() => isLastQuestion ? navigate('/student/challenges') : setCurrentIdx(prev => Math.min(test.questions.length - 1, prev + 1))} className="flex items-center gap-2 font-black text-primary-600 hover:text-primary-700 transition">
+              <button onClick={() => isLastQuestion ? navigate('/challenges') : setCurrentIdx(prev => Math.min((test?.questions?.length || 1) - 1, prev + 1))} className="flex items-center gap-2 font-black text-primary-600 hover:text-primary-700 transition">
                  {isLastQuestion ? 'إنهاء الاختبار' : 'السؤال التالي'} <ChevronLeft size={24} />
               </button>
           </div>
