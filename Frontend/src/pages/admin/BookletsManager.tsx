@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Plus, FileEdit, Trash2, Link as LinkIcon, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
+import { uploadsApi } from '../../api/uploads';
+import { BookOpen, Plus, FileEdit, Trash2, Link as LinkIcon, AlertCircle, Eye, EyeOff, Image as ImageIcon, Loader2 } from 'lucide-react';
 import type { Booklet } from '../../types';
 
 export default function BookletsManager() {
@@ -134,6 +135,8 @@ export default function BookletsManager() {
 function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClose: () => void }) {
   const queryClient = useQueryClient();
   const isEditing = !!booklet;
+  const [isUploading, setIsUploading] = useState(false);
+  const [coverUrl, setCoverUrl] = useState(booklet?.coverImageUrl || '');
 
   const mutation = useMutation({
     mutationFn: (data: Partial<Booklet>) =>
@@ -143,6 +146,21 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
       onClose();
     },
   });
+  
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const url = await uploadsApi.image(file);
+      setCoverUrl(url);
+    } catch {
+      alert('فشل رفع الصورة، يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -151,7 +169,7 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
       title: formData.get('title') as string,
       description: formData.get('description') as string,
       pdfUrl: formData.get('pdfUrl') as string,
-      coverImageUrl: formData.get('coverImageUrl') as string,
+      coverImageUrl: coverUrl,
       subject: formData.get('subject') as string,
       gradeLevel: formData.get('gradeLevel') as string,
       price: Number(formData.get('price')),
@@ -235,14 +253,53 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
                 />
               </div>
 
-              <div>
-                <label className="block text-sm text-gray-400 mb-1.5 font-medium">رابط صورة الغلاف (اختياري)</label>
-                <input
-                  name="coverImageUrl"
-                  type="url"
-                  defaultValue={booklet?.coverImageUrl}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-green-500 transition-colors"
-                />
+              <div className="col-span-2">
+                <label className="block text-sm text-gray-400 mb-1.5 font-medium">صورة الغلاف (Thumbnail)</label>
+                <div className="flex gap-4 items-start">
+                  <div className="w-24 h-32 bg-gray-800 rounded-xl border border-gray-700 overflow-hidden flex items-center justify-center shrink-0">
+                    {coverUrl ? (
+                      <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon size={32} className="text-gray-600" />
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="cover-upload"
+                      disabled={isUploading}
+                    />
+                    <label
+                      htmlFor="cover-upload"
+                      className={`inline-flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg border border-gray-700 cursor-pointer transition ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 size={18} className="animate-spin text-green-500" />
+                          <span>جاري الرفع...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={18} />
+                          <span>اختر صورة</span>
+                        </>
+                      )}
+                    </label>
+                    <p className="text-xs text-gray-500">الحجم المقترح: 400x600 بكسل. الحد الأقصى: 10 ميجا.</p>
+                    {coverUrl && (
+                      <button 
+                        type="button" 
+                        onClick={() => setCoverUrl('')}
+                        className="text-xs text-red-400 hover:text-red-300 transition block"
+                      >
+                        حذف الصورة
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="col-span-2 flex items-center justify-between p-4 bg-gray-800/50 rounded-xl border border-gray-700">
