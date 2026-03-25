@@ -7,39 +7,41 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        if (context.Users.Any()) return;
-
-        var admin = new User
+        // Seed Users if empty
+        if (!context.Users.Any())
         {
-            Name = "Admin",
-            Username = "admin",
-            PhoneNumber = "01000000000",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
-            Role = UserRole.Admin
-        };
+            var admin = new User
+            {
+                Name = "Admin",
+                Username = "admin",
+                PhoneNumber = "01000000000",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                Role = UserRole.Admin
+            };
 
-        var teacher = new User
-        {
-            Name = "Mr. Ahmed",
-            Username = "teacher",
-            PhoneNumber = "01100000000",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Teacher@123"),
-            Role = UserRole.Teacher
-        };
+            var teacher = new User
+            {
+                Name = "Mr. Ahmed",
+                Username = "teacher",
+                PhoneNumber = "01100000000",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Teacher@123"),
+                Role = UserRole.Teacher
+            };
 
-        var student = new User
-        {
-            Name = "Ali Student",
-            Username = "student",
-            PhoneNumber = "01200000000",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Student@123"),
-            Role = UserRole.Student
-        };
+            var student = new User
+            {
+                Name = "Ali Student",
+                Username = "student",
+                PhoneNumber = "01200000000",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Student@123"),
+                Role = UserRole.Student
+            };
 
-        context.Users.AddRange(admin, teacher, student);
-        await context.SaveChangesAsync();
+            context.Users.AddRange(admin, teacher, student);
+            await context.SaveChangesAsync();
+        }
 
-        // Seed Tofas Test
+        // Seed Tofas Test if empty
         if (!context.Challenges.Any())
         {
             var challenge = new Challenge
@@ -50,6 +52,7 @@ public static class DbSeeder
                 TargetOutput = "50",
                 Price = 0,
                 IsVisible = true,
+                CreatedAt = DateTime.UtcNow,
                 Snippets = new List<ChallengeSnippet>
                 {
                     new ChallengeSnippet { 
