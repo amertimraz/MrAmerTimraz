@@ -82,7 +82,7 @@ export default function LessonPage() {
           <p className="text-gray-600 dark:text-gray-400">عذراً، يجب الاشتراك في الكورس لمشاهدة هذا الدرس المباشر.</p>
         </div>
         <button 
-          onClick={() => navigate('/courses')} 
+          onClick={() => navigate('/student/courses')} 
           className="btn-primary w-full"
         >
           استكشاف الكورسات
