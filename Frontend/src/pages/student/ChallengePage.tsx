@@ -261,14 +261,14 @@ export default function ChallengePage() {
                     <div className="flex gap-4">
                        <button onClick={() => setGuideStep(0)} className="flex-1 bg-slate-100 text-slate-600 py-6 rounded-3xl font-black text-xl">العودة</button>
                        <button onClick={() => setGuideStep(2)} className="flex-[2] bg-slate-900 text-white py-6 rounded-3xl font-black text-2xl shadow-xl hover:bg-primary-600 transition flex items-center justify-center gap-4">
-                        شرح رائع، أرني مصفوفة الفخاخ! <ChevronLeft size={28} />
+                        شرح رائع، أرني مصفوفة الأسرار! <ChevronLeft size={28} />
                        </button>
                     </div>
                   </div>
                 ) : guideStep === 2 ? (
                    <div className="max-w-5xl mx-auto w-full space-y-10">
                      <div className="text-center space-y-2">
-                        <h2 className="text-5xl font-black text-slate-900 tracking-tight">مصفوفة فخاخ القواعد (Syntax)</h2>
+                        <h2 className="text-5xl font-black text-slate-900 tracking-tight">مصفوفة أسرار القواعد (Syntax)</h2>
                         <p className="text-2xl text-rose-500 font-black tracking-widest uppercase">الأخطاء التي تجعل الكود لا يعمل نهائياً</p>
                      </div>
 
@@ -302,20 +302,20 @@ export default function ChallengePage() {
                      <div className="flex gap-4">
                         <button onClick={() => setGuideStep(1)} className="flex-1 bg-slate-100 text-slate-600 py-6 rounded-3xl font-black text-xl">العودة</button>
                         <button onClick={() => setGuideStep(3)} className="flex-[2] bg-slate-900 text-white py-6 rounded-3xl font-black text-2xl shadow-xl hover:bg-primary-600 transition flex items-center justify-center gap-4">
-                         الآن، أرني فخاخ المنطق والذكاء! <ChevronLeft size={28} />
+                         الآن، أرني أسرار المنطق والذكاء! <ChevronLeft size={28} />
                         </button>
                      </div>
                    </div>
                 ) : (
                   <div className="max-w-5xl mx-auto w-full space-y-12">
                     <div className="text-center space-y-2">
-                       <h2 className="text-5xl font-black text-slate-900 tracking-tight">مصفوفة فخاخ المنطق (Logic)</h2>
+                       <h2 className="text-5xl font-black text-slate-900 tracking-tight">مصفوفة أسرار المنطق (Logic)</h2>
                        <p className="text-2xl text-amber-500 font-black tracking-widest uppercase">الكود يعمل.. لكن النتيجة خاطئة!</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                       <div className="space-y-6">
-                        <div className="flex items-center gap-3 p-4 bg-amber-500 text-white rounded-2xl shadow-lg"><Brain size={24} /><h3 className="text-xl font-black">فخاخ العمليات الحسابية</h3></div>
+                        <div className="flex items-center gap-3 p-4 bg-amber-500 text-white rounded-2xl shadow-lg"><Brain size={24} /><h3 className="text-xl font-black">أسرار العمليات الحسابية</h3></div>
                         <div className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm space-y-4">
                            <h4 className="font-black text-slate-800">1. تبديل المعاملات:</h4>
                            <p className="text-sm text-slate-500 font-bold">استخدام + بدلاً من - أو * بدلاً من / لتغيير النتيجة النهائية.</p>
@@ -333,7 +333,7 @@ export default function ChallengePage() {
                       </div>
 
                       <div className="space-y-6">
-                         <div className="flex items-center gap-3 p-4 bg-slate-800 text-white rounded-2xl shadow-lg"><Search size={24} /><h3 className="text-xl font-black">فخاخ الطباعة والثوابت</h3></div>
+                         <div className="flex items-center gap-3 p-4 bg-slate-800 text-white rounded-2xl shadow-lg"><Search size={24} /><h3 className="text-xl font-black">أسرار الطباعة والثوابت</h3></div>
                          <div className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm space-y-4">
                             <h4 className="font-black text-slate-800">3. تتبع المتغير النهائي:</h4>
                             <p className="text-sm text-slate-500 font-bold">تغيير المتغير عدة مرات ثم طباعة القيمة البدائية.</p>
