@@ -145,27 +145,28 @@ export default function ChallengePage() {
         @font-face { font-family: 'Cairo'; font-style: normal; font-weight: 400; font-display: swap; }
         .font-cairo { font-family: 'Cairo', sans-serif !important; }
         @media print {
-          @page { size: A4 portrait; margin: 1cm; }
-          html, body, #root, .min-h-screen, .print-area { 
+          @page { size: A4 portrait; margin: 1.5cm; }
+          html, body, #root, .min-h-screen { 
             height: auto !important; 
             overflow: visible !important; 
-            display: block !important; 
+            display: block !important;
             background: white !important;
-            padding: 0 !important;
-            margin: 0 !important;
           }
           body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           .no-print { display: none !important; }
-          .print-area { width: 100% !important; border: none !important; box-shadow: none !important; }
+          .print-only { display: block !important; visibility: visible !important; }
+          .print-area-full { width: 100% !important; height: auto !important; display: block !important; }
           .question-card { 
-            break-inside: avoid; 
-            page-break-inside: avoid; 
+            break-inside: avoid !important; 
+            page-break-inside: avoid !important; 
             display: block !important; 
-            border-bottom: 2px dashed #eee !important; 
-            padding-bottom: 2rem !important; 
-            margin-bottom: 2rem !important;
+            border-bottom: 2px dashed #ddd !important; 
+            padding-bottom: 3rem !important; 
+            margin-bottom: 3rem !important;
+            height: auto !important;
+            overflow: visible !important;
           }
-          pre { white-space: pre-wrap !important; word-break: break-all !important; font-family: monospace !important; font-size: 10px !important; background: #f8fafc !important; }
+          pre { white-space: pre-wrap !important; word-break: break-all !important; font-family: monospace !important; font-size: 11px !important; background: #f8fafc !important; border: 1px solid #eee !important; padding: 1rem !important; }
           .bg-emerald-50 { background-color: #ecfdf5 !important; }
           .bg-rose-50 { background-color: #fff1f2 !important; }
           .bg-amber-50 { background-color: #fffbeb !important; }
@@ -213,7 +214,7 @@ export default function ChallengePage() {
       </div>
 
       {/* Main Experience Container */}
-      <div className="print-area w-full max-w-[1280px] min-h-[750px] h-[85vh] bg-white shadow-2xl rounded-[3rem] border border-slate-300 relative overflow-hidden flex flex-col transition-all duration-700">
+      <div className="no-print w-full max-w-[1280px] min-h-[750px] h-[85vh] bg-white shadow-2xl rounded-[3rem] border border-slate-300 relative overflow-hidden flex flex-col transition-all duration-700">
         
         {/* Notebook Background */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 0)', backgroundSize: '24px 24px' }} />
@@ -528,7 +529,7 @@ export default function ChallengePage() {
 
       {/* Persistent PDF Layout (Hidden normally, shown physically when printing) */}
       {/* Ensures it prints perfectly even on the final results page */}
-      <div className="hidden print:block print-area mt-20" dir="rtl">
+      <div className="hidden print:block print-area-full mt-20" dir="rtl">
          {/* Tutorial Content */}
          <div className="question-card p-10 font-cairo">
             <h1 className="text-4xl font-black mb-6 text-slate-900 border-b-4 border-slate-200 pb-4 inline-block tracking-tight">الدليل التعليمي السريع للمنصة</h1>
