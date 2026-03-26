@@ -27,6 +27,16 @@ public class InteractiveQuiz
     public string? FacebookUrl { get; set; }
     public bool ShowSupportButton { get; set; } = true;
     public bool AllowSkipWithoutRegistration { get; set; } = true;
+
+    // Persisted Settings
+    public int StageCount { get; set; } = 3;
+    public int QuestionsPerStage { get; set; } = 0;
+    public int McqPerStage { get; set; } = 0;
+    public int TfPerStage { get; set; } = 0;
+    public int GoldenEvery { get; set; } = 10;
+    public bool TimerEnabled { get; set; } = false;
+    public int TimerDuration { get; set; } = 30;
+
     public int ViewCount { get; set; } = 0;
     public string? Theme { get; set; } = "Default";
 

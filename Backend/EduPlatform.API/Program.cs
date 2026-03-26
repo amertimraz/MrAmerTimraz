@@ -145,6 +145,7 @@ using (var scope = app.Services.CreateScope())
             ("20260324115540_AddBooklets",                "9.0.1"),
             ("20260325091256_AddAppSettings",             "9.0.1"),
             ("20260325211614_AddChallenges",              "9.0.1"),
+            ("20260326101507_AddTofasTestResults",        "9.0.1"),
         };
         try
         {
@@ -234,6 +235,13 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"LibraryItems\" ADD COLUMN IF NOT EXISTS \"ViewCount\" INTEGER NOT NULL DEFAULT 0",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"AllowSkipWithoutRegistration\" BOOLEAN NOT NULL DEFAULT FALSE",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Theme\" TEXT",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"StageCount\" INTEGER NOT NULL DEFAULT 3",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"QuestionsPerStage\" INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"McqPerStage\" INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TfPerStage\" INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"GoldenEvery\" INTEGER NOT NULL DEFAULT 10",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerEnabled\" BOOLEAN NOT NULL DEFAULT FALSE",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerDuration\" INTEGER NOT NULL DEFAULT 30",
             """
             CREATE TABLE IF NOT EXISTS "InteractiveQuizResults" (
                 "Id" SERIAL PRIMARY KEY,
@@ -248,6 +256,20 @@ using (var scope = app.Services.CreateScope())
             )
             """,
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_InteractiveQuizResults_QuizId_SessionId\" ON \"InteractiveQuizResults\"(\"QuizId\", \"SessionId\")",
+            """
+            CREATE TABLE IF NOT EXISTS "TofasTestResults" (
+                "Id" SERIAL PRIMARY KEY,
+                "TestId" INTEGER NOT NULL REFERENCES "TofasTests"("Id") ON DELETE CASCADE,
+                "StudentId" INTEGER NOT NULL REFERENCES "Users"("Id") ON DELETE CASCADE,
+                "Score" INTEGER NOT NULL,
+                "TotalQuestions" INTEGER NOT NULL,
+                "CorrectCount" INTEGER NOT NULL,
+                "Percentage" DOUBLE PRECISION NOT NULL,
+                "CompletedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_TofasTestResults_TestId\" ON \"TofasTestResults\"(\"TestId\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_TofasTestResults_StudentId\" ON \"TofasTestResults\"(\"StudentId\")",
             """
             CREATE TABLE IF NOT EXISTS "Booklets" (
                 "Id" SERIAL PRIMARY KEY,

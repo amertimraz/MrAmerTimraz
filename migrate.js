@@ -1,3 +1,14 @@
+/**
+ * !!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!
+ * !!!!!!!!!!!!!!!!  خطير جداً  !!!!!!!!!!!!!!!!
+ * 
+ * This script WIPES the production (PostgreSQL) database and replaces it with local SQLite data.
+ * DO NOT RUN THIS SCRIPT if you have made changes to quizzes or results on the live website,
+ * as those changes will be PERMANENTLY DELETED.
+ * 
+ * هذا السكريبت يمسح بيانات الموقع الحقيقي ويستبدلها بالبيانات المحلية.
+ * لا تشغل هذا السكريبت إذا قمت بتعديلات على الموقع الحقيقي!
+ */
 const Database = require('better-sqlite3');
 const { Client } = require('pg');
 const path = require('path');

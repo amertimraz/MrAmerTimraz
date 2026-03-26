@@ -25,6 +25,8 @@ public class InteractiveQuizzesController : ControllerBase
                 q.Id, q.Title, q.Subject, q.Grade, q.Description, q.CoverImageUrl, q.Slug,
                 q.TeacherName, q.TeacherImage, q.WhatsappUrl, q.YoutubeUrl, q.FacebookUrl, q.ShowSupportButton,
                 q.AllowSkipWithoutRegistration,
+                q.StageCount, q.QuestionsPerStage, q.McqPerStage, q.TfPerStage,
+                q.GoldenEvery, q.TimerEnabled, q.TimerDuration,
                 q.ViewCount, q.Theme, q.CreatedAt,
                 QuestionCount = q.Questions.Count
             })
@@ -76,10 +78,15 @@ public class InteractiveQuizzesController : ControllerBase
             TeacherImage = dto.TeacherImage,
             WhatsappUrl = dto.WhatsappUrl,
             TeacherWhatsappNumber = dto.TeacherWhatsappNumber,
-            YoutubeUrl = dto.YoutubeUrl,
-            FacebookUrl = dto.FacebookUrl,
             ShowSupportButton = dto.ShowSupportButton,
             AllowSkipWithoutRegistration = dto.AllowSkipWithoutRegistration,
+            StageCount = dto.StageCount,
+            QuestionsPerStage = dto.QuestionsPerStage,
+            McqPerStage = dto.McqPerStage,
+            TfPerStage = dto.TfPerStage,
+            GoldenEvery = dto.GoldenEvery,
+            TimerEnabled = dto.TimerEnabled,
+            TimerDuration = dto.TimerDuration,
             Theme = dto.Theme ?? "Default"
         };
         _db.InteractiveQuizzes.Add(quiz);
@@ -106,7 +113,14 @@ public class InteractiveQuizzesController : ControllerBase
         quiz.FacebookUrl = dto.FacebookUrl;
         quiz.ShowSupportButton = dto.ShowSupportButton;
         quiz.AllowSkipWithoutRegistration = dto.AllowSkipWithoutRegistration;
-        quiz.Theme = dto.Theme ?? "Default";
+        quiz.StageCount = dto.StageCount;
+        quiz.QuestionsPerStage = dto.QuestionsPerStage;
+        quiz.McqPerStage = dto.McqPerStage;
+        quiz.TfPerStage = dto.TfPerStage;
+        quiz.GoldenEvery = dto.GoldenEvery;
+        quiz.TimerEnabled = dto.TimerEnabled;
+        quiz.TimerDuration = dto.TimerDuration;
+        quiz.Theme = dto.Theme ?? quiz.Theme;
         await _db.SaveChangesAsync();
         return Ok(quiz);
     }
@@ -335,6 +349,15 @@ public class CreateQuizDto
     public string? FacebookUrl { get; set; }
     public bool ShowSupportButton { get; set; } = true;
     public bool AllowSkipWithoutRegistration { get; set; } = true;
+    
+    public int StageCount { get; set; } = 3;
+    public int QuestionsPerStage { get; set; } = 0;
+    public int McqPerStage { get; set; } = 0;
+    public int TfPerStage { get; set; } = 0;
+    public int GoldenEvery { get; set; } = 10;
+    public bool TimerEnabled { get; set; } = false;
+    public int TimerDuration { get; set; } = 30;
+
     public string? Theme { get; set; } = "Default";
 }
 

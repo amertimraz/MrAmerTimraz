@@ -52,6 +52,13 @@ namespace EduPlatform.API.Data
                                     AnalysisType = "Logic",
                                     AnalysisMessage = "خطأ منطقي! لقد استخدمت علامة القسمة (/) بدلاً من الضرب (*). المخرج سيكون 2 وليس 50.",
                                     OrderIndex = 2
+                                },
+                                new ChallengeSnippet
+                                {
+                                    Code = "num1 = 5;\nnum2 = 10;\nnum1 = num2 + num1;\nconsole.log(num1);",
+                                    AnalysisType = "Logic",
+                                    AnalysisMessage = "خطأ منطقي! لقد استخدمت علامة الجمع (+) بدلاً من الضرب (*). المخرج سيكون 15 وليس 50.",
+                                    OrderIndex = 3
                                 }
                             }
                         },

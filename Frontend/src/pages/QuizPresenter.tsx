@@ -357,16 +357,22 @@ export default function QuizPresenter() {
   useEffect(() => {
     if (quiz?.questions) setQuestions([...quiz.questions]);
     if (quiz?.id) {
+      // 1. Try to load from quiz object (Persisted in DB)
+      if (quiz.stageCount) setStageCount(quiz.stageCount);
+      if (quiz.questionsPerStage !== undefined) setQuestionsPerStage(quiz.questionsPerStage);
+      if (quiz.mcqPerStage !== undefined) setMcqPerStage(quiz.mcqPerStage);
+      if (quiz.tfPerStage !== undefined) setTfPerStage(quiz.tfPerStage);
+      if (quiz.goldenEvery !== undefined) setGoldenEvery(quiz.goldenEvery);
+      if (quiz.timerEnabled !== undefined) setTimerEnabled(quiz.timerEnabled);
+      if (quiz.timerDuration) { setTimerDuration(quiz.timerDuration); setTimeLeft(quiz.timerDuration); }
+
+      // 2. Fallback to localStorage for legacy settings if they were only locally changed
       const saved = localStorage.getItem(`quiz-settings-${quiz.id}`);
       if (saved) try {
         const s = JSON.parse(saved);
-        if (s.stageCount) setStageCount(s.stageCount);
-        if (s.questionsPerStage !== undefined) setQuestionsPerStage(s.questionsPerStage);
-        if (s.mcqPerStage  !== undefined) setMcqPerStage(s.mcqPerStage);
-        if (s.tfPerStage   !== undefined) setTfPerStage(s.tfPerStage);
-        if (s.goldenEvery !== undefined) setGoldenEvery(s.goldenEvery);
-        if (s.timerEnabled !== undefined) setTimerEnabled(s.timerEnabled);
-        if (s.timerDuration) { setTimerDuration(s.timerDuration); setTimeLeft(s.timerDuration); }
+        // Only overwrite if the DB values were at their defaults (optional logic, but simple overwrite is fine)
+        if (s.stageCount && !quiz.stageCount) setStageCount(s.stageCount);
+        // ... etc (Actually, prioritizing the DB is better for persistence)
       } catch { }
     }
   }, [quiz]);

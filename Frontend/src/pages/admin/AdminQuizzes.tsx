@@ -169,7 +169,16 @@ function parsePdfText(rawText: string): ParsedQuestion[] {
   );
 }
 
-const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', teacherWhatsappNumber: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true, allowSkipWithoutRegistration: true, theme: 'Default' };
+const emptyForm = { title: '', subject: '', grade: '', description: '', coverImageUrl: '', teacherName: '', teacherImage: '', whatsappUrl: '', teacherWhatsappNumber: '', youtubeUrl: '', facebookUrl: '', showSupportButton: true,    allowSkipWithoutRegistration: true,
+    stageCount: 3,
+    questionsPerStage: 0,
+    mcqPerStage: 0,
+    tfPerStage: 0,
+    goldenEvery: 10,
+    timerEnabled: false,
+    timerDuration: 30,
+    theme: 'Default' as string,
+};
 
 
 export default function AdminQuizzes() {
@@ -295,11 +304,31 @@ export default function AdminQuizzes() {
   const openCreate = () => { setForm(emptyForm); setEditing(null); setModal('create'); };
   const openEdit = async (q: InteractiveQuizSummary) => {
     setEditing(q);
-    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', teacherWhatsappNumber: q.teacherWhatsappNumber ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true, allowSkipWithoutRegistration: q.allowSkipWithoutRegistration ?? true, theme: q.theme ?? 'Default' });
+    setForm({ title: q.title, subject: q.subject ?? '', grade: q.grade ?? '', description: q.description ?? '', coverImageUrl: q.coverImageUrl ?? '', teacherName: q.teacherName ?? '', teacherImage: q.teacherImage ?? '', whatsappUrl: q.whatsappUrl ?? '', teacherWhatsappNumber: q.teacherWhatsappNumber ?? '', youtubeUrl: q.youtubeUrl ?? '', facebookUrl: q.facebookUrl ?? '', showSupportButton: q.showSupportButton ?? true,      allowSkipWithoutRegistration: q.allowSkipWithoutRegistration ?? true,
+      stageCount: q.stageCount ?? 3,
+      questionsPerStage: q.questionsPerStage ?? 0,
+      mcqPerStage: q.mcqPerStage ?? 0,
+      tfPerStage: q.tfPerStage ?? 0,
+      goldenEvery: q.goldenEvery ?? 10,
+      timerEnabled: q.timerEnabled ?? false,
+      timerDuration: q.timerDuration ?? 30,
+      theme: q.theme as 'Default' | 'Theme1' | 'Theme2' || 'Default',
+ });
     setModal('edit');
     try {
       const fresh = await quizzesApi.getById(q.id);
-      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', teacherWhatsappNumber: fresh.teacherWhatsappNumber ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '', showSupportButton: fresh.showSupportButton ?? true, allowSkipWithoutRegistration: fresh.allowSkipWithoutRegistration ?? true, theme: fresh.theme ?? 'Default' });
+      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', teacherWhatsappNumber: fresh.teacherWhatsappNumber ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '',
+        showSupportButton: fresh.showSupportButton ?? true,
+        allowSkipWithoutRegistration: fresh.allowSkipWithoutRegistration ?? true,
+        stageCount: fresh.stageCount ?? 3,
+        questionsPerStage: fresh.questionsPerStage ?? 0,
+        mcqPerStage: fresh.mcqPerStage ?? 0,
+        tfPerStage: fresh.tfPerStage ?? 0,
+        goldenEvery: fresh.goldenEvery ?? 10,
+        timerEnabled: fresh.timerEnabled ?? false,
+        timerDuration: fresh.timerDuration ?? 30,
+        theme: fresh.theme as 'Default' | 'Theme1' | 'Theme2' || 'Default'
+      });
     } catch { }
   };
   const openQuestions = (q: InteractiveQuizSummary) => {
@@ -315,9 +344,22 @@ export default function AdminQuizzes() {
   };
   const closeModal = () => { setModal(null); setEditing(null); setActiveQuiz(null); setForm(emptyForm); setParsed(null); setPastedText(''); setModalTab('import'); setAiForceType(''); };
 
-  const saveQuizSettings = () => {
+  const saveQuizSettings = (newSettings?: typeof quizSettings) => {
     if (!activeQuiz) return;
-    localStorage.setItem(`quiz-settings-${activeQuiz.id}`, JSON.stringify(quizSettings));
+    const settingsToUse = newSettings && !(newSettings instanceof Object && 'nativeEvent' in newSettings) 
+      ? newSettings 
+      : quizSettings;
+    
+    const updatedForm = { ...form, ...settingsToUse };
+    setForm(updatedForm);
+
+    // Save to backend immediately if we are in an editing context
+    if (editing) {
+       updateMutation.mutate({ id: editing.id, data: updatedForm });
+    }
+
+    localStorage.setItem(`quiz-settings-${activeQuiz.id}`, JSON.stringify(settingsToUse));
+    setQuizSettings(settingsToUse);
     toast.success('تم حفظ إعدادات الاختبار');
   };
 
@@ -979,7 +1021,7 @@ export default function AdminQuizzes() {
 
                       <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
                         <p className="text-xs text-gray-500 mb-3">الإعدادات تُحفظ في المتصفح وتُطبَّق تلقائياً عند فتح الاختبار.</p>
-                        <button onClick={saveQuizSettings} className="btn-primary flex items-center gap-2"><Settings size={15} /> حفظ الإعدادات</button>
+                        <button onClick={() => saveQuizSettings()} className="btn-primary flex items-center gap-2"><Settings size={15} /> حفظ الإعدادات</button>
                       </div>
                     </div>
                   )}

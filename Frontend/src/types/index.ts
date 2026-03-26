@@ -170,6 +170,13 @@ export interface InteractiveQuizSummary {
   facebookUrl?: string;
   showSupportButton: boolean;
   allowSkipWithoutRegistration?: boolean;
+  stageCount?: number;
+  questionsPerStage?: number;
+  mcqPerStage?: number;
+  tfPerStage?: number;
+  goldenEvery?: number;
+  timerEnabled?: boolean;
+  timerDuration?: number;
   viewCount: number;
   theme?: string;
   createdAt: string;

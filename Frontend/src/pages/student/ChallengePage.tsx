@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, HelpCircle, Search, Trophy, Printer, ArrowLeft, Lock, ChevronRight, ChevronLeft, Sparkles, X, Brain, Maximize2, Minimize2, User as UserIcon, Award, Medal } from 'lucide-react';
+import { Clock, HelpCircle, Search, Trophy, ArrowLeft, Lock, ChevronRight, ChevronLeft, Sparkles, X, Brain, Maximize2, Minimize2, User as UserIcon, Award, Medal, FileText } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { challengesApi, type TofasTest } from '../../api/challenges';
@@ -164,7 +164,6 @@ export default function ChallengePage() {
           <button onClick={() => window.location.reload()} className="p-2 bg-white text-slate-400 hover:text-primary-500 rounded-xl border border-slate-200 transition">
              <Sparkles size={18} />
           </button>
-          <button onClick={handlePrint} className="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition font-black"><Printer size={18} /> تحميل PDF</button>
         </div>
       </div>
 
@@ -391,6 +390,10 @@ export default function ChallengePage() {
                      <button onClick={() => window.location.reload()} className="flex-1 py-6 bg-slate-900 text-white rounded-3xl font-black text-xl shadow-xl hover:bg-black transition">إعادة المحاولة</button>
                      <button onClick={() => navigate('/challenges')} className="flex-1 py-6 bg-white border-2 border-slate-200 text-slate-800 rounded-3xl font-black text-xl hover:bg-slate-50 transition">العودة للرئيسية</button>
                   </div>
+                  <button onClick={handlePrint} className="w-full max-w-lg py-5 bg-emerald-100 text-emerald-700 rounded-3xl font-black text-lg hover:bg-emerald-200 transition flex items-center justify-center gap-3 no-print">
+                      <FileText size={24} />
+                      حفظ كافة الأسئلة والتحليلات بصيغة PDF
+                  </button>
                </motion.div>
             ) : (
               <motion.div key="questions" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex-1 flex flex-row overflow-hidden">
@@ -413,27 +416,53 @@ export default function ChallengePage() {
                    ))}
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-12 space-y-8 bg-white/20 backdrop-blur-3xl custom-scrollbar relative no-print">
+                {/* Question Sidebar (NOW FIRST CHILD -> RIGHT IN RTL) */}
+                <div className="w-[450px] bg-slate-50/80 border-l border-slate-200 p-12 flex flex-col gap-10 no-print">
+                   <div className="space-y-6">
+                     <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary-500/20"><Sparkles size={12} /> تحدي #{currentIdx + 1}</div>
+                     <div className="p-8 bg-primary-50 border-2 border-primary-100 rounded-[2.5rem] shadow-sm">
+                        <p className="text-xl text-slate-800 font-bold leading-relaxed text-center">{currentQuestion.description || "حلل الأكواد البرمجية الظاهرة أمامك، واختر البرنامج الذي يقوم بإخراج القيمة التالية:"}</p>
+                     </div>
+                   </div>
+                   <div className="p-10 bg-white border-2 border-slate-800/10 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 flex flex-col items-center gap-4 relative overflow-hidden group">
+                      <div className="absolute top-0 left-0 w-full h-3 bg-slate-800" />
+                      <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest">المخرجات المطلوبة</span>
+                      <div className={`font-black text-slate-800 font-mono tracking-tighter transition duration-500 text-center ${currentQuestion.targetOutput.length > 10 ? 'text-2xl' : currentQuestion.targetOutput.length > 5 ? 'text-4xl' : 'text-7xl'}`}>{currentQuestion.targetOutput}</div>
+                      <Search size={24} className="text-slate-100 absolute bottom-6 right-6" />
+                   </div>
+                   <div className="flex-1 flex flex-col justify-end gap-4 font-cairo">
+                     <button onClick={() => setIsRevealed(!isRevealed)} disabled={selectedId === null}
+                       className={`w-full py-6 rounded-[2.5rem] font-black text-xl transition-all duration-300 flex items-center justify-center gap-3 ${selectedId === null ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-primary-600 shadow-xl'}`}
+                     >
+                       {isRevealed ? <Lock size={20} /> : <Search size={20} />} {isRevealed ? 'إخفاء الأسرار' : 'كشف الأسرار'}
+                     </button>
+                     <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest leading-relaxed">اختر إجابة أولاً ثم اضغط على زر كشف الأسرار لمعرفة السبب</p>
+                   </div>
+                </div>
+
+                {/* Choices List (NOW SECOND CHILD -> LEFT IN RTL) */}
+                <div className="flex-1 overflow-y-auto p-12 space-y-8 bg-white/40 backdrop-blur-3xl custom-scrollbar relative no-print">
                    <div className="flex flex-col gap-6">
                      {currentQuestion.snippets.sort((a,b) => a.orderIndex - b.orderIndex).map((snippet, idx) => (
                        <div key={idx} onClick={() => handleSelectAnswer(idx)}
-                         className={`relative group cursor-pointer border-2 transition-all duration-500 rounded-[2.5rem] overflow-hidden bg-white/50 backdrop-blur-xl ${selectedId === idx ? 'border-primary-500 shadow-2xl scale-[1.01]' : 'border-slate-100 hover:border-primary-300 hover:bg-white'} ${isRevealed && snippet.analysisType === 'Correct' ? 'border-emerald-500 bg-emerald-50/50' : isRevealed && selectedId === idx && snippet.analysisType !== 'Correct' ? 'border-rose-500 bg-rose-50/50' : ''}`}
+                         className={`relative group cursor-pointer border-[3px] transition-all duration-500 rounded-[2.5rem] overflow-visible bg-white/70 backdrop-blur-xl ${selectedId === idx ? 'border-primary-500 shadow-2xl scale-[1.01]' : 'border-slate-100 hover:border-primary-200 hover:bg-white'} ${isRevealed && snippet.analysisType === 'Correct' ? 'border-emerald-500 bg-emerald-50/50' : isRevealed && selectedId === idx && snippet.analysisType !== 'Correct' ? 'border-rose-500 bg-rose-50/50' : ''}`}
                        >
                          <div className={`absolute top-0 right-0 w-3 h-full transition duration-500 ${selectedId === idx ? 'bg-primary-500' : 'bg-transparent'}`} />
                          <div className="flex items-stretch min-h-[140px]">
-                           <div className="w-20 bg-slate-50/50 flex flex-col items-center justify-center border-l border-slate-100 group-hover:bg-primary-50 transition no-print">
+                           <div className="w-20 bg-slate-50/80 flex flex-col items-center justify-center border-l border-slate-100 group-hover:bg-primary-50 transition no-print">
                               <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black transition duration-500 ${selectedId === idx ? 'bg-primary-500 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-200'}`}>{idx + 1}</div>
                            </div>
-                           <div className="flex-1 p-8 flex flex-col justify-center">
+                           <div className="flex-1 p-8 flex flex-col justify-center relative">
                              <div className="overflow-x-auto custom-scrollbar-horizontal pl-16">
                                <pre className="font-mono text-slate-800 text-sm leading-relaxed whitespace-pre text-left font-sans" dir="ltr" style={{ unicodeBidi: 'isolate' }}>{snippet.code}</pre>
                              </div>
                              <AnimatePresence>{isRevealed && (
-                               <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                                 className={`absolute top-1/2 -left-4 -translate-y-1/2 z-50 p-6 rounded-[2.5rem] shadow-2xl max-w-[320px] text-xs font-bold border-2 ${snippet.analysisType === 'Correct' ? 'bg-emerald-600 border-emerald-400 text-white' : snippet.analysisType === 'Syntax' ? 'bg-rose-600 border-rose-400 text-white' : 'bg-amber-500 border-amber-300 text-slate-900'}`}
+                               <motion.div initial={{ opacity: 0, x: -30, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }}
+                                 className={`absolute top-0 -left-[320px] z-[100] p-7 rounded-[2.5rem] shadow-2xl w-[300px] text-xs font-bold border-2 ${snippet.analysisType === 'Correct' ? 'bg-emerald-600 border-emerald-400 text-white' : snippet.analysisType === 'Syntax' ? 'bg-rose-600 border-rose-400 text-white' : 'bg-amber-500 border-amber-300 text-slate-900'}`}
                                >
-                                 <div className="flex items-center gap-2 mb-2">{snippet.analysisType === 'Correct' ? <Trophy size={14} /> : <HelpCircle size={14} />}<span className="text-[10px] uppercase font-black opacity-80">{snippet.analysisType} Analysis</span></div>
-                                 {snippet.analysisMessage}
+                                 <div className="flex items-center gap-2 mb-3">{snippet.analysisType === 'Correct' ? <Trophy size={16} /> : <HelpCircle size={16} />}<span className="text-[10px] uppercase font-black opacity-80">{snippet.analysisType} Secret</span></div>
+                                 <div className="leading-relaxed">{snippet.analysisMessage}</div>
+                                 <div className="absolute top-10 -right-3 w-5 h-5 bg-inherit border-inherit border-t-2 border-r-2 rotate-45 z-[-1]" />
                                </motion.div>
                              )}</AnimatePresence>
                            </div>
@@ -441,27 +470,6 @@ export default function ChallengePage() {
                        </div>
                      ))}
                    </div>
-                </div>
-
-                <div className="w-[450px] bg-slate-50/80 border-r border-slate-200 p-12 flex flex-col gap-10 no-print">
-                  <div className="space-y-6">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary-500/20"><Sparkles size={12} /> Challenge #{currentIdx + 1}</div>
-                    <p className="text-xl text-slate-800 font-bold leading-relaxed pt-4 text-center">{currentQuestion.description || "حلل الأكواد البرمجية الظاهرة أمامك، واختر البرنامج الذي يقوم بإخراج القيمة التالية:"}</p>
-                  </div>
-                  <div className="p-10 bg-white border-2 border-slate-200 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 flex flex-col items-center gap-4 relative overflow-hidden group">
-                     <div className="absolute top-0 left-0 w-full h-3 bg-slate-800" />
-                     <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest">Desired Output</span>
-                     <div className={`font-black text-slate-800 font-mono tracking-tighter transition duration-500 text-center ${currentQuestion.targetOutput.length > 10 ? 'text-2xl' : currentQuestion.targetOutput.length > 5 ? 'text-4xl' : 'text-7xl'}`}>{currentQuestion.targetOutput}</div>
-                     <Search size={24} className="text-slate-100 absolute bottom-6 right-6" />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-end gap-4 font-cairo">
-                    <button onClick={() => setIsRevealed(!isRevealed)} disabled={selectedId === null}
-                      className={`w-full py-6 rounded-[2.5rem] font-black text-xl transition-all duration-300 flex items-center justify-center gap-3 ${selectedId === null ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-primary-600 shadow-xl'}`}
-                    >
-                      {isRevealed ? <Lock size={20} /> : <Search size={20} />} {isRevealed ? 'إخفاء التحليل' : 'كشف التحليل'}
-                    </button>
-                    <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest leading-relaxed">اختر إجابة أولاً ثم اضغط على زر التحليل لمعرفة السبب</p>
-                  </div>
                 </div>
               </motion.div>
             )}
