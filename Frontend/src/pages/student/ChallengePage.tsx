@@ -73,8 +73,18 @@ export default function ChallengePage() {
     setUserAnswers(prev => ({ ...prev, [currentIdx]: idx }));
   };
 
-  const calculateScore = () => {
+  const calculateScore = (force = false) => {
     if (!test || !test.questions) return;
+    
+    // Prevent submitting early if not all questions are answered
+    if (!force && Object.keys(userAnswers).length < test.questions.length) {
+      toast.error('عذراً، يجب الإجابة على جميع الأسئلة أولاً قبل إنهاء الاختبار!', {
+        icon: '⚠️',
+        style: { borderRadius: '10px', background: '#333', color: '#fff' }
+      });
+      return;
+    }
+
     let correct = 0;
     test.questions.forEach((q, idx) => {
       const selected = userAnswers[idx];
@@ -487,11 +497,11 @@ export default function ChallengePage() {
               <button onClick={() => setCurrentIdx(prev => Math.max(0, prev - 1))} disabled={currentIdx === 0} className="flex items-center gap-2 font-black text-slate-400 hover:text-slate-800 transition disabled:opacity-20"><ChevronRight size={24} /> السؤال السابق</button>
               <div className="flex gap-2 font-black text-xs text-slate-400 px-10">
                 {test.questions && [...Array(test.questions.length)].map((_, i) => (
-                  <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIdx ? 'w-12 bg-primary-500' : 'w-4 bg-slate-200'}`} />
+                  <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIdx ? 'w-12 bg-primary-500' : userAnswers[i] !== undefined ? 'w-4 bg-emerald-400' : 'w-4 bg-slate-200'}`} />
                 ))}
               </div>
               <button 
-                onClick={isLastQuestion ? calculateScore : () => setCurrentIdx(prev => prev + 1)} 
+                onClick={isLastQuestion ? () => calculateScore() : () => setCurrentIdx(prev => prev + 1)} 
                 className="flex items-center gap-2 font-black text-primary-600 hover:text-primary-800 transition"
               >
                  {isLastQuestion ? 'إنهاء الاختبار' : 'السؤال التالي'} <ChevronLeft size={24} />
