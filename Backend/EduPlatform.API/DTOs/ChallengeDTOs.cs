@@ -64,6 +64,8 @@ namespace EduPlatform.API.DTOs
         public string AnalysisType { get; set; } = string.Empty;
         public string AnalysisMessage { get; set; } = string.Empty;
         public int OrderIndex { get; set; }
+    }
+
     public class TofasTestResultDTO
     {
         public int Id { get; set; }
