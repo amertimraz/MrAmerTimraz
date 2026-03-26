@@ -5,7 +5,8 @@ import type { TofasTest, Challenge, ChallengeSnippet } from '../../api/challenge
 import { 
   Plus, Edit2, Trash2, X, PlusCircle, 
   Code as CodeIcon, Brain, Layout,
-  Settings, Clock, ChevronLeft, ChevronRight, ListOrdered
+  Settings, Clock, ChevronLeft, ChevronRight, ListOrdered,
+  Trophy, RotateCcw, Users as UsersIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -18,6 +19,8 @@ export default function AdminChallenges() {
   const [editingTest, setEditingTest] = useState<Partial<TofasTest> | null>(null);
   const [selectedTestId, setSelectedTestId] = useState<number | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Partial<Challenge> | null>(null);
+  const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
+  const [resultsTestId, setResultsTestId] = useState<number | null>(null);
 
   const { data: tests, isLoading } = useQuery({
     queryKey: ['admin-challenges'],
@@ -76,6 +79,20 @@ export default function AdminChallenges() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-challenges'] });
       toast.success('تم حذف السؤال');
+    }
+  });
+
+  const { data: results, isLoading: isResultsLoading } = useQuery({
+    queryKey: ['challenge-results', resultsTestId],
+    queryFn: () => challengesApi.getResults(resultsTestId!),
+    enabled: !!resultsTestId && isResultsModalOpen
+  });
+
+  const clearResultsMutation = useMutation({
+    mutationFn: (testId: number) => challengesApi.clearResults(testId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['challenge-results', resultsTestId] });
+      toast.success('تم تصفير النتائج بنجاح');
     }
   });
 
@@ -252,13 +269,19 @@ export default function AdminChallenges() {
                     )}
                   </div>
 
-                  <div className="pt-4 border-t border-slate-50">
+                  <div className="pt-4 border-t border-slate-50 flex gap-2">
                     <button 
                       onClick={() => handleManageQuestions(test.id)}
-                      className="w-full bg-slate-900 group-hover:bg-primary-600 text-white py-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2"
+                      className="flex-1 bg-slate-900 group-hover:bg-primary-600 text-white py-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2 text-sm"
                     >
-                      إدارة الأسئلة
-                      <ChevronLeft size={18} />
+                      الأسئلة
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button 
+                      onClick={() => { setResultsTestId(test.id); setIsResultsModalOpen(true); }}
+                      className="px-4 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-2xl transition flex items-center justify-center shadow-sm"
+                    >
+                      <Trophy size={18} />
                     </button>
                   </div>
                 </div>
@@ -414,6 +437,76 @@ export default function AdminChallenges() {
               <div className="p-8 bg-slate-50/50 border-t border-slate-100 flex justify-end gap-3">
                  <button onClick={() => setIsQuestionModalOpen(false)} className="px-6 py-3 font-bold text-slate-400">إلغاء</button>
                  <button onClick={handleQuestionSubmit} className="bg-slate-900 text-white px-10 py-3 rounded-2xl font-black shadow-lg active:scale-95 transition">حفظ السؤال</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Results Modal */}
+      <AnimatePresence>
+        {isResultsModalOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsResultsModalOpen(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white w-full max-w-4xl max-h-[85vh] overflow-hidden rounded-[3rem] shadow-2xl flex flex-col">
+              <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                 <div className="flex items-center gap-3">
+                    <Trophy className="text-amber-500" size={28} />
+                    <div>
+                       <h2 className="text-2xl font-black text-slate-800">نتائج الطلاب</h2>
+                       <p className="text-xs text-slate-400 font-bold">{tests?.find(t => t.id === resultsTestId)?.title}</p>
+                    </div>
+                 </div>
+                 <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => { if(window.confirm('هل أنت متأكد من مسح جميع النتائج؟ لا يمكن التراجع عن هذا الإجراء.')) clearResultsMutation.mutate(resultsTestId!); }}
+                      className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-black hover:bg-rose-100 transition"
+                    >
+                       <RotateCcw size={14} /> مسح النتائج
+                    </button>
+                    <button onClick={() => setIsResultsModalOpen(false)} className="p-2 hover:bg-white rounded-2xl transition text-slate-400"><X /></button>
+                 </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8">
+                 {isResultsLoading ? (
+                    <div className="text-center py-20 text-slate-400 font-bold">جاري تحميل النتائج...</div>
+                 ) : results?.length > 0 ? (
+                    <div className="space-y-3">
+                       <div className="grid grid-cols-5 gap-4 px-6 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          <div className="col-span-2">الطالب</div>
+                          <div className="text-center">الدرجة</div>
+                          <div className="text-center">الإجابات</div>
+                          <div className="text-end">التاريخ</div>
+                       </div>
+                       {results.map((res: any, i: number) => (
+                         <div key={i} className="bg-slate-50 p-6 rounded-2xl flex items-center justify-between border border-transparent hover:border-slate-200 transition">
+                            <div className="flex items-center gap-4 col-span-2 w-full max-w-[40%]">
+                               <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center font-black text-slate-300 border border-slate-100">{i + 1}</div>
+                               <div className="flex flex-col">
+                                  <span className="font-black text-slate-800 text-sm">{res.studentName}</span>
+                                  <span className="text-[10px] text-slate-400 font-bold">{res.studentId}</span>
+                               </div>
+                            </div>
+                            <div className="flex-1 text-center">
+                               <span className={`px-3 py-1 rounded-lg font-black text-sm ${res.score >= 50 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                                  {res.score}%
+                               </span>
+                            </div>
+                            <div className="flex-1 text-center font-mono text-xs font-bold text-slate-500">
+                               {res.correctCount} / {res.totalQuestions}
+                            </div>
+                            <div className="flex-1 text-end text-[10px] font-bold text-slate-400">
+                               {new Date(res.completedAt).toLocaleDateString('ar-EG')}
+                            </div>
+                         </div>
+                       ))}
+                    </div>
+                 ) : (
+                    <div className="text-center py-20 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100">
+                       <UsersIcon size={48} className="mx-auto text-slate-300 mb-4" />
+                       <h3 className="text-lg font-black text-slate-400">لا توجد نتائج مسجلة لهذا الاختبار</h3>
+                    </div>
+                 )}
               </div>
             </motion.div>
           </div>

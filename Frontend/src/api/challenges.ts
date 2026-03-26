@@ -60,5 +60,15 @@ export const challengesApi = {
     client.put<void>(`/challenges/questions/${id}`, question).then(r => r.data),
 
   deleteQuestion: (id: number) =>
-    client.delete(`/challenges/questions/${id}`)
+    client.delete(`/challenges/questions/${id}`),
+
+  // Results
+  submitResult: (testId: number, data: { score: number; totalQuestions: number; correctCount: number }) =>
+    client.post(`/challenges/${testId}/submit`, data).then(r => r.data),
+
+  getResults: (testId: number) =>
+    client.get(`/challenges/${testId}/results`).then(r => r.data),
+
+  clearResults: (testId: number) =>
+    client.delete(`/challenges/${testId}/results`)
 };

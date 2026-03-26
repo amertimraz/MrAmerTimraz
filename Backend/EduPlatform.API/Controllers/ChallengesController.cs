@@ -187,6 +187,79 @@ namespace EduPlatform.API.Controllers
             return NoContent();
         }
 
+        // --- Result Endpoints ---
+
+        [HttpPost("{testId}/submit"), Authorize]
+        public async Task<ActionResult<TofasTestResultDTO>> SubmitResult(int testId, SubmitTofasTestResultDTO dto)
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var test = await _context.TofasTests.FindAsync(testId);
+            if (test == null) return NotFound("Test not found");
+
+            var result = new TofasTestResult
+            {
+                TestId = testId,
+                StudentId = userId,
+                Score = dto.Score,
+                TotalQuestions = dto.TotalQuestions,
+                CorrectCount = dto.CorrectCount,
+                Percentage = dto.TotalQuestions > 0 ? (double)dto.CorrectCount / dto.TotalQuestions * 100 : 0,
+                CompletedAt = DateTime.UtcNow
+            };
+
+            _context.TofasTestResults.Add(result);
+            await _context.SaveChangesAsync();
+
+            return Ok(new TofasTestResultDTO
+            {
+                Id = result.Id,
+                TestId = result.TestId,
+                StudentName = user.FullName,
+                Score = result.Score,
+                TotalQuestions = result.TotalQuestions,
+                CorrectCount = result.CorrectCount,
+                Percentage = result.Percentage,
+                CompletedAt = result.CompletedAt
+            });
+        }
+
+        [HttpGet("{testId}/results"), Authorize]
+        public async Task<ActionResult<IEnumerable<TofasTestResultDTO>>> GetResults(int testId)
+        {
+            var results = await _context.TofasTestResults
+                .Include(r => r.Student)
+                .Where(r => r.TestId == testId)
+                .OrderByDescending(r => r.Score)
+                .ThenBy(r => r.CompletedAt)
+                .Take(100) // Leaderboard top 100
+                .Select(r => new TofasTestResultDTO
+                {
+                    Id = r.Id,
+                    TestId = r.TestId,
+                    StudentName = r.Student.FullName,
+                    Score = r.Score,
+                    TotalQuestions = r.TotalQuestions,
+                    CorrectCount = r.CorrectCount,
+                    Percentage = r.Percentage,
+                    CompletedAt = r.CompletedAt
+                })
+                .ToListAsync();
+
+            return Ok(results);
+        }
+
+        [HttpDelete("{testId}/results"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ClearResults(int testId)
+        {
+            var results = await _context.TofasTestResults.Where(r => r.TestId == testId).ToListAsync();
+            _context.TofasTestResults.RemoveRange(results);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         // --- Helpers ---
 
         private static TofasTestDTO MapTestToDTO(TofasTest t, bool includeQuestions)

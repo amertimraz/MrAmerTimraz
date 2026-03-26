@@ -37,6 +37,8 @@ public class AppDbContext : DbContext
     public DbSet<TofasTest> TofasTests => Set<TofasTest>();
     public DbSet<Challenge> Challenges => Set<Challenge>();
     public DbSet<ChallengeSnippet> ChallengeSnippets => Set<ChallengeSnippet>();
+    public DbSet<TofasTestResult> TofasTestResults => Set<TofasTestResult>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -222,6 +224,19 @@ public class AppDbContext : DbContext
                   .WithMany(c => c.Snippets)
                   .HasForeignKey(s => s.ChallengeId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TofasTestResult>(entity =>
+        {
+            entity.HasOne(r => r.Test)
+                  .WithMany()
+                  .HasForeignKey(r => r.TestId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(r => r.Student)
+                  .WithMany()
+                  .HasForeignKey(r => r.StudentId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

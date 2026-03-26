@@ -64,5 +64,22 @@ namespace EduPlatform.API.DTOs
         public string AnalysisType { get; set; } = string.Empty;
         public string AnalysisMessage { get; set; } = string.Empty;
         public int OrderIndex { get; set; }
+    public class TofasTestResultDTO
+    {
+        public int Id { get; set; }
+        public int TestId { get; set; }
+        public string StudentName { get; set; } = string.Empty;
+        public int Score { get; set; }
+        public int TotalQuestions { get; set; }
+        public int CorrectCount { get; set; }
+        public double Percentage { get; set; }
+        public DateTime CompletedAt { get; set; }
+    }
+
+    public class SubmitTofasTestResultDTO
+    {
+        public int Score { get; set; }
+        public int TotalQuestions { get; set; }
+        public int CorrectCount { get; set; }
     }
 }
