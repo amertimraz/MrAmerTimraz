@@ -217,12 +217,10 @@ export default function ChallengePage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {user?.role === 'Admin' && (
-            <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black shadow-lg shadow-indigo-500/20 transition">
-              <FileText size={18} />
-              <span className="hidden md:inline">تحميل مرجع المعلم (PDF)</span>
-            </button>
-          )}
+          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black shadow-lg shadow-indigo-500/20 transition">
+            <FileText size={18} />
+            <span className="hidden md:inline">تحميل الأسئلة والإجابات (PDF)</span>
+          </button>
           <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-slate-200">
              <Clock size={16} className="text-amber-500" />
              <span className="font-mono font-bold text-slate-700">{formatTime(timeLeft)}</span>
