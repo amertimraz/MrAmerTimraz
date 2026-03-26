@@ -110,6 +110,8 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
+app.UseCors("AllowFrontend");
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -375,7 +377,23 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Challenges\" ADD COLUMN IF NOT EXISTS \"TimeLimitMinutes\" INTEGER NOT NULL DEFAULT 15",
             "ALTER TABLE \"Challenges\" ALTER COLUMN \"IsVisible\" TYPE boolean USING (\"IsVisible\"::integer::boolean)",
             "ALTER TABLE \"Challenges\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
-            "ALTER TABLE \"Challenges\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric"
+            "ALTER TABLE \"Challenges\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",
+
+            // Notifications table safety-net
+            """
+            CREATE TABLE IF NOT EXISTS "Notifications" (
+                "Id" SERIAL PRIMARY KEY,
+                "UserId" INTEGER NOT NULL REFERENCES "Users"("Id") ON DELETE CASCADE,
+                "Title" TEXT NOT NULL,
+                "Message" TEXT NOT NULL,
+                "IsRead" BOOLEAN NOT NULL DEFAULT FALSE,
+                "Link" TEXT,
+                "ImageUrl" TEXT,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "ALTER TABLE \"Notifications\" ALTER COLUMN \"IsRead\" TYPE boolean USING (\"IsRead\"::integer::boolean)",
+            "ALTER TABLE \"Notifications\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone"
         };
 
         foreach (var sql in safetyAlters)
@@ -472,7 +490,7 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedAsync(db);
 }
 
-app.UseCors("AllowFrontend");
+// app.UseCors("AllowFrontend"); // Moved to top
 
 app.UseExceptionHandler(appError =>
 {
@@ -481,11 +499,12 @@ app.UseExceptionHandler(appError =>
         context.Response.StatusCode = 500;
         context.Response.ContentType = "application/json";
         var origin = context.Request.Headers["Origin"].ToString();
-        if (!string.IsNullOrEmpty(origin))
-        {
-            context.Response.Headers["Access-Control-Allow-Origin"] = origin;
-            context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
-        }
+        if (string.IsNullOrEmpty(origin)) origin = "*"; 
+        
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers["Access-Control-Allow-Headers"] = "*";
+        context.Response.Headers["Access-Control-Allow-Methods"] = "*";
+        context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
         var contextFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
         if (contextFeature != null)
         {

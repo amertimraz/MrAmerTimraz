@@ -146,11 +146,33 @@ export default function ChallengePage() {
         .font-cairo { font-family: 'Cairo', sans-serif !important; }
         @media print {
           @page { size: A4 portrait; margin: 1cm; }
-          body { background: white !important; font-family: 'Cairo', sans-serif !important; }
+          html, body, #root, .min-h-screen, .print-area { 
+            height: auto !important; 
+            overflow: visible !important; 
+            display: block !important; 
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           .no-print { display: none !important; }
-          .print-area { width: 100% !important; height: auto !important; margin: 0 !important; border: none !important; box-shadow: none !important; display: block !important; }
-          .question-card { break-after: page; page-break-after: always; display: block !important; border-bottom: 2px dashed #eee !important; padding-bottom: 2rem !important; }
-          pre { white-space: pre-wrap !important; word-break: break-all !important; font-family: monospace !important; font-size: 10px !important; }
+          .print-area { width: 100% !important; border: none !important; box-shadow: none !important; }
+          .question-card { 
+            break-inside: avoid; 
+            page-break-inside: avoid; 
+            display: block !important; 
+            border-bottom: 2px dashed #eee !important; 
+            padding-bottom: 2rem !important; 
+            margin-bottom: 2rem !important;
+          }
+          pre { white-space: pre-wrap !important; word-break: break-all !important; font-family: monospace !important; font-size: 10px !important; background: #f8fafc !important; }
+          .bg-emerald-50 { background-color: #ecfdf5 !important; }
+          .bg-rose-50 { background-color: #fff1f2 !important; }
+          .bg-amber-50 { background-color: #fffbeb !important; }
+          .bg-slate-50 { background-color: #f8fafc !important; }
+          .text-emerald-800 { color: #065f46 !important; }
+          .text-rose-800 { color: #9f1239 !important; }
+          .text-amber-800 { color: #92400e !important; }
         }
       `}</style>
 
