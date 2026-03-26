@@ -113,8 +113,10 @@ export default function App() {
             <Route path="/booklets"        element={<BookletsPage />} />
             <Route path="/booklets/:id"    element={<BookletDetailsPage />} />
             <Route path="/challenges"      element={<ChallengesList />} />
-            <Route path="/challenges/:slug" element={<ChallengePage />} />
           </Route>
+
+          {/* Full Screen Challenges (Outside DashboardLayout for Print support) */}
+          <Route path="/challenges/:slug" element={<RequireAuth><ChallengePage /></RequireAuth>} />
 
           {/* Teacher Routes */}
           <Route path="/teacher" element={<RequireAuth roles={['Teacher', 'Admin']}><DashboardLayout /></RequireAuth>}>
