@@ -434,9 +434,9 @@ export default function ChallengePage() {
                      <button onClick={() => setIsRevealed(!isRevealed)} disabled={selectedId === null}
                        className={`w-full py-6 rounded-[2.5rem] font-black text-xl transition-all duration-300 flex items-center justify-center gap-3 ${selectedId === null ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-primary-600 shadow-xl'}`}
                      >
-                       {isRevealed ? <Lock size={20} /> : <Search size={20} />} {isRevealed ? 'إخفاء الأسرار' : 'كشف الأسرار'}
+                       {isRevealed ? <Lock size={20} /> : <Search size={20} />} {isRevealed ? 'إخفاء الإجابة' : 'ظهور الإجابة'}
                      </button>
-                     <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest leading-relaxed">اختر إجابة أولاً ثم اضغط على زر كشف الأسرار لمعرفة السبب</p>
+                     <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest leading-relaxed">اختر إجابة أولاً ثم اضغط على زر ظهور الإجابة لمعرفة السبب</p>
                    </div>
                 </div>
 
@@ -445,27 +445,33 @@ export default function ChallengePage() {
                    <div className="flex flex-col gap-6">
                      {currentQuestion.snippets.sort((a,b) => a.orderIndex - b.orderIndex).map((snippet, idx) => (
                        <div key={idx} onClick={() => handleSelectAnswer(idx)}
-                         className={`relative group cursor-pointer border-[3px] transition-all duration-500 rounded-[2.5rem] overflow-visible bg-white/70 backdrop-blur-xl ${selectedId === idx ? 'border-primary-500 shadow-2xl scale-[1.01]' : 'border-slate-100 hover:border-primary-200 hover:bg-white'} ${isRevealed && snippet.analysisType === 'Correct' ? 'border-emerald-500 bg-emerald-50/50' : isRevealed && selectedId === idx && snippet.analysisType !== 'Correct' ? 'border-rose-500 bg-rose-50/50' : ''}`}
+                         className={`relative group cursor-pointer border-[3px] transition-all duration-500 rounded-[2.5rem] overflow-hidden bg-white/70 backdrop-blur-xl ${selectedId === idx ? 'border-primary-500 shadow-2xl scale-[1.01]' : 'border-slate-100 hover:border-primary-200 hover:bg-white'} ${isRevealed && snippet.analysisType === 'Correct' ? 'border-emerald-500 bg-emerald-50/50' : isRevealed && selectedId === idx && snippet.analysisType !== 'Correct' ? 'border-rose-500 bg-rose-50/50' : ''}`}
                        >
-                         <div className={`absolute top-0 right-0 w-3 h-full transition duration-500 ${selectedId === idx ? 'bg-primary-500' : 'bg-transparent'}`} />
-                         <div className="flex items-stretch min-h-[140px]">
-                           <div className="w-20 bg-slate-50/80 flex flex-col items-center justify-center border-l border-slate-100 group-hover:bg-primary-50 transition no-print">
+                         <div className={`absolute top-0 right-0 w-3 h-full transition duration-500 z-20 ${selectedId === idx ? 'bg-primary-500' : 'bg-transparent'}`} />
+                         <div className="flex flex-col md:flex-row items-stretch min-h-[140px]">
+                           <div className="w-20 bg-slate-50/80 flex flex-col items-center justify-center border-l border-slate-100 group-hover:bg-primary-50 transition no-print z-10">
                               <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black transition duration-500 ${selectedId === idx ? 'bg-primary-500 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-200'}`}>{idx + 1}</div>
                            </div>
-                           <div className="flex-1 p-8 flex flex-col justify-center relative">
-                             <div className="overflow-x-auto custom-scrollbar-horizontal pl-16">
+                           <div className="flex-1 p-8 flex flex-col justify-center relative z-10">
+                             <div className="overflow-x-auto custom-scrollbar-horizontal">
                                <pre className="font-mono text-slate-800 text-sm leading-relaxed whitespace-pre text-left font-sans" dir="ltr" style={{ unicodeBidi: 'isolate' }}>{snippet.code}</pre>
                              </div>
-                             <AnimatePresence>{isRevealed && (
-                               <motion.div initial={{ opacity: 0, x: -30, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }}
-                                 className={`absolute top-0 -left-[320px] z-[100] p-7 rounded-[2.5rem] shadow-2xl w-[300px] text-xs font-bold border-2 ${snippet.analysisType === 'Correct' ? 'bg-emerald-600 border-emerald-400 text-white' : snippet.analysisType === 'Syntax' ? 'bg-rose-600 border-rose-400 text-white' : 'bg-amber-500 border-amber-300 text-slate-900'}`}
-                               >
-                                 <div className="flex items-center gap-2 mb-3">{snippet.analysisType === 'Correct' ? <Trophy size={16} /> : <HelpCircle size={16} />}<span className="text-[10px] uppercase font-black opacity-80">{snippet.analysisType} Secret</span></div>
-                                 <div className="leading-relaxed">{snippet.analysisMessage}</div>
-                                 <div className="absolute top-10 -right-3 w-5 h-5 bg-inherit border-inherit border-t-2 border-r-2 rotate-45 z-[-1]" />
-                               </motion.div>
-                             )}</AnimatePresence>
                            </div>
+                           <AnimatePresence>
+                             {isRevealed && (
+                               <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 300, opacity: 1 }} exit={{ width: 0, opacity: 0 }}
+                                 className={`overflow-hidden flex flex-col justify-center border-r-2 border-dashed z-0 ${snippet.analysisType === 'Correct' ? 'bg-emerald-50 border-emerald-200' : snippet.analysisType === 'Syntax' ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'}`}
+                               >
+                                 <div className={`w-[300px] p-6 text-sm font-bold ${snippet.analysisType === 'Correct' ? 'text-emerald-800' : snippet.analysisType === 'Syntax' ? 'text-rose-800' : 'text-amber-800'}`}>
+                                    <div className="flex items-center gap-2 mb-3">
+                                      {snippet.analysisType === 'Correct' ? <Trophy size={18} /> : <HelpCircle size={18} />}
+                                      <span className="text-[11px] uppercase font-black opacity-80 text-slate-500">التحليل التفصيلي</span>
+                                    </div>
+                                    <div className="leading-relaxed whitespace-pre-wrap">{snippet.analysisMessage}</div>
+                                 </div>
+                               </motion.div>
+                             )}
+                           </AnimatePresence>
                          </div>
                        </div>
                      ))}
