@@ -63,7 +63,7 @@ export default function PaymentModal({ isOpen, onClose, courseId, courseTitle, c
 
         <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-4 text-sm text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/50">
           <p className="font-bold mb-1">طريقة الدفع:</p>
-          <p>قم بتحويل المبلغ على رقم فودافون كاش: <span className="font-black text-lg select-all">01096066818</span></p>
+          <p>قم بتحويل المبلغ على رقم فودافون كاش أو إنستاباي: <span className="max-md:block mr-2 md:mr-0 font-black text-lg select-all text-primary-600 bg-primary-50 px-2 py-0.5 rounded-lg border border-primary-100">01096066818</span></p>
           <p className="mt-1 opacity-80">ثم قم برفع صورة التحويل أدناه لتأكيد طلبك.</p>
         </div>
 
