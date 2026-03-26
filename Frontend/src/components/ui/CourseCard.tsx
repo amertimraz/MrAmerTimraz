@@ -1,5 +1,6 @@
 import { BookOpen, Video, FileText, Users } from 'lucide-react';
 import type { Course } from '../../types';
+import { useAuthStore } from '../../store/authStore';
 
 interface CourseCardProps {
   course: Course;
@@ -8,6 +9,9 @@ interface CourseCardProps {
 }
 
 export default function CourseCard({ course, onClick, actions }: CourseCardProps) {
+  const { user } = useAuthStore();
+  const canSeeStats = user?.role === 'Admin' || user?.role === 'Teacher';
+
   return (
     <div
       className="card overflow-hidden hover:shadow-md transition-all duration-200 animate-fade-in cursor-pointer group"
@@ -57,9 +61,11 @@ export default function CourseCard({ course, onClick, actions }: CourseCardProps
           <span className="flex items-center gap-1 text-xs text-gray-500">
             <FileText size={12} /> {course.testCount} اختبار
           </span>
-          <span className="flex items-center gap-1 text-xs text-gray-500">
-            <Users size={12} /> {course.enrolledCount} طالب
-          </span>
+          {canSeeStats && (
+            <span className="flex items-center gap-1 text-xs text-gray-500">
+              <Users size={12} /> {course.enrolledCount} طالب
+            </span>
+          )}
         </div>
 
         {actions && (

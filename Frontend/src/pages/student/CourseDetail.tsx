@@ -6,13 +6,15 @@ import { videosApi } from '../../api/videos';
 import { testsApi } from '../../api/tests';
 import type { Video } from '../../types';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { Play, FileText, ArrowRight, Clock, Youtube, Download, MessageCircle, Send, User as UserIcon } from 'lucide-react';
+import { Play, FileText, ArrowRight, Clock, Youtube, Download, MessageCircle, Send, User as UserIcon, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { resolveFileUrl } from '../../config';
+import { useAuthStore } from '../../store/authStore';
 
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const [activeVideoData, setActiveVideoData] = useState<Video | null>(null);
@@ -49,6 +51,15 @@ export default function CourseDetail() {
       toast.success('تم إضافة تعليقك');
     },
     onError: () => toast.error('فشل في إضافة التعليق'),
+  });
+
+  const deleteComment = useMutation({
+    mutationFn: (commentId: number) => videosApi.deleteComment(commentId),
+    onSuccess: () => {
+      refetchComments();
+      toast.success('تم حذف التعليق بنجاح');
+    },
+    onError: () => toast.error('فشل في حذف التعليق'),
   });
 
   const getYouTubeId = (url: string) => {
@@ -140,7 +151,7 @@ export default function CourseDetail() {
             {/* Comments List */}
             <div className="space-y-4">
               {videoComments.map(c => (
-                <div key={c.id} className="flex gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700">
+                <div key={c.id} className="flex gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700 relative group/comment">
                   <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
                     {c.student.profileImage ? (
                       <img src={resolveUrl(c.student.profileImage)} alt="" className="w-full h-full object-cover" />
@@ -152,8 +163,20 @@ export default function CourseDetail() {
                   </div>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-sm text-gray-900 dark:text-white">{c.student.name}</h4>
-                      <span className="text-[10px] text-gray-400">{new Date(c.createdAt).toLocaleDateString('ar-EG')}</span>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-sm text-gray-900 dark:text-white">{c.student.name}</h4>
+                        <span className="text-[10px] text-gray-400">{new Date(c.createdAt).toLocaleDateString('ar-EG')}</span>
+                      </div>
+                      
+                      {user?.role === 'Admin' && (
+                        <button
+                          onClick={() => { if(window.confirm('هل أنت متأكد من حذف هذا التعليق؟')) deleteComment.mutate(c.id); }}
+                          className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          title="حذف التعليق"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300">{c.content}</p>
                   </div>

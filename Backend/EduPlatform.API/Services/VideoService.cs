@@ -32,6 +32,7 @@ public interface IVideoService
     Task<bool> UpdateAsync(int id, CreateVideoDto dto);
     Task<List<VideoComment>> GetCommentsAsync(int videoId);
     Task<VideoComment> AddCommentAsync(int videoId, int userId, string content);
+    Task<bool> DeleteCommentAsync(int commentId);
 }
 
 public class VideoService : IVideoService
@@ -127,6 +128,16 @@ public class VideoService : IVideoService
         video.PdfUrl = dto.PdfUrl;
         video.Slug = dto.Slug;
 
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteCommentAsync(int commentId)
+    {
+        var comment = await _db.VideoComments.FindAsync(commentId);
+        if (comment == null) return false;
+
+        _db.VideoComments.Remove(comment);
         await _db.SaveChangesAsync();
         return true;
     }

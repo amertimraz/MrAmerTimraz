@@ -45,6 +45,12 @@ public class VideosController : ControllerBase
         return Ok(comment);
     }
 
+    [HttpDelete("comments/{commentId}"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteComment(int commentId)
+    {
+        return await _videos.DeleteCommentAsync(commentId) ? NoContent() : NotFound();
+    }
+
     [HttpPost, Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> Create([FromBody] CreateVideoDto dto)
     {

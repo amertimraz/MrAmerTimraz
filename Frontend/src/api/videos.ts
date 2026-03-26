@@ -18,4 +18,5 @@ export const videosApi = {
   getComments: (videoId: number) => client.get<VideoComment[]>(`/videos/${videoId}/comments`).then(r => r.data),
 
   addComment: (videoId: number, content: string) => client.post<VideoComment>(`/videos/${videoId}/comments`, { content }).then(r => r.data),
+  deleteComment: (commentId: number) => client.delete(`/videos/comments/${commentId}`),
 };
