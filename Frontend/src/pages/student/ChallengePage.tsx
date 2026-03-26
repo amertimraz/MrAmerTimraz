@@ -145,7 +145,7 @@ export default function ChallengePage() {
         @font-face { font-family: 'Cairo'; font-style: normal; font-weight: 400; font-display: swap; }
         .font-cairo { font-family: 'Cairo', sans-serif !important; }
         @media print {
-          @page { size: A4 landscape; margin: 1cm; }
+          @page { size: A4 landscape; margin: 0.8cm; }
           html, body, #root, [data-reactroot], .min-h-screen { 
             height: auto !important; 
             min-height: 0 !important;
@@ -154,6 +154,7 @@ export default function ChallengePage() {
             background: white !important;
             padding: 0 !important;
             margin: 0 !important;
+            font-size: 11px !important;
           }
           body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           .no-print { display: none !important; }
@@ -162,28 +163,39 @@ export default function ChallengePage() {
             break-inside: avoid !important; 
             page-break-inside: avoid !important; 
             display: block !important; 
-            border-bottom: 2px dashed #cbd5e1 !important; 
-            padding-bottom: 40px !important; 
-            margin-bottom: 60px !important;
+            border-bottom: 2px dashed #e2e8f0 !important; 
+            padding-bottom: 20px !important; 
+            margin-bottom: 30px !important;
+            page-break-after: auto !important;
           }
-          .question-card:not(:first-child) {
-            page-break-before: auto !important;
-          }
-          /* Prevent internal elements of choices from splitting */
-          .question-card > div > div {
+          .question-card h2 { font-size: 18px !important; margin-bottom: 10px !important; }
+          .question-card .target-output-box { padding: 8px !important; margin: 10px 0 !important; font-size: 14px !important; }
+          
+          /* Compact Grid for Choices */
+          .choices-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; }
+          
+          .choice-item {
              break-inside: avoid !important;
              page-break-inside: avoid !important;
+             padding: 12px !important;
+             border-radius: 12px !important;
           }
+          
           pre { 
             white-space: pre-wrap !important; 
             word-break: break-all !important; 
             font-family: monospace !important; 
-            font-size: 10px !important; 
+            font-size: 8.5px !important; 
             background-color: #f8fafc !important; 
             border: 1px solid #e2e8f0 !important; 
-            padding: 10px !important;
-            border-radius: 8px !important;
+            padding: 8px !important;
+            border-radius: 6px !important;
+            margin-bottom: 8px !important;
+            line-height: 1.2 !important;
           }
+          
+          .analysis-box { font-size: 9px !important; padding: 6px !important; border-radius: 6px !important; line-height: 1.3 !important; }
+          
           /* High-Contrast Print Colors (Hex) */
           .bg-emerald-50 { background-color: #ecfdf5 !important; }
           .bg-emerald-100 { background-color: #d1fae5 !important; }
@@ -597,23 +609,23 @@ export default function ChallengePage() {
          </div>
 
          {test.questions?.map((q, qIdx) => (
-           <div key={`print-q-${qIdx}`} className="question-card p-10 font-cairo mb-12">
-              <h2 className="text-2xl font-black mb-8 leading-relaxed">السؤال {qIdx + 1}: {q.description}</h2>
-              <div className="mt-4 mb-6 p-4 bg-slate-100 text-slate-600 rounded-xl font-black text-lg border-2 border-slate-200 inline-block w-full text-center">
-                 أوجد المخرجات المطلوبة: <span className="font-mono text-xl">{q.targetOutput}</span>
+           <div key={`print-q-${qIdx}`} className="question-card p-6 font-cairo">
+              <h2 className="text-xl font-black mb-4 leading-relaxed">السؤال {qIdx + 1}: {q.description}</h2>
+              <div className="target-output-box mb-4 p-3 bg-slate-100 text-slate-700 rounded-xl font-black text-base border-2 border-slate-200 inline-block w-full text-center">
+                 أوجد المخرجات المطلوبة: <span className="font-mono text-lg">{q.targetOutput}</span>
               </div>
-              <div className="grid grid-cols-2 gap-8">
+              <div className="choices-grid">
                  {q.snippets.map((s, sIdx) => {
                     const isCorrect = s.analysisType === 'Correct';
                     return (
-                      <div key={`print-s-${sIdx}`} className={`border-2 p-6 rounded-3xl ${isCorrect ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 bg-slate-50'}`}>
-                        <div className="flex justify-between items-center mb-4">
-                           <span className="font-black text-sm block">الخيار {sIdx + 1}</span>
-                           {isCorrect && <span className="text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full text-xs font-black">الإجابة الصحيحة ✅</span>}
+                      <div key={`print-s-${sIdx}`} className={`choice-item border-2 rounded-2xl ${isCorrect ? 'border-emerald-400 bg-emerald-50/30' : 'border-slate-200 bg-slate-50/50'}`}>
+                        <div className="flex justify-between items-center mb-2">
+                           <span className="font-black text-[10px] block opacity-60">الخيار {sIdx + 1}</span>
+                           {isCorrect && <span className="text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full text-[9px] font-black">الإجابة الصحيحة ✅</span>}
                         </div>
-                        <pre className="text-sm bg-white p-4 rounded-xl border border-slate-100 font-mono text-left leading-relaxed mb-4 overflow-x-hidden min-h-[100px]" dir="ltr">{s.code}</pre>
-                        <div className={`text-sm mt-3 font-bold leading-relaxed p-4 rounded-xl ${isCorrect ? 'text-emerald-800 bg-emerald-100' : s.analysisType === 'Syntax' ? 'text-rose-800 bg-rose-100' : 'text-amber-800 bg-amber-100'}`}>
-                           <strong className="block mb-1 text-xs uppercase opacity-80">التحليل التفصيلي:</strong> {s.analysisMessage}
+                        <pre className="dir-ltr text-left" dir="ltr">{s.code}</pre>
+                        <div className={`analysis-box font-bold leading-relaxed ${isCorrect ? 'text-emerald-800 bg-emerald-100/50' : s.analysisType === 'Syntax' ? 'text-rose-800 bg-rose-100/50' : 'text-amber-800 bg-amber-100/50'}`}>
+                           <strong className="block mb-0.5 text-[8px] uppercase opacity-70">التحليل:</strong> {s.analysisMessage}
                         </div>
                       </div>
                     )
