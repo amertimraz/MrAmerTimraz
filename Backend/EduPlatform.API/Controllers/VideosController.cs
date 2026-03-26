@@ -2,6 +2,8 @@ using System.Security.Claims;
 using EduPlatform.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using EduPlatform.API.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.API.Controllers;
 
