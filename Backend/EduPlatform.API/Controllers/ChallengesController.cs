@@ -217,7 +217,7 @@ namespace EduPlatform.API.Controllers
             {
                 Id = result.Id,
                 TestId = result.TestId,
-                StudentName = user.FullName,
+                StudentName = user.Name,
                 Score = result.Score,
                 TotalQuestions = result.TotalQuestions,
                 CorrectCount = result.CorrectCount,
@@ -239,7 +239,7 @@ namespace EduPlatform.API.Controllers
                 {
                     Id = r.Id,
                     TestId = r.TestId,
-                    StudentName = r.Student.FullName,
+                    StudentName = r.Student.Name,
                     Score = r.Score,
                     TotalQuestions = r.TotalQuestions,
                     CorrectCount = r.CorrectCount,
