@@ -3,6 +3,7 @@ import { challengesApi } from '../../api/challenges';
 import { motion } from 'framer-motion';
 import { Brain, Sparkles, Layers, Lock, PlayCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 export default function ChallengesList() {
   const { data: challenges, isLoading } = useQuery({
@@ -70,13 +71,23 @@ export default function ChallengesList() {
                     <Sparkles size={16} />
                     <span className="text-xs font-bold">Interactive Experience</span>
                  </div>
-                 <Link 
-                   to={`/challenges/${challenge.slug}`}
-                   className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-slate-200 transition active:scale-95"
-                 >
-                   إبدأ الآن
-                   <PlayCircle size={18} />
-                 </Link>
+                 {challenge.isUnlocked === false ? (
+                   <button 
+                     onClick={() => toast.error('عذراً، يجب شراء الكورس/الدرس المقترن بهذا التحدي أولاً للوصول إليه.')}
+                     className="inline-flex items-center gap-2 bg-slate-100 text-slate-400 px-6 py-3 rounded-2xl font-black cursor-not-allowed border border-slate-200"
+                   >
+                     مغلق (تحتاج اشتراك)
+                     <Lock size={18} />
+                   </button>
+                 ) : (
+                   <Link 
+                     to={`/challenges/${challenge.slug}`}
+                     className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-slate-200 transition active:scale-95"
+                   >
+                     إبدأ الآن
+                     <PlayCircle size={18} />
+                   </Link>
+                 )}
               </div>
             </div>
           </motion.div>

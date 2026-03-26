@@ -12,6 +12,8 @@ namespace EduPlatform.API.DTOs
         public decimal Price { get; set; }
         public bool IsVisible { get; set; }
         public int TimeLimitMinutes { get; set; }
+        public int? CourseId { get; set; }
+        public bool IsUnlocked { get; set; } = true;
         public DateTime CreatedAt { get; set; }
         public List<ChallengeDTO> Questions { get; set; } = new();
     }
@@ -24,6 +26,7 @@ namespace EduPlatform.API.DTOs
         public decimal Price { get; set; }
         public bool IsVisible { get; set; } = true;
         public int TimeLimitMinutes { get; set; } = 15;
+        public int? CourseId { get; set; }
     }
 
     public class ChallengeDTO

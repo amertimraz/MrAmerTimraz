@@ -24,6 +24,10 @@ namespace EduPlatform.API.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Foreign Key to Course
+        public int? CourseId { get; set; }
+        public Course? Course { get; set; }
+
         // Navigation property
         public List<Challenge> Questions { get; set; } = new();
     }

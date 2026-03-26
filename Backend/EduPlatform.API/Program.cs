@@ -242,6 +242,7 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"GoldenEvery\" INTEGER NOT NULL DEFAULT 10",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerEnabled\" BOOLEAN NOT NULL DEFAULT FALSE",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerDuration\" INTEGER NOT NULL DEFAULT 30",
+            "ALTER TABLE \"TofasTests\" ADD COLUMN IF NOT EXISTS \"CourseId\" INTEGER NULL REFERENCES \"Courses\"(\"Id\")",
             """
             CREATE TABLE IF NOT EXISTS "InteractiveQuizResults" (
                 "Id" SERIAL PRIMARY KEY,

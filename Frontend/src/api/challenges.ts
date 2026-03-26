@@ -27,6 +27,8 @@ export interface TofasTest {
   price: number;
   isVisible: boolean;
   timeLimitMinutes: number;
+  courseId?: number;
+  isUnlocked?: boolean;
   createdAt: string;
   questions?: Challenge[];
 }

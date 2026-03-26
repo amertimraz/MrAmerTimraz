@@ -38,7 +38,14 @@ export default function ChallengePage() {
           // Fetch leaderboard
           challengesApi.getResults(data.id).then(setLeaderboard);
         })
-        .catch(() => toast.error('فشل في تحميل الاختبار البرمجي'))
+        .catch((err: any) => {
+          if (err.response?.status === 403) {
+             toast.error(err.response.data || 'عذراً، يجب شراء الكورس/الدرس المقترن بهذا التحدي أولاً.');
+             navigate('/challenges');
+          } else {
+             toast.error('فشل في تحميل الاختبار البرمجي');
+          }
+        })
         .finally(() => setLoading(false));
     }
   }, [slug]);

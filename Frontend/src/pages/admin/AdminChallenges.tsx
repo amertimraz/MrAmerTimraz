@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { challengesApi } from '../../api/challenges';
+import { coursesApi } from '../../api/courses';
 import type { TofasTest, Challenge, ChallengeSnippet } from '../../api/challenges';
 import { 
   Plus, Edit2, Trash2, X, PlusCircle, 
@@ -25,6 +26,11 @@ export default function AdminChallenges() {
   const { data: tests, isLoading } = useQuery({
     queryKey: ['admin-challenges'],
     queryFn: challengesApi.getAllAdmin
+  });
+
+  const { data: courses } = useQuery({
+    queryKey: ['admin-courses'],
+    queryFn: () => coursesApi.getAll(false)
   });
 
   // --- Test Mutations ---
@@ -349,6 +355,13 @@ export default function AdminChallenges() {
                     <div className="space-y-2">
                        <label className="text-sm font-black text-slate-700 pr-2 italic">الرابط (Slug)</label>
                        <input required value={editingTest?.slug || ''} onChange={e => setEditingTest({...editingTest!, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 outline-none focus:border-primary-500 transition font-mono" />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                       <label className="text-sm font-black text-slate-700 pr-2 italic">ارتباط بدرس (كورس)</label>
+                       <select value={editingTest?.courseId || ''} onChange={e => setEditingTest({...editingTest!, courseId: e.target.value ? Number(e.target.value) : undefined})} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 outline-none focus:border-primary-500 transition font-bold text-slate-700 cursor-pointer">
+                         <option value="">-- اختبار عام (متاح للجميع) --</option>
+                         {courses?.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                       </select>
                     </div>
                  </div>
                  <div className="space-y-2">

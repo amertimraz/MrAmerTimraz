@@ -26,13 +26,24 @@ namespace EduPlatform.API.Controllers
         [HttpGet, Authorize]
         public async Task<ActionResult<IEnumerable<TofasTestDTO>>> GetVisibleTests()
         {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userEnrollments = await _context.Enrollments
+                .Where(e => e.StudentId == userId)
+                .Select(e => e.CourseId)
+                .ToListAsync();
+
             var tests = await _context.TofasTests
                 .Where(t => t.IsVisible)
                 .OrderByDescending(t => t.CreatedAt)
-                .Select(t => MapTestToDTO(t, false))
+                .Select(t => new { Test = t, Dto = MapTestToDTO(t, false) })
                 .ToListAsync();
 
-            return Ok(tests);
+            foreach(var item in tests)
+            {
+                item.Dto.IsUnlocked = item.Test.CourseId == null || userEnrollments.Contains(item.Test.CourseId.Value);
+            }
+
+            return Ok(tests.Select(t => t.Dto));
         }
 
         [HttpGet("slug/{slug}"), Authorize]
@@ -47,7 +58,17 @@ namespace EduPlatform.API.Controllers
 
             if (!test.IsVisible && !User.IsInRole("Admin")) return NotFound();
 
-            return Ok(MapTestToDTO(test, true));
+            var dto = MapTestToDTO(test, true);
+
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            if (test.CourseId != null && !User.IsInRole("Admin"))
+            {
+                bool hasAccess = await _context.Enrollments.AnyAsync(e => e.StudentId == userId && e.CourseId == test.CourseId);
+                if (!hasAccess) return StatusCode(403, "عذراً، يجب شراء الكورس/الدرس المقترن بهذا التحدي أولاً.");
+                dto.IsUnlocked = true;
+            }
+
+            return Ok(dto);
         }
 
         // --- Admin Endpoints (Tests) ---
@@ -77,7 +98,8 @@ namespace EduPlatform.API.Controllers
                 Description = dto.Description,
                 Price = dto.Price,
                 IsVisible = dto.IsVisible,
-                TimeLimitMinutes = dto.TimeLimitMinutes
+                TimeLimitMinutes = dto.TimeLimitMinutes,
+                CourseId = dto.CourseId
             };
 
             _context.TofasTests.Add(test);
@@ -101,6 +123,7 @@ namespace EduPlatform.API.Controllers
             test.Price = dto.Price;
             test.IsVisible = dto.IsVisible;
             test.TimeLimitMinutes = dto.TimeLimitMinutes;
+            test.CourseId = dto.CourseId;
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -273,6 +296,7 @@ namespace EduPlatform.API.Controllers
                 Price = t.Price,
                 IsVisible = t.IsVisible,
                 TimeLimitMinutes = t.TimeLimitMinutes,
+                CourseId = t.CourseId,
                 CreatedAt = t.CreatedAt,
                 Questions = includeQuestions ? t.Questions.OrderBy(q => q.OrderIndex).Select(MapQuestionToDTO).ToList() : new List<ChallengeDTO>()
             };
