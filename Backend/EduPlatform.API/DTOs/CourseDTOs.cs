@@ -48,4 +48,5 @@ public class CourseDto
     public int VideoCount { get; set; }
     public int TestCount { get; set; }
     public int EnrolledCount { get; set; }
+    public bool IsEnrolled { get; set; }
 }

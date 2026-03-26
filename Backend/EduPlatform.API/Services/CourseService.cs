@@ -13,6 +13,7 @@ public interface ICourseService
     Task<CourseDto?> UpdateAsync(int id, UpdateCourseDto dto, int userId, bool isAdmin = false);
     Task<bool> DeleteAsync(int id, int userId, bool isAdmin = false);
     Task<bool> EnrollAsync(int courseId, int studentId);
+    Task<bool> IsEnrolledAsync(int courseId, int studentId);
     Task<List<CourseDto>> GetTeacherCoursesAsync(int teacherId);
     Task<List<CourseDto>> GetStudentCoursesAsync(int studentId);
 }
@@ -101,6 +102,11 @@ public class CourseService : ICourseService
         _db.Enrollments.Add(new Enrollment { CourseId = courseId, StudentId = studentId });
         await _db.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<bool> IsEnrolledAsync(int courseId, int studentId)
+    {
+        return await _db.Enrollments.AnyAsync(e => e.CourseId == courseId && e.StudentId == studentId);
     }
 
     public async Task<List<CourseDto>> GetTeacherCoursesAsync(int teacherId)

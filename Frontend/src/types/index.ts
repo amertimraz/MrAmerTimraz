@@ -31,6 +31,7 @@ export interface Course {
   videoCount: number;
   testCount: number;
   enrolledCount: number;
+  isEnrolled?: boolean;
 }
 
 export interface LiveSession {

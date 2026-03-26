@@ -3,19 +3,22 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { videosApi } from '../../api/videos';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { Play, FileText, ArrowRight, Download, MessageCircle, Send, User as UserIcon } from 'lucide-react';
+import { Play, FileText, ArrowRight, Download, MessageCircle, Send, User as UserIcon, Trash2, Lock } from 'lucide-react';
 import { resolveFileUrl } from '../../config';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '../../store/authStore';
 
 export default function LessonPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [comment, setComment] = useState('');
 
   const { data: video, isLoading, error } = useQuery({
     queryKey: ['video', slug],
     queryFn: () => videosApi.getBySlug(slug!),
     enabled: !!slug,
+    retry: false,
   });
 
   const { data: comments = [], refetch: refetchComments } = useQuery({
@@ -31,7 +34,22 @@ export default function LessonPage() {
       refetchComments();
       toast.success('تم إضافة تعليقك');
     },
-    onError: () => toast.error('فشل في إضافة التعليق'),
+    onError: (err: any) => {
+      if (err.response?.status === 403) {
+        toast.error('يجب الاشتراك في الكورس للتمكن من التعليق');
+      } else {
+        toast.error('فشل في إضافة التعليق');
+      }
+    },
+  });
+
+  const deleteComment = useMutation({
+    mutationFn: (commentId: number) => videosApi.deleteComment(commentId),
+    onSuccess: () => {
+      refetchComments();
+      toast.success('تم حذف التعليق بنجاح');
+    },
+    onError: () => toast.error('فشل في حذف التعليق'),
   });
 
   const getYouTubeId = (url: string) => {
@@ -52,6 +70,27 @@ export default function LessonPage() {
   };
 
   if (isLoading) return <LoadingSpinner size="lg" />;
+
+  if ((error as any)?.response?.status === 403) {
+    return (
+      <div className="max-w-md mx-auto text-center py-20 px-4 space-y-6">
+        <div className="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-600 mx-auto">
+          <Lock size={40} />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">محتوى مغلق</h2>
+          <p className="text-gray-600 dark:text-gray-400">عذراً، يجب الاشتراك في الكورس لمشاهدة هذا الدرس المباشر.</p>
+        </div>
+        <button 
+          onClick={() => navigate('/courses')} 
+          className="btn-primary w-full"
+        >
+          استكشاف الكورسات
+        </button>
+      </div>
+    );
+  }
+
   if (error || !video) return (
     <div className="text-center py-20 px-4">
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">عذراً، الدرس غير موجود</h2>
@@ -164,7 +203,7 @@ export default function LessonPage() {
                 لا توجد تعليقات بعد. كن أول من يضيف تعليقاً!
               </div>
             ) : comments.map(c => (
-              <div key={c.id} className="flex gap-4 p-5 rounded-3xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 transition-all hover:border-primary-100 dark:hover:border-primary-900/50">
+              <div key={c.id} className="flex gap-4 p-5 rounded-3xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 transition-all hover:border-primary-100 dark:hover:border-primary-900/50 relative group/comment">
                 <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-sm">
                   {c.student.profileImage ? (
                     <img src={resolveFileUrl(c.student.profileImage)} alt={c.student.name} className="w-full h-full object-cover" />
@@ -176,10 +215,22 @@ export default function LessonPage() {
                 </div>
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wide">{c.student.name}</h4>
-                    <span className="text-[10px] text-gray-400 bg-gray-50 dark:bg-gray-700 px-2 py-0.5 rounded-full font-medium">
-                      {new Date(c.createdAt).toLocaleDateString('ar-EG', { dateStyle: 'long' })}
-                    </span>
+                    <div className="flex items-center gap-2">
+                       <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wide">{c.student.name}</h4>
+                       <span className="text-[10px] text-gray-400 bg-gray-50 dark:bg-gray-700 px-2 py-0.5 rounded-full font-medium">
+                         {new Date(c.createdAt).toLocaleDateString('ar-EG', { dateStyle: 'long' })}
+                       </span>
+                    </div>
+
+                    {user?.role === 'Admin' && (
+                      <button
+                        onClick={() => { if(window.confirm('هل أنت متأكد من حذف هذا التعليق؟')) deleteComment.mutate(c.id); }}
+                        className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        title="حذف التعليق"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                     {c.content}

@@ -22,7 +22,25 @@ public class CoursesController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var course = await _courses.GetByIdAsync(id);
-        return course == null ? NotFound() : Ok(course);
+        if (course == null) return NotFound();
+
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userIdStr, out int userId))
+            {
+                if (User.IsInRole("Admin") || User.IsInRole("Teacher") || course.IsFree)
+                {
+                    course.IsEnrolled = true;
+                }
+                else
+                {
+                    course.IsEnrolled = await _courses.IsEnrolledAsync(id, userId);
+                }
+            }
+        }
+
+        return Ok(course);
     }
 
     [HttpGet("teacher/my"), Authorize(Roles = "Teacher,Admin")]

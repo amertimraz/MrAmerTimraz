@@ -10,8 +10,13 @@ namespace EduPlatform.API.Controllers;
 public class VideosController : ControllerBase
 {
     private readonly IVideoService _videos;
+    private readonly AppDbContext _db;
 
-    public VideosController(IVideoService videos) => _videos = videos;
+    public VideosController(IVideoService videos, AppDbContext db)
+    {
+        _videos = videos;
+        _db = db;
+    }
 
     [HttpGet("course/{courseId}")]
     public async Task<IActionResult> GetByCourse(int courseId)
@@ -28,7 +33,18 @@ public class VideosController : ControllerBase
     public async Task<IActionResult> GetBySlug(string slug)
     {
         var video = await _videos.GetBySlugAsync(slug);
-        return video == null ? NotFound() : Ok(video);
+        if (video == null) return NotFound();
+
+        // Security check: Check if enrolled if it's not a free course
+        var course = await _db.Courses.FindAsync(video.CourseId);
+        if (course != null && !course.IsFree && !User.IsInRole("Admin") && !User.IsInRole("Teacher"))
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            bool isEnrolled = await _db.Enrollments.AnyAsync(e => e.CourseId == video.CourseId && e.StudentId == userId);
+            if (!isEnrolled) return StatusCode(403, "يجب الاشتراك في الكورس لمشاهدة هذا الدرس.");
+        }
+
+        return Ok(video);
     }
 
     [HttpGet("{id}/comments")]
@@ -40,6 +56,17 @@ public class VideosController : ControllerBase
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
         if (userId == 0) return Unauthorized();
+
+        var video = await _videos.GetByIdAsync(id);
+        if (video == null) return NotFound();
+
+        // Security check: Check if enrolled
+        var course = await _db.Courses.FindAsync(video.CourseId);
+        if (course != null && !course.IsFree && !User.IsInRole("Admin") && !User.IsInRole("Teacher"))
+        {
+            bool isEnrolled = await _db.Enrollments.AnyAsync(e => e.CourseId == video.CourseId && e.StudentId == userId);
+            if (!isEnrolled) return StatusCode(403, "يجب الاشتراك في الكورس للتمكن من التعليق.");
+        }
         
         var comment = await _videos.AddCommentAsync(id, userId, dto.Content);
         return Ok(comment);

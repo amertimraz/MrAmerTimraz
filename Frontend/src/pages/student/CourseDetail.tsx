@@ -125,28 +125,34 @@ export default function CourseDetail() {
             </h2>
 
             {/* Post Comment */}
-            <div className="flex gap-3 mb-8">
-              <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center text-gray-400">
-                <UserIcon size={20} />
-              </div>
-              <div className="flex-1 space-y-3">
-                <textarea
-                  value={comment}
-                  onChange={e => setComment(e.target.value)}
-                  placeholder="ضع استفسارك أو تعليقك هنا..."
-                  className="w-full input-field resize-none min-h-[80px] text-sm"
-                />
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => { if (comment.trim()) addComment.mutate(comment.trim()); }}
-                    disabled={!comment.trim() || addComment.isPending}
-                    className="btn-primary py-1.5 px-4 text-sm flex items-center gap-2"
-                  >
-                    <Send size={14} className="-rotate-45" /> إرسال
-                  </button>
+            {course.isEnrolled ? (
+              <div className="flex gap-3 mb-8">
+                <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center text-gray-400">
+                  <UserIcon size={20} />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <textarea
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    placeholder="ضع استفسارك أو تعليقك هنا..."
+                    className="w-full input-field resize-none min-h-[80px] text-sm"
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => { if (comment.trim()) addComment.mutate(comment.trim()); }}
+                      disabled={!comment.trim() || addComment.isPending}
+                      className="btn-primary py-1.5 px-4 text-sm flex items-center gap-2"
+                    >
+                      <Send size={14} className="-rotate-45" /> إرسال
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/20 rounded-2xl p-4 mb-8 text-center">
+                <p className="text-sm text-primary-700 dark:text-primary-300">يجب الاشتراك في الكورس للانضمام إلى المناقشة وطرح الأسئلة.</p>
+              </div>
+            )}
 
             {/* Comments List */}
             <div className="space-y-4">
