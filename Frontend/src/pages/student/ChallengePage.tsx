@@ -145,7 +145,7 @@ export default function ChallengePage() {
         @font-face { font-family: 'Cairo'; font-style: normal; font-weight: 400; font-display: swap; }
         .font-cairo { font-family: 'Cairo', sans-serif !important; }
         @media print {
-          @page { size: A4 portrait; margin: 1.5cm; }
+          @page { size: A4 landscape; margin: 1cm; }
           html, body, #root, .min-h-screen { 
             height: auto !important; 
             overflow: visible !important; 
