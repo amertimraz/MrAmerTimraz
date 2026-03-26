@@ -162,20 +162,27 @@ export default function ChallengePage() {
             break-inside: avoid !important; 
             page-break-inside: avoid !important; 
             display: block !important; 
-            border-bottom: 3px dashed #e2e8f0 !important; 
+            border-bottom: 2px dashed #cbd5e1 !important; 
             padding-bottom: 40px !important; 
-            margin-bottom: 40px !important;
-            page-break-after: auto !important;
+            margin-bottom: 60px !important;
+          }
+          .question-card:not(:first-child) {
+            page-break-before: auto !important;
+          }
+          /* Prevent internal elements of choices from splitting */
+          .question-card > div > div {
+             break-inside: avoid !important;
+             page-break-inside: avoid !important;
           }
           pre { 
             white-space: pre-wrap !important; 
             word-break: break-all !important; 
             font-family: monospace !important; 
-            font-size: 11px !important; 
+            font-size: 10px !important; 
             background-color: #f8fafc !important; 
             border: 1px solid #e2e8f0 !important; 
-            padding: 15px !important;
-            border-radius: 10px !important;
+            padding: 10px !important;
+            border-radius: 8px !important;
           }
           /* High-Contrast Print Colors (Hex) */
           .bg-emerald-50 { background-color: #ecfdf5 !important; }
@@ -188,7 +195,7 @@ export default function ChallengePage() {
           .text-emerald-800 { color: #065f46 !important; }
           .text-rose-800 { color: #9f1239 !important; }
           .text-amber-800 { color: #92400e !important; }
-          .border-emerald-300 { border-color: #6ee7b7 !important; }
+          .border-emerald-300 { border-color: #10b981 !important; }
           .border-slate-200 { border-color: #e2e8f0 !important; }
         }
       `}</style>
