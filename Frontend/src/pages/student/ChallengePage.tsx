@@ -407,25 +407,6 @@ export default function ChallengePage() {
                </motion.div>
             ) : (
               <motion.div key="questions" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex-1 flex flex-row overflow-hidden">
-                {/* PDF Print View (Hidden Container) */}
-                <div className="hidden print:block print-area">
-                   {test.questions?.map((q, qIdx) => (
-                     <div key={qIdx} className="question-card p-10 font-cairo" dir="rtl">
-                        <h2 className="text-2xl font-black mb-4">السؤال {qIdx + 1}: {q.description}</h2>
-                        <div className="grid grid-cols-2 gap-8">
-                           {q.snippets.map((s, sIdx) => (
-                             <div key={sIdx} className="border-2 border-slate-200 p-6 rounded-3xl bg-slate-50">
-                               <span className="font-black text-xs block mb-2">الخيار {sIdx + 1}: {s.analysisType === 'Correct' ? '(الخيار الصحيح ✅)' : ''}</span>
-                               <pre className="text-xs bg-white p-4 rounded-xl border border-slate-100" dir="ltr">{s.code}</pre>
-                               <p className="text-[10px] mt-2 font-bold text-slate-500">التحليل: {s.analysisMessage}</p>
-                             </div>
-                           ))}
-                        </div>
-                        <div className="mt-6 p-4 bg-slate-800 text-white rounded-xl text-center font-black">النتيجة المطلوبة: {q.targetOutput}</div>
-                     </div>
-                   ))}
-                </div>
-
                 {/* Question Sidebar (NOW FIRST CHILD -> RIGHT IN RTL) */}
                 <div className="w-[450px] bg-slate-50/80 border-l border-slate-200 p-12 flex flex-col gap-10 no-print">
                    <div className="space-y-6">
@@ -508,6 +489,81 @@ export default function ChallengePage() {
               </button>
           </div>
         )}
+      </div>
+
+      {/* Persistent PDF Layout (Hidden normally, shown physically when printing) */}
+      {/* Ensures it prints perfectly even on the final results page */}
+      <div className="hidden print:block print-area mt-20" dir="rtl">
+         {/* Tutorial Content */}
+         <div className="question-card p-10 font-cairo">
+            <h1 className="text-4xl font-black mb-6 text-slate-900 border-b-4 border-slate-200 pb-4 inline-block tracking-tight">الدليل التعليمي السريع للمنصة</h1>
+            
+            <div className="space-y-12">
+               <div className="space-y-6">
+                  <h2 className="text-2xl font-black text-slate-800">1. خطوات المحقق البرمجي:</h2>
+                  <div className="grid grid-cols-1 gap-4">
+                     <p className="p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold"><strong className="text-primary-600 block">✓ حدد الهدف:</strong> اسأل نفسك: ماذا يطلب السؤال أن نخرج؟ ابدأ دائماً بالنتيجة النهائية.</p>
+                     <p className="p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold"><strong className="text-rose-600 block">✓ استبعد أخطاء القواعد (Syntax):</strong> ابحث عن الأكواد التي لا يمكن للحاسوب قراءتها مثل تسمية المتغيرات بأرقام.</p>
+                     <p className="p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold"><strong className="text-amber-600 block">✓ تتبع المنطق والحساب (Logic):</strong> قم بالتعويض بالأرقام وتتبع العمليات الحسابية بنفسك.</p>
+                  </div>
+               </div>
+
+               <div className="space-y-6 border-t-2 border-dashed border-slate-200 pt-8">
+                  <h2 className="text-2xl font-black text-slate-800 tracking-tight">2. ملخص التحليل البرمجي (الأسباب الشائعة للأخطاء):</h2>
+                  <div className="grid grid-cols-2 gap-6">
+                     <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                        <h3 className="font-black text-lg text-rose-600">أ. أخطاء التسمية والتعيين</h3>
+                        <p className="text-sm font-bold text-slate-600 leading-relaxed">لا يمكن أن يبدأ اسم المتغير برقم ابداً. وعند التعيين، المتغير يسار والقيمة يمين (مثل: <code>age = 20;</code> وليس العكس).</p>
+                     </div>
+                     <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                        <h3 className="font-black text-lg text-rose-600">ب. أقواس الشرط</h3>
+                        <p className="text-sm font-bold text-slate-600 leading-relaxed">جملة <code>Else</code> لا تأخذ أقواس 조건 أبداً. بينما <code>IF</code> أو <code>Else If</code> تتطلب أقواس.</p>
+                     </div>
+                     <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                        <h3 className="font-black text-lg text-amber-600">ج. مقارنة وليس تعديل</h3>
+                        <p className="text-sm font-bold text-slate-600 leading-relaxed">كود مثل <code>x {"<"} 5</code> لا يُعدّل قيمة x وإنما يفحصها فقط. لتعديلها تستعمل <code>x = 5</code> أو <code>x++</code>.</p>
+                     </div>
+                     <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                        <h3 className="font-black text-lg text-amber-600">د. تتبع قيمة المخرجات</h3>
+                        <p className="text-sm font-bold text-slate-600 leading-relaxed">انتبه للقيمة النهائية وقت الطباعة <code>print(x)</code> هل تطبع x معدلة أم تطبع رقماً ثابتاً يخدعك؟</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div className="w-full border-t-4 border-slate-900 my-16 opacity-10"></div>
+
+         <div className="mb-10 text-center">
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">أسئلة وإجابات الاختبار</h1>
+            <p className="text-xl text-slate-500 font-bold mt-2">"{test.title}"</p>
+         </div>
+
+         {test.questions?.map((q, qIdx) => (
+           <div key={`print-q-${qIdx}`} className="question-card p-10 font-cairo mb-12">
+              <h2 className="text-2xl font-black mb-8 leading-relaxed">السؤال {qIdx + 1}: {q.description}</h2>
+              <div className="mt-4 mb-6 p-4 bg-slate-100 text-slate-600 rounded-xl font-black text-lg border-2 border-slate-200 inline-block w-full text-center">
+                 أوجد المخرجات المطلوبة: <span className="font-mono text-xl">{q.targetOutput}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-8">
+                 {q.snippets.map((s, sIdx) => {
+                    const isCorrect = s.analysisType === 'Correct';
+                    return (
+                      <div key={`print-s-${sIdx}`} className={`border-2 p-6 rounded-3xl ${isCorrect ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 bg-slate-50'}`}>
+                        <div className="flex justify-between items-center mb-4">
+                           <span className="font-black text-sm block">الخيار {sIdx + 1}</span>
+                           {isCorrect && <span className="text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full text-xs font-black">الإجابة الصحيحة ✅</span>}
+                        </div>
+                        <pre className="text-sm bg-white p-4 rounded-xl border border-slate-100 font-mono text-left leading-relaxed mb-4 overflow-x-hidden min-h-[100px]" dir="ltr">{s.code}</pre>
+                        <div className={`text-sm mt-3 font-bold leading-relaxed p-4 rounded-xl ${isCorrect ? 'text-emerald-800 bg-emerald-100' : s.analysisType === 'Syntax' ? 'text-rose-800 bg-rose-100' : 'text-amber-800 bg-amber-100'}`}>
+                           <strong className="block mb-1 text-xs uppercase opacity-80">التحليل التفصيلي:</strong> {s.analysisMessage}
+                        </div>
+                      </div>
+                    )
+                 })}
+              </div>
+           </div>
+         ))}
       </div>
     </div>
   );
