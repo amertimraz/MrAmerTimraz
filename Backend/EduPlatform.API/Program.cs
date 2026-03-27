@@ -205,10 +205,22 @@ using (var scope = app.Services.CreateScope())
                 "Id" SERIAL PRIMARY KEY,
                 "VideoId" INTEGER NOT NULL REFERENCES "Videos"("Id") ON DELETE CASCADE,
                 "StudentId" INTEGER NOT NULL REFERENCES "Users"("Id") ON DELETE CASCADE,
+                "ParentId" INTEGER REFERENCES "VideoComments"("Id") ON DELETE CASCADE,
                 "Content" TEXT NOT NULL,
                 "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
             )
             """,
+            "ALTER TABLE \"VideoComments\" ADD COLUMN IF NOT EXISTS \"ParentId\" INTEGER REFERENCES \"VideoComments\"(\"Id\") ON DELETE CASCADE",
+            """
+            CREATE TABLE IF NOT EXISTS "CommentReactions" (
+                "Id" SERIAL PRIMARY KEY,
+                "CommentId" INTEGER NOT NULL REFERENCES "VideoComments"("Id") ON DELETE CASCADE,
+                "UserId" INTEGER NOT NULL REFERENCES "Users"("Id") ON DELETE CASCADE,
+                "Type" VARCHAR(50) NOT NULL,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_CommentReactions_CommentId\" ON \"CommentReactions\"(\"CommentId\")",
             "CREATE INDEX IF NOT EXISTS \"IX_VideoComments_VideoId\" ON \"VideoComments\"(\"VideoId\")",
             "CREATE INDEX IF NOT EXISTS \"IX_VideoComments_StudentId\" ON \"VideoComments\"(\"StudentId\")",
             """
@@ -451,7 +463,7 @@ using (var scope = app.Services.CreateScope())
             "Users", "Courses", "Videos", "Tests", "Questions", "Results",
             "Enrollments", "Notifications", "PaymentRequests", "LibraryItems",
             "InteractiveQuizzes", "InteractiveQuestions", "InteractiveQuizResults",
-            "VideoComments", "LiveSessions", "LiveSessionEnrollments", "Booklets", "AppSettings", "TofasTests", "Challenges", "ChallengeSnippets"
+            "VideoComments", "CommentReactions", "LiveSessions", "LiveSessionEnrollments", "Booklets", "AppSettings", "TofasTests", "Challenges", "ChallengeSnippets"
         };
         foreach (var t in seqTables)
         {

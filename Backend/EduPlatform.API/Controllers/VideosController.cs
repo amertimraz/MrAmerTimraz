@@ -70,7 +70,7 @@ public class VideosController : ControllerBase
             if (!isEnrolled) return StatusCode(403, "يجب الاشتراك في الكورس للتمكن من التعليق.");
         }
         
-        var comment = await _videos.AddCommentAsync(id, userId, dto.Content);
+        var comment = await _videos.AddCommentAsync(id, userId, dto.Content, dto.ParentId);
         return Ok(comment);
     }
 
@@ -97,5 +97,15 @@ public class VideosController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         return await _videos.DeleteAsync(id) ? NoContent() : NotFound();
+    }
+    [HttpPost("comments/{id}/react"), Authorize]
+    public async Task<IActionResult> React(int id, [FromBody] ReactionDto dto)
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+            return Unauthorized();
+
+        await _videos.ToggleReactionAsync(id, userId, dto.Type);
+        return Ok();
     }
 }

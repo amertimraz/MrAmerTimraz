@@ -20,6 +20,12 @@ public class CreateVideoDto
 public class CommentDto
 {
     public string Content { get; set; } = string.Empty;
+    public int? ParentId { get; set; }
+}
+
+public class ReactionDto
+{
+    public ReactionType Type { get; set; }
 }
 
 public interface IVideoService
@@ -31,8 +37,9 @@ public interface IVideoService
     Task<bool> DeleteAsync(int id);
     Task<bool> UpdateAsync(int id, CreateVideoDto dto);
     Task<List<VideoComment>> GetCommentsAsync(int videoId);
-    Task<VideoComment> AddCommentAsync(int videoId, int userId, string content);
+    Task<VideoComment> AddCommentAsync(int videoId, int userId, string content, int? parentId = null);
     Task<bool> DeleteCommentAsync(int commentId);
+    Task ToggleReactionAsync(int commentId, int userId, ReactionType type);
 }
 
 public class VideoService : IVideoService
@@ -81,18 +88,24 @@ public class VideoService : IVideoService
     {
         return await _db.VideoComments
             .Include(c => c.Student)
-            .Where(c => c.VideoId == videoId)
+            .Include(c => c.Reactions)
+            .Include(c => c.Replies)
+                .ThenInclude(r => r.Student)
+            .Include(c => c.Replies)
+                .ThenInclude(r => r.Reactions)
+            .Where(c => c.VideoId == videoId && c.ParentId == null)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
 
-    public async Task<VideoComment> AddCommentAsync(int videoId, int userId, string content)
+    public async Task<VideoComment> AddCommentAsync(int videoId, int userId, string content, int? parentId = null)
     {
         var comment = new VideoComment
         {
             VideoId = videoId,
             StudentId = userId,
             Content = content,
+            ParentId = parentId,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -102,7 +115,37 @@ public class VideoService : IVideoService
         // Reload to include student info
         return await _db.VideoComments
             .Include(c => c.Student)
+            .Include(c => c.Reactions)
             .FirstAsync(c => c.Id == comment.Id);
+    }
+
+    public async Task ToggleReactionAsync(int commentId, int userId, ReactionType type)
+    {
+        var existing = await _db.CommentReactions
+            .FirstOrDefaultAsync(r => r.CommentId == commentId && r.UserId == userId);
+
+        if (existing != null)
+        {
+            if (existing.Type == type)
+            {
+                _db.CommentReactions.Remove(existing);
+            }
+            else
+            {
+                existing.Type = type;
+            }
+        }
+        else
+        {
+            _db.CommentReactions.Add(new CommentReaction
+            {
+                CommentId = commentId,
+                UserId = userId,
+                Type = type
+            });
+        }
+
+        await _db.SaveChangesAsync();
     }
 
     public async Task<bool> DeleteAsync(int id)

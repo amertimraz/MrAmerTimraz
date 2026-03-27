@@ -30,6 +30,7 @@ public class AppDbContext : DbContext
     public DbSet<InteractiveQuestion> InteractiveQuestions => Set<InteractiveQuestion>();
     public DbSet<InteractiveQuizResult> InteractiveQuizResults => Set<InteractiveQuizResult>();
     public DbSet<VideoComment> VideoComments => Set<VideoComment>();
+    public DbSet<CommentReaction> CommentReactions => Set<CommentReaction>();
     public DbSet<LiveSession> LiveSessions => Set<LiveSession>();
     public DbSet<LiveSessionEnrollment> LiveSessionEnrollments => Set<LiveSessionEnrollment>();
     public DbSet<Booklet> Booklets => Set<Booklet>();
@@ -171,6 +172,26 @@ public class AppDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(c => c.StudentId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(c => c.Parent)
+                  .WithMany(c => c.Replies)
+                  .HasForeignKey(c => c.ParentId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CommentReaction>(entity =>
+        {
+            entity.HasOne(r => r.Comment)
+                  .WithMany(c => c.Reactions)
+                  .HasForeignKey(r => r.CommentId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(r => r.User)
+                  .WithMany()
+                  .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(r => r.Type).HasConversion<string>();
         });
 
         modelBuilder.Entity<LiveSessionEnrollment>(entity =>

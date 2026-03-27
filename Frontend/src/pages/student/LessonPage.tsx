@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { videosApi } from '../../api/videos';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { Play, FileText, ArrowRight, Download, MessageCircle, Send, User as UserIcon, Trash2, Lock } from 'lucide-react';
+import CommentItem from '../../components/ui/CommentItem';
+import { Play, FileText, ArrowRight, Download, MessageCircle, Send, Lock } from 'lucide-react';
 import { resolveFileUrl } from '../../config';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
@@ -28,7 +29,8 @@ export default function LessonPage() {
   });
 
   const addComment = useMutation({
-    mutationFn: (text: string) => videosApi.addComment(video!.id, text),
+    mutationFn: ({ text, parentId }: { text: string, parentId?: number }) => 
+      videosApi.addComment(video!.id, text, parentId),
     onSuccess: () => {
       setComment('');
       refetchComments();
@@ -50,6 +52,12 @@ export default function LessonPage() {
       toast.success('تم حذف التعليق بنجاح');
     },
     onError: () => toast.error('فشل في حذف التعليق'),
+  });
+
+  const toggleReaction = useMutation({
+    mutationFn: ({ commentId, type }: { commentId: number, type: string }) => 
+      videosApi.toggleReaction(commentId, type),
+    onSuccess: () => refetchComments(),
   });
 
   const getYouTubeId = (url: string) => {
@@ -109,7 +117,7 @@ export default function LessonPage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{video.title}</h1>
         {video.description && <p className="text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">{video.description}</p>}
         <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
-           <span className="flex items-center gap-1.5"><UserIcon size={14} /> مستر عامر</span>
+           <span className="flex items-center gap-1.5"><MessageCircle size={14} /> مستر عامر</span>
            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
            <span className="text-primary-600 font-medium">رابط الدرس المباشر</span>
         </div>
@@ -171,7 +179,7 @@ export default function LessonPage() {
           {/* Post Comment */}
           <div className="flex gap-4 mb-10">
             <div className="w-12 h-12 bg-white dark:bg-gray-700 rounded-2xl shadow-sm flex items-center justify-center text-gray-400 shrink-0">
-              <UserIcon size={24} />
+               <MessageCircle size={24} />
             </div>
             <div className="flex-1 space-y-3">
               <textarea
@@ -182,7 +190,7 @@ export default function LessonPage() {
               />
               <div className="flex justify-end">
                 <button
-                  onClick={() => { if (comment.trim()) addComment.mutate(comment.trim()); }}
+                  onClick={() => { if (comment.trim()) addComment.mutate({ text: comment.trim() }); }}
                   disabled={!comment.trim() || addComment.isPending}
                   className="btn-primary flex items-center gap-2 shadow-lg shadow-primary-500/20 px-8"
                 >
@@ -203,40 +211,15 @@ export default function LessonPage() {
                 لا توجد تعليقات بعد. كن أول من يضيف تعليقاً!
               </div>
             ) : comments.map(c => (
-              <div key={c.id} className="flex gap-4 p-5 rounded-3xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 transition-all hover:border-primary-100 dark:hover:border-primary-900/50 relative group/comment">
-                <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-sm">
-                  {c.student.profileImage ? (
-                    <img src={resolveFileUrl(c.student.profileImage)} alt={c.student.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/40 dark:to-primary-800/20 flex items-center justify-center text-primary-600 dark:text-primary-400">
-                      <UserIcon size={24} />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                       <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wide">{c.student.name}</h4>
-                       <span className="text-[10px] text-gray-400 bg-gray-50 dark:bg-gray-700 px-2 py-0.5 rounded-full font-medium">
-                         {new Date(c.createdAt).toLocaleDateString('ar-EG', { dateStyle: 'long' })}
-                       </span>
-                    </div>
-
-                    {user?.role === 'Admin' && (
-                      <button
-                        onClick={() => { if(window.confirm('هل أنت متأكد من حذف هذا التعليق؟')) deleteComment.mutate(c.id); }}
-                        className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                        title="حذف التعليق"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {c.content}
-                  </p>
-                </div>
-              </div>
+              <CommentItem 
+                key={c.id} 
+                comment={c} 
+                isAdmin={user?.role === 'Admin'}
+                currentUserId={user?.id}
+                onDelete={(id) => deleteComment.mutate(id)}
+                onReact={(id, type) => toggleReaction.mutate({ commentId: id, type })}
+                onReply={(text, parentId) => addComment.mutate({ text, parentId })}
+              />
             ))}
           </div>
         </div>

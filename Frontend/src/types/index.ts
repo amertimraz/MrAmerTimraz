@@ -96,7 +96,10 @@ export interface VideoComment {
   studentId: number;
   student: User;
   content: string;
+  parentId?: number;
   createdAt: string;
+  reactions: { id: number; type: string; userId: number }[];
+  replies?: VideoComment[];
 }
 
 export interface Question {

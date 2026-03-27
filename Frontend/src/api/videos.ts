@@ -17,6 +17,11 @@ export const videosApi = {
 
   getComments: (videoId: number) => client.get<VideoComment[]>(`/videos/${videoId}/comments`).then(r => r.data),
 
-  addComment: (videoId: number, content: string) => client.post<VideoComment>(`/videos/${videoId}/comments`, { content }).then(r => r.data),
+  addComment: (videoId: number, content: string, parentId?: number) => 
+    client.post<VideoComment>(`/videos/${videoId}/comments`, { content, parentId }).then(r => r.data),
+
   deleteComment: (commentId: number) => client.delete(`/videos/comments/${commentId}`),
+  
+  toggleReaction: (commentId: number, type: string) => 
+    client.post(`/videos/comments/${commentId}/react`, { type }),
 };

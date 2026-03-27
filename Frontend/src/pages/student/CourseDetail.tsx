@@ -6,7 +6,8 @@ import { videosApi } from '../../api/videos';
 import { testsApi } from '../../api/tests';
 import type { Video } from '../../types';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { Play, FileText, ArrowRight, Clock, Youtube, Download, MessageCircle, Send, User as UserIcon, Trash2 } from 'lucide-react';
+import CommentItem from '../../components/ui/CommentItem';
+import { Play, FileText, ArrowRight, Clock, Youtube, Download, MessageCircle, Send, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { resolveFileUrl } from '../../config';
 import { useAuthStore } from '../../store/authStore';
@@ -44,13 +45,20 @@ export default function CourseDetail() {
   });
 
   const addComment = useMutation({
-    mutationFn: (text: string) => videosApi.addComment(activeVideoId!, text),
+    mutationFn: ({ text, parentId }: { text: string, parentId?: number }) => 
+      videosApi.addComment(activeVideoId!, text, parentId),
     onSuccess: () => {
       setComment('');
       refetchComments();
       toast.success('تم إضافة تعليقك');
     },
-    onError: () => toast.error('فشل في إضافة التعليق'),
+    onError: (err: any) => {
+      if (err.response?.status === 403) {
+        toast.error('يجب الاشتراك في الكورس للتمكن من التعليق');
+      } else {
+        toast.error('فشل في إضافة التعليق');
+      }
+    },
   });
 
   const deleteComment = useMutation({
@@ -60,6 +68,12 @@ export default function CourseDetail() {
       toast.success('تم حذف التعليق بنجاح');
     },
     onError: () => toast.error('فشل في حذف التعليق'),
+  });
+
+  const toggleReaction = useMutation({
+    mutationFn: ({ commentId, type }: { commentId: number, type: string }) => 
+      videosApi.toggleReaction(commentId, type),
+    onSuccess: () => refetchComments(),
   });
 
   const getYouTubeId = (url: string) => {
@@ -85,19 +99,19 @@ export default function CourseDetail() {
   if (!course) return <div className="text-center text-gray-400 mt-20">الدرس غير موجود</div>;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in" dir="rtl">
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-500 hover:text-primary-600 transition-colors">
         <ArrowRight size={18} /> العودة
       </button>
 
-      <div className="card p-6 bg-gradient-to-l from-primary-50 to-accent-50 dark:from-gray-700 dark:to-gray-800">
+      <div className="card p-6 bg-gradient-to-l from-primary-50 to-accent-50 dark:from-gray-700 dark:to-gray-800 border-none shadow-sm">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{course.title}</h1>
         {course.description && <p className="text-gray-600 dark:text-gray-300 mt-2">{course.description}</p>}
         <p className="text-sm text-gray-500 mt-3">المدرّس: {course.teacherName}</p>
       </div>
 
       {activeVideo && (
-        <div className="card overflow-hidden">
+        <div className="card overflow-hidden shadow-xl border-none ring-1 ring-gray-100 dark:ring-gray-800">
           {activeVideo.includes('youtube.com') || activeVideo.includes('vimeo.com') || activeVideo.startsWith('http') && !activeVideo.match(/\.(mp4|webm|mkv)/) ? (
             <iframe src={activeVideo} className="w-full aspect-video" allowFullScreen
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
@@ -119,74 +133,61 @@ export default function CourseDetail() {
           )}
           
           {/* Comments Section for Active Video */}
-          <div className="p-6 border-t border-gray-100 dark:border-gray-700">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-6">
+          <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-black/10">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-8">
               <MessageCircle size={20} className="text-primary-600" /> التعليقات ({videoComments.length})
             </h2>
 
             {/* Post Comment */}
             {course.isEnrolled ? (
-              <div className="flex gap-3 mb-8">
-                <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center text-gray-400">
-                  <UserIcon size={20} />
+              <div className="flex gap-4 mb-10">
+                <div className="w-12 h-12 bg-white dark:bg-gray-700 rounded-2xl shadow-sm flex items-center justify-center text-gray-400 shrink-0">
+                  <MessageCircle size={24} />
                 </div>
                 <div className="flex-1 space-y-3">
                   <textarea
                     value={comment}
                     onChange={e => setComment(e.target.value)}
                     placeholder="ضع استفسارك أو تعليقك هنا..."
-                    className="w-full input-field resize-none min-h-[80px] text-sm"
+                    className="w-full input-field resize-none min-h-[100px] border-none shadow-sm focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-800"
                   />
                   <div className="flex justify-end">
                     <button
-                      onClick={() => { if (comment.trim()) addComment.mutate(comment.trim()); }}
+                      onClick={() => { if (comment.trim()) addComment.mutate({ text: comment.trim() }); }}
                       disabled={!comment.trim() || addComment.isPending}
-                      className="btn-primary py-1.5 px-4 text-sm flex items-center gap-2"
+                      className="btn-primary flex items-center gap-2 shadow-lg shadow-primary-500/20 px-8"
                     >
-                      <Send size={14} className="-rotate-45" /> إرسال
+                      {addComment.isPending ? 'جارٍ الإرسال...' : (
+                        <>
+                          إرسال التعليق <Send size={16} className="-rotate-45" />
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/20 rounded-2xl p-4 mb-8 text-center">
-                <p className="text-sm text-primary-700 dark:text-primary-300">يجب الاشتراك في الكورس للانضمام إلى المناقشة وطرح الأسئلة.</p>
+              <div className="bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/20 rounded-2xl p-6 mb-10 text-center">
+                <p className="text-primary-700 dark:text-primary-300 font-medium">يجب الاشتراك في الكورس للانضمام إلى المناقشة وطرح الأسئلة.</p>
               </div>
             )}
 
             {/* Comments List */}
             <div className="space-y-4">
-              {videoComments.map(c => (
-                <div key={c.id} className="flex gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-700 relative group/comment">
-                  <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
-                    {c.student.profileImage ? (
-                      <img src={resolveUrl(c.student.profileImage)} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600">
-                        <UserIcon size={20} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-sm text-gray-900 dark:text-white">{c.student.name}</h4>
-                        <span className="text-[10px] text-gray-400">{new Date(c.createdAt).toLocaleDateString('ar-EG')}</span>
-                      </div>
-                      
-                      {user?.role === 'Admin' && (
-                        <button
-                          onClick={() => { if(window.confirm('هل أنت متأكد من حذف هذا التعليق؟')) deleteComment.mutate(c.id); }}
-                          className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                          title="حذف التعليق"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">{c.content}</p>
-                  </div>
+              {videoComments.length === 0 ? (
+                <div className="text-center py-12 text-gray-400 text-sm border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl">
+                  لا توجد تعليقات بعد. كن أول من يضيف تعليقاً!
                 </div>
+              ) : videoComments.map(c => (
+                <CommentItem 
+                  key={c.id} 
+                  comment={c} 
+                  isAdmin={user?.role === 'Admin'}
+                  currentUserId={user?.id}
+                  onDelete={(id) => deleteComment.mutate(id)}
+                  onReact={(id, type) => toggleReaction.mutate({ commentId: id, type })}
+                  onReply={(text, parentId) => addComment.mutate({ text, parentId })}
+                />
               ))}
             </div>
           </div>

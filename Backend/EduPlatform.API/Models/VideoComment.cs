@@ -17,4 +17,9 @@ public class VideoComment
     public string Content { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public int? ParentId { get; set; }
+    public VideoComment? Parent { get; set; }
+    public ICollection<VideoComment> Replies { get; set; } = new List<VideoComment>();
+    public ICollection<CommentReaction> Reactions { get; set; } = new List<CommentReaction>();
 }
