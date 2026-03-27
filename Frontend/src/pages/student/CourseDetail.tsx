@@ -7,7 +7,7 @@ import { testsApi } from '../../api/tests';
 import type { Video } from '../../types';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import CommentItem from '../../components/ui/CommentItem';
-import { Play, FileText, ArrowRight, Clock, Youtube, Download, MessageCircle, Send, Lock } from 'lucide-react';
+import { Play, FileText, ArrowRight, Clock, Youtube, Download, MessageCircle, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { resolveFileUrl } from '../../config';
 import { useAuthStore } from '../../store/authStore';
