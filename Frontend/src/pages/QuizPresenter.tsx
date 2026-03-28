@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -132,11 +132,21 @@ function getStageMeta(stageIdx: number) {
 /* ─── Sound FX ───────────────────────────────────────────── */
 type SoundType = 'correct' | 'wrong' | 'golden' | 'select' | 'stage' | 'end' | 'tick';
 
+let globalAudioCtx: AudioContext | null = null;
+const getAudioCtx = () => {
+  if (!globalAudioCtx) {
+    globalAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  }
+  return globalAudioCtx;
+};
+
 function useSoundFX(volume: number, enabled: boolean) {
   return useCallback((type: SoundType) => {
     if (!enabled || volume === 0) return;
     try {
-      const ctx = new AudioContext();
+      const ctx = getAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
       const beep = (freq: number, start: number, dur: number, shape: OscillatorType = 'sine', vol = 0.5) => {
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
@@ -175,7 +185,6 @@ function useSoundFX(volume: number, enabled: boolean) {
         case 'tick':
           beep(1000, 0, 0.05, 'sine', 0.18); break;
       }
-      setTimeout(() => ctx.close(), 3000);
     } catch { /* AudioContext not available */ }
   }, [volume, enabled]);
 }
@@ -304,6 +313,16 @@ export default function QuizPresenter() {
 
   /* settings */
   const [showSettings, setShowSettings] = useState(false);
+  const [performanceMode, setPerformanceMode] = useState(() => {
+    const v = localStorage.getItem('quiz-performance-mode');
+    return v === 'true'; // Default false
+  });
+  const togglePerformanceMode = () => {
+    const next = !performanceMode;
+    setPerformanceMode(next);
+    localStorage.setItem('quiz-performance-mode', String(next));
+  };
+
   const [stageCount, setStageCount] = useState(3);
   const [questionsPerStage, setQuestionsPerStage] = useState(0);
   const [mcqPerStage, setMcqPerStage] = useState(0);
@@ -566,7 +585,7 @@ export default function QuizPresenter() {
   /* ── NAME SCREEN ── */
   if (screen === 'name') return (
     <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl">
-      {isCyber ? <CyberBackground /> : <TechBackground />}
+      {isCyber ? <CyberBackground performanceMode={performanceMode} /> : <TechBackground performanceMode={performanceMode} />}
       <button onClick={toggleDark} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors z-10">
         {isDark ? <Sun size={20} /> : <Moon size={20} />}
       </button>
@@ -685,7 +704,7 @@ export default function QuizPresenter() {
   /* ── START SCREEN ── */
   if (screen === 'start') return (
     <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl">
-      {isCyber ? <CyberBackground /> : <TechBackground />}
+      {isCyber ? <CyberBackground performanceMode={performanceMode} /> : <TechBackground performanceMode={performanceMode} />}
       <div className="text-center max-w-2xl w-full relative z-10">
         {quiz.coverImageUrl ? (
           <img src={getMediaUrl(quiz.coverImageUrl)} alt={quiz.title} className="w-28 h-28 rounded-3xl object-cover mx-auto mb-6 shadow-2xl border-2 border-white/20" onError={e => { e.currentTarget.style.display='none'; }} />
@@ -797,6 +816,7 @@ export default function QuizPresenter() {
             shuffled={shuffled} toggleShuffle={toggleShuffle}
             soundVolume={soundVolume} setVolume={setVolume}
             soundEnabled={soundEnabled} toggleSound={toggleSound}
+            performanceMode={performanceMode} togglePerformanceMode={togglePerformanceMode}
             onClose={() => setShowSettings(false)}
           />
         )}
@@ -812,7 +832,7 @@ export default function QuizPresenter() {
     return (
       <div className={`min-h-screen flex items-center justify-center p-6 relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#0f172a]'}`} dir="rtl"
         style={{ animation: 'fadeIn 0.5s ease' }}>
-        {isCyber ? <CyberBackground /> : <TechBackground />}
+        {isCyber ? <CyberBackground performanceMode={performanceMode} /> : <TechBackground performanceMode={performanceMode} />}
         <div className="text-center max-w-lg w-full relative z-10">
           <div className="text-8xl mb-4" style={{ animation: 'bounceIn 0.6s ease' }}>{meta.emoji}</div>
           <h2 className={`text-4xl font-black mb-2 bg-gradient-to-r ${meta.color} bg-clip-text text-transparent`}>
@@ -864,7 +884,7 @@ export default function QuizPresenter() {
     const myPos = globalLeaderboard.findIndex((r: any) => r.name === playerName && r.score === score);
     return (
       <div className={`min-h-screen flex items-center justify-center p-6 overflow-y-auto relative ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
-        {isCyber ? <CyberBackground /> : null}
+        {isCyber ? <CyberBackground performanceMode={performanceMode} /> : null}
         <div className="text-center max-w-xl w-full py-6">
           <div className="text-7xl mb-3">{rank.emoji}</div>
           <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border text-lg font-black mb-4 ${rank.bg} ${rank.color}`}>
@@ -1045,9 +1065,16 @@ export default function QuizPresenter() {
 
   /* ── PLAY SCREEN ── */
   const q = questions[currentIdx];
-  const options = q ? parseOptions(q.options) : [];
+  const options = useMemo(() => q ? parseOptions(q.options) : [], [q]);
   const correctIdx = q ? getCorrectIdx(q) : -1;
   const timerPct = timerDuration > 0 ? (timeLeft / timerDuration) * 100 : 0;
+
+  const handleSelect = useCallback((i: number) => {
+    if (revealed) return;
+    playSound('select');
+    setSelectedOption(i);
+    handleRevealResult(i);
+  }, [revealed, playSound, handleRevealResult]);
 
   return (
     <div className={`min-h-[100dvh] h-[100dvh] flex flex-col select-none relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
@@ -1063,7 +1090,7 @@ export default function QuizPresenter() {
           <RotateCcw size={16} />
         </button>
       </div>
-      {isCyber ? <CyberBackground /> : <TechBackground />}
+      {isCyber ? <CyberBackground performanceMode={performanceMode} /> : <TechBackground performanceMode={performanceMode} />}
 
       {/* Top progress bar */}
       <div className={`h-1.5 w-full shrink-0 bg-white/10`}>
@@ -1127,14 +1154,7 @@ export default function QuizPresenter() {
         </div>
       </div>
 
-      {/* Timer bar */}
-      {timerEnabled && (
-        <div className="px-4 mb-1 shrink-0">
-          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all duration-1000 ${timerPct > 50 ? 'bg-emerald-500' : timerPct > 25 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${timerPct}%` }} />
-          </div>
-        </div>
-      )}
+      <TimerBar enabled={timerEnabled} pct={timerPct} />
 
       {/* Settings panel */}
       {showSettings && (
@@ -1154,6 +1174,7 @@ export default function QuizPresenter() {
             shuffled={shuffled} toggleShuffle={toggleShuffle}
             soundVolume={soundVolume} setVolume={setVolume}
             soundEnabled={soundEnabled} toggleSound={toggleSound}
+            performanceMode={performanceMode} togglePerformanceMode={togglePerformanceMode}
             onClose={() => setShowSettings(false)}
             inline
           />
@@ -1162,17 +1183,17 @@ export default function QuizPresenter() {
 
       {/* Golden question badge */}
       {isGolden && (
-        <div className="px-4 mb-2 shrink-0 relative z-10" style={{ animation: 'goldenFloat 3s ease-in-out infinite' }}>
+        <div className="px-4 mb-2 shrink-0 relative z-10" style={{ animation: performanceMode ? 'none' : 'goldenFloat 3s ease-in-out infinite' }}>
           <div className="flex items-center justify-center gap-3 py-2 bg-gradient-to-r from-yellow-600 via-yellow-400 to-amber-600 border border-yellow-300/50 rounded-2xl text-[#1e1b4b] shadow-[0_0_25px_rgba(251,191,36,0.3)]"
-            style={{ animation: 'popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+            style={{ animation: performanceMode ? 'none' : 'popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
             <div className="flex -space-x-1">
-              <Star size={18} fill="currentColor" className="text-[#1e1b4b] animate-[sparkleRotate_4s_linear_infinite]" />
-              <Star size={18} fill="currentColor" className="text-[#1e1b4b] animate-[sparkleRotate_3s_linear_infinite_reverse]" />
+              <Star size={18} fill="currentColor" className={`text-[#1e1b4b] ${performanceMode ? '' : 'animate-[sparkleRotate_4s_linear_infinite]'}`} />
+              <Star size={18} fill="currentColor" className={`text-[#1e1b4b] ${performanceMode ? '' : 'animate-[sparkleRotate_3s_linear_infinite_reverse]'}`} />
             </div>
             <span className="text-base font-black tracking-tight">سؤال ذهبي — فرصة لمضاعفة النقاط! 💰</span>
             <div className="flex -space-x-1">
-              <Star size={18} fill="currentColor" className="text-[#1e1b4b] animate-[sparkleRotate_3s_linear_infinite]" />
-              <Star size={18} fill="currentColor" className="text-[#1e1b4b] animate-[sparkleRotate_4s_linear_infinite_reverse]" />
+              <Star size={18} fill="currentColor" className={`text-[#1e1b4b] ${performanceMode ? '' : 'animate-[sparkleRotate_3s_linear_infinite]'}`} />
+              <Star size={18} fill="currentColor" className={`text-[#1e1b4b] ${performanceMode ? '' : 'animate-[sparkleRotate_4s_linear_infinite_reverse]'}`} />
             </div>
           </div>
         </div>
@@ -1182,7 +1203,7 @@ export default function QuizPresenter() {
       {showMotiv && (
         <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
           <div className="text-3xl md:text-5xl font-black text-white text-center px-8 py-4 rounded-2xl bg-black/40 backdrop-blur-sm"
-            style={{ animation: 'popIn 0.3s ease, fadeOut 0.5s ease 1.5s forwards' }}>
+            style={{ animation: performanceMode ? 'none' : 'popIn 0.3s ease, fadeOut 0.5s ease 1.5s forwards' }}>
             {motivMsg}
           </div>
         </div>
@@ -1191,92 +1212,22 @@ export default function QuizPresenter() {
       {/* Question + Options Container (Scrollable) */}
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 custom-scrollbar">
         <div className="min-h-full flex flex-col items-center justify-center py-4">
-          <div key={animKey} className="w-full max-w-3xl" style={{ animation: 'slideUp 0.35s ease-out', zoom: zoom }}>
-
-          {/* Question card */}
-          <div className={`relative rounded-3xl border mb-4 overflow-hidden transition-all duration-500 ${isGolden ? 'border-yellow-400/80 shadow-[0_0_30px_rgba(251,191,36,0.2)]' : 'border-white/10'}`}
-               style={isGolden ? { animation: 'goldenPulse 2s infinite ease-in-out' } : {}}>
-            {/* Gradient top bar */}
-            {isCyber ? (
-              <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-primary-500/30">
-                <div className="flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-red-500/30" />
-                  <div className="w-2 h-2 rounded-full bg-yellow-500/30" />
-                  <div className="w-2 h-2 rounded-full bg-green-500/30" />
-                </div>
-                <div className="text-[10px] font-mono text-primary-500/50 uppercase tracking-[0.2em]">System.Diagnostic.Quiz</div>
-              </div>
-            ) : (
-              <div className={`h-1.5 w-full ${isGolden ? 'bg-gradient-to-r from-yellow-600 via-yellow-300 to-amber-600' : `bg-gradient-to-l ${currentMeta.color}`}`} />
-            )}
-            <div className={`p-5 md:p-6 backdrop-blur-md ${isCyber ? 'bg-black/80' : isGolden ? 'bg-gradient-to-br from-yellow-500/10 to-amber-600/10' : 'bg-white/5'}`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs font-black px-2.5 py-1 rounded-full ${isGolden ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-[#1e1b4b]' : `bg-gradient-to-r ${currentMeta.color} text-white`}`}>
-                    {currentIdx + 1} / {questions.length}
-                  </span>
-                  {isGolden && (
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/10 rounded-full">
-                      <Star size={12} fill="#fbbf24" className="text-yellow-400 animate-pulse" />
-                      <span className="text-[10px] text-yellow-400 font-black uppercase tracking-widest">Premium Question</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-start gap-2" dir="rtl">
-                <span className="text-3xl shrink-0 mt-0.5 leading-none">{q ? getQuestionIcon(q.text) : '💡'}</span>
-                <div className={`text-xl md:text-3xl font-black text-white leading-tight text-right flex-1 ${isCyber ? 'text-primary-400' : ''}`}>
-                  {renderContent(q?.text || '')}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Options */}
-          {q?.type === 'TrueFalse' ? (
-            <div key={`tf-${animKey}`} className="grid grid-cols-2 gap-3" style={{ animation: 'slideUp 0.45s ease-out' }}>
-              {[{ val: 'true', label: '✅ صح', bg: 'bg-emerald-500', hover: 'hover:bg-emerald-400', dim: 'bg-emerald-900/30' },
-                { val: 'false', label: '❌ خطأ', bg: 'bg-red-500', hover: 'hover:bg-red-400', dim: 'bg-red-900/30' }]
-                .map((opt, i) => {
-                  const isCorrect = revealed && correctIdx === i;
-                  const isWrong = revealed && selectedOption === i && !isCorrect;
-                  return (
-                    <button key={opt.val}
-                      onClick={() => { if (!revealed) { playSound('select'); setSelectedOption(i); handleRevealResult(i); } }}
-                      className={`py-12 rounded-2xl font-black text-2xl text-white transition-all duration-300
-                        ${revealed ? isCorrect ? `${opt.bg} scale-105 ring-4 ring-white/40 shadow-2xl` : `${opt.dim} opacity-40` : `${opt.bg} ${opt.hover} active:scale-95 cursor-pointer shadow-lg`}
-                        ${isWrong ? 'ring-2 ring-red-300/50' : ''}`}
-                    >
-                      {opt.label}{isCorrect && <div className="text-xl mt-1">✨</div>}
-                    </button>
-                  );
-                })}
-            </div>
-          ) : (
-            <div key={`mcq-${animKey}`} className="grid grid-cols-2 gap-2.5" style={{ animation: 'slideUp 0.45s ease-out' }}>
-              {options.map((opt, i) => {
-                const color = OPTION_COLORS[i] ?? OPTION_COLORS[0];
-                const isCorrect = revealed && correctIdx === i;
-                const isSelected = selectedOption === i;
-                return (
-                  <button key={i}
-                    onClick={() => { if (!revealed) { playSound('select'); setSelectedOption(i); handleRevealResult(i); } }}
-                    className={`p-6 rounded-2xl text-right transition-all duration-300
-                      ${revealed ? isCorrect ? `${isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600' : color.bg} scale-[1.03] ring-4 ring-white/40 shadow-2xl` : `${color.dim} opacity-40` : `${isGolden ? 'bg-white/10 border-2 border-yellow-500/30 hover:bg-yellow-500/10' : color.bg + ' ' + color.hover} active:scale-95 cursor-pointer shadow-md ${isSelected ? 'ring-4 ring-white/50 scale-[1.02]' : ''}`}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 ${isCyber ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-[#191d31]' : 'bg-black/25 text-white'}`}>{color.letter}</span>
-                      <div className={`font-bold text-lg md:text-xl leading-snug flex-1 ${isCyber ? 'text-gray-300' : 'text-white'}`}>
-                        {renderContent(opt)}
-                      </div>
-                      {isCorrect && <span className="mr-auto text-xl shrink-0">✨</span>}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          </div>
+          <QuestionView
+            q={q}
+            options={options}
+            correctIdx={correctIdx}
+            revealed={revealed}
+            selectedOption={selectedOption}
+            isGolden={isGolden}
+            isCyber={isCyber}
+            performanceMode={performanceMode}
+            currentIdx={currentIdx}
+            totalQuestions={questions.length}
+            currentMetaColor={currentMeta.color}
+            zoom={zoom}
+            animKey={animKey}
+            onSelect={handleSelect}
+          />
         </div>
       </div>
 
@@ -1369,20 +1320,21 @@ export default function QuizPresenter() {
 }
 
 /* ─── Cyber Background ──────────────────────────────────── */
-function CyberBackground() {
+const CyberBackground = memo(({ performanceMode }: { performanceMode?: boolean }) => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden>
       {/* Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.05)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)]" 
-           style={{ animation: 'cyberGrid 3s linear infinite' }} />
+      <div className={`absolute inset-0 bg-[linear-gradient(rgba(13,148,136,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(13,148,136,0.05)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] ${performanceMode ? '' : 'animate-[cyberGrid_3s_linear_infinite]'}`} />
       
-      {/* Scanning Line */}
-      <div className="absolute left-0 right-0 h-px bg-primary-500/20 shadow-[0_0_15px_rgba(13,148,136,0.5)] z-0"
-           style={{ animation: 'cyberScan 6s ease-in-out infinite' }} />
+      {/* Scanning Line - Disabled in performance mode */}
+      {!performanceMode && (
+        <div className="absolute left-0 right-0 h-px bg-primary-500/20 shadow-[0_0_15px_rgba(13,148,136,0.5)] z-0"
+             style={{ animation: 'cyberScan 6s ease-in-out infinite' }} />
+      )}
 
-      {/* Floating Elements (Binary / Code) */}
-      {[...Array(12)].map((_, i) => (
-        <div key={i} className="absolute text-[8px] font-mono text-primary-500/10 whitespace-nowrap"
+      {/* Floating Elements (Binary / Code) - Reduced in performance mode */}
+      {[...Array(performanceMode ? 4 : 12)].map((_, i) => (
+        <div key={i} className={`absolute text-[8px] font-mono text-primary-500/10 whitespace-nowrap ${performanceMode ? '' : 'animate-pulse'}`}
              style={{ 
                left: `${Math.random() * 100}%`, 
                top: `${Math.random() * 100}%`,
@@ -1394,10 +1346,12 @@ function CyberBackground() {
       ))}
     </div>
   );
-}
+});
+
+CyberBackground.displayName = 'CyberBackground';
 
 /* ─── Tech Background ───────────────────────────────────── */
-function TechBackground() {
+const TechBackground = memo(({ performanceMode }: { performanceMode?: boolean }) => {
   const items = [
     { icon: '💻', x: 5,  y: 10, s: 2.5, r: -15, d: 0   },
     { icon: '📱', x: 20, y: 5,  s: 2.0, r:  10, d: 0.4 },
@@ -1416,9 +1370,11 @@ function TechBackground() {
     { icon: '📲', x: 55, y: 22, s: 2.0, r:  14, d: 1.1 },
     { icon: '🔧', x: 2,  y: 75, s: 2.1, r: -18, d: 2.0 },
   ];
+  const finalItems = performanceMode ? items.slice(0, 6) : items;
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden>
-      {items.map((item, i) => (
+      {finalItems.map((item, i) => (
         <span
           key={i}
           className="absolute"
@@ -1428,14 +1384,145 @@ function TechBackground() {
             fontSize: `${item.s}rem`,
             transform: `rotate(${item.r}deg)`,
             opacity: 0.05,
-            animation: `techFloat ${4 + (i % 3)}s ease-in-out infinite alternate`,
+            animation: performanceMode ? undefined : `techFloat ${4 + (i % 3)}s ease-in-out infinite alternate`,
             animationDelay: `${item.d}s`,
           }}
         >{item.icon}</span>
       ))}
     </div>
   );
+});
+
+TechBackground.displayName = 'TechBackground';
+
+/* ─── Question View ─────────────────────────────────────── */
+interface QuestionViewProps {
+  q: InteractiveQuestion;
+  options: string[];
+  correctIdx: number;
+  revealed: boolean;
+  selectedOption: number | null;
+  isGolden: boolean;
+  isCyber: boolean;
+  performanceMode: boolean;
+  currentIdx: number;
+  totalQuestions: number;
+  currentMetaColor: string;
+  zoom: number;
+  animKey: number;
+  onSelect: (i: number) => void;
 }
+
+const QuestionView = memo(({
+  q, options, correctIdx, revealed, selectedOption, isGolden, isCyber, performanceMode,
+  currentIdx, totalQuestions, currentMetaColor, zoom, animKey, onSelect
+}: QuestionViewProps) => {
+  return (
+    <div key={animKey} className="w-full max-w-3xl mx-auto" style={{ animation: performanceMode ? 'none' : 'slideUp 0.35s ease-out', zoom: zoom }}>
+      {/* Question card */}
+      <div className={`relative rounded-3xl border mb-4 overflow-hidden transition-all duration-500 ${isGolden ? 'border-yellow-400/80 shadow-[0_0_30px_rgba(251,191,36,0.2)]' : 'border-white/10'}`}
+           style={isGolden && !performanceMode ? { animation: 'goldenPulse 2s infinite ease-in-out' } : {}}>
+        {/* Gradient top bar */}
+        {isCyber ? (
+          <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-primary-500/30">
+            <div className="flex gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-red-500/30" />
+              <div className="w-2 h-2 rounded-full bg-yellow-500/30" />
+              <div className="w-2 h-2 rounded-full bg-green-500/30" />
+            </div>
+            <div className="text-[10px] font-mono text-primary-500/50 uppercase tracking-[0.2em]">System.Diagnostic.Quiz</div>
+          </div>
+        ) : (
+          <div className={`h-1.5 w-full ${isGolden ? 'bg-gradient-to-r from-yellow-600 via-yellow-300 to-amber-600' : `bg-gradient-to-l ${currentMetaColor}`}`} />
+        )}
+        <div className={`p-5 md:p-6 ${performanceMode ? '' : 'backdrop-blur-md'} ${isCyber ? 'bg-black/80' : isGolden ? 'bg-gradient-to-br from-yellow-500/10 to-amber-600/10' : 'bg-white/5'}`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-black px-2.5 py-1 rounded-full ${isGolden ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-[#1e1b4b]' : `bg-gradient-to-r ${currentMetaColor} text-white`}`}>
+                {currentIdx + 1} / {totalQuestions}
+              </span>
+              {isGolden && (
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/10 rounded-full">
+                  <Star size={12} fill="#fbbf24" className={`text-yellow-400 ${performanceMode ? '' : 'animate-pulse'}`} />
+                  <span className="text-[10px] text-yellow-400 font-black uppercase tracking-widest">Premium Question</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex items-start gap-2" dir="rtl">
+            <span className="text-3xl shrink-0 mt-0.5 leading-none">{q ? getQuestionIcon(q.text) : '💡'}</span>
+            <div className={`text-xl md:text-3xl font-black text-white leading-tight text-right flex-1 ${isCyber ? 'text-primary-400' : ''}`}>
+              {renderContent(q?.text || '')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Options */}
+      {q?.type === 'TrueFalse' ? (
+        <div key={`tf-${animKey}`} className="grid grid-cols-2 gap-3" style={{ animation: performanceMode ? 'none' : 'slideUp 0.45s ease-out' }}>
+          {[{ val: 'true', label: '✅ صح', bg: 'bg-emerald-500', hover: 'hover:bg-emerald-400', dim: 'bg-emerald-900/30' },
+            { val: 'false', label: '❌ خطأ', bg: 'bg-red-500', hover: 'hover:bg-red-400', dim: 'bg-red-900/30' }]
+            .map((opt, i) => {
+              const isCorrect = revealed && correctIdx === i;
+              const isWrong = revealed && selectedOption === i && !isCorrect;
+              return (
+                <button key={opt.val}
+                  onClick={() => { if (!revealed) onSelect(i); }}
+                  className={`py-12 rounded-2xl font-black text-2xl text-white transition-all duration-300
+                    ${revealed ? isCorrect ? `${opt.bg} scale-105 ring-4 ring-white/40 shadow-2xl` : `${opt.dim} opacity-40` : `${opt.bg} ${opt.hover} active:scale-95 cursor-pointer shadow-lg`}
+                    ${isWrong ? 'ring-2 ring-red-300/50' : ''}`}
+                >
+                  {opt.label}{isCorrect && <div className="text-xl mt-1">✨</div>}
+                </button>
+              );
+            })}
+        </div>
+      ) : (
+        <div key={`mcq-${animKey}`} className="grid grid-cols-2 gap-2.5" style={{ animation: performanceMode ? 'none' : 'slideUp 0.45s ease-out' }}>
+          {options.map((opt, i) => {
+            const color = OPTION_COLORS[i] ?? OPTION_COLORS[0];
+            const isCorrect = revealed && correctIdx === i;
+            const isSelected = selectedOption === i;
+            return (
+              <button key={i}
+                onClick={() => { if (!revealed) onSelect(i); }}
+                className={`p-6 rounded-2xl text-right transition-all duration-300
+                  ${revealed ? isCorrect ? `${isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600' : color.bg} scale-[1.03] ring-4 ring-white/40 shadow-2xl` : `${color.dim} opacity-40` : `${isGolden ? 'bg-white/10 border-2 border-yellow-500/30 hover:bg-yellow-500/10' : color.bg + ' ' + color.hover} active:scale-95 cursor-pointer shadow-md ${isSelected ? 'ring-4 ring-white/50 scale-[1.02]' : ''}`}`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 ${isCyber ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : isGolden ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-[#191d31]' : 'bg-black/25 text-white'}`}>{color.letter}</span>
+                  <div className={`font-bold text-lg md:text-xl leading-snug flex-1 ${isCyber ? 'text-gray-300' : 'text-white'}`}>
+                    {renderContent(opt)}
+                  </div>
+                  {isCorrect && <span className="mr-auto text-xl shrink-0">✨</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+});
+
+QuestionView.displayName = 'QuestionView';
+
+/* ─── Timer Bar ─────────────────────────────────────────── */
+const TimerBar = memo(({ enabled, pct }: { enabled: boolean; pct: number }) => {
+  if (!enabled) return null;
+  return (
+    <div className="px-4 mb-1 shrink-0">
+      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div 
+          className={`h-full rounded-full transition-all duration-1000 ${pct > 50 ? 'bg-emerald-500' : pct > 25 ? 'bg-amber-500' : 'bg-red-500'}`} 
+          style={{ width: `${pct}%` }} 
+        />
+      </div>
+    </div>
+  );
+});
+TimerBar.displayName = 'TimerBar';
 
 /* ─── Support Modal ─────────────────────────────────────── */
 function SupportModal({ onClose }: { onClose: () => void }) {
@@ -1550,7 +1637,7 @@ interface SocialBannerProps {
   facebookUrl?: string | null;
 }
 
-function SocialBanner({ compact = false, teacherName, teacherImage, whatsappUrl, youtubeUrl, facebookUrl }: SocialBannerProps) {
+const SocialBanner = memo(({ compact = false, teacherName, teacherImage, whatsappUrl, youtubeUrl, facebookUrl }: SocialBannerProps) => {
   const name     = teacherName  || DEFAULT_TEACHER.name;
   const image    = getMediaUrl(teacherImage) || DEFAULT_TEACHER.image;
   const whatsapp = whatsappUrl  || DEFAULT_TEACHER.whatsapp;
@@ -1598,10 +1685,12 @@ function SocialBanner({ compact = false, teacherName, teacherImage, whatsappUrl,
       </div>
     </div>
   );
-}
+});
+
+SocialBanner.displayName = 'SocialBanner';
 
 /* ─── Settings Panel ──────────────────────────────────────── */
-function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuestionsPerStage, mcqPerStage, setMcqPerStage, tfPerStage, setTfPerStage, goldenEvery, setGoldenEvery, timerEnabled, setTimerEnabled, timerDuration, setTimerDuration, shuffled, toggleShuffle, soundVolume, setVolume, soundEnabled, toggleSound, onClose, inline }: {
+function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuestionsPerStage, mcqPerStage, setMcqPerStage, tfPerStage, setTfPerStage, goldenEvery, setGoldenEvery, timerEnabled, setTimerEnabled, timerDuration, setTimerDuration, shuffled, toggleShuffle, soundVolume, setVolume, soundEnabled, toggleSound, performanceMode, togglePerformanceMode, onClose, inline }: {
   stageCount: number; setStageCount: (n: number) => void;
   questionsPerStage: number; setQuestionsPerStage: (n: number) => void;
   mcqPerStage: number; setMcqPerStage: (n: number) => void;
@@ -1612,6 +1701,7 @@ function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuesti
   shuffled: boolean; toggleShuffle: () => void;
   soundVolume: number; setVolume: (v: number) => void;
   soundEnabled: boolean; toggleSound: () => void;
+  performanceMode: boolean; togglePerformanceMode: () => void;
   onClose: () => void;
   inline?: boolean;
 }) {
@@ -1706,6 +1796,19 @@ function SettingsPanel({ stageCount, setStageCount, questionsPerStage, setQuesti
             <span className="text-xs text-gray-400 w-8 text-center">{Math.round(soundVolume * 100)}%</span>
           </div>
         )}
+      </div>
+
+      {/* Performance Mode */}
+      <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+        <label className="flex items-center justify-between cursor-pointer">
+          <div className="flex flex-col">
+            <span className="text-gray-300 text-xs font-bold">وضع الأداء العالي</span>
+            <span className="text-gray-500 text-[10px]">تقليل الحركات لتحسين السرعة</span>
+          </div>
+          <button onClick={togglePerformanceMode} className={`w-10 h-5 rounded-full transition-colors relative ${performanceMode ? 'bg-primary-500' : 'bg-gray-600'}`}>
+            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${performanceMode ? 'right-0.5' : 'left-0.5'}`} />
+          </button>
+        </label>
       </div>
 
       <label className="flex items-center justify-between cursor-pointer">
