@@ -247,7 +247,7 @@ export default function ChallengePage() {
       </div>
 
       {/* Main Experience Container */}
-      <div className="no-print w-full max-w-[1280px] min-h-[750px] h-[85vh] bg-white shadow-2xl rounded-[3rem] border border-slate-300 relative overflow-hidden flex flex-col transition-all duration-700">
+      <div className="no-print w-full max-w-[1280px] md:min-h-[750px] min-h-0 h-auto md:h-[85vh] bg-white shadow-2xl rounded-2xl md:rounded-[3rem] border border-slate-300 relative overflow-hidden flex flex-col transition-all duration-700">
         
         {/* Notebook Background */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 0)', backgroundSize: '24px 24px' }} />
@@ -475,9 +475,9 @@ export default function ChallengePage() {
                   </button>
                </motion.div>
             ) : (
-              <motion.div key="questions" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex-1 flex flex-row overflow-hidden">
+              <motion.div key="questions" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex-1 flex flex-col md:flex-row overflow-hidden">
                 {/* Question Sidebar (NOW FIRST CHILD -> RIGHT IN RTL) */}
-                <div className="w-[450px] bg-slate-50/80 border-l border-slate-200 p-12 flex flex-col gap-10 no-print">
+                <div className="w-full md:w-[450px] bg-slate-50/80 border-l border-slate-200 p-6 md:p-12 flex flex-col gap-6 md:gap-10 no-print overflow-y-auto md:overflow-visible">
                    <div className="space-y-6">
                      <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary-500/20"><Sparkles size={12} /> تحدي #{currentIdx + 1}</div>
                      <div className="p-8 bg-primary-50 border-2 border-primary-100 rounded-[2.5rem] shadow-sm">
@@ -508,21 +508,21 @@ export default function ChallengePage() {
                          className={`relative group cursor-pointer border-[3px] transition-all duration-500 rounded-[2.5rem] overflow-hidden bg-white/70 backdrop-blur-xl ${selectedId === idx ? 'border-primary-500 shadow-2xl scale-[1.01]' : 'border-slate-100 hover:border-primary-200 hover:bg-white'} ${isRevealed && snippet.analysisType === 'Correct' ? 'border-emerald-500 bg-emerald-50/50' : isRevealed && selectedId === idx && snippet.analysisType !== 'Correct' ? 'border-rose-500 bg-rose-50/50' : ''}`}
                        >
                          <div className={`absolute top-0 right-0 w-3 h-full transition duration-500 z-20 ${selectedId === idx ? 'bg-primary-500' : 'bg-transparent'}`} />
-                         <div className="flex flex-col md:flex-row items-stretch min-h-[140px]">
-                           <div className="w-20 bg-slate-50/80 flex flex-col items-center justify-center border-l border-slate-100 group-hover:bg-primary-50 transition no-print z-10">
+                         <div className="flex flex-col md:flex-row items-stretch min-h-[100px] md:min-h-[140px]">
+                           <div className="w-full md:w-20 bg-slate-50/80 flex flex-row md:flex-col items-center justify-center border-l border-slate-100 group-hover:bg-primary-50 transition no-print z-10 p-2 md:p-0">
                               <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black transition duration-500 ${selectedId === idx ? 'bg-primary-500 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-200'}`}>{idx + 1}</div>
                            </div>
-                           <div className="flex-1 p-8 flex flex-col justify-center relative z-10">
+                           <div className="flex-1 p-4 md:p-8 flex flex-col justify-center relative z-10">
                              <div className="overflow-x-auto custom-scrollbar-horizontal">
                                <pre className="font-mono text-slate-800 text-sm leading-relaxed whitespace-pre text-left font-sans" dir="ltr" style={{ unicodeBidi: 'isolate' }}>{snippet.code}</pre>
                              </div>
                            </div>
                            <AnimatePresence>
                              {isRevealed && (
-                               <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 300, opacity: 1 }} exit={{ width: 0, opacity: 0 }}
+                               <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: typeof window !== 'undefined' && window.innerWidth > 768 ? 300 : '100%', height: 'auto', opacity: 1 }} exit={{ width: 0, opacity: 0 }}
                                  className={`overflow-hidden flex flex-col justify-center border-r-2 border-dashed z-0 ${snippet.analysisType === 'Correct' ? 'bg-emerald-50 border-emerald-200' : snippet.analysisType === 'Syntax' ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'}`}
                                >
-                                 <div className={`w-[300px] p-6 text-sm font-bold ${snippet.analysisType === 'Correct' ? 'text-emerald-800' : snippet.analysisType === 'Syntax' ? 'text-rose-800' : 'text-amber-800'}`}>
+                                 <div className={`w-full md:w-[300px] p-4 md:p-6 text-sm font-bold ${snippet.analysisType === 'Correct' ? 'text-emerald-800' : snippet.analysisType === 'Syntax' ? 'text-rose-800' : 'text-amber-800'}`}>
                                     <div className="flex items-center gap-2 mb-3">
                                       {snippet.analysisType === 'Correct' ? <Trophy size={18} /> : <HelpCircle size={18} />}
                                       <span className="text-[11px] uppercase font-black opacity-80 text-slate-500">التحليل التفصيلي</span>
@@ -543,11 +543,11 @@ export default function ChallengePage() {
         </div>
 
         {!showGuide && !isTestFinished && (
-          <div className="h-20 bg-slate-50 border-t border-slate-100 px-10 flex items-center justify-between no-print relative z-[60] font-cairo">
+          <div className="min-h-20 py-4 md:py-0 bg-slate-50 border-t border-slate-100 px-4 md:px-10 flex flex-col md:flex-row items-center justify-between no-print relative z-[60] font-cairo gap-4">
               <button onClick={() => setCurrentIdx(prev => Math.max(0, prev - 1))} disabled={currentIdx === 0} className="flex items-center gap-2 font-black text-slate-400 hover:text-slate-800 transition disabled:opacity-20"><ChevronRight size={24} /> السؤال السابق</button>
-              <div className="flex gap-2 font-black text-xs text-slate-400 px-10">
+              <div className="flex gap-1 md:gap-2 font-black text-xs text-slate-400 px-2 md:px-10 overflow-x-auto max-w-full py-1">
                 {test.questions && [...Array(test.questions.length)].map((_, i) => (
-                  <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIdx ? 'w-12 bg-primary-500' : userAnswers[i] !== undefined ? 'w-4 bg-emerald-400' : 'w-4 bg-slate-200'}`} />
+                  <div key={i} className={`h-1.5 min-w-[1rem] rounded-full transition-all duration-500 ${i === currentIdx ? 'w-8 md:w-12 bg-primary-500' : userAnswers[i] !== undefined ? 'w-3 md:w-4 bg-emerald-400' : 'w-3 md:w-4 bg-slate-200'}`} />
                 ))}
               </div>
               <button 

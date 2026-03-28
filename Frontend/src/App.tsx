@@ -1,64 +1,72 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/authStore';
 import type { UserRole } from './types';
 
-import LandingLayout         from './components/landing/LandingLayout';
-import HomePage              from './pages/landing/HomePage';
-import CoursesPage           from './pages/landing/CoursesPage';
-import AboutPage             from './pages/landing/AboutPage';
-import ContactPage           from './pages/landing/ContactPage';
+// Layouts (Static)
+import LandingLayout from './components/landing/LandingLayout';
+import DashboardLayout from './components/layout/DashboardLayout';
 
-import DashboardLayout       from './components/layout/DashboardLayout';
-import LoginPage             from './pages/LoginPage';
-import RegisterPage          from './pages/RegisterPage';
+// Shared Loading Fallback
+const LoadingFallback = () => (
+  <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+    <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
-import StudentDashboard      from './pages/student/StudentDashboard';
-import StudentCourses        from './pages/student/StudentCourses';
-import CourseDetail          from './pages/student/CourseDetail';
-import TakeTest              from './pages/student/TakeTest';
-import StudentResults        from './pages/student/StudentResults';
-import GamesPage             from './pages/student/GamesPage';
-import NotificationsPage     from './pages/student/NotificationsPage';
-import LessonPage            from './pages/student/LessonPage';
-import LiveSessionsPage      from './pages/student/LiveSessionsPage';
-import BookletsPage          from './pages/student/BookletsPage';
-import BookletDetailsPage    from './pages/student/BookletDetailsPage';
-import MyBookletsPage        from './pages/student/MyBookletsPage';
+// Lazy Pages
+const HomePage = lazy(() => import('./pages/landing/HomePage'));
+const CoursesPage = lazy(() => import('./pages/landing/CoursesPage'));
+const AboutPage = lazy(() => import('./pages/landing/AboutPage'));
+const ContactPage = lazy(() => import('./pages/landing/ContactPage'));
+const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 
+const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'));
+const StudentCourses = lazy(() => import('./pages/student/StudentCourses'));
+const CourseDetail = lazy(() => import('./pages/student/CourseDetail'));
+const TakeTest = lazy(() => import('./pages/student/TakeTest'));
+const StudentResults = lazy(() => import('./pages/student/StudentResults'));
+const GamesPage = lazy(() => import('./pages/student/GamesPage'));
+const NotificationsPage = lazy(() => import('./pages/student/NotificationsPage'));
+const LessonPage = lazy(() => import('./pages/student/LessonPage'));
+const LiveSessionsPage = lazy(() => import('./pages/student/LiveSessionsPage'));
+const BookletsPage = lazy(() => import('./pages/student/BookletsPage'));
+const BookletDetailsPage = lazy(() => import('./pages/student/BookletDetailsPage'));
+const MyBookletsPage = lazy(() => import('./pages/student/MyBookletsPage'));
+const ChallengesList = lazy(() => import('./pages/student/ChallengesList'));
+const ChallengePage = lazy(() => import('./pages/student/ChallengePage'));
 
-import TeacherDashboard      from './pages/teacher/TeacherDashboard';
-import TeacherCourses        from './pages/teacher/TeacherCourses';
-import CourseManager         from './pages/teacher/CourseManager';
-import TestManager           from './pages/teacher/TestManager';
-import TeacherStudents       from './pages/teacher/TeacherStudents';
-import AddCoursePage         from './pages/teacher/AddCoursePage';
-import AddLessonPage         from './pages/teacher/AddLessonPage';
-import CreateTestPage        from './pages/teacher/CreateTestPage';
-import AddQuestionPage       from './pages/teacher/AddQuestionPage';
-import QuestionBankPage      from './pages/teacher/QuestionBankPage';
-import TestGeneratorPage     from './pages/teacher/TestGeneratorPage';
+const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'));
+const TeacherCourses = lazy(() => import('./pages/teacher/TeacherCourses'));
+const CourseManager = lazy(() => import('./pages/teacher/CourseManager'));
+const TestManager = lazy(() => import('./pages/teacher/TestManager'));
+const TeacherStudents = lazy(() => import('./pages/teacher/TeacherStudents'));
+const AddCoursePage = lazy(() => import('./pages/teacher/AddCoursePage'));
+const AddLessonPage = lazy(() => import('./pages/teacher/AddLessonPage'));
+const CreateTestPage = lazy(() => import('./pages/teacher/CreateTestPage'));
+const AddQuestionPage = lazy(() => import('./pages/teacher/AddQuestionPage'));
+const QuestionBankPage = lazy(() => import('./pages/teacher/QuestionBankPage'));
+const TestGeneratorPage = lazy(() => import('./pages/teacher/TestGeneratorPage'));
 
-import AdminDashboard        from './pages/admin/AdminDashboard';
-import AdminUsers            from './pages/admin/AdminUsers';
-import AdminCourses          from './pages/admin/AdminCourses';
-import AdminNotifications    from './pages/admin/AdminNotifications';
-import AdminSettings         from './pages/admin/AdminSettings';
-import AdminCategories       from './pages/admin/AdminCategories';
-import AdminPayments         from './pages/admin/AdminPayments';
-import AdminLibrary          from './pages/admin/AdminLibrary';
-import AdminQuizzes          from './pages/admin/AdminQuizzes';
-import AdminChallenges       from './pages/admin/AdminChallenges';
-import AdminLiveSessions     from './pages/admin/AdminLiveSessions';
-import AdminBookletStats     from './pages/admin/AdminBookletStats';
-import AdminPaymentSettings  from './pages/admin/AdminPaymentSettings';
-import BookletsManager       from './pages/admin/BookletsManager';
-import LibraryPage           from './pages/landing/LibraryPage';
-import QuizPresenter         from './pages/QuizPresenter';
-import ChallengesList       from './pages/student/ChallengesList';
-import ChallengePage         from './pages/student/ChallengePage';
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminCourses = lazy(() => import('./pages/admin/AdminCourses'));
+const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
+const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'));
+const AdminLibrary = lazy(() => import('./pages/admin/AdminLibrary'));
+const AdminQuizzes = lazy(() => import('./pages/admin/AdminQuizzes'));
+const AdminChallenges = lazy(() => import('./pages/admin/AdminChallenges'));
+const AdminLiveSessions = lazy(() => import('./pages/admin/AdminLiveSessions'));
+const AdminBookletStats = lazy(() => import('./pages/admin/AdminBookletStats'));
+const AdminPaymentSettings = lazy(() => import('./pages/admin/AdminPaymentSettings'));
+const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
+const QuizPresenter = lazy(() => import('./pages/QuizPresenter'));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -81,87 +89,88 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
-          {/* Landing / Public Routes */}
-          <Route element={<LandingLayout />}>
-            <Route path="/"         element={<HomePage />} />
-            <Route path="/courses"  element={<CoursesPage />} />
-            <Route path="/about"    element={<AboutPage />} />
-            <Route path="/contact"  element={<ContactPage />} />
-            <Route path="/library"  element={<LibraryPage />} />
-          </Route>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            {/* Landing / Public Routes */}
+            <Route element={<LandingLayout />}>
+              <Route path="/"         element={<HomePage />} />
+              <Route path="/courses"  element={<CoursesPage />} />
+              <Route path="/about"    element={<AboutPage />} />
+              <Route path="/contact"  element={<ContactPage />} />
+              <Route path="/library"  element={<LibraryPage />} />
+            </Route>
 
-          <Route path="/login"    element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login"    element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* Student Routes */}
-          <Route path="/student" element={<RequireAuth roles={['Student']}><DashboardLayout /></RequireAuth>}>
-            <Route index                  element={<StudentDashboard />} />
-            <Route path="courses"         element={<StudentCourses />} />
-            <Route path="courses/:id"     element={<CourseDetail />} />
-            <Route path="tests"           element={<StudentCourses />} />
-            <Route path="tests/:id"       element={<TakeTest />} />
-            <Route path="results"         element={<StudentResults />} />
-            <Route path="games"           element={<GamesPage />} />
-            <Route path="live-sessions"   element={<LiveSessionsPage />} />
-            <Route path="my-booklets"     element={<MyBookletsPage />} />
-            <Route path="notifications"   element={<NotificationsPage />} />
-          </Route>
+            {/* Student Routes */}
+            <Route path="/student" element={<RequireAuth roles={['Student']}><DashboardLayout /></RequireAuth>}>
+              <Route index                  element={<StudentDashboard />} />
+              <Route path="courses"         element={<StudentCourses />} />
+              <Route path="courses/:id"     element={<CourseDetail />} />
+              <Route path="tests"           element={<StudentCourses />} />
+              <Route path="tests/:id"       element={<TakeTest />} />
+              <Route path="results"         element={<StudentResults />} />
+              <Route path="games"           element={<GamesPage />} />
+              <Route path="live-sessions"   element={<LiveSessionsPage />} />
+              <Route path="my-booklets"     element={<MyBookletsPage />} />
+              <Route path="notifications"   element={<NotificationsPage />} />
+            </Route>
 
-          {/* Common Authenticated Routes (Booklets, etc.) */}
-          <Route element={<RequireAuth><DashboardLayout /></RequireAuth>}>
-            <Route path="/booklets"        element={<BookletsPage />} />
-            <Route path="/booklets/:id"    element={<BookletDetailsPage />} />
-            <Route path="/challenges"      element={<ChallengesList />} />
-          </Route>
+            {/* Common Authenticated Routes (Booklets, etc.) */}
+            <Route element={<RequireAuth><DashboardLayout /></RequireAuth>}>
+              <Route path="/booklets"        element={<BookletsPage />} />
+              <Route path="/booklets/:id"    element={<BookletDetailsPage />} />
+              <Route path="/challenges"      element={<ChallengesList />} />
+            </Route>
 
-          {/* Full Screen Challenges (Outside DashboardLayout for Print support) */}
-          <Route path="/challenges/:slug" element={<RequireAuth><ChallengePage /></RequireAuth>} />
+            {/* Full Screen Challenges (Outside DashboardLayout for Print support) */}
+            <Route path="/challenges/:slug" element={<RequireAuth><ChallengePage /></RequireAuth>} />
 
-          {/* Teacher Routes */}
-          <Route path="/teacher" element={<RequireAuth roles={['Teacher', 'Admin']}><DashboardLayout /></RequireAuth>}>
-            <Route index                                         element={<TeacherDashboard />} />
-            <Route path="courses"                               element={<TeacherCourses />} />
-            <Route path="courses/new"                           element={<AddCoursePage />} />
-            <Route path="courses/:id"                           element={<CourseManager />} />
-            <Route path="courses/:courseId/lessons/new"         element={<AddLessonPage />} />
-            <Route path="courses/:courseId/tests/new"           element={<CreateTestPage />} />
-            <Route path="tests/generate"                        element={<TestGeneratorPage />} />
-            <Route path="tests"                                 element={<TeacherCourses />} />
-            <Route path="tests/:id"                             element={<TestManager />} />
-            <Route path="tests/:testId/questions/new"           element={<AddQuestionPage />} />
-            <Route path="question-bank"                         element={<QuestionBankPage />} />
-            <Route path="students"                              element={<TeacherStudents />} />
-            <Route path="notifications"                         element={<NotificationsPage />} />
-          </Route>
+            {/* Teacher Routes */}
+            <Route path="/teacher" element={<RequireAuth roles={['Teacher', 'Admin']}><DashboardLayout /></RequireAuth>}>
+              <Route index                                         element={<TeacherDashboard />} />
+              <Route path="courses"                               element={<TeacherCourses />} />
+              <Route path="courses/new"                           element={<AddCoursePage />} />
+              <Route path="courses/:id"                           element={<CourseManager />} />
+              <Route path="courses/:courseId/lessons/new"         element={<AddLessonPage />} />
+              <Route path="courses/:courseId/tests/new"           element={<CreateTestPage />} />
+              <Route path="tests/generate"                        element={<TestGeneratorPage />} />
+              <Route path="tests"                                 element={<TeacherCourses />} />
+              <Route path="tests/:id"                             element={<TestManager />} />
+              <Route path="tests/:testId/questions/new"           element={<AddQuestionPage />} />
+              <Route path="question-bank"                         element={<QuestionBankPage />} />
+              <Route path="students"                              element={<TeacherStudents />} />
+              <Route path="notifications"                         element={<NotificationsPage />} />
+            </Route>
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<RequireAuth roles={['Admin']}><DashboardLayout /></RequireAuth>}>
-            <Route index                  element={<AdminDashboard />} />
-            <Route path="users"           element={<AdminUsers />} />
-            <Route path="courses"         element={<AdminCourses />} />
-            <Route path="payments"        element={<AdminPayments />} />
-            <Route path="tests"           element={<AdminCourses />} />
-            <Route path="notifications"   element={<AdminNotifications />} />
-            <Route path="settings"        element={<AdminSettings />} />
-            <Route path="categories"      element={<AdminCategories />} />
-            <Route path="library"         element={<AdminLibrary />} />
-            <Route path="quizzes"         element={<AdminQuizzes />} />
-            <Route path="challenges"      element={<AdminChallenges />} />
-            <Route path="booklets"        element={<BookletsManager />} />
-            <Route path="booklet-stats"    element={<AdminBookletStats />} />
-            <Route path="payment-settings" element={<AdminPaymentSettings />} />
-            <Route path="live-sessions"   element={<AdminLiveSessions />} />
-          </Route>
+            {/* Admin Routes */}
+            <Route path="/admin" element={<RequireAuth roles={['Admin']}><DashboardLayout /></RequireAuth>}>
+              <Route index                  element={<AdminDashboard />} />
+              <Route path="users"           element={<AdminUsers />} />
+              <Route path="courses"         element={<AdminCourses />} />
+              <Route path="payments"        element={<AdminPayments />} />
+              <Route path="tests"           element={<AdminCourses />} />
+              <Route path="notifications"   element={<AdminNotifications />} />
+              <Route path="settings"        element={<AdminSettings />} />
+              <Route path="categories"      element={<AdminCategories />} />
+              <Route path="library"         element={<AdminLibrary />} />
+              <Route path="quizzes"         element={<AdminQuizzes />} />
+              <Route path="challenges"      element={<AdminChallenges />} />
+              <Route path="booklets"        element={<BookletsManager />} />
+              <Route path="booklet-stats"    element={<AdminBookletStats />} />
+              <Route path="payment-settings" element={<AdminPaymentSettings />} />
+              <Route path="live-sessions"   element={<AdminLiveSessions />} />
+            </Route>
 
-          <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
-          <Route path="/quiz/:id" element={<QuizPresenter />} />
+            <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
+            <Route path="/quiz/:id" element={<QuizPresenter />} />
 
-          <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
-          <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
+            <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
         <Toaster position="top-center" toastOptions={{ style: { borderRadius: '12px', fontFamily: 'Arial' } }} />
       </BrowserRouter>
     </QueryClientProvider>

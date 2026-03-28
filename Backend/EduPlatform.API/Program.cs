@@ -3,7 +3,10 @@ using EduPlatform.API.Data;
 using EduPlatform.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
+using System.Threading.RateLimiting;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -74,6 +77,40 @@ builder.WebHost.ConfigureKestrel(o =>
     o.Limits.MaxRequestBodySize = 500 * 1024 * 1024;
 });
 
+// 1. Response Compression
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
+// 2. Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    
+    // Global limit: 100 requests per 10 seconds per IP
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 0,
+                Window = TimeSpan.FromSeconds(10)
+            }));
+
+    // Specific policy for Auth (Login/Register)
+    options.AddFixedWindowLimiter("auth", opt =>
+    {
+        opt.PermitLimit = 10;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueLimit = 0;
+    });
+});
+
 var envOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?
     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) 
     ?? Array.Empty<string>();
@@ -110,6 +147,25 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
+// Performance & Security Middleware
+app.UseResponseCompression();
+
+// Security Headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    if (!app.Environment.IsDevelopment())
+    {
+        context.Response.Headers.Append("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    }
+    await next();
+});
+
+app.UseRateLimiter();
 app.UseCors("AllowFrontend");
 
 using (var scope = app.Services.CreateScope())
@@ -517,17 +573,18 @@ app.UseExceptionHandler(appError =>
         context.Response.Headers["Access-Control-Allow-Headers"] = "*";
         context.Response.Headers["Access-Control-Allow-Methods"] = "*";
         context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+
         var contextFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
         if (contextFeature != null)
         {
-            await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+            var isDev = app.Environment.IsDevelopment();
+            var response = new
             {
                 statusCode = 500,
-                message = "Internal Server Error",
-                detailed = contextFeature.Error.Message,
-                stackTrace = contextFeature.Error.ToString(),
-                innerException = contextFeature.Error.InnerException?.ToString()
-            }));
+                message = isDev ? contextFeature.Error.Message : "حدث خطأ داخلي في الخادم. يرجى المحاولة لاحقاً.",
+                details = isDev ? contextFeature.Error.ToString() : null
+            };
+            await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
         }
     });
 });
@@ -542,7 +599,20 @@ app.UseStaticFiles(new StaticFileOptions
             ctx.Context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
             ctx.Context.Response.Headers["Vary"] = "Origin";
         }
+
         var path = ctx.Context.Request.Path.Value ?? "";
+        
+        // Performance: Cache hashed assets for 1 year (Immutable)
+        if (path.Contains("/assets/") || path.Contains("/static/"))
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=31536000,immutable");
+        }
+        else
+        {
+            // Default cache for other static files (e.g. icons, images)
+            ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=86400"); // 1 day
+        }
+
         if (path.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
         {
             ctx.Context.Response.Headers["Content-Disposition"] = "inline";

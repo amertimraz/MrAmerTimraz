@@ -2,6 +2,7 @@ using EduPlatform.API.DTOs;
 using EduPlatform.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace EduPlatform.API.Controllers;
@@ -9,6 +10,7 @@ namespace EduPlatform.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
+[EnableRateLimiting("auth")]
 public class PaymentsController : ControllerBase
 {
     private readonly IPaymentService _payments;
