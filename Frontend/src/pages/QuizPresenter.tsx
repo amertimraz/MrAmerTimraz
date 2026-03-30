@@ -567,6 +567,19 @@ export default function QuizPresenter() {
     setCurrentIdx(0);
   };
 
+  /* ── PLAY LOGIC (Hooks Must Be Top Level) ── */
+  const q = questions[currentIdx];
+  const options = useMemo(() => q ? parseOptions(q.options) : [], [q]);
+  const correctIdx = q ? getCorrectIdx(q) : -1;
+  const timerPct = timerDuration > 0 ? (timeLeft / timerDuration) * 100 : 0;
+
+  const handleSelect = useCallback((i: number) => {
+    if (revealed) return;
+    playSound('select');
+    setSelectedOption(i);
+    handleRevealResult(i);
+  }, [revealed, playSound, handleRevealResult]);
+
   /* ── Loading / Error (shown before name screen too) ── */
   if (isLoading) return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
@@ -1062,19 +1075,6 @@ export default function QuizPresenter() {
       </div>
     );
   }
-
-  /* ── PLAY SCREEN ── */
-  const q = questions[currentIdx];
-  const options = useMemo(() => q ? parseOptions(q.options) : [], [q]);
-  const correctIdx = q ? getCorrectIdx(q) : -1;
-  const timerPct = timerDuration > 0 ? (timeLeft / timerDuration) * 100 : 0;
-
-  const handleSelect = useCallback((i: number) => {
-    if (revealed) return;
-    playSound('select');
-    setSelectedOption(i);
-    handleRevealResult(i);
-  }, [revealed, playSound, handleRevealResult]);
 
   return (
     <div className={`min-h-[100dvh] h-[100dvh] flex flex-col select-none relative overflow-hidden ${isCyber ? 'bg-[#050505] font-mono' : isDark ? 'bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]' : 'bg-gradient-to-br from-[#0a1628] via-[#0f3460] to-[#16213e]'}`} dir="rtl">
