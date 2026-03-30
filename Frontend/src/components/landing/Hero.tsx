@@ -35,9 +35,7 @@ const stats = [
 ];
 
 const subjects = [
-  { emoji: '💻', text: 'تقنية المعلومات — ابتدائي' },
-  { emoji: '🖥️', text: 'الحاسب الآلي — إعدادي'   },
-  { emoji: '⌨️', text: 'البرمجة — أول ثانوي'      },
+  { emoji: '⌨️', text: 'البرمجة والذكاء الاصطناعي — أول ثانوي' },
 ];
 
 export default function Hero() {
@@ -216,7 +214,7 @@ export default function Hero() {
                   <p className={`font-bold text-base ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     أ. عامر تمراز
                   </p>
-                  <p className="text-green-500 text-xs mt-0.5">مدرّس التقنية والحاسب والبرمجة</p>
+                  <p className="text-green-500 text-xs mt-0.5">مدرّس البرمجة والذكاء الاصطناعي — أول ثانوي</p>
                 </div>
               </div>
             </div>

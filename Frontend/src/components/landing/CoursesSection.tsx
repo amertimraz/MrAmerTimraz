@@ -6,39 +6,11 @@ import { useScrollReveal } from '../../hooks/useScrollReveal';
 const courses = [
   {
     id: 1,
-    emoji: '💻',
-    title: 'تقنية المعلومات',
-    level: 'ابتدائي',
-    levelColor: 'bg-blue-100 text-blue-700',
-    description: 'دروس شاملة في تقنية المعلومات للمرحلة الابتدائية. تشمل أساسيات الحاسب، مهارات الإنترنت، والسلامة الرقمية.',
-    lessons: 12,
-    hours: 8,
-    gradient: 'from-blue-500 to-cyan-500',
-    bg: 'from-blue-50 to-cyan-50',
-    border: 'border-blue-100',
-    shadow: 'hover:shadow-blue-200/60',
-  },
-  {
-    id: 2,
-    emoji: '🖥️',
-    title: 'الحاسب الآلي',
-    level: 'إعدادي',
-    levelColor: 'bg-purple-100 text-purple-700',
-    description: 'منهج الحاسب الآلي للمرحلة الإعدادية. يغطي برامج Office، أساسيات الشبكات، والأمن المعلوماتي.',
-    lessons: 16,
-    hours: 12,
-    gradient: 'from-purple-500 to-indigo-500',
-    bg: 'from-purple-50 to-indigo-50',
-    border: 'border-purple-100',
-    shadow: 'hover:shadow-purple-200/60',
-  },
-  {
-    id: 3,
     emoji: '⌨️',
-    title: 'البرمجة',
+    title: 'البرمجة والذكاء الاصطناعي',
     level: 'أول ثانوي',
     levelColor: 'bg-green-100 text-green-700',
-    description: 'مدخل إلى عالم البرمجة لطلاب أول ثانوي. يشمل Scratch, Python الأساسية، وبناء مشاريع تفاعلية.',
+    description: 'منهج البرمجة والذكاء الاصطناعي لطلاب أول ثانوي. يشمل أساسيات البرمجة، Python، ومفاهيم الذكاء الاصطناعي وبناء مشاريع تفاعلية.',
     lessons: 20,
     hours: 16,
     gradient: 'from-green-500 to-emerald-500',
@@ -74,19 +46,19 @@ export default function CoursesSection() {
           animate={headerInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: 'easeOut' }}
         >
-          <span className="inline-block bg-blue-50 text-blue-600 font-semibold text-sm px-4 py-2 rounded-full mb-4">
-            📚 مواد دراسية
+          <span className="inline-block bg-green-50 text-green-600 font-semibold text-sm px-4 py-2 rounded-full mb-4">
+            📚 المادة الدراسية
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">الدروس المتاحة</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">البرمجة والذكاء الاصطناعي</h2>
           <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            محتوى تعليمي عالي الجودة مُصمَّم خصيصاً لكل مرحلة دراسية
+            محتوى تعليمي عالي الجودة مُصمَّم خصيصاً لطلاب أول ثانوي
           </p>
         </motion.div>
 
         {/* Cards */}
         <motion.div
           ref={cardsRef}
-          className="grid md:grid-cols-3 gap-8 mb-12"
+          className="flex justify-center mb-12"
           variants={containerVariants}
           initial="hidden"
           animate={cardsInView ? 'visible' : 'hidden'}
@@ -95,7 +67,7 @@ export default function CoursesSection() {
             <motion.div
               key={course.id}
               variants={cardVariants}
-              className={`group relative rounded-3xl border ${course.border} bg-gradient-to-br ${course.bg} p-8 hover:shadow-2xl ${course.shadow} transition-shadow duration-300`}
+              className={`group relative rounded-3xl border ${course.border} bg-gradient-to-br ${course.bg} p-8 hover:shadow-2xl ${course.shadow} transition-shadow duration-300 w-full max-w-sm`}
               whileHover={{ y: -8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
