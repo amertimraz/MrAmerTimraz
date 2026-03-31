@@ -269,7 +269,7 @@ public class InteractiveQuizzesController : ControllerBase
             .OrderByDescending(r => r.Score)
             .ThenByDescending(r => r.Percentage)
             .ThenBy(r => r.CompletedAt)
-            .Take(50)
+            .Take(200)
             .Select(r => new
             {
                 r.PlayerName,

@@ -242,7 +242,7 @@ export default function AdminQuizzes() {
       );
       qc.invalidateQueries({ queryKey: ['interactive-quizzes'] });
       toast.success('تم التحديث!');
-      closeModal();
+      if (modal !== 'questions') closeModal();
     },
     onError: () => toast.error('فشل في التحديث'),
   });
@@ -331,7 +331,7 @@ export default function AdminQuizzes() {
       });
     } catch { }
   };
-  const openQuestions = (q: InteractiveQuizSummary) => {
+  const openQuestions = async (q: InteractiveQuizSummary) => {
     const saved = localStorage.getItem(`quiz-settings-${q.id}`);
     const def = { stageCount: 3, questionsPerStage: 20, mcqPerStage: 0, tfPerStage: 0, goldenEvery: 10, timerEnabled: false, timerDuration: 30 };
     if (saved) try { setQuizSettings({ ...def, ...JSON.parse(saved) }); } catch { setQuizSettings(def); }
@@ -341,6 +341,23 @@ export default function AdminQuizzes() {
     setParsed(null);
     setPastedText('');
     setModal('questions');
+
+    // Load full quiz data into form for background updates
+    try {
+      const fresh = await quizzesApi.getById(q.id);
+      setForm({ title: fresh.title, subject: fresh.subject ?? '', grade: fresh.grade ?? '', description: fresh.description ?? '', coverImageUrl: fresh.coverImageUrl ?? '', teacherName: fresh.teacherName ?? '', teacherImage: fresh.teacherImage ?? '', whatsappUrl: fresh.whatsappUrl ?? '', teacherWhatsappNumber: fresh.teacherWhatsappNumber ?? '', youtubeUrl: fresh.youtubeUrl ?? '', facebookUrl: fresh.facebookUrl ?? '',
+        showSupportButton: fresh.showSupportButton ?? true,
+        allowSkipWithoutRegistration: fresh.allowSkipWithoutRegistration ?? true,
+        stageCount: fresh.stageCount ?? 3,
+        questionsPerStage: fresh.questionsPerStage ?? 0,
+        mcqPerStage: fresh.mcqPerStage ?? 0,
+        tfPerStage: fresh.tfPerStage ?? 0,
+        goldenEvery: fresh.goldenEvery ?? 10,
+        timerEnabled: fresh.timerEnabled ?? false,
+        timerDuration: fresh.timerDuration ?? 30,
+        theme: fresh.theme as any || 'Default'
+      });
+    } catch { }
   };
   const closeModal = () => { setModal(null); setEditing(null); setActiveQuiz(null); setForm(emptyForm); setParsed(null); setPastedText(''); setModalTab('import'); setAiForceType(''); };
 
@@ -353,14 +370,11 @@ export default function AdminQuizzes() {
     const updatedForm = { ...form, ...settingsToUse };
     setForm(updatedForm);
 
-    // Save to backend immediately if we are in an editing context
-    if (editing) {
-       updateMutation.mutate({ id: editing.id, data: updatedForm });
-    }
+    // Save to backend immediately
+    updateMutation.mutate({ id: activeQuiz.id, data: updatedForm });
 
     localStorage.setItem(`quiz-settings-${activeQuiz.id}`, JSON.stringify(settingsToUse));
     setQuizSettings(settingsToUse);
-    toast.success('تم حفظ إعدادات الاختبار');
   };
 
   const exportResults = () => {
