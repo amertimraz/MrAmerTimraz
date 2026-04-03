@@ -83,7 +83,11 @@ builder.Services.AddResponseCompression(options =>
     options.EnableForHttps = true;
     options.Providers.Add<BrotliCompressionProvider>();
     options.Providers.Add<GzipCompressionProvider>();
+    // Exclude large binary files from compression to save CPU (videos, pdfs are already compressed)
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
 });
+
 
 // 2. Rate Limiting
 builder.Services.AddRateLimiter(options =>
@@ -122,7 +126,11 @@ var defaultOrigins = new[] {
     "https://mr-amer-timraz.vercel.app",
     "https://mr-amer-timraz.vercel.app/",
     "https://www.mr-amer-timraz.vercel.app",
-    "https://www.mr-amer-timraz.vercel.app/"
+    "https://www.mr-amer-timraz.vercel.app/",
+    "https://amertimraz.com",
+    "https://amertimraz.com/",
+    "https://www.amertimraz.com",
+    "https://www.amertimraz.com/"
 };
 
 var allowedOrigins = envOrigins.Concat(defaultOrigins).Distinct().ToArray();
@@ -172,6 +180,15 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var isPostgres = db.Database.IsNpgsql();
+
+    // PERFORMANCE: Skip heavy seeding/migration check if data already exists or skip-flag is set.
+    // Every restart on Railway consumes CPU/RAM for this block.
+    var forceSeed = Environment.GetEnvironmentVariable("FORCE_SEED") == "true";
+    var hasUsers = await db.Users.AnyAsync();
+
+    if (forceSeed || !hasUsers)
+    {
+        Console.WriteLine("[STARTUP] Running Migrations and Seeding...");
 
     // Helper: seed migration history for databases created via the old EnsureCreated approach
     void SeedMigrationHistory()
@@ -556,9 +573,47 @@ using (var scope = app.Services.CreateScope())
     }
 
     await DbSeeder.SeedAsync(db);
+    }
+    else
+    {
+        Console.WriteLine("[STARTUP] skipping seeding/manual patches (Database already exists). Use FORCE_SEED=true to override.");
+    }
 }
 
+
 // app.UseCors("AllowFrontend"); // Moved to top
+
+// Manual CORS middleware to ensure headers are always added
+app.Use(async (context, next) =>
+{
+    var origin = context.Request.Headers["Origin"].ToString();
+    var allowedOrigins = new[] { 
+        "http://localhost:5173", 
+        "http://localhost:3000", 
+        "http://localhost:5174", 
+        "https://mr-amer-timraz.vercel.app",
+        "https://www.mr-amer-timraz.vercel.app",
+        "https://amertimraz.com",
+        "https://www.amertimraz.com"
+    };
+    
+    if (!string.IsNullOrEmpty(origin) && allowedOrigins.Any(o => origin.StartsWith(o, StringComparison.OrdinalIgnoreCase)))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+        context.Response.Headers["Vary"] = "Origin";
+    }
+    
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "*";
+        context.Response.StatusCode = 200;
+        return;
+    }
+    
+    await next();
+});
 
 app.UseExceptionHandler(appError =>
 {
