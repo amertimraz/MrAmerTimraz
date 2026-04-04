@@ -19,11 +19,13 @@ export default function AdminUserDetails() {
   const { user: currentUser } = useAuthStore();
   const userId = parseInt(id || '0');
 
-  const { data: user, isLoading } = useQuery({
-    queryKey: ['user', userId],
-    queryFn: () => authApi.getUserById(userId),
-    enabled: !!userId,
+  // Get user from the cached users list instead of calling non-existent endpoint
+  const { data: users, isLoading } = useQuery({
+    queryKey: ['all-users'],
+    queryFn: authApi.getUsers,
   });
+
+  const user = users?.find(u => u.id === userId);
 
   const deleteUser = useMutation({
     mutationFn: () => authApi.deleteUser(userId),
