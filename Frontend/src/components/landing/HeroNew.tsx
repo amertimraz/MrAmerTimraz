@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, Users, Star, ArrowLeft, Play, Award, Clock, CheckCircle } from 'lucide-react';
+import { BookOpen, Star, ArrowLeft, Play, Award, Clock, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 function TeacherPhoto({ className }: { className?: string }) {
