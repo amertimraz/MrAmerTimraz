@@ -1,21 +1,21 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 import {
-  ArrowRight, User, Phone, Shield, Calendar, Mail, BookOpen, Award, Clock, Edit, Trash2, GraduationCap, ChevronRight
+  ArrowRight, User, Phone, Shield, Calendar, BookOpen, Award, Clock, Edit, Trash2, GraduationCap, ChevronRight
 } from 'lucide-react';
-import { formatDate } from '../../utils/date';
 import toast from 'react-hot-toast';
 
 const roleBadge = (r: string) => r === 'Admin' ? 'badge-red' : r === 'Teacher' ? 'badge-blue' : 'badge-green';
 const roleIcon = (r: string) => r === 'Admin' ? <Shield size={14} /> : r === 'Teacher' ? <BookOpen size={14} /> : <GraduationCap size={14} />;
 const roleLabel = (r: string) => r === 'Admin' ? 'مدير' : r === 'Teacher' ? 'مدرّس' : 'طالب';
 
+const formatDate = (date: string) => new Date(date).toLocaleDateString('ar-EG');
+
 export default function AdminUserDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const { user: currentUser } = useAuthStore();
   const userId = parseInt(id || '0');
 
