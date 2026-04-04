@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../../api/auth';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -15,9 +16,12 @@ const EMPTY_CREATE = { name: '', username: '', phoneNumber: '', password: '', ro
 const EMPTY_EDIT   = { name: '', username: '', phoneNumber: '', password: '', role: 'Student' };
 
 export default function AdminUsers() {
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState({ ...EMPTY_CREATE });
@@ -70,6 +74,10 @@ export default function AdminUsers() {
     return matchSearch && matchRole;
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil((filtered?.length || 0) / itemsPerPage);
+  const paginatedUsers = filtered?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   if (isLoading) return <LoadingSpinner size="lg" />;
 
   return (
@@ -91,8 +99,9 @@ export default function AdminUsers() {
       </div>
 
       <div className="card overflow-hidden">
-        <div className="p-4 border-b border-gray-100 dark:border-gray-700 text-sm text-gray-500">
-          {filtered?.length} مستخدم
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700 text-sm text-gray-500 flex justify-between items-center">
+          <span>{filtered?.length} مستخدم</span>
+          <span>صفحة {currentPage} من {totalPages}</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -106,7 +115,7 @@ export default function AdminUsers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {filtered?.map(u => (
+              {paginatedUsers?.map(u => (
                 <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
@@ -129,6 +138,13 @@ export default function AdminUsers() {
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-1">
                       <button
+                        onClick={() => navigate(`/admin/users/${u.id}`)}
+                        className="p-2 text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                        title="عرض التفاصيل"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
                         onClick={() => openEdit(u)}
                         className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                         title="تعديل"
@@ -150,6 +166,39 @@ export default function AdminUsers() {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-4">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+          >
+            السابق
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === page
+                  ? 'bg-primary-500 text-white'
+                  : 'border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+          >
+            التالي
+          </button>
+        </div>
+      )}
 
       {/* Create User Modal */}
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="إضافة مستخدم جديد">

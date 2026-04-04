@@ -53,7 +53,8 @@ const QuestionBankPage = lazy(() => import('./pages/teacher/QuestionBankPage'));
 const TestGeneratorPage = lazy(() => import('./pages/teacher/TestGeneratorPage'));
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+import AdminUsers           from './pages/admin/AdminUsers';
+import AdminUserDetails     from './pages/admin/AdminUserDetails';
 const AdminCourses = lazy(() => import('./pages/admin/AdminCourses'));
 const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
@@ -69,7 +70,13 @@ const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
 const QuizPresenter = lazy(() => import('./pages/QuizPresenter'));
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+  defaultOptions: { 
+    queries: { 
+      retry: 1, 
+      staleTime: 120_000, 
+      refetchOnWindowFocus: false 
+    } 
+  },
 });
 
 function RequireAuth({ children, roles }: { children: React.ReactElement; roles?: UserRole[] }) {
@@ -148,6 +155,7 @@ export default function App() {
             <Route path="/admin" element={<RequireAuth roles={['Admin']}><DashboardLayout /></RequireAuth>}>
               <Route index                  element={<AdminDashboard />} />
               <Route path="users"           element={<AdminUsers />} />
+            <Route path="users/:id"       element={<AdminUserDetails />} />
               <Route path="courses"         element={<AdminCourses />} />
               <Route path="payments"        element={<AdminPayments />} />
               <Route path="tests"           element={<AdminCourses />} />

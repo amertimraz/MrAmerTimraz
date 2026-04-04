@@ -12,6 +12,8 @@ export const authApi = {
 
   getUsers: () => client.get<User[]>('/auth/users').then(r => r.data),
 
+  getUserById: (id: number) => client.get<User>(`/auth/users/${id}`).then(r => r.data),
+
   deleteUser: (id: number) => client.delete(`/auth/users/${id}`),
 
   updateUser: (id: number, data: object) => client.put(`/auth/users/${id}`, data),
