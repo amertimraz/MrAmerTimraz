@@ -581,6 +581,27 @@ using (var scope = app.Services.CreateScope())
     else
     {
         Console.WriteLine("[STARTUP] skipping seeding/manual patches (Database already exists). Use FORCE_SEED=true to override.");
+        
+        // Always ensure critical User columns exist (lightweight check)
+        if (isPostgres)
+        {
+            try
+            {
+                var userColumnsSql = new[]
+                {
+                    "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastLoginAt\" TIMESTAMP WITHOUT TIME ZONE",
+                    "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastActivity\" TEXT"
+                };
+                foreach (var sql in userColumnsSql)
+                {
+#pragma warning disable EF1002
+                    db.Database.ExecuteSqlRaw(sql);
+#pragma warning restore EF1002
+                }
+                Console.WriteLine("[STARTUP] User columns verified.");
+            }
+            catch { }
+        }
     }
 }
 
