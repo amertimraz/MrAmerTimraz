@@ -45,4 +45,6 @@ public class UserDto
     public string Role { get; set; } = string.Empty;
     public string? ProfileImage { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    public string? LastActivity { get; set; }
 }

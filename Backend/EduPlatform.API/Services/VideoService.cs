@@ -51,12 +51,14 @@ public class VideoService : IVideoService
     public async Task<List<Video>> GetByCourseAsync(int courseId)
     {
         return await _db.Videos
+            .AsNoTracking()
             .Where(v => v.CourseId == courseId)
             .OrderBy(v => v.OrderIndex)
             .ToListAsync();
     }
 
-    public async Task<Video?> GetByIdAsync(int id) => await _db.Videos.FindAsync(id);
+    public async Task<Video?> GetByIdAsync(int id) => 
+        await _db.Videos.AsNoTracking().FirstOrDefaultAsync(v => v.Id == id);
 
     public async Task<Video> CreateAsync(CreateVideoDto dto)
     {
@@ -81,12 +83,14 @@ public class VideoService : IVideoService
     public async Task<Video?> GetBySlugAsync(string slug)
     {
         return await _db.Videos
+            .AsNoTracking()
             .FirstOrDefaultAsync(v => v.Slug == slug);
     }
 
     public async Task<List<VideoComment>> GetCommentsAsync(int videoId)
     {
         return await _db.VideoComments
+            .AsNoTracking()
             .Include(c => c.Student)
             .Include(c => c.Reactions)
             .Include(c => c.Replies)

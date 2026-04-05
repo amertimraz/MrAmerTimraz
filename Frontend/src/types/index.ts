@@ -9,6 +9,8 @@ export interface User {
   role: UserRole;
   profileImage?: string;
   createdAt: string;
+  lastLoginAt?: string;
+  lastActivity?: string;
 }
 
 export interface AuthResponse {

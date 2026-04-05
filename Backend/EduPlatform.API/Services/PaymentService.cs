@@ -85,6 +85,7 @@ public class PaymentService : IPaymentService
     public async Task<List<PaymentRequestDto>> GetAllRequestsAsync()
     {
         return await _db.PaymentRequests
+            .AsNoTracking()
             .Include(p => p.Student)
             .Include(p => p.Course)
             .Include(p => p.LiveSession)
@@ -97,6 +98,7 @@ public class PaymentService : IPaymentService
     public async Task<List<PaymentRequestDto>> GetStudentRequestsAsync(int studentId)
     {
         return await _db.PaymentRequests
+            .AsNoTracking()
             .Where(p => p.StudentId == studentId)
             .Include(p => p.Student)
             .Include(p => p.Course)
@@ -195,6 +197,7 @@ public class PaymentService : IPaymentService
     private async Task<PaymentRequestDto?> GetDtoById(int id)
     {
         var p = await _db.PaymentRequests
+            .AsNoTracking()
             .Include(p => p.Student)
             .Include(p => p.Course)
             .Include(p => p.LiveSession)
@@ -206,6 +209,7 @@ public class PaymentService : IPaymentService
     public async Task<BookletPurchaseStatsDto> GetBookletPurchaseStatsAsync()
     {
         var approvedBookletPayments = await _db.PaymentRequests
+            .AsNoTracking()
             .Where(p => p.BookletId != null && p.Status == PaymentStatus.Approved)
             .Include(p => p.Student)
             .Include(p => p.Booklet)

@@ -27,6 +27,7 @@ public class CourseService : ICourseService
     public async Task<List<CourseDto>> GetAllAsync(bool publishedOnly = false)
     {
         var query = _db.Courses
+            .AsNoTracking()
             .Include(c => c.Teacher)
             .Include(c => c.Videos)
             .Include(c => c.Tests)
@@ -42,6 +43,7 @@ public class CourseService : ICourseService
     public async Task<CourseDto?> GetByIdAsync(int id)
     {
         var course = await _db.Courses
+            .AsNoTracking()
             .Include(c => c.Teacher)
             .Include(c => c.Videos)
             .Include(c => c.Tests)
@@ -112,6 +114,7 @@ public class CourseService : ICourseService
     public async Task<List<CourseDto>> GetTeacherCoursesAsync(int teacherId)
     {
         return await _db.Courses
+            .AsNoTracking()
             .Where(c => c.CreatedBy == teacherId)
             .Include(c => c.Teacher)
             .Include(c => c.Videos)
@@ -124,6 +127,7 @@ public class CourseService : ICourseService
     public async Task<List<CourseDto>> GetStudentCoursesAsync(int studentId)
     {
         return await _db.Enrollments
+            .AsNoTracking()
             .Where(e => e.StudentId == studentId)
             .Include(e => e.Course).ThenInclude(c => c.Teacher)
             .Include(e => e.Course).ThenInclude(c => c.Videos)

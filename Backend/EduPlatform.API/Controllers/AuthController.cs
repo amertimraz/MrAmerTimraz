@@ -43,6 +43,13 @@ public class AuthController : ControllerBase
     [HttpGet("users"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllUsers() => Ok(await _auth.GetAllUsersAsync());
 
+    [HttpGet("users/{id}"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetUserById(int id)
+    {
+        var user = await _auth.GetUserByIdAsync(id);
+        return user == null ? NotFound() : Ok(user);
+    }
+
     [HttpDelete("users/{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUser(int id)
     {

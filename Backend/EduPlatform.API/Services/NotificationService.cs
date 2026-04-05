@@ -34,7 +34,7 @@ public class NotificationService : INotificationService
 
     public async Task BroadcastAsync(SendNotificationDto dto, string? imageUrl)
     {
-        IQueryable<User> query = _db.Users;
+        IQueryable<User> query = _db.Users.AsNoTracking();
 
         if (dto.TargetType == "Teachers") query = query.Where(u => u.Role == UserRole.Teacher);
         else if (dto.TargetType == "Students") query = query.Where(u => u.Role == UserRole.Student);
@@ -73,6 +73,7 @@ public class NotificationService : INotificationService
     public async Task<List<Notification>> GetUserNotificationsAsync(int userId)
     {
         return await _db.Notifications
+            .AsNoTracking()
             .Where(n => n.UserId == userId)
             .OrderByDescending(n => n.CreatedAt)
             .Take(50)

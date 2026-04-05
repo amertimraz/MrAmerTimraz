@@ -31,6 +31,7 @@ public class TestService : ITestService
     public async Task<List<TestDto>> GetByCourseAsync(int courseId)
     {
         return await _db.Tests
+            .AsNoTracking()
             .Where(t => t.CourseId == courseId)
             .Include(t => t.Questions)
             .Include(t => t.Course)
@@ -41,6 +42,7 @@ public class TestService : ITestService
     public async Task<List<TestDto>> GetByTeacherAsync(int teacherId)
     {
         var tests = await _db.Tests
+            .AsNoTracking()
             .Where(t => t.Course != null && t.Course.CreatedBy == teacherId)
             .Include(t => t.Questions.OrderBy(q => q.OrderIndex))
             .Include(t => t.Course)
@@ -52,6 +54,7 @@ public class TestService : ITestService
     public async Task<TestDto?> GetByIdAsync(int id, bool includeAnswers = false)
     {
         var test = await _db.Tests
+            .AsNoTracking()
             .Include(t => t.Questions.OrderBy(q => q.OrderIndex))
             .Include(t => t.Course)
             .FirstOrDefaultAsync(t => t.Id == id);
@@ -238,6 +241,7 @@ public class TestService : ITestService
     public async Task<List<Result>> GetStudentResultsAsync(int studentId)
     {
         return await _db.Results
+            .AsNoTracking()
             .Where(r => r.StudentId == studentId)
             .Include(r => r.Test).ThenInclude(t => t.Course)
             .OrderByDescending(r => r.CompletedAt)
@@ -247,6 +251,7 @@ public class TestService : ITestService
     public async Task<List<Result>> GetTestResultsAsync(int testId)
     {
         return await _db.Results
+            .AsNoTracking()
             .Where(r => r.TestId == testId)
             .Include(r => r.Student)
             .OrderByDescending(r => r.CompletedAt)

@@ -17,6 +17,9 @@ public interface IAuthService
     Task<List<UserDto>> GetAllUsersAsync();
     Task<bool> DeleteUserAsync(int id);
     Task<bool> UpdateUserAsync(int id, RegisterDto dto);
+    Task<bool> UpdateLastLoginAsync(int id);
+    Task<bool> UpdateLastActivityAsync(int id, string activity);
+    Task<bool> UpdateProfileImageAsync(int id, string imageUrl);
 }
 
 public class AuthService : IAuthService
@@ -65,6 +68,10 @@ public class AuthService : IAuthService
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             return null;
 
+        // Update last login time
+        user.LastLoginAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+
         return new AuthResponseDto
         {
             Token = GenerateToken(user),
@@ -90,7 +97,9 @@ public class AuthService : IAuthService
                 Email = u.Email,
                 Role = u.Role.ToString(),
                 ProfileImage = u.ProfileImage,
-                CreatedAt = u.CreatedAt
+                CreatedAt = u.CreatedAt,
+                LastLoginAt = u.LastLoginAt,
+                LastActivity = u.LastActivity
             })
             .ToListAsync();
     }
@@ -118,6 +127,33 @@ public class AuthService : IAuthService
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
         }
 
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateLastLoginAsync(int id)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user == null) return false;
+        user.LastLoginAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateLastActivityAsync(int id, string activity)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user == null) return false;
+        user.LastActivity = activity;
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateProfileImageAsync(int id, string imageUrl)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user == null) return false;
+        user.ProfileImage = imageUrl;
         await _db.SaveChangesAsync();
         return true;
     }
@@ -155,6 +191,8 @@ public class AuthService : IAuthService
         Email = user.Email,
         Role = user.Role.ToString(),
         ProfileImage = user.ProfileImage,
-        CreatedAt = user.CreatedAt
+        CreatedAt = user.CreatedAt,
+        LastLoginAt = user.LastLoginAt,
+        LastActivity = user.LastActivity
     };
 }

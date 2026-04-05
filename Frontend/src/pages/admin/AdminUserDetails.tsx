@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 import {
-  ArrowRight, User, Phone, Shield, Calendar, BookOpen, Award, Clock, Edit, Trash2, GraduationCap, ChevronRight
+  ArrowRight, User, Phone, Shield, Calendar, BookOpen, Award, Clock, Edit, Trash2, GraduationCap, ChevronRight, Camera
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -96,8 +96,20 @@ export default function AdminUserDetails() {
       <div className="card">
         <div className="flex flex-col md:flex-row gap-6 items-start">
           {/* Avatar */}
-          <div className="w-24 h-24 bg-gradient-to-br from-primary-400 to-accent-500 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shrink-0">
-            {user.name.charAt(0).toUpperCase()}
+          <div className="relative">
+            <div className="w-24 h-24 bg-gradient-to-br from-primary-400 to-accent-500 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shrink-0 overflow-hidden">
+              {user.profileImage ? (
+                <img src={user.profileImage} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                user.name.charAt(0).toUpperCase()
+              )}
+            </div>
+            <button
+              className="absolute -bottom-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-500 transition-colors"
+              title="تغيير الصورة"
+            >
+              <Camera size={16} />
+            </button>
           </div>
 
           {/* Info */}
@@ -133,6 +145,30 @@ export default function AdminUserDetails() {
                   <p className="text-xs text-gray-500">تاريخ الانضمام</p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {user.createdAt ? formatDate(user.createdAt) : '-'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
+                  <Clock size={18} className="text-purple-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">آخر تسجيل دخول</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'لم يسجل الدخول بعد'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
+                  <Award size={18} className="text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">آخر نشاط</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {user.lastActivity || 'لا يوجد نشاط'}
                   </p>
                 </div>
               </div>
