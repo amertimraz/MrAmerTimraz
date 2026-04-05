@@ -221,6 +221,7 @@ using (var scope = app.Services.CreateScope())
             ("20260325091256_AddAppSettings",             "9.0.1"),
             ("20260325211614_AddChallenges",              "9.0.1"),
             ("20260326101507_AddTofasTestResults",        "9.0.1"),
+            ("20260405064300_AddUserActivityTracking",    "9.0.1"),
         };
         try
         {
@@ -478,7 +479,10 @@ using (var scope = app.Services.CreateScope())
             )
             """,
             "ALTER TABLE \"Notifications\" ALTER COLUMN \"IsRead\" TYPE boolean USING (\"IsRead\"::integer::boolean)",
-            "ALTER TABLE \"Notifications\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone"
+            "ALTER TABLE \"Notifications\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
+            // Add User activity tracking columns safety-net
+            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastLoginAt\" TIMESTAMP WITHOUT TIME ZONE",
+            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastActivity\" TEXT"
         };
 
         foreach (var sql in safetyAlters)
