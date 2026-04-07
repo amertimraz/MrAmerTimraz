@@ -10,7 +10,6 @@ import {
   TrendingUp, CheckCircle, Trophy, Hash, Mail, GraduationCap, School, Edit3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import type { ProfileCompletion } from '../../types';
 
 const formatDate = (date: string) => new Date(date).toLocaleDateString('ar-EG');
 

@@ -542,7 +542,11 @@ using (var scope = app.Services.CreateScope())
             "CREATE INDEX IF NOT EXISTS \"IX_ChallengeSnippets_ChallengeId\" ON \"ChallengeSnippets\"(\"ChallengeId\")",
             // Add StudentCode column for SQLite
             "ALTER TABLE \"Users\" ADD COLUMN \"StudentCode\" VARCHAR(20)",
-            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL"
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL",
+            // Add Profile completion fields for SQLite
+            "ALTER TABLE \"Users\" ADD COLUMN \"Grade\" VARCHAR(50)",
+            "ALTER TABLE \"Users\" ADD COLUMN \"School\" VARCHAR(100)",
+            "ALTER TABLE \"Users\" ADD COLUMN \"DateOfBirth\" TEXT"
         };
 
         foreach (var sql in sqliteAlters)
