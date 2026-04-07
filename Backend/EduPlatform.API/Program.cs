@@ -590,7 +590,6 @@ using (var scope = app.Services.CreateScope())
 
     await DbSeeder.SeedAsync(db);
     }
-    }
     else
     {
         Console.WriteLine("[STARTUP] Skipping heavy seeding/manual patches (Database already exists). Use FORCE_SEED=true to override.");
