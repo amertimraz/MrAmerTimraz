@@ -614,6 +614,22 @@ using (var scope = app.Services.CreateScope())
                 db.Database.ExecuteSqlRaw(sql);
             }
             catch { }
+            
+            // Add StudentCode column if not exists
+            try
+            {
+                db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"StudentCode\" VARCHAR(20);");
+                db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL;");
+            }
+            catch { }
+        }
+        else // SQLite
+        {
+            try
+            {
+                db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN StudentCode VARCHAR(20);");
+            }
+            catch { } // Column might already exist
         }
     }
 }
