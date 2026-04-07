@@ -39,6 +39,7 @@ const BookletDetailsPage = lazy(() => import('./pages/student/BookletDetailsPage
 const MyBookletsPage = lazy(() => import('./pages/student/MyBookletsPage'));
 const ChallengesList = lazy(() => import('./pages/student/ChallengesList'));
 const ChallengePage = lazy(() => import('./pages/student/ChallengePage'));
+const ProfilePage = lazy(() => import('./pages/student/ProfilePage'));
 
 const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'));
 const TeacherCourses = lazy(() => import('./pages/teacher/TeacherCourses'));
@@ -66,6 +67,7 @@ const AdminChallenges = lazy(() => import('./pages/admin/AdminChallenges'));
 const AdminLiveSessions = lazy(() => import('./pages/admin/AdminLiveSessions'));
 const AdminBookletStats = lazy(() => import('./pages/admin/AdminBookletStats'));
 const AdminPaymentSettings = lazy(() => import('./pages/admin/AdminPaymentSettings'));
+const AdminAllResults = lazy(() => import('./pages/admin/AdminAllResults'));
 const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
 const QuizPresenter = lazy(() => import('./pages/QuizPresenter'));
 
@@ -122,6 +124,7 @@ export default function App() {
               <Route path="live-sessions"   element={<LiveSessionsPage />} />
               <Route path="my-booklets"     element={<MyBookletsPage />} />
               <Route path="notifications"   element={<NotificationsPage />} />
+              <Route path="profile"         element={<ProfilePage />} />
             </Route>
 
             {/* Common Authenticated Routes (Booklets, etc.) */}
@@ -165,6 +168,7 @@ export default function App() {
               <Route path="library"         element={<AdminLibrary />} />
               <Route path="quizzes"         element={<AdminQuizzes />} />
               <Route path="challenges"      element={<AdminChallenges />} />
+              <Route path="all-results"     element={<AdminAllResults />} />
               <Route path="booklets"        element={<BookletsManager />} />
               <Route path="booklet-stats"    element={<AdminBookletStats />} />
               <Route path="payment-settings" element={<AdminPaymentSettings />} />

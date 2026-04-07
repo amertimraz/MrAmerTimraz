@@ -48,3 +48,8 @@ public class UserDto
     public DateTime? LastLoginAt { get; set; }
     public string? LastActivity { get; set; }
 }
+
+public class UpdateProfileImageDto
+{
+    public string ImageUrl { get; set; } = string.Empty;
+}

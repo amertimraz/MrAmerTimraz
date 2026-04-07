@@ -3,7 +3,7 @@ import {
   LayoutDashboard, BookOpen, FileText, Trophy,
   Gamepad2, Bell, Users, LogOut, GraduationCap, Settings,
   Database, Zap, Tag, Home, CreditCard, FolderOpen, Layers, Video,
-  Wallet,
+  Wallet, UserCircle2,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -20,6 +20,7 @@ const studentLinks: NavItem[] = [
   { to: '/student/my-booklets', icon: <FileText size={20} />, label: 'ملازمي' },
   { to: '/student/games', icon: <div className="relative"><Gamepad2 size={20} /><span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span></div>, label: 'الألعاب التعليمية (قريباً)' },
   { to: '/student/notifications', icon: <Bell size={20} />, label: 'الإشعارات' },
+  { to: '/student/profile', icon: <UserCircle2 size={20} />, label: 'ملفي الشخصي' },
 ];
 
 const teacherLinks: NavItem[] = [
@@ -96,11 +97,19 @@ export default function Sidebar() {
       </div>
 
       <div className="p-3 border-t border-gray-100 dark:border-gray-700">
-        <div className="flex items-center gap-3 px-3 py-2 mb-2">
-          <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-            <span className="text-primary-600 dark:text-primary-300 font-bold text-sm">
-              {user?.name.charAt(0).toUpperCase()}
-            </span>
+        <div
+          className={`flex items-center gap-3 px-3 py-2 mb-2 rounded-lg ${user?.role === 'Student' ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors' : ''}`}
+          onClick={() => user?.role === 'Student' && navigate('/student/profile')}
+          title={user?.role === 'Student' ? 'ملفي الشخصي' : ''}
+        >
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
+            {user?.profileImage ? (
+              <img src={user.profileImage} alt={user.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-primary-600 dark:text-primary-300 font-bold text-sm">
+                {user?.name.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.name}</p>

@@ -35,10 +35,10 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
     {
-        if (await _db.Users.AnyAsync(u => u.Username == dto.Username))
+        if (await _db.Users.AsNoTracking().AnyAsync(u => u.Username == dto.Username))
             return null;
 
-        if (await _db.Users.AnyAsync(u => u.PhoneNumber == dto.PhoneNumber))
+        if (await _db.Users.AsNoTracking().AnyAsync(u => u.PhoneNumber == dto.PhoneNumber))
             return null;
 
         var user = new User
@@ -62,7 +62,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u =>
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u =>
             (u.Username == dto.Identifier || u.PhoneNumber == dto.Identifier) && u.IsActive);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
@@ -87,7 +87,7 @@ public class AuthService : IAuthService
 
     public async Task<List<UserDto>> GetAllUsersAsync()
     {
-        return await _db.Users
+        return await _db.Users.AsNoTracking()
             .Select(u => new UserDto
             {
                 Id = u.Id,

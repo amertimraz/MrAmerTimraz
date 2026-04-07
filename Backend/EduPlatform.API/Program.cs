@@ -77,15 +77,25 @@ builder.WebHost.ConfigureKestrel(o =>
     o.Limits.MaxRequestBodySize = 500 * 1024 * 1024;
 });
 
-// 1. Response Compression
+// 1. Response Compression (Optimized for CPU)
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
     options.Providers.Add<BrotliCompressionProvider>();
     options.Providers.Add<GzipCompressionProvider>();
-    // Exclude large binary files from compression to save CPU (videos, pdfs are already compressed)
+    // Exclude large binary files already compressed
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-        new[] { "application/octet-stream" });
+        new[] { "application/json", "text/plain", "text/css", "application/javascript" });
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
 });
 
 
@@ -186,6 +196,8 @@ using (var scope = app.Services.CreateScope())
     var forceSeed = Environment.GetEnvironmentVariable("FORCE_SEED") == "true";
     var hasUsers = await db.Users.AnyAsync();
 
+    // Only run expensive manual patches if explicitly requested or if it's a fresh database.
+    // This saves about 2-5 seconds of high-CPU usage on every Railway restart.
     if (forceSeed || !hasUsers)
     {
         Console.WriteLine("[STARTUP] Running Migrations and Seeding...");
@@ -578,27 +590,22 @@ using (var scope = app.Services.CreateScope())
 
     await DbSeeder.SeedAsync(db);
     }
+    }
     else
     {
-        Console.WriteLine("[STARTUP] skipping seeding/manual patches (Database already exists). Use FORCE_SEED=true to override.");
+        Console.WriteLine("[STARTUP] Skipping heavy seeding/manual patches (Database already exists). Use FORCE_SEED=true to override.");
         
-        // Always ensure critical User columns exist (lightweight check)
+        // Lightweight check: only run Migrate() to ensure standard EF migrations are in sync.
+        // This is much faster than the 300+ manual SQL alters above.
+        try { db.Database.Migrate(); } catch { }
+        
+        // Ensure critical User columns for activity tracking exist (minimal check)
         if (isPostgres)
         {
             try
             {
-                var userColumnsSql = new[]
-                {
-                    "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastLoginAt\" TIMESTAMP WITHOUT TIME ZONE",
-                    "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastActivity\" TEXT"
-                };
-                foreach (var sql in userColumnsSql)
-                {
-#pragma warning disable EF1002
-                    db.Database.ExecuteSqlRaw(sql);
-#pragma warning restore EF1002
-                }
-                Console.WriteLine("[STARTUP] User columns verified.");
+                var sql = "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastLoginAt\" TIMESTAMP WITHOUT TIME ZONE; ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastActivity\" TEXT;";
+                db.Database.ExecuteSqlRaw(sql);
             }
             catch { }
         }

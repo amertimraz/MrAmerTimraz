@@ -17,4 +17,16 @@ export const authApi = {
   deleteUser: (id: number) => client.delete(`/auth/users/${id}`),
 
   updateUser: (id: number, data: object) => client.put(`/auth/users/${id}`, data),
+
+  // Update own profile image (any authenticated user)
+  updateMyProfileImage: (imageUrl: string) =>
+    client.put<User>('/auth/profile/image', { imageUrl }).then(r => r.data),
+
+  // Admin updates any user's image
+  updateUserProfileImage: (id: number, imageUrl: string) =>
+    client.put(`/auth/users/${id}/image`, { imageUrl }),
+
+  // Get user stats (admin)
+  getUserStats: (id: number) =>
+    client.get<{ enrolledCount: number; completedTests: number }>(`/auth/users/${id}/stats`).then(r => r.data),
 };

@@ -19,6 +19,7 @@ public interface ITestService
     Task<TestResultDto?> SubmitAsync(SubmitTestDto dto, int studentId);
     Task<List<Result>> GetStudentResultsAsync(int studentId);
     Task<List<Result>> GetTestResultsAsync(int testId);
+    Task<List<Result>> GetAllResultsAsync();
     Task<bool> DeleteTestAsync(int testId);
 }
 
@@ -254,6 +255,16 @@ public class TestService : ITestService
             .AsNoTracking()
             .Where(r => r.TestId == testId)
             .Include(r => r.Student)
+            .OrderByDescending(r => r.CompletedAt)
+            .ToListAsync();
+    }
+
+    public async Task<List<Result>> GetAllResultsAsync()
+    {
+        return await _db.Results
+            .AsNoTracking()
+            .Include(r => r.Student)
+            .Include(r => r.Test).ThenInclude(t => t.Course)
             .OrderByDescending(r => r.CompletedAt)
             .ToListAsync();
     }

@@ -7,6 +7,7 @@ interface AuthState {
   token: string | null;
   isDark: boolean;
   setAuth: (user: User, token: string) => void;
+  updateUser: (user: Partial<User>) => void;
   logout: () => void;
   toggleDark: () => void;
 }
@@ -21,6 +22,8 @@ export const useAuthStore = create<AuthState>()(
         localStorage.setItem('token', token);
         set({ user, token });
       },
+      updateUser: (partial) =>
+        set((s) => ({ user: s.user ? { ...s.user, ...partial } : s.user })),
       logout: () => {
         localStorage.removeItem('token');
         set({ user: null, token: null });

@@ -1,31 +1,42 @@
+import { useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../../api/auth';
-import { useAuthStore } from '../../store/authStore';
+import { uploadsApi } from '../../api/uploads';
 import {
-  ArrowRight, User, Phone, Shield, Calendar, BookOpen, Award, Clock, Edit, Trash2, GraduationCap, ChevronRight, Camera
+  ArrowRight, User, Phone, Shield, Calendar, BookOpen, Award, Clock, Edit, Trash2,
+  GraduationCap, ChevronRight, Camera, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '../../store/authStore';
 
 const roleBadge = (r: string) => r === 'Admin' ? 'badge-red' : r === 'Teacher' ? 'badge-blue' : 'badge-green';
-const roleIcon = (r: string) => r === 'Admin' ? <Shield size={14} /> : r === 'Teacher' ? <BookOpen size={14} /> : <GraduationCap size={14} />;
+const roleIcon  = (r: string) => r === 'Admin' ? <Shield size={14} /> : r === 'Teacher' ? <BookOpen size={14} /> : <GraduationCap size={14} />;
 const roleLabel = (r: string) => r === 'Admin' ? 'مدير' : r === 'Teacher' ? 'مدرّس' : 'طالب';
-
 const formatDate = (date: string) => new Date(date).toLocaleDateString('ar-EG');
 
 export default function AdminUserDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const { user: currentUser } = useAuthStore();
   const userId = parseInt(id || '0');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-  // Get user from the cached users list instead of calling non-existent endpoint
   const { data: users, isLoading } = useQuery({
     queryKey: ['all-users'],
     queryFn: authApi.getUsers,
   });
 
   const user = users?.find(u => u.id === userId);
+
+  // Fetch real stats from backend
+  const { data: stats } = useQuery({
+    queryKey: ['user-stats', userId],
+    queryFn: () => authApi.getUserStats(userId),
+    enabled: !!userId,
+  });
 
   const deleteUser = useMutation({
     mutationFn: () => authApi.deleteUser(userId),
@@ -35,6 +46,23 @@ export default function AdminUserDetails() {
     },
     onError: () => toast.error('فشل في حذف المستخدم'),
   });
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const url = await uploadsApi.image(file);
+      await authApi.updateUserProfileImage(userId, url);
+      toast.success('تم تحديث الصورة بنجاح');
+      qc.invalidateQueries({ queryKey: ['all-users'] });
+    } catch {
+      toast.error('فشل في رفع الصورة');
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   if (isLoading) {
     return (
@@ -58,6 +86,15 @@ export default function AdminUserDetails() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleImageChange}
+      />
+
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Link to="/admin/users" className="hover:text-primary-500">المستخدمين</Link>
@@ -95,7 +132,7 @@ export default function AdminUserDetails() {
       {/* Profile Card */}
       <div className="card">
         <div className="flex flex-col md:flex-row gap-6 items-start">
-          {/* Avatar */}
+          {/* Avatar with upload */}
           <div className="relative">
             <div className="w-24 h-24 bg-gradient-to-br from-primary-400 to-accent-500 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shrink-0 overflow-hidden">
               {user.profileImage ? (
@@ -104,12 +141,19 @@ export default function AdminUserDetails() {
                 user.name.charAt(0).toUpperCase()
               )}
             </div>
-            <button
-              className="absolute -bottom-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-500 transition-colors"
-              title="تغيير الصورة"
-            >
-              <Camera size={16} />
-            </button>
+            {uploadingImage ? (
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center">
+                <Loader2 size={16} className="animate-spin text-primary-500" />
+              </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute -bottom-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-500 transition-colors"
+                title="تغيير الصورة"
+              >
+                <Camera size={16} />
+              </button>
+            )}
           </div>
 
           {/* Info */}
@@ -177,7 +221,7 @@ export default function AdminUserDetails() {
         </div>
       </div>
 
-      {/* Stats Section */}
+      {/* Stats Section - Real Data */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="card p-6">
           <div className="flex items-center gap-4">
@@ -185,7 +229,9 @@ export default function AdminUserDetails() {
               <BookOpen size={24} className="text-blue-500" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats?.enrolledCount ?? '...'}
+              </p>
               <p className="text-sm text-gray-500">الدورات المشترك فيها</p>
             </div>
           </div>
@@ -197,7 +243,9 @@ export default function AdminUserDetails() {
               <Award size={24} className="text-yellow-500" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats?.completedTests ?? '...'}
+              </p>
               <p className="text-sm text-gray-500">الاختبارات المكتملة</p>
             </div>
           </div>
@@ -209,14 +257,16 @@ export default function AdminUserDetails() {
               <Clock size={24} className="text-green-500" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
-              <p className="text-sm text-gray-500">ساعات التعلم</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats ? (stats.completedTests * 0.5).toFixed(1) : '...'}
+              </p>
+              <p className="text-sm text-gray-500">ساعات النشاط التقريبية</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Placeholder for future features */}
+      {/* Courses placeholder */}
       <div className="card">
         <div className="p-6 text-center text-gray-500">
           <BookOpen size={48} className="mx-auto mb-4 text-gray-300" />

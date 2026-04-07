@@ -112,6 +112,27 @@ public class TestsController : ControllerBase
         }));
     }
 
+    [HttpGet("results/all"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllResults()
+    {
+        var results = await _tests.GetAllResultsAsync();
+        return Ok(results.Select(r => new
+        {
+            r.Id,
+            r.Score,
+            r.MaxScore,
+            Percentage = r.MaxScore > 0 ? (r.Score / r.MaxScore) * 100 : 0,
+            r.Passed,
+            r.CompletedAt,
+            StudentName = r.Student?.Name,
+            StudentEmail = r.Student?.Email,
+            TestTitle = r.Test?.Title,
+            CourseTitle = r.Test?.Course?.Title,
+            TestId = r.TestId,
+            StudentId = r.StudentId
+        }));
+    }
+
     [HttpDelete("{testId}"), Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> DeleteTest(int testId)
     {

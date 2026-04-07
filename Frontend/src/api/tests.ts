@@ -30,6 +30,9 @@ export const testsApi = {
   getTestResults: (testId: number) =>
     client.get(`/tests/${testId}/results`).then(r => r.data),
 
+  getAllResults: () =>
+    client.get('/tests/results/all').then(r => r.data),
+
   deleteTest: (testId: number) => client.delete(`/tests/${testId}`),
 
   getMyTests: () => client.get<Test[]>('/tests/teacher/my').then(r => r.data),

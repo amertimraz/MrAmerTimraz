@@ -1,8 +1,10 @@
 using EduPlatform.API.DTOs;
 using EduPlatform.API.Services;
+using EduPlatform.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace EduPlatform.API.Controllers;
@@ -13,8 +15,13 @@ namespace EduPlatform.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _auth;
+    private readonly AppDbContext _db;
 
-    public AuthController(IAuthService auth) => _auth = auth;
+    public AuthController(IAuthService auth, AppDbContext db)
+    {
+        _auth = auth;
+        _db = db;
+    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -60,5 +67,33 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> UpdateUser(int id, [FromBody] RegisterDto dto)
     {
         return await _auth.UpdateUserAsync(id, dto) ? NoContent() : NotFound();
+    }
+
+    // Any authenticated user can update their OWN profile image
+    [HttpPut("profile/image"), Authorize]
+    public async Task<IActionResult> UpdateMyProfileImage([FromBody] UpdateProfileImageDto dto)
+    {
+        var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var ok = await _auth.UpdateProfileImageAsync(id, dto.ImageUrl);
+        if (!ok) return NotFound();
+        var user = await _auth.GetUserByIdAsync(id);
+        return Ok(user);
+    }
+
+    // Admin can update any user's profile image
+    [HttpPut("users/{id}/image"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateUserProfileImage(int id, [FromBody] UpdateProfileImageDto dto)
+    {
+        var ok = await _auth.UpdateProfileImageAsync(id, dto.ImageUrl);
+        return ok ? Ok() : NotFound();
+    }
+
+    // Get user stats (courses enrolled, tests completed)
+    [HttpGet("users/{id}/stats"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetUserStats(int id)
+    {
+        var enrolledCount = await _db.Enrollments.CountAsync(e => e.StudentId == id);
+        var completedTests = await _db.Results.CountAsync(r => r.StudentId == id);
+        return Ok(new { enrolledCount, completedTests });
     }
 }
