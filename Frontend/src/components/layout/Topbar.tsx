@@ -1,4 +1,4 @@
-import { Bell, Moon, Sun, Menu, LogOut, User, ChevronDown, CheckCircle } from 'lucide-react';
+import { Bell, Moon, Sun, Menu, LogOut, User, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { notificationsApi } from '../../api/notifications';
