@@ -49,6 +49,7 @@ public class AppDbContext : DbContext
         {
             entity.HasIndex(u => u.Username).IsUnique();
             entity.HasIndex(u => u.PhoneNumber).IsUnique();
+            entity.HasIndex(u => u.StudentCode).IsUnique();
             entity.Property(u => u.Role).HasConversion<string>();
         });
 

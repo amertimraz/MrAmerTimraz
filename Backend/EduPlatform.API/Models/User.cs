@@ -35,6 +35,9 @@ public class User
 
     public string? ProfileImage { get; set; }
 
+    [MaxLength(20)]
+    public string? StudentCode { get; set; }
+
     public ICollection<Course> CreatedCourses { get; set; } = new List<Course>();
     public ICollection<Result> Results { get; set; } = new List<Result>();
     public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();

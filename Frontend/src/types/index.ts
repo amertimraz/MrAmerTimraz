@@ -8,6 +8,7 @@ export interface User {
   email?: string;
   role: UserRole;
   profileImage?: string;
+  studentCode?: string;
   createdAt: string;
   lastLoginAt?: string;
   lastActivity?: string;

@@ -234,6 +234,7 @@ using (var scope = app.Services.CreateScope())
             ("20260325211614_AddChallenges",              "9.0.1"),
             ("20260326101507_AddTofasTestResults",        "9.0.1"),
             ("20260405064300_AddUserActivityTracking",    "9.0.1"),
+            ("20260408000000_AddStudentCode",              "9.0.1"),
         };
         try
         {
@@ -494,7 +495,10 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Notifications\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             // Add User activity tracking columns safety-net
             "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastLoginAt\" TIMESTAMP WITHOUT TIME ZONE",
-            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastActivity\" TEXT"
+            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastActivity\" TEXT",
+            // Add StudentCode column
+            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"StudentCode\" VARCHAR(20)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL"
         };
 
         foreach (var sql in safetyAlters)
@@ -530,7 +534,10 @@ using (var scope = app.Services.CreateScope())
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_AppSettings_Key\" ON \"AppSettings\"(\"Key\")",
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_TofasTests_Slug\" ON \"TofasTests\"(\"Slug\")",
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Challenges_Slug\" ON \"Challenges\"(\"Slug\")",
-            "CREATE INDEX IF NOT EXISTS \"IX_ChallengeSnippets_ChallengeId\" ON \"ChallengeSnippets\"(\"ChallengeId\")"
+            "CREATE INDEX IF NOT EXISTS \"IX_ChallengeSnippets_ChallengeId\" ON \"ChallengeSnippets\"(\"ChallengeId\")",
+            // Add StudentCode column for SQLite
+            "ALTER TABLE \"Users\" ADD COLUMN \"StudentCode\" VARCHAR(20)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL"
         };
 
         foreach (var sql in sqliteAlters)

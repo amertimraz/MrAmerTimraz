@@ -44,6 +44,7 @@ public class UserDto
     public string? Email { get; set; }
     public string Role { get; set; } = string.Empty;
     public string? ProfileImage { get; set; }
+    public string? StudentCode { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? LastLoginAt { get; set; }
     public string? LastActivity { get; set; }

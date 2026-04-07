@@ -50,6 +50,12 @@ public class AuthService : IAuthService
             Role = dto.Role
         };
 
+        // Generate unique StudentCode for Students
+        if (dto.Role == UserRole.Student)
+        {
+            user.StudentCode = await GenerateUniqueStudentCodeAsync();
+        }
+
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
 
@@ -193,6 +199,24 @@ public class AuthService : IAuthService
         ProfileImage = user.ProfileImage,
         CreatedAt = user.CreatedAt,
         LastLoginAt = user.LastLoginAt,
-        LastActivity = user.LastActivity
+        LastActivity = user.LastActivity,
+        StudentCode = user.StudentCode
     };
+
+    private async Task<string> GenerateUniqueStudentCodeAsync()
+    {
+        var year = DateTime.UtcNow.Year;
+        string code;
+        bool exists;
+        
+        do
+        {
+            var random = new Random();
+            var number = random.Next(1, 10000).ToString("D4");
+            code = $"STD-{year}-{number}";
+            exists = await _db.Users.AsNoTracking().AnyAsync(u => u.StudentCode == code);
+        } while (exists);
+        
+        return code;
+    }
 }

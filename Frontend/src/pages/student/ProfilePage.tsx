@@ -7,7 +7,7 @@ import { testsApi } from '../../api/tests';
 import { coursesApi } from '../../api/courses';
 import {
   Camera, User, Phone, Calendar, Award, BookOpen, Clock, Loader2,
-  TrendingUp, CheckCircle, Trophy
+  TrendingUp, CheckCircle, Trophy, Hash
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -161,6 +161,18 @@ export default function ProfilePage() {
               <p className="font-medium text-gray-900 dark:text-white">@{user.username}</p>
             </div>
           </div>
+
+          {user.studentCode && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-accent-50 dark:bg-accent-900/20 flex items-center justify-center shrink-0">
+                <Hash size={18} className="text-accent-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">كود الطالب</p>
+                <p className="font-bold text-lg text-accent-600 dark:text-accent-400 tracking-wider">{user.studentCode}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Quick Stats */}
