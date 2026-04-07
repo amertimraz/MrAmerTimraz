@@ -9,9 +9,31 @@ export interface User {
   role: UserRole;
   profileImage?: string;
   studentCode?: string;
+  grade?: string;
+  school?: string;
+  dateOfBirth?: string;
   createdAt: string;
   lastLoginAt?: string;
   lastActivity?: string;
+}
+
+export interface ProfileCompletion {
+  percentage: number;
+  items: ProfileCompletionItem[];
+}
+
+export interface ProfileCompletionItem {
+  key: string;
+  label: string;
+  isComplete: boolean;
+  weight: number;
+}
+
+export interface UpdateProfileRequest {
+  email?: string;
+  grade?: string;
+  school?: string;
+  dateOfBirth?: string;
 }
 
 export interface AuthResponse {

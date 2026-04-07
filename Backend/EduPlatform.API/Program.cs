@@ -235,6 +235,7 @@ using (var scope = app.Services.CreateScope())
             ("20260326101507_AddTofasTestResults",        "9.0.1"),
             ("20260405064300_AddUserActivityTracking",    "9.0.1"),
             ("20260408000000_AddStudentCode",              "9.0.1"),
+            ("20260408010000_AddProfileCompletionFields", "9.0.1"),
         };
         try
         {
@@ -498,7 +499,11 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastActivity\" TEXT",
             // Add StudentCode column
             "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"StudentCode\" VARCHAR(20)",
-            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL"
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL",
+            // Add Profile completion fields
+            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"Grade\" VARCHAR(50)",
+            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"School\" VARCHAR(100)",
+            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"DateOfBirth\" TIMESTAMP WITHOUT TIME ZONE"
         };
 
         foreach (var sql in safetyAlters)
@@ -622,6 +627,15 @@ using (var scope = app.Services.CreateScope())
                 db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL;");
             }
             catch { }
+            
+            // Add Profile completion fields
+            try
+            {
+                db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"Grade\" VARCHAR(50);");
+                db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"School\" VARCHAR(100);");
+                db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"DateOfBirth\" TIMESTAMP WITHOUT TIME ZONE;");
+            }
+            catch { }
         }
         else // SQLite
         {
@@ -630,6 +644,14 @@ using (var scope = app.Services.CreateScope())
                 db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN StudentCode VARCHAR(20);");
             }
             catch { } // Column might already exist
+            
+            try
+            {
+                db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN Grade VARCHAR(50);");
+                db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN School VARCHAR(100);");
+                db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN DateOfBirth DATETIME;");
+            }
+            catch { }
         }
     }
 }

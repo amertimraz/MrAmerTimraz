@@ -38,6 +38,15 @@ public class User
     [MaxLength(20)]
     public string? StudentCode { get; set; }
 
+    // Profile completion fields
+    [MaxLength(50)]
+    public string? Grade { get; set; } // المرحلة الدراسية
+
+    [MaxLength(100)]
+    public string? School { get; set; } // المدرسة
+
+    public DateTime? DateOfBirth { get; set; }
+
     public ICollection<Course> CreatedCourses { get; set; } = new List<Course>();
     public ICollection<Result> Results { get; set; } = new List<Result>();
     public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();

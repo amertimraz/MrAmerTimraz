@@ -20,6 +20,8 @@ public interface IAuthService
     Task<bool> UpdateLastLoginAsync(int id);
     Task<bool> UpdateLastActivityAsync(int id, string activity);
     Task<bool> UpdateProfileImageAsync(int id, string imageUrl);
+    Task<UserDto?> UpdateProfileAsync(int id, UpdateProfileDto dto);
+    Task<ProfileCompletionDto> GetProfileCompletionAsync(int userId);
 }
 
 public class AuthService : IAuthService
@@ -164,6 +166,51 @@ public class AuthService : IAuthService
         return true;
     }
 
+    public async Task<UserDto?> UpdateProfileAsync(int id, UpdateProfileDto dto)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user == null) return null;
+
+        if (dto.Email != null) user.Email = dto.Email;
+        if (dto.Grade != null) user.Grade = dto.Grade;
+        if (dto.School != null) user.School = dto.School;
+        if (dto.DateOfBirth.HasValue) user.DateOfBirth = dto.DateOfBirth;
+
+        await _db.SaveChangesAsync();
+        return MapToDto(user);
+    }
+
+    public async Task<ProfileCompletionDto> GetProfileCompletionAsync(int userId)
+    {
+        var user = await _db.Users
+            .Include(u => u.Enrollments)
+            .Include(u => u.Results)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null) return new ProfileCompletionDto { Percentage = 0 };
+
+        var items = new List<ProfileCompletionItem>
+        {
+            new() { Key = "profileImage", Label = "الصورة الشخصية", IsComplete = !string.IsNullOrEmpty(user.ProfileImage), Weight = 20 },
+            new() { Key = "phoneNumber", Label = "رقم الهاتف", IsComplete = !string.IsNullOrEmpty(user.PhoneNumber), Weight = 15 },
+            new() { Key = "name", Label = "الاسم الكامل", IsComplete = !string.IsNullOrEmpty(user.Name), Weight = 15 },
+            new() { Key = "email", Label = "البريد الإلكتروني", IsComplete = !string.IsNullOrEmpty(user.Email), Weight = 15 },
+            new() { Key = "studentCode", Label = "كود الطالب", IsComplete = !string.IsNullOrEmpty(user.StudentCode), Weight = 10 },
+            new() { Key = "enrolled", Label = "التسجيل في درس", IsComplete = user.Enrollments.Any(), Weight = 15 },
+            new() { Key = "testCompleted", Label = "إكمال اختبار", IsComplete = user.Results.Any(), Weight = 10 }
+        };
+
+        var totalWeight = items.Sum(i => i.Weight);
+        var completedWeight = items.Where(i => i.IsComplete).Sum(i => i.Weight);
+        var percentage = totalWeight > 0 ? (completedWeight * 100) / totalWeight : 0;
+
+        return new ProfileCompletionDto
+        {
+            Percentage = percentage,
+            Items = items
+        };
+    }
+
     private string GenerateToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
@@ -200,7 +247,10 @@ public class AuthService : IAuthService
         CreatedAt = user.CreatedAt,
         LastLoginAt = user.LastLoginAt,
         LastActivity = user.LastActivity,
-        StudentCode = user.StudentCode
+        StudentCode = user.StudentCode,
+        Grade = user.Grade,
+        School = user.School,
+        DateOfBirth = user.DateOfBirth
     };
 
     private async Task<string> GenerateUniqueStudentCodeAsync()

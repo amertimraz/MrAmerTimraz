@@ -1,5 +1,5 @@
 import client from './client';
-import type { AuthResponse, User } from '../types';
+import type { AuthResponse, User, ProfileCompletion, UpdateProfileRequest } from '../types';
 
 export const authApi = {
   register: (data: { name: string; username: string; phoneNumber: string; password: string; role: string }) =>
@@ -29,4 +29,12 @@ export const authApi = {
   // Get user stats (admin)
   getUserStats: (id: number) =>
     client.get<{ enrolledCount: number; completedTests: number }>(`/auth/users/${id}/stats`).then(r => r.data),
+
+  // Update own profile
+  updateProfile: (data: UpdateProfileRequest) =>
+    client.put<User>('/auth/profile', data).then(r => r.data),
+
+  // Get profile completion
+  getProfileCompletion: () =>
+    client.get<ProfileCompletion>('/auth/profile/completion').then(r => r.data),
 };

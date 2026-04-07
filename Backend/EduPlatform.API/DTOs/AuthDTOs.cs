@@ -45,6 +45,9 @@ public class UserDto
     public string Role { get; set; } = string.Empty;
     public string? ProfileImage { get; set; }
     public string? StudentCode { get; set; }
+    public string? Grade { get; set; }
+    public string? School { get; set; }
+    public DateTime? DateOfBirth { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? LastLoginAt { get; set; }
     public string? LastActivity { get; set; }
@@ -53,4 +56,26 @@ public class UserDto
 public class UpdateProfileImageDto
 {
     public string ImageUrl { get; set; } = string.Empty;
+}
+
+public class UpdateProfileDto
+{
+    public string? Email { get; set; }
+    public string? Grade { get; set; }
+    public string? School { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+}
+
+public class ProfileCompletionDto
+{
+    public int Percentage { get; set; }
+    public List<ProfileCompletionItem> Items { get; set; } = new();
+}
+
+public class ProfileCompletionItem
+{
+    public string Key { get; set; } = string.Empty;
+    public string Label { get; set; } = string.Empty;
+    public bool IsComplete { get; set; }
+    public int Weight { get; set; }
 }

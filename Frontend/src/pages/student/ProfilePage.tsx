@@ -7,9 +7,10 @@ import { testsApi } from '../../api/tests';
 import { coursesApi } from '../../api/courses';
 import {
   Camera, User, Phone, Calendar, Award, BookOpen, Clock, Loader2,
-  TrendingUp, CheckCircle, Trophy, Hash
+  TrendingUp, CheckCircle, Trophy, Hash, Mail, GraduationCap, School, Edit3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import type { ProfileCompletion } from '../../types';
 
 const formatDate = (date: string) => new Date(date).toLocaleDateString('ar-EG');
 
@@ -17,6 +18,13 @@ export default function ProfilePage() {
   const { user, updateUser } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [editForm, setEditForm] = useState({
+    email: user?.email || '',
+    grade: user?.grade || '',
+    school: user?.school || '',
+    dateOfBirth: user?.dateOfBirth ? user.dateOfBirth.split('T')[0] : ''
+  });
 
   const { data: courses } = useQuery({
     queryKey: ['student-courses'],
@@ -28,13 +36,30 @@ export default function ProfilePage() {
     queryFn: testsApi.getMyResults,
   });
 
+  const { data: profileCompletion, refetch: refetchCompletion } = useQuery({
+    queryKey: ['profile-completion'],
+    queryFn: authApi.getProfileCompletion,
+  });
+
   const updateImageMutation = useMutation({
     mutationFn: (imageUrl: string) => authApi.updateMyProfileImage(imageUrl),
     onSuccess: (updatedUser) => {
       updateUser({ profileImage: updatedUser.profileImage });
       toast.success('تم تحديث صورتك بنجاح! 🎉');
+      refetchCompletion();
     },
     onError: () => toast.error('فشل في تحديث الصورة'),
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: authApi.updateProfile,
+    onSuccess: (updatedUser) => {
+      updateUser(updatedUser);
+      toast.success('تم تحديث بياناتك بنجاح! 🎉');
+      setEditingProfile(false);
+      refetchCompletion();
+    },
+    onError: () => toast.error('فشل في تحديث البيانات'),
   });
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +88,19 @@ export default function ProfilePage() {
   const avg = results?.length
     ? Math.round(results.reduce((s, r) => s + r.percentage, 0) / results.length)
     : 0;
+
+  const getCompletionColor = (percentage: number) => {
+    if (percentage >= 80) return 'bg-green-500';
+    if (percentage >= 50) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const getCompletionMessage = (percentage: number) => {
+    if (percentage === 100) return '🎉 ممتاز! ملفك مكتمل 100%';
+    if (percentage >= 80) return '👏 رائع! ملفك شبه مكتمل';
+    if (percentage >= 50) return '💪 كويس! كمل بياناتك';
+    return '📝 حمّل صورتك وكمل بياناتك';
+  };
 
   if (!user) return null;
 
@@ -124,6 +162,44 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Profile Completion Card */}
+      {profileCompletion && (
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-gray-900 dark:text-white text-lg">نسبة إكمال الملف</h2>
+            <span className="text-2xl font-bold text-primary-600">{profileCompletion.percentage}%</span>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-4">
+            <div 
+              className={`h-full transition-all duration-500 ${getCompletionColor(profileCompletion.percentage)}`}
+              style={{ width: `${profileCompletion.percentage}%` }}
+            />
+          </div>
+          
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            {getCompletionMessage(profileCompletion.percentage)}
+          </p>
+          
+          {/* Completion Items */}
+          <div className="grid grid-cols-2 gap-2">
+            {profileCompletion.items.map(item => (
+              <div key={item.key} className="flex items-center gap-2 text-sm">
+                {item.isComplete ? (
+                  <CheckCircle size={16} className="text-green-500 shrink-0" />
+                ) : (
+                  <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 shrink-0" />
+                )}
+                <span className={item.isComplete ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'}>
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Info & Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Personal Info */}
@@ -170,6 +246,42 @@ export default function ProfilePage() {
               <div>
                 <p className="text-xs text-gray-400">كود الطالب</p>
                 <p className="font-bold text-lg text-accent-600 dark:text-accent-400 tracking-wider">{user.studentCode}</p>
+              </div>
+            </div>
+          )}
+
+          {user.email && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-pink-50 dark:bg-pink-900/20 flex items-center justify-center shrink-0">
+                <Mail size={18} className="text-pink-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">البريد الإلكتروني</p>
+                <p className="font-medium text-gray-900 dark:text-white">{user.email}</p>
+              </div>
+            </div>
+          )}
+
+          {user.grade && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0">
+                <GraduationCap size={18} className="text-indigo-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">المرحلة الدراسية</p>
+                <p className="font-medium text-gray-900 dark:text-white">{user.grade}</p>
+              </div>
+            </div>
+          )}
+
+          {user.school && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center shrink-0">
+                <School size={18} className="text-teal-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">المدرسة</p>
+                <p className="font-medium text-gray-900 dark:text-white">{user.school}</p>
               </div>
             </div>
           )}
@@ -244,6 +356,108 @@ export default function ProfilePage() {
           </table>
         </div>
       )}
+
+      {/* Edit Profile Form */}
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-gray-900 dark:text-white text-lg flex items-center gap-2">
+            <Edit3 size={18} className="text-primary-500" />
+            تعديل البيانات
+          </h2>
+          {!editingProfile && (
+            <button
+              onClick={() => setEditingProfile(true)}
+              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              تعديل
+            </button>
+          )}
+        </div>
+
+        {editingProfile ? (
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            updateProfileMutation.mutate(editForm);
+          }} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">البريد الإلكتروني</label>
+              <input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                placeholder="example@email.com"
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                dir="ltr"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">المرحلة الدراسية</label>
+              <select
+                value={editForm.grade}
+                onChange={(e) => setEditForm({ ...editForm, grade: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="">اختر المرحلة</option>
+                <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">المدرسة</label>
+              <input
+                type="text"
+                value={editForm.school}
+                onChange={(e) => setEditForm({ ...editForm, school: e.target.value })}
+                placeholder="اسم المدرسة"
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الميلاد</label>
+              <input
+                type="date"
+                value={editForm.dateOfBirth}
+                onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                dir="ltr"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={updateProfileMutation.isPending}
+                className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                {updateProfileMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : 'حفظ التغييرات'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingProfile(false);
+                  setEditForm({
+                    email: user?.email || '',
+                    grade: user?.grade || '',
+                    school: user?.school || '',
+                    dateOfBirth: user?.dateOfBirth ? user.dateOfBirth.split('T')[0] : ''
+                  });
+                }}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </form>
+        ) : (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            أكمل بياناتك لتحسين نسبة إكمال الملف والحصول على تجربة أفضل!
+          </p>
+        )}
+      </div>
     </div>
   );
 }

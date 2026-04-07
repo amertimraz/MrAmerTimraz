@@ -96,4 +96,23 @@ public class AuthController : ControllerBase
         var completedTests = await _db.Results.CountAsync(r => r.StudentId == id);
         return Ok(new { enrolledCount, completedTests });
     }
+
+    // Update own profile (email, grade, school, dateOfBirth)
+    [HttpPut("profile"), Authorize]
+    public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateProfileDto dto)
+    {
+        var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await _auth.UpdateProfileAsync(id, dto);
+        if (user == null) return NotFound();
+        return Ok(user);
+    }
+
+    // Get profile completion percentage
+    [HttpGet("profile/completion"), Authorize]
+    public async Task<IActionResult> GetProfileCompletion()
+    {
+        var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var completion = await _auth.GetProfileCompletionAsync(id);
+        return Ok(completion);
+    }
 }
