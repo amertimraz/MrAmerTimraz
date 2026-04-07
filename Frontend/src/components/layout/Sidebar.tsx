@@ -40,6 +40,7 @@ const adminLinks: NavItem[] = [
   { to: '/admin/live-sessions', icon: <Video size={20} />, label: 'الحصص المباشرة' },
   { to: '/admin/payments', icon: <CreditCard size={20} />, label: 'طلبات الدفع' },
   { to: '/admin/tests', icon: <FileText size={20} />, label: 'الاختبارات' },
+  { to: '/admin/all-results', icon: <Trophy size={20} />, label: 'نتائج الاختبارات' },
   { to: '/admin/notifications', icon: <Bell size={20} />, label: 'الإشعارات' },
   { to: '/admin/categories',    icon: <Tag size={20} />,      label: 'الأقسام الدراسية' },
   { to: '/admin/library',       icon: <FolderOpen size={20} />, label: 'المكتبة التعليمية' },
