@@ -1,7 +1,8 @@
-import { Bell, Moon, Sun, Menu, LogOut, User, ChevronDown } from 'lucide-react';
+import { Bell, Moon, Sun, Menu, LogOut, User, ChevronDown, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { notificationsApi } from '../../api/notifications';
+import { authApi } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 
@@ -21,6 +22,12 @@ export default function Topbar({ title, onMenuToggle }: TopbarProps) {
     queryFn: notificationsApi.getUnreadCount,
     refetchInterval: 30000,
     enabled: !!user,
+  });
+
+  const { data: profileCompletion } = useQuery({
+    queryKey: ['profile-completion'],
+    queryFn: authApi.getProfileCompletion,
+    enabled: !!user && user.role === 'Student',
   });
 
   const notifPath =
@@ -97,6 +104,33 @@ export default function Topbar({ title, onMenuToggle }: TopbarProps) {
                 <p className="text-xs text-gray-400 mt-0.5">@{user?.username}</p>
                 <p className="text-xs text-gray-400">{user?.phoneNumber}</p>
               </div>
+
+              {/* Profile Completion - Only for Students */}
+              {user?.role === 'Student' && profileCompletion && (
+                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">نسبة إكمال الملف</span>
+                    <span className="text-sm font-bold text-primary-600 dark:text-primary-400">{profileCompletion.percentage}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-500 ${
+                        profileCompletion.percentage >= 80 ? 'bg-green-500' : 
+                        profileCompletion.percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${profileCompletion.percentage}%` }}
+                    />
+                  </div>
+                  {profileCompletion.percentage < 100 && (
+                    <button
+                      onClick={() => { navigate('/student/profile'); setShowMenu(false); }}
+                      className="mt-2 text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                    >
+                      أكمل ملفك ✓
+                    </button>
+                  )}
+                </div>
+              )}
 
               <button
                 onClick={() => { navigate(profilePath); setShowMenu(false); }}
