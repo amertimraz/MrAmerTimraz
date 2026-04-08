@@ -108,6 +108,7 @@ export default function AdminUsers() {
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="text-right px-5 py-3 font-semibold text-gray-600 dark:text-gray-300">المستخدم</th>
+                <th className="text-right px-5 py-3 font-semibold text-gray-600 dark:text-gray-300">كود الطالب</th>
                 <th className="text-right px-5 py-3 font-semibold text-gray-600 dark:text-gray-300">رقم الهاتف</th>
                 <th className="text-right px-5 py-3 font-semibold text-gray-600 dark:text-gray-300">الدور</th>
                 <th className="text-right px-5 py-3 font-semibold text-gray-600 dark:text-gray-300">تاريخ الانضمام</th>
@@ -129,6 +130,13 @@ export default function AdminUsers() {
                     </div>
                   </td>
                   <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{u.phoneNumber}</td>
+                  <td className="px-5 py-3">
+                    {u.studentCode ? (
+                      <span className="font-mono font-bold text-accent-600 dark:text-accent-400">{u.studentCode}</span>
+                    ) : (
+                      <span className="text-gray-300 dark:text-gray-600">-</span>
+                    )}
+                  </td>
                   <td className="px-5 py-3">
                     <span className={`${roleBadge(u.role)} flex items-center gap-1 w-fit`}>
                       {roleIcon(u.role)} {roleLabel(u.role)}
