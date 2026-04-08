@@ -377,7 +377,13 @@ export default function ProfilePage() {
         {editingProfile ? (
           <form onSubmit={(e) => {
             e.preventDefault();
-            updateProfileMutation.mutate(editForm);
+            const data = {
+              email: editForm.email || undefined,
+              grade: editForm.grade || undefined,
+              school: editForm.school || undefined,
+              dateOfBirth: editForm.dateOfBirth || undefined,
+            };
+            updateProfileMutation.mutate(data);
           }} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">البريد الإلكتروني</label>
