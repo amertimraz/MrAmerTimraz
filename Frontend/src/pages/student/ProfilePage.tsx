@@ -5,6 +5,7 @@ import { authApi } from '../../api/auth';
 import { uploadsApi } from '../../api/uploads';
 import { testsApi } from '../../api/tests';
 import { coursesApi } from '../../api/courses';
+import { resolveFileUrl } from '../../config';
 import {
   Camera, User, Phone, Calendar, Award, BookOpen, Clock, Loader2,
   TrendingUp, CheckCircle, Trophy, Hash, Mail, GraduationCap, School, Edit3
@@ -43,16 +44,11 @@ export default function ProfilePage() {
   const updateImageMutation = useMutation({
     mutationFn: (imageUrl: string) => authApi.updateMyProfileImage(imageUrl),
     onSuccess: (updatedUser) => {
-      console.log('Updated user:', updatedUser);
-      console.log('Profile image:', updatedUser.profileImage);
       updateUser({ profileImage: updatedUser.profileImage });
       toast.success('تم تحديث صورتك بنجاح! 🎉');
       refetchCompletion();
     },
-    onError: (error) => {
-      console.error('Image update error:', error);
-      toast.error('فشل في تحديث الصورة');
-    },
+    onError: () => toast.error('فشل في تحديث الصورة'),
   });
 
   const updateProfileMutation = useMutation({
@@ -120,7 +116,7 @@ export default function ProfilePage() {
           <div className="relative inline-block">
             <div className="w-24 h-24 rounded-2xl border-4 border-white dark:border-gray-800 overflow-hidden bg-gradient-to-br from-primary-400 to-accent-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
               {user.profileImage ? (
-                <img src={user.profileImage} alt={user.name} className="w-full h-full object-cover" />
+                <img src={resolveFileUrl(user.profileImage)} alt={user.name} className="w-full h-full object-cover" />
               ) : (
                 user.name.charAt(0).toUpperCase()
               )}
