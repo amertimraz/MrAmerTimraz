@@ -129,7 +129,6 @@ export default function AdminUsers() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{u.phoneNumber}</td>
                   <td className="px-5 py-3">
                     {u.studentCode ? (
                       <span className="font-mono font-bold text-accent-600 dark:text-accent-400">{u.studentCode}</span>
@@ -137,6 +136,7 @@ export default function AdminUsers() {
                       <span className="text-gray-300 dark:text-gray-600">-</span>
                     )}
                   </td>
+                  <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{u.phoneNumber}</td>
                   <td className="px-5 py-3">
                     <span className={`${roleBadge(u.role)} flex items-center gap-1 w-fit`}>
                       {roleIcon(u.role)} {roleLabel(u.role)}
