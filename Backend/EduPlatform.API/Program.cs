@@ -1,5 +1,6 @@
 using System.Text;
 using EduPlatform.API.Data;
+using EduPlatform.API.Models;
 using EduPlatform.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -657,6 +658,51 @@ using (var scope = app.Services.CreateScope())
             }
             catch { }
         }
+        
+        // Generate StudentCode for existing students without one
+        await GenerateStudentCodesForExistingUsersAsync(db);
+    }
+}
+
+// Generate StudentCode for existing students without one
+static async Task GenerateStudentCodesForExistingUsersAsync(AppDbContext db)
+{
+    try
+    {
+        var studentsWithoutCode = await db.Users
+            .Where(u => u.Role == UserRole.Student && string.IsNullOrEmpty(u.StudentCode))
+            .OrderBy(u => u.Id)
+            .ToListAsync();
+        
+        if (studentsWithoutCode.Count == 0) return;
+        
+        Console.WriteLine($"[MIGRATION] Generating StudentCode for {studentsWithoutCode.Count} existing students...");
+        
+        var year = DateTime.UtcNow.Year;
+        var random = new Random();
+        
+        foreach (var student in studentsWithoutCode)
+        {
+            string code;
+            bool exists;
+            
+            do
+            {
+                var number = random.Next(1, 10000).ToString("D4");
+                code = $"STD-{year}-{number}";
+                exists = await db.Users.AsNoTracking().AnyAsync(u => u.StudentCode == code);
+            } while (exists);
+            
+            student.StudentCode = code;
+            Console.WriteLine($"[MIGRATION] Assigned StudentCode {code} to user {student.Name} (ID: {student.Id})");
+        }
+        
+        await db.SaveChangesAsync();
+        Console.WriteLine($"[MIGRATION] Successfully generated StudentCode for {studentsWithoutCode.Count} students.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[MIGRATION ERROR] Failed to generate StudentCode: {ex.Message}");
     }
 }
 
