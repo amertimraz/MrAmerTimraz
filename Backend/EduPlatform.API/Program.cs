@@ -671,30 +671,30 @@ static async Task GenerateStudentCodesForExistingUsersAsync(AppDbContext db)
     {
         var studentsWithoutCode = await db.Users
             .Where(u => u.Role == UserRole.Student && string.IsNullOrEmpty(u.StudentCode))
-            .OrderBy(u => u.Id)
+            .OrderBy(u => u.CreatedAt) // Order by registration date (oldest first)
             .ToListAsync();
         
         if (studentsWithoutCode.Count == 0) return;
         
-        Console.WriteLine($"[MIGRATION] Generating StudentCode for {studentsWithoutCode.Count} existing students...");
+        Console.WriteLine($"[MIGRATION] Generating sequential StudentCode for {studentsWithoutCode.Count} existing students...");
         
         var year = DateTime.UtcNow.Year;
-        var random = new Random();
+        int counter = 1;
         
         foreach (var student in studentsWithoutCode)
         {
-            string code;
-            bool exists;
+            string code = $"STD-{year}-{counter:D4}";
             
-            do
+            // Ensure uniqueness (in case some codes already exist)
+            while (await db.Users.AsNoTracking().AnyAsync(u => u.StudentCode == code))
             {
-                var number = random.Next(1, 10000).ToString("D4");
-                code = $"STD-{year}-{number}";
-                exists = await db.Users.AsNoTracking().AnyAsync(u => u.StudentCode == code);
-            } while (exists);
+                counter++;
+                code = $"STD-{year}-{counter:D4}";
+            }
             
             student.StudentCode = code;
-            Console.WriteLine($"[MIGRATION] Assigned StudentCode {code} to user {student.Name} (ID: {student.Id})");
+            Console.WriteLine($"[MIGRATION] Assigned StudentCode {code} to user {student.Name} (ID: {student.Id}, Registered: {student.CreatedAt})");
+            counter++;
         }
         
         await db.SaveChangesAsync();
