@@ -43,11 +43,16 @@ export default function ProfilePage() {
   const updateImageMutation = useMutation({
     mutationFn: (imageUrl: string) => authApi.updateMyProfileImage(imageUrl),
     onSuccess: (updatedUser) => {
+      console.log('Updated user:', updatedUser);
+      console.log('Profile image:', updatedUser.profileImage);
       updateUser({ profileImage: updatedUser.profileImage });
       toast.success('تم تحديث صورتك بنجاح! 🎉');
       refetchCompletion();
     },
-    onError: () => toast.error('فشل في تحديث الصورة'),
+    onError: (error) => {
+      console.error('Image update error:', error);
+      toast.error('فشل في تحديث الصورة');
+    },
   });
 
   const updateProfileMutation = useMutation({
