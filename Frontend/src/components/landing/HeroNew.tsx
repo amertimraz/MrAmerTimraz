@@ -55,9 +55,45 @@ export default function Hero() {
         />
       </div>
 
-      {/* Gradient Orbs */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-green-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
+      {/* Animated Gradient Orbs */}
+      <motion.div
+        className="absolute top-20 left-10 w-72 h-72 bg-green-500/10 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.1, 0.15, 0.1],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+      <motion.div
+        className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.1, 0.18, 0.1],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: 1,
+        }}
+      />
+      <motion.div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.4, 1],
+          opacity: [0.05, 0.1, 0.05],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: 2,
+        }}
+      />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid lg:grid-cols-12 gap-8 items-center">
@@ -197,9 +233,55 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="lg:col-span-5 flex justify-center lg:justify-end"
+            className="lg:col-span-5 flex justify-center lg:justify-end relative"
           >
-            <div
+            {/* Floating Elements */}
+            <motion.div
+              className="absolute -top-4 -right-4 w-16 h-16 bg-green-500/20 rounded-2xl backdrop-blur-sm border border-green-500/30 flex items-center justify-center"
+              animate={{
+                y: [0, -15, 0],
+                rotate: [0, 5, 0],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            >
+              <span className="text-3xl">🚀</span>
+            </motion.div>
+            <motion.div
+              className="absolute top-1/2 -left-8 w-14 h-14 bg-blue-500/20 rounded-2xl backdrop-blur-sm border border-blue-500/30 flex items-center justify-center"
+              animate={{
+                y: [0, 20, 0],
+                rotate: [0, -10, 0],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: 1,
+              }}
+            >
+              <span className="text-2xl">💻</span>
+            </motion.div>
+            <motion.div
+              className="absolute -bottom-6 right-1/4 w-12 h-12 bg-purple-500/20 rounded-2xl backdrop-blur-sm border border-purple-500/30 flex items-center justify-center"
+              animate={{
+                y: [0, -12, 0],
+                rotate: [0, 8, 0],
+              }}
+              transition={{
+                duration: 4.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: 0.5,
+              }}
+            >
+              <span className="text-xl">🤖</span>
+            </motion.div>
+
+            <motion.div
               className="relative rounded-2xl overflow-hidden shadow-2xl"
               style={{
                 width: 280,
@@ -209,6 +291,11 @@ export default function Hero() {
                   : 'linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(16,185,129,0.05) 100%)',
                 border: isDark ? '1px solid rgba(34,197,94,0.2)' : '1px solid rgba(34,197,94,0.3)',
               }}
+              whileHover={{
+                scale: 1.02,
+                boxShadow: '0 25px 50px -12px rgba(34, 197, 94, 0.25)',
+              }}
+              transition={{ duration: 0.3 }}
             >
               {/* Image */}
               <TeacherPhoto className="w-full h-full" />
@@ -240,7 +327,7 @@ export default function Hero() {
                   <span className="text-xs font-bold text-gray-900">5.0</span>
                 </div>
               </motion.div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
