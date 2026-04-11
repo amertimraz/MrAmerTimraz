@@ -3,7 +3,7 @@ import {
   LayoutDashboard, BookOpen, FileText, Trophy,
   Gamepad2, Bell, Users, LogOut, GraduationCap, Settings,
   Database, Zap, Tag, Home, CreditCard, FolderOpen, Layers, Video,
-  Wallet, UserCircle2,
+  Wallet, UserCircle2, HardDrive,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -49,6 +49,7 @@ const adminLinks: NavItem[] = [
   { to: '/admin/booklets',      icon: <BookOpen size={20} />,   label: 'الملازم الدراسية' },
   { to: '/admin/booklet-stats', icon: <CreditCard size={20} />, label: 'إحصائيات الملازم' },
   { to: '/admin/payment-settings', icon: <Wallet size={20} />, label: 'إعدادات الدفع' },
+  { to: '/admin/files',         icon: <HardDrive size={20} />,  label: 'إدارة الملفات' },
   { to: '/student/games',       icon: <div className="relative"><Gamepad2 size={20} /><span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span></div>, label: 'الألعاب التعليمية (قريباً)' },
   { to: '/admin/settings',      icon: <Settings size={20} />, label: 'الإعدادات' },
 ];
