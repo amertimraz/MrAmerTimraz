@@ -24,4 +24,11 @@ export const videosApi = {
   
   toggleReaction: (commentId: number, type: string) => 
     client.post(`/videos/comments/${commentId}/react`, { type }),
+
+  // Mux Direct Upload
+  createMuxDirectUpload: () =>
+    client.post<{ uploadUrl: string; assetId: string }>('/videos/mux/direct-upload').then(r => r.data),
+
+  getMuxPlaybackId: (assetId: string) =>
+    client.get<{ playbackId: string; url: string }>(`/videos/mux/asset/${assetId}/playback`).then(r => r.data),
 };

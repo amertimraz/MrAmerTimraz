@@ -11,6 +11,7 @@ import {
 import toast from 'react-hot-toast';
 import AiDescriptionButton from '../../components/ui/AiDescriptionButton';
 import MediaUploadField from '../../components/ui/MediaUploadField';
+import MuxUploadField from '../../components/ui/MuxUploadField';
 
 const getYTId = (url: string) => {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?]+)/);
@@ -227,12 +228,19 @@ export default function AddLessonPage() {
           </div>
 
           {/* URL Input */}
-          {form.source === 'Upload' || form.source === 'Mux' ? (
+          {form.source === 'Upload' ? (
             <MediaUploadField
               type="video"
               value={form.url}
               onChange={url => setForm(p => ({ ...p, url }))}
-              label={form.source === 'Mux' ? 'فيديو الدرس (Mux)' : 'فيديو الدرس'}
+              label="فيديو الدرس"
+              optional={false}
+            />
+          ) : form.source === 'Mux' ? (
+            <MuxUploadField
+              value={form.url}
+              onChange={url => setForm(p => ({ ...p, url }))}
+              label="رفع فيديو مباشر إلى Mux"
               optional={false}
             />
           ) : (

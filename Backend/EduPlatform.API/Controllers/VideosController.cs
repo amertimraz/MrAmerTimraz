@@ -101,6 +101,42 @@ public class VideosController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = video.Id }, video);
     }
 
+    [HttpPost("mux/direct-upload"), Authorize(Roles = "Teacher,Admin")]
+    public async Task<IActionResult> CreateMuxDirectUpload()
+    {
+        var result = await _mux.CreateDirectUploadAsync();
+        if (result == null)
+            return BadRequest(new { message = "فشل في إنشاء رابط رفع مباشر" });
+        
+        return Ok(new { uploadUrl = result.UploadUrl, assetId = result.AssetId });
+    }
+
+    [HttpGet("mux/asset/{assetId}/playback"), Authorize(Roles = "Teacher,Admin")]
+    public async Task<IActionResult> GetMuxPlaybackId(string assetId)
+    {
+        // Poll Mux API to get playback ID
+        try
+        {
+            var maxAttempts = 30; // 30 attempts with 2 second delay = 60 seconds max
+            for (var i = 0; i < maxAttempts; i++)
+            {
+                var response = await _mux.GetPlaybackIdAsync(assetId);
+                if (!string.IsNullOrEmpty(response))
+                {
+                    return Ok(new { playbackId = response, url = $"https://stream.mux.com/{response}.m3u8" });
+                }
+                
+                await Task.Delay(2000); // Wait 2 seconds before next attempt
+            }
+            
+            return BadRequest(new { message = "الفيديو قيد المعالجة، حاول مرة أخرى لاحقاً" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"خطأ في جلب معلومات الفيديو: {ex.Message}" });
+        }
+    }
+
     [HttpPut("{id}"), Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] CreateVideoDto dto)
     {

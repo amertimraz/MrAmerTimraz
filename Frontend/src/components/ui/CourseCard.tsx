@@ -1,6 +1,7 @@
 import { BookOpen, Video, FileText, Users } from 'lucide-react';
 import type { Course } from '../../types';
 import { useAuthStore } from '../../store/authStore';
+import { resolveFileUrl } from '../../config';
 
 interface CourseCardProps {
   course: Course;
@@ -19,7 +20,7 @@ export default function CourseCard({ course, onClick, actions }: CourseCardProps
     >
       <div className="relative h-40 bg-gradient-to-br from-primary-500 to-accent-600 overflow-hidden">
         {course.thumbnailUrl ? (
-          <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
+          <img src={resolveFileUrl(course.thumbnailUrl)} alt={course.title} className="w-full h-full object-cover" />
         ) : (
           <div className="flex items-center justify-center h-full">
             <BookOpen size={48} className="text-white/60" />
