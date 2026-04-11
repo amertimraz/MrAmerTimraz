@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, Star, ArrowLeft, Play, Award, Clock, CheckCircle } from 'lucide-react';
+import { BookOpen, Star, ArrowLeft, Play, Clock, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 function TeacherPhoto({ className }: { className?: string }) {
@@ -99,23 +99,6 @@ export default function Hero() {
         <div className="grid lg:grid-cols-12 gap-8 items-center">
           {/* Text Content */}
           <div className="lg:col-span-7 space-y-6">
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
-              style={{
-                background: isDark ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.1)',
-                border: '1px solid rgba(34,197,94,0.3)',
-              }}
-            >
-              <Award size={16} className="text-green-500" />
-              <span className={isDark ? 'text-green-400' : 'text-green-600'}>
-                أفضل منصة تعليمية في مصر
-              </span>
-            </motion.div>
-
             {/* Heading */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
