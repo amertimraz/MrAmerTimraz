@@ -31,6 +31,7 @@ const navLinks = [
   { to: '/',        label: 'الرئيسية'   },
   { to: '/courses', label: 'الدروس'     },
   { to: '/library', label: 'المكتبة'    },
+  { to: '/masarat', label: 'دليل المسارات' },
   { to: '/about',   label: 'عن مستر' },
   { to: '/contact', label: 'تواصل معنا' },
 ];

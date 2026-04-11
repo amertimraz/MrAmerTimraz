@@ -778,6 +778,7 @@ app.UseExceptionHandler(appError =>
         }
     });
 });
+app.UseDefaultFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
@@ -814,5 +815,11 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+var spaIndex = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "index.html");
+if (File.Exists(spaIndex))
+{
+    app.MapFallbackToFile("index.html");
+}
 
 app.Run();

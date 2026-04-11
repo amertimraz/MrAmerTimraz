@@ -1,0 +1,23 @@
+# Git & tooling
+.git
+.gitignore
+**/.DS_Store
+
+# Node (إعادة التثبيت داخل الصورة)
+**/node_modules
+Frontend/dist
+
+# .NET
+**/bin
+**/obj
+**/*.user
+**/*.db
+**/*.db-shm
+**/*.db-wal
+
+# رفع محلي — تُنشأ في الحاوية أو Volume
+Backend/EduPlatform.API/uploads/
+
+# وثائق وسكربتات لا تُبنى
+**/Docs
+Games

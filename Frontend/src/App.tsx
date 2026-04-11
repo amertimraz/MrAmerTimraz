@@ -22,6 +22,7 @@ const CoursesPage = lazy(() => import('./pages/landing/CoursesPage'));
 const AboutPage = lazy(() => import('./pages/landing/AboutPage'));
 const ContactPage = lazy(() => import('./pages/landing/ContactPage'));
 const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
+const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 
@@ -108,6 +109,7 @@ export default function App() {
               <Route path="/about"    element={<AboutPage />} />
               <Route path="/contact"  element={<ContactPage />} />
               <Route path="/library"  element={<LibraryPage />} />
+              <Route path="/masarat"  element={<PathsGuidePage />} />
             </Route>
 
             <Route path="/login"    element={<LoginPage />} />
