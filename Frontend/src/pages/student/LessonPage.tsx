@@ -126,13 +126,35 @@ export default function LessonPage() {
       {/* Video Player */}
       <div className="card overflow-hidden shadow-2xl shadow-primary-500/10 border-none bg-black ring-1 ring-gray-200 dark:ring-gray-800 relative select-none">
         {video.source === 'YouTube' || video.source === 'Vimeo' ? (
-          <iframe
-            src={`${getEmbedUrl(video.url, video.source)}?modestbranding=1&rel=0&showinfo=0&controls=1&enablejsapi=1`}
-            className="w-full aspect-video"
-            allowFullScreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            onContextMenu={(e) => e.preventDefault()}
-          />
+          <div className="relative w-full aspect-video" id="video-container">
+            <iframe
+              src={`${getEmbedUrl(video.url, video.source)}?modestbranding=1&rel=0&showinfo=0&controls=1&enablejsapi=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=0&widget_referrer=${encodeURIComponent(window.location.href)}`}
+              className="w-full h-full"
+              allowFullScreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              onContextMenu={(e) => e.preventDefault()}
+              title="Video Player"
+              id="youtube-iframe"
+            />
+            {/* Overlay to hide YouTube logo */}
+            <div className="absolute bottom-0 left-0 w-24 h-12 bg-black pointer-events-none z-20" />
+            <style>{`
+              #youtube-iframe {
+                pointer-events: auto;
+              }
+              #video-container::before {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 60px;
+                background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+                pointer-events: none;
+                z-index: 10;
+              }
+            `}</style>
+          </div>
         ) : (
           <video
             src={resolveFileUrl(video.url)}
