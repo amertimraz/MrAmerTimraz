@@ -13,7 +13,6 @@ interface MuxUploadFieldProps {
 export default function MuxUploadField({ value, onChange, label, optional = true }: MuxUploadFieldProps) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [assetId, setAssetId] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -27,12 +26,10 @@ export default function MuxUploadField({ value, onChange, label, optional = true
 
     setUploading(true);
     setProgress(0);
-    setAssetId('');
 
     try {
       // Step 1: Create direct upload URL from Backend
       const { uploadUrl, assetId: newAssetId } = await videosApi.createMuxDirectUpload();
-      setAssetId(newAssetId);
 
       // Step 2: Upload file directly to Mux
       const xhr = new XMLHttpRequest();
@@ -87,7 +84,6 @@ export default function MuxUploadField({ value, onChange, label, optional = true
   const clear = () => {
     onChange('');
     setProgress(0);
-    setAssetId('');
     setIsProcessing(false);
   };
 
