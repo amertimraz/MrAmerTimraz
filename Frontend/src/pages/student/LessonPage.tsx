@@ -124,16 +124,25 @@ export default function LessonPage() {
       </div>
 
       {/* Video Player */}
-      <div className="card overflow-hidden shadow-2xl shadow-primary-500/10 border-none bg-black ring-1 ring-gray-200 dark:ring-gray-800">
+      <div className="card overflow-hidden shadow-2xl shadow-primary-500/10 border-none bg-black ring-1 ring-gray-200 dark:ring-gray-800 relative select-none">
         {video.source === 'YouTube' || video.source === 'Vimeo' ? (
-          <iframe 
-            src={getEmbedUrl(video.url, video.source)} 
-            className="w-full aspect-video" 
+          <iframe
+            src={`${getEmbedUrl(video.url, video.source)}?modestbranding=1&rel=0&showinfo=0&controls=1&enablejsapi=1`}
+            className="w-full aspect-video"
             allowFullScreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            onContextMenu={(e) => e.preventDefault()}
           />
         ) : (
-          <video src={resolveFileUrl(video.url)} controls className="w-full aspect-video bg-black" />
+          <video
+            src={resolveFileUrl(video.url)}
+            controls
+            controlsList="nodownload noremoteplayback noplaybackrate"
+            disablePictureInPicture
+            className="w-full aspect-video bg-black"
+            onContextMenu={(e) => e.preventDefault()}
+            onDragStart={(e) => e.preventDefault()}
+          />
         )}
       </div>
 
