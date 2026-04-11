@@ -72,24 +72,33 @@ public class VideoService : IVideoService
 
     public async Task<Video> CreateAsync(CreateVideoDto dto)
     {
-        var video = new Video
+        try
         {
-            CourseId = dto.CourseId,
-            Title = dto.Title,
-            Description = dto.Description,
-            Url = dto.Url,
-            Source = dto.Source,
-            DurationSeconds = dto.DurationSeconds,
-            OrderIndex = dto.OrderIndex,
-            PdfUrl = dto.PdfUrl,
-            PdfFilename = dto.PdfFilename,
-            ThumbnailUrl = dto.ThumbnailUrl,
-            Slug = dto.Slug
-        };
+            var video = new Video
+            {
+                CourseId = dto.CourseId,
+                Title = dto.Title,
+                Description = dto.Description,
+                Url = dto.Url,
+                Source = dto.Source,
+                DurationSeconds = dto.DurationSeconds,
+                OrderIndex = dto.OrderIndex,
+                PdfUrl = dto.PdfUrl,
+                PdfFilename = dto.PdfFilename,
+                ThumbnailUrl = dto.ThumbnailUrl,
+                Slug = dto.Slug
+            };
 
-        _db.Videos.Add(video);
-        await _db.SaveChangesAsync();
-        return video;
+            _db.Videos.Add(video);
+            await _db.SaveChangesAsync();
+            return video;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in CreateAsync: {ex.Message}");
+            Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+            throw;
+        }
     }
 
     public async Task<Video?> GetBySlugAsync(string slug)
