@@ -33,6 +33,101 @@ public class UploadsController : ControllerBase
     public async Task<IActionResult> UploadVideo(IFormFile file)
         => await SaveFile(file, "videos", AllowedVideos, MaxVideoSize);
 
+    [HttpDelete("{folder}/{fileName}"), Authorize(Roles = "Admin,Teacher")]
+    public IActionResult DeleteFile(string folder, string fileName)
+    {
+        try
+        {
+            // Security: prevent directory traversal
+            if (fileName.Contains("..") || fileName.Contains("/") || fileName.Contains("\\"))
+                return BadRequest("اسم ملف غير صالح");
+
+            string[] allowedFolders = { "images", "pdfs", "videos" };
+            if (!allowedFolders.Contains(folder))
+                return BadRequest("مجلد غير مسموح");
+
+            // Determine storage path (same logic as SaveFile)
+            string root;
+            string[] possiblePaths = {
+                _env.WebRootPath,
+                "/data/wwwroot",
+                "/tmp/wwwroot",
+                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"),
+                Path.Combine(Path.GetTempPath(), "wwwroot")
+            };
+            
+            root = possiblePaths.FirstOrDefault(p => !string.IsNullOrEmpty(p)) ?? possiblePaths[4];
+            var filePath = Path.Combine(root, "uploads", folder, fileName);
+
+            Console.WriteLine($"Attempting to delete: {filePath}");
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound("الملف غير موجود");
+
+            System.IO.File.Delete(filePath);
+            Console.WriteLine($"File deleted: {fileName}");
+
+            return Ok(new { message = "تم حذف الملف بنجاح" });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting file: {ex.Message}");
+            return StatusCode(500, $"فشل في حذف الملف: {ex.Message}");
+        }
+    }
+
+    [HttpGet("cleanup-incomplete"), Authorize(Roles = "Admin")]
+    public IActionResult CleanupIncompleteFiles()
+    {
+        try
+        {
+            var deletedCount = 0;
+            string[] folders = { "images", "pdfs", "videos" };
+            string[] possiblePaths = {
+                _env.WebRootPath,
+                "/data/wwwroot",
+                "/tmp/wwwroot",
+                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"),
+                Path.Combine(Path.GetTempPath(), "wwwroot")
+            };
+            
+            var root = possiblePaths.FirstOrDefault(p => !string.IsNullOrEmpty(p)) ?? possiblePaths[4];
+
+            foreach (var folder in folders)
+            {
+                var dir = Path.Combine(root, "uploads", folder);
+                if (!Directory.Exists(dir)) continue;
+
+                var files = Directory.GetFiles(dir);
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        var info = new FileInfo(file);
+                        // Delete files that are 0 bytes (incomplete uploads) or older than 24 hours
+                        if (info.Length == 0 || info.CreationTime < DateTime.Now.AddHours(-24))
+                        {
+                            System.IO.File.Delete(file);
+                            deletedCount++;
+                            Console.WriteLine($"Deleted incomplete/old file: {info.Name}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error checking file {file}: {ex.Message}");
+                    }
+                }
+            }
+
+            return Ok(new { message = $"تم حذف {deletedCount} ملف", deletedCount });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Cleanup error: {ex.Message}");
+            return StatusCode(500, $"فشل في التنظيف: {ex.Message}");
+        }
+    }
+
     private async Task<IActionResult> SaveFile(IFormFile? file, string folder, string[] allowed, long maxSize)
     {
         try
