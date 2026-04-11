@@ -13,11 +13,13 @@ import {
   ExternalLink,
   Users,
   TrendingUp,
+  Send,
+  Loader2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import FloatingAiChat from '../../components/ui/FloatingAiChat';
 import { pathResultsApi } from '../../api/pathResults';
+import { aiApi } from '../../api/ai';
 
 export type TrackId = 'life' | 'engineering' | 'business' | 'arts';
 
@@ -179,9 +181,11 @@ const INTRO_TEXT = [
 const ASK_NAME_ACK = (name: string) =>
   `تمام يا **${name}** 🌟\nكده نقدر نكمّل بارتياح. جاهز/جاهزة للأسئلة؟ اضغط الزر تحت لما تكون جاهز.`;
 
-type Phase = 'intro' | 'name_entry' | 'quiz' | 'result';
+type Phase = 'intro' | 'name_entry' | 'quiz' | 'result' | 'ai_chat';
 
 type ChatMsg = { id: string; role: 'guide' | 'user'; body: string };
+
+type AIMsg = { id: string; role: 'user' | 'assistant'; content: string; };
 
 function uid() {
   return crypto.randomUUID();
@@ -289,6 +293,11 @@ export default function PathsGuidePage() {
     todayCount: number;
     trackDistribution: { trackId: string; trackName: string; count: number }[];
   } | null>(null);
+  
+  // AI Chat state
+  const [aiMessages, setAiMessages] = useState<AIMsg[]>([]);
+  const [aiInput, setAiInput] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   const displayName = safeDisplayName(studentName);
 
@@ -371,6 +380,30 @@ export default function PathsGuidePage() {
     const dn = safeDisplayName(studentName);
     pushMsg('guide', `${Q_LEADS[0]}\nيا ${dn}، ${QUESTIONS[0].q}`);
   }
+
+  // AI Chat function
+  const sendAiMessage = useCallback(async () => {
+    if (!aiInput.trim() || isAiLoading) return;
+    
+    const userMsg: AIMsg = { id: Math.random().toString(36), role: 'user', content: aiInput.trim() };
+    setAiMessages(prev => [...prev, userMsg]);
+    setAiInput('');
+    setIsAiLoading(true);
+    
+    try {
+      const aiContext = `أنت خبير متخصص في نظام البكالوريا المصري الجديد (2025/2026). المسارات الأربعة هي: 1) الطب وعلوم الحياة (طب، صيدلة، تمريض)، 2) الهندسة والحاسب (جميع الهندسات، CS، AI)، 3) الأعمال (تجارة، اقتصاد، إدارة)، 4) الآداب والفنون (آداب، حقوق، إعلام، فنون). أجب بشكل مختصر ومفيد.`;
+      
+      const response = await aiApi.describe(aiContext + '\n\nسؤال الطالب: ' + userMsg.content, 'استفسار عن المسارات');
+      
+      const aiMsg: AIMsg = { id: Math.random().toString(36), role: 'assistant', content: response.description };
+      setAiMessages(prev => [...prev, aiMsg]);
+    } catch {
+      const errorMsg: AIMsg = { id: Math.random().toString(36), role: 'assistant', content: 'عذراً، حدث خطأ. حاول مرة أخرى.' };
+      setAiMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsAiLoading(false);
+    }
+  }, [aiInput, isAiLoading]);
 
   async function selectOption(track: TrackId, label: string) {
     const nextAnswers = [...answers];
@@ -731,6 +764,101 @@ export default function PathsGuidePage() {
               <Link to="/library" className={`block text-center text-xs py-1 ${subtext} hover:text-green-500`}>
                 الرجوع للمكتبة
               </Link>
+              
+              {/* AI Chat Button */}
+              <button
+                type="button"
+                onClick={() => setPhase('ai_chat')}
+                className={`w-full mt-2 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  isDark
+                    ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30'
+                    : 'bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 border border-purple-300 hover:bg-purple-200'
+                }`}
+              >
+                <Bot size={18} />
+                اسأل AI عن المسارات والكليات 🤖
+              </button>
+            </div>
+          )}
+
+          {phase === 'ai_chat' && (
+            <div className="space-y-3">
+              <div className={`text-center py-2 border-b ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+                <p className={`font-bold ${text}`}>🤖 AI - أسئلة عن المسارات</p>
+                <p className={`text-[10px] ${subtext}`}>اسأل أي سؤال عن نظام البكالوريا الجديد</p>
+              </div>
+              
+              {/* AI Messages */}
+              <div className={`h-[200px] overflow-y-auto space-y-2 p-2 rounded-xl ${isDark ? 'bg-black/20' : 'bg-gray-50'}`}>
+                {aiMessages.length === 0 && (
+                  <div className={`text-center py-4 ${subtext}`}>
+                    <Bot size={32} className="mx-auto mb-2 opacity-50" />
+                    <p className="text-xs">مرحباً! أنا AI مساعدك في نظام البكالوريا الجديد</p>
+                    <p className="text-[10px] mt-1">مثال: "ما الفرق بين مساري الهندسة والطب؟"</p>
+                  </div>
+                )}
+                
+                {aiMessages.map((msg) => (
+                  <div key={msg.id} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 ${
+                      msg.role === 'user'
+                        ? isDark ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'
+                        : isDark ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-600'
+                    }`}>
+                      {msg.role === 'user' ? '👤' : '🤖'}
+                    </div>
+                    <div className={`max-w-[80%] rounded-xl px-3 py-2 text-xs leading-relaxed ${
+                      msg.role === 'user'
+                        ? isDark ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
+                        : isDark ? 'bg-[#2a2f3e] text-gray-100' : 'bg-white text-gray-800 shadow-sm'
+                    }`}>
+                      {msg.content}
+                    </div>
+                  </div>
+                ))}
+                
+                {isAiLoading && (
+                  <div className="flex gap-2">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
+                      🤖
+                    </div>
+                    <div className={`rounded-xl px-3 py-2 ${isDark ? 'bg-[#2a2f3e]' : 'bg-white shadow-sm'}`}>
+                      <Loader2 size={14} className="animate-spin text-purple-500" />
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* AI Input */}
+              <div className={`flex items-center gap-2 rounded-xl px-3 py-2 ${isDark ? 'bg-[#2a2f3e] border border-white/10' : 'bg-gray-100'}`}>
+                <input
+                  type="text"
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendAiMessage()}
+                  placeholder="اكتب سؤالك هنا..."
+                  className={`flex-1 bg-transparent text-xs outline-none ${isDark ? 'text-white placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'}`}
+                />
+                <button
+                  onClick={sendAiMessage}
+                  disabled={!aiInput.trim() || isAiLoading}
+                  className={`p-1.5 rounded-lg transition-colors ${
+                    aiInput.trim() && !isAiLoading
+                      ? 'bg-purple-500 text-white hover:bg-purple-600'
+                      : isDark ? 'text-gray-500' : 'text-gray-400'
+                  }`}
+                >
+                  <Send size={14} />
+                </button>
+              </div>
+              
+              <button
+                type="button"
+                onClick={() => setPhase('result')}
+                className={`w-full py-2 rounded-xl text-xs font-medium border ${mutedBorder} ${subtext}`}
+              >
+                ← العودة للنتيجة
+              </button>
             </div>
           )}
 
@@ -747,135 +875,6 @@ export default function PathsGuidePage() {
         مسارات البكالوريا الأربعة (تقريبية): طب وعلوم حياة — هندسة وحاسب — أعمال — آداب وفنون. التفاصيل الرسمية من
         وزارة التربية والتعليم ومدرستك.
       </p>
-
-      {/* Floating AI Chat */}
-      <FloatingAiChat
-        context={`أنت خبير متخصص في نظام البكالوريا المصري الجديد (2025/2026). لديك معلومات شاملة تساعد الطلاب على فهم نظام الثانوية العامة الجديد والمسارات الأربعة المتاحة.
-
-## نظام البكالوريا المصري الجديد - نظرة عامة:
-- يبدأ تطبيقه العام الدراسي 2025/2026
-- يعتمد على 4 مسارات رئيسية بدلاً من الشعبتين (علمي/أدبي) السابقتين
-- يتضمن اختبارات قدرات للكليات التي تتطلب موهبة (فنون جميلة، فنون تطبيقية، تربية موسيقية، تربية فنية، تمثيل وإخراج، إعلام)
-
-## المسارات الأربعة:
-
-### 1. مسار الطب وعلوم الحياة (Life Sciences):
-**المواد الأساسية:**
-- اللغة العربية، اللغة الأجنبية الأولى، التربية الدينية، التربية الوطنية
-- الكيمياء (مشتركة بين مسارين)
-- الأحياء والتقنية الحيوية
-- الجيولوجيا وعلوم البيئة
-- الفيزياء
-- الرياضيات التطبيقية
-
-**الكليات المتاحة:**
-- كليات الطب البشري، طب الأسنان، الصيدلة
-- العلاج الطبيعي، التمريض، التكنولوجيا الحيوية
-- علوم الحياة، البيئة، المختبرات، القطاع البحري
-- الزراعة، علوم البحار، طب بيطري
-- تحاليل طبية، علاج طبيعي، سمعيات
-
-**الوظائف المستقبلية:**
-- طبيب، صيدلي، ممرض، معالج طبيعي، عالم بيولوجي
-- باحث علمي، مهندس زراعي، أخصائي تحاليل
-
-### 2. مسار الهندسة وعلوم الحاسب (Engineering & Computer Science):
-**المواد الأساسية:**
-- اللغة العربية، اللغة الأجنبية الأولى، التربية الدينية، التربية الوطنية
-- الكيمياء (مشتركة بين مسارين)
-- الفيزياء والطاقة
-- الرياضيات البحتة والتطبيقية
-- علوم الحاسب والذكاء الاصطناعي
-- الهندسة والتصميم
-
-**الكليات المتاحة:**
-- جميع كليات الهندسة (مدني، معماري، ميكانيكا، كهرباء، اتصالات، حاسبات)
-- علوم الحاسب، الذكاء الاصطناعي، علوم البيانات
-- الفنون الجميلة (قسم عمارة)
-- الفنون التطبيقية
-
-**الوظائف المستقبلية:**
-- مهندس في جميع التخصصات، مبرمج، عالم حاسوب
-- مطور AI، مصمم أنظمة، مهندس شبكات
-
-### 3. مسار الأعمال (Business & Economics):
-**المواد الأساسية:**
-- اللغة العربية، اللغة الأجنبية الأولى، التربية الدينية، التربية الوطنية
-- الاقتصاد والتعاون الدولي
-- الرياضيات البحتة والتطبيقية
-- إدارة الأعمال وريادة الأعمال
-- المحاسبة والمالية
-- علوم الحاسب والذكاء الاصطناعي (مادة اختيارية)
-
-**الكليات المتاحة:**
-- كليات التجارة (جميع الأقسام)
-- الاقتصاد والعلوم السياسية
-- إدارة الأعمال، ريادة الأعمال
-- السياحة والفنادق
-- علوم الحاسب (بعض الجامعات)
-
-**الوظائف المستقبلية:**
-- محاسب، مدير مالي، مستشار اقتصادي
-- رائد أعمال، مسؤول تسويق، مدير موارد بشرية
-- محلل مالي، مدير مشروعات
-
-### 4. مسار الآداب والفنون (Arts & Humanities):
-**المواد الأساسية:**
-- اللغة العربية والدراسات الإنسانية
-- اللغة الأجنبية الأولى والثانية
-- التربية الدينية، التربية الوطنية
-- التاريخ والجغرافيا
-- علم النفس وعلم الاجتماع
-- الفلسفة والمنطق
-- الفنون (الموسيقية، التشكيلية، المسرحية)
-- علوم الحاسب والذكاء الاصطناعي (مادة اختيارية)
-
-**الكليات المتاحة:**
-- الآداب (جميع الأقسام: تاريخ، جغرافيا، فلسفة، لغات)
-- دار العلوم، خدمة اجتماعية
-- الإعلام، إذاعة وتليفزيون
-- الحقوق، الشرطة، المعهد العالي للقضاء
-- الفنون الجميلة، فنون تطبيقية
-- التربية (جميع التخصصات)
-- الألسن، إرشاد سياحي
-
-**الوظائف المستقبلية:**
-- محامي، قاضي، إعلامي، صحفي
-- مؤرخ، جغرافي، دبلوماسي
-- فنان تشكيلي، موسيقي، ممثل
-- معلم، أخصائي نفسي، باحث اجتماعي
-
-## نظام الدرجات:
-- المجموع الكلي: 410 درجة (الحد الأدنى للقبول في الجامعات)
-- لا يوجد مجمّع، كل مادة لها وزنها في الحسبة
-- يمكن دمج درجات من مسارات مختلفة للقبول في بعض الكليات
-
-## كليات تحتاج اختبارات قدرات:
-- الفنون الجميلة، فنون تطبيقية
-- التربية الموسيقية، التربية الفنية
-- تمثيل وإخراج
-- الإعلام (بعض الجامعات)
-
-## مميزات النظام الجديد:
-- مرونة أكبر في اختيار المواد
-- يربط التعليم بالسوق العمل
-- يتيح للطالب تخصيص مساره الدراسي
-- يقلل من الضغط النفسي (لا مجمّع)
-
-## نصائح مهمة:
-- اختر المسار بناءً على ميولك وقدراتك وليس رغبة الآخرين
-- تحدث مع مرشد تربوي أو معلمي المواد
-- زر الكليات التي تهمك لتعرف متطلباتها
-- تابع صفحات التنسيق الرسمية للوزارة
-
-## مواقع مهمة للطالب:
-- موقع وزارة التربية والتعليم
-- موقع التنسيق الإلكتروني
-- موقع منصة أ. عامر تمراز للدروس الإضافية
-
-أجب على استفسارات الطلاب بشكل واضح، مختصر، ومفيد. استخدم لغة بسيطة وشجّع الطالب دائماً.`}
-        initialMessage="أهلاً! 👋 أنا مساعدك الخاص في فهم نظام البكالوريا الجديد.\n\nيمكنني مساعدتك في:\n📚 شرح المسارات الأربعة بالتفصيل\n🎓 معرفة الكليات المتاحة لكل مسار\n💼 فهم الوظائف المستقبلية\n❓ الإجابة على أي استفسار عن النظام الجديد\n\nكيف يمكنني مساعدتك اليوم؟"
-      />
     </div>
   );
 }
