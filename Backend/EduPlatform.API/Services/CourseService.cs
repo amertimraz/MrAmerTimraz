@@ -113,28 +113,58 @@ public class CourseService : ICourseService
 
     public async Task<List<CourseDto>> GetTeacherCoursesAsync(int teacherId)
     {
-        return await _db.Courses
-            .AsNoTracking()
-            .Where(c => c.CreatedBy == teacherId)
-            .Include(c => c.Teacher)
-            .Include(c => c.Videos)
-            .Include(c => c.Tests)
-            .Include(c => c.Enrollments)
-            .Select(c => MapToDto(c))
-            .ToListAsync();
+        try
+        {
+            return await _db.Courses
+                .AsNoTracking()
+                .Where(c => c.CreatedBy == teacherId)
+                .Include(c => c.Teacher)
+                .Include(c => c.Videos)
+                .Include(c => c.Tests)
+                .Include(c => c.Enrollments)
+                .Select(c => MapToDto(c))
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            // Fallback: try without Videos if schema is not updated
+            return await _db.Courses
+                .AsNoTracking()
+                .Where(c => c.CreatedBy == teacherId)
+                .Include(c => c.Teacher)
+                .Include(c => c.Tests)
+                .Include(c => c.Enrollments)
+                .Select(c => MapToDto(c))
+                .ToListAsync();
+        }
     }
 
     public async Task<List<CourseDto>> GetStudentCoursesAsync(int studentId)
     {
-        return await _db.Enrollments
-            .AsNoTracking()
-            .Where(e => e.StudentId == studentId)
-            .Include(e => e.Course).ThenInclude(c => c.Teacher)
-            .Include(e => e.Course).ThenInclude(c => c.Videos)
-            .Include(e => e.Course).ThenInclude(c => c.Tests)
-            .Include(e => e.Course).ThenInclude(c => c.Enrollments)
-            .Select(e => MapToDto(e.Course))
-            .ToListAsync();
+        try
+        {
+            return await _db.Enrollments
+                .AsNoTracking()
+                .Where(e => e.StudentId == studentId)
+                .Include(e => e.Course).ThenInclude(c => c.Teacher)
+                .Include(e => e.Course).ThenInclude(c => c.Videos)
+                .Include(e => e.Course).ThenInclude(c => c.Tests)
+                .Include(e => e.Course).ThenInclude(c => c.Enrollments)
+                .Select(e => MapToDto(e.Course))
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            // Fallback: try without Videos if schema is not updated
+            return await _db.Enrollments
+                .AsNoTracking()
+                .Where(e => e.StudentId == studentId)
+                .Include(e => e.Course).ThenInclude(c => c.Teacher)
+                .Include(e => e.Course).ThenInclude(c => c.Tests)
+                .Include(e => e.Course).ThenInclude(c => c.Enrollments)
+                .Select(e => MapToDto(e.Course))
+                .ToListAsync();
+        }
     }
 
     private static CourseDto MapToDto(Course c) => new()
