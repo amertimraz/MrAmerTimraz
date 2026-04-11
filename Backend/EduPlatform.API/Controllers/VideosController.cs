@@ -86,14 +86,18 @@ public class VideosController : ControllerBase
     [HttpPost, Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> Create([FromBody] CreateVideoDto dto)
     {
-        // If source is Mux, upload video to Mux and get playback ID
+        // If source is Mux and URL is not already a Mux stream URL, upload it
         if (dto.Source == VideoSource.Mux && !string.IsNullOrEmpty(dto.Url))
         {
-            var playbackId = await _mux.UploadVideoAsync(dto.Url, dto.Title, dto.ThumbnailUrl);
-            if (!string.IsNullOrEmpty(playbackId))
+            // Check if URL is already a Mux stream URL (skip upload if it is)
+            if (!dto.Url.StartsWith("https://stream.mux.com/"))
             {
-                // Store Mux playback URL
-                dto.Url = $"https://stream.mux.com/{playbackId}.m3u8";
+                var playbackId = await _mux.UploadVideoAsync(dto.Url, dto.Title, dto.ThumbnailUrl);
+                if (!string.IsNullOrEmpty(playbackId))
+                {
+                    // Store Mux playback URL
+                    dto.Url = $"https://stream.mux.com/{playbackId}.m3u8";
+                }
             }
         }
 
