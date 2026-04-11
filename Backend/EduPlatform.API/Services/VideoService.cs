@@ -93,6 +93,70 @@ public class VideoService : IVideoService
             await _db.SaveChangesAsync();
             return video;
         }
+        catch (DbUpdateException ex) when (ex.InnerException?.Message?.Contains("column") == true && 
+                                             ex.InnerException?.Message?.Contains("does not exist") == true)
+        {
+            // Fallback: try without PdfFilename and ThumbnailUrl if columns don't exist
+            Console.WriteLine("Database column not found, trying without new fields...");
+            Console.WriteLine($"Error: {ex.InnerException?.Message}");
+            
+            // Clear the failed entry from tracking
+            var entries = _db.ChangeTracker.Entries().ToList();
+            foreach (var entry in entries)
+            {
+                entry.State = EntityState.Detached;
+            }
+            
+            // Execute raw SQL to add the columns if they don't exist
+            try
+            {
+                await _db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"PdfFilename\" TEXT");
+                await _db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"ThumbnailUrl\" TEXT");
+                Console.WriteLine("Columns added successfully, retrying...");
+                
+                // Now retry with original data (columns should exist now)
+                var videoRetry = new Video
+                {
+                    CourseId = dto.CourseId,
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Url = dto.Url,
+                    Source = dto.Source,
+                    DurationSeconds = dto.DurationSeconds,
+                    OrderIndex = dto.OrderIndex,
+                    PdfUrl = dto.PdfUrl,
+                    PdfFilename = dto.PdfFilename,
+                    ThumbnailUrl = dto.ThumbnailUrl,
+                    Slug = dto.Slug
+                };
+
+                _db.Videos.Add(videoRetry);
+                await _db.SaveChangesAsync();
+                return videoRetry;
+            }
+            catch (Exception alterEx)
+            {
+                Console.WriteLine($"Failed to add columns, trying without new fields: {alterEx.Message}");
+                
+                // Final fallback: create video without new fields
+                var video = new Video
+                {
+                    CourseId = dto.CourseId,
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Url = dto.Url,
+                    Source = dto.Source,
+                    DurationSeconds = dto.DurationSeconds,
+                    OrderIndex = dto.OrderIndex,
+                    PdfUrl = dto.PdfUrl,
+                    Slug = dto.Slug
+                };
+
+                _db.Videos.Add(video);
+                await _db.SaveChangesAsync();
+                return video;
+            }
+        }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in CreateAsync: {ex.Message}");
