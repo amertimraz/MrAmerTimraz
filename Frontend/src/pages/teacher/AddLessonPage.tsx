@@ -6,12 +6,72 @@ import { coursesApi } from '../../api/courses';
 import { motion } from 'framer-motion';
 import {
   ArrowRight, Youtube, Play, Link2, FileText,
-  Hash, Clock, Eye, AlertCircle, Image as ImageIcon,
+  Hash, Clock, Eye, AlertCircle, Image as ImageIcon, Upload, Link as LinkIcon,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AiDescriptionButton from '../../components/ui/AiDescriptionButton';
 import MediaUploadField from '../../components/ui/MediaUploadField';
 import MuxUploadField from '../../components/ui/MuxUploadField';
+
+// Mux Input Section with tabs for Direct Upload or URL
+function MuxInputSection({ url, onChange }: { url: string; onChange: (url: string) => void }) {
+  const [tab, setTab] = useState<'upload' | 'url'>('upload');
+  
+  return (
+    <div className="space-y-3">
+      <div className="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1 gap-1 w-fit">
+        <button
+          type="button"
+          onClick={() => setTab('upload')}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            tab === 'upload'
+              ? 'bg-white dark:bg-gray-600 shadow text-primary-600'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <Upload size={14} /> رفع مباشر
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('url')}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            tab === 'url'
+              ? 'bg-white dark:bg-gray-600 shadow text-primary-600'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <LinkIcon size={14} /> رابط Mux
+        </button>
+      </div>
+      
+      {tab === 'upload' ? (
+        <MuxUploadField
+          value={url}
+          onChange={onChange}
+          label="رفع فيديو مباشر إلى Mux"
+          optional={false}
+        />
+      ) : (
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            رابط Mux (Playback URL)
+            <span className="text-red-500"> *</span>
+          </label>
+          <input
+            value={url}
+            onChange={e => onChange(e.target.value)}
+            className="input-field"
+            placeholder="https://stream.mux.com/xxxxx.m3u8"
+            required
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            مثال: https://stream.mux.com/peHsAB00z3o02QpXBGsy902DeB7Pdq9aeGNBxQZqSYiXPw.m3u8
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const getYTId = (url: string) => {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?]+)/);
@@ -237,11 +297,9 @@ export default function AddLessonPage() {
               optional={false}
             />
           ) : form.source === 'Mux' ? (
-            <MuxUploadField
-              value={form.url}
+            <MuxInputSection 
+              url={form.url}
               onChange={url => setForm(p => ({ ...p, url }))}
-              label="رفع فيديو مباشر إلى Mux"
-              optional={false}
             />
           ) : (
           <div>
