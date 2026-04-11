@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Clock, BookOpen, Play, Users, Star } from 'lucide-react';
 import { motion, type Variants } from 'framer-motion';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { useAuthStore } from '../../store/authStore';
 
 const courses = [
   {
@@ -35,9 +36,14 @@ const cardVariants: Variants = {
 export default function CoursesSection() {
   const { ref: headerRef, isInView: headerInView } = useScrollReveal();
   const { ref: cardsRef, isInView: cardsInView } = useScrollReveal();
+  const { isDark } = useAuthStore();
 
   return (
-    <section dir="rtl" className="py-20 bg-white" id="courses">
+    <section
+      dir="rtl"
+      className={`py-20 ${isDark ? 'bg-[#0d1117]' : 'bg-white'}`}
+      id="courses"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -48,11 +54,17 @@ export default function CoursesSection() {
           animate={headerInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: 'easeOut' }}
         >
-          <span className="inline-block bg-green-50 text-green-600 font-semibold text-sm px-4 py-2 rounded-full mb-4">
+          <span
+            className={`inline-block font-semibold text-sm px-4 py-2 rounded-full mb-4 ${
+              isDark ? 'bg-green-500/15 text-green-400' : 'bg-green-50 text-green-600'
+            }`}
+          >
             📚 المادة الدراسية
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">البرمجة والذكاء الاصطناعي</h2>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
+          <h2 className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            البرمجة والذكاء الاصطناعي
+          </h2>
+          <p className={`text-lg max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             محتوى تعليمي عالي الجودة مُصمَّم خصيصاً لطلاب أول ثانوي
           </p>
         </motion.div>
@@ -69,7 +81,11 @@ export default function CoursesSection() {
             <motion.div
               key={course.id}
               variants={cardVariants}
-              className={`group relative rounded-3xl border ${course.border} bg-gradient-to-br ${course.bg} p-8 transition-all duration-500 w-full max-w-sm overflow-hidden`}
+              className={`group relative rounded-3xl border p-8 transition-all duration-500 w-full max-w-sm overflow-hidden ${
+                isDark
+                  ? 'border-green-500/25 bg-gradient-to-br from-white/[0.06] to-white/[0.02]'
+                  : `${course.border} bg-gradient-to-br ${course.bg}`
+              }`}
               whileHover={{ 
                 y: -12,
                 boxShadow: '0 25px 50px -12px rgba(34, 197, 94, 0.25)',
@@ -89,33 +105,51 @@ export default function CoursesSection() {
                 {course.emoji}
               </motion.div>
 
-              <span className={`relative inline-block text-xs font-bold px-3 py-1 rounded-full mb-3 ${course.levelColor}`}>
+              <span
+                className={`relative inline-block text-xs font-bold px-3 py-1 rounded-full mb-3 ${
+                  isDark ? 'bg-green-500/20 text-green-400' : course.levelColor
+                }`}
+              >
                 {course.level}
               </span>
 
-              <h3 className="relative text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors">{course.title}</h3>
-              <p className="relative text-gray-600 text-sm leading-relaxed mb-6">{course.description}</p>
+              <h3
+                className={`relative text-xl font-bold mb-3 transition-colors ${
+                  isDark ? 'text-white group-hover:text-green-400' : 'text-gray-900 group-hover:text-green-600'
+                }`}
+              >
+                {course.title}
+              </h3>
+              <p className={`relative text-sm leading-relaxed mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                {course.description}
+              </p>
 
-              <div className="relative flex items-center gap-5 text-sm text-gray-500 mb-6">
+              <div
+                className={`relative flex items-center gap-5 text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+              >
                 <div className="flex items-center gap-1.5">
-                  <BookOpen size={15} className="text-gray-400" />
+                  <BookOpen size={15} className={isDark ? 'text-gray-500' : 'text-gray-400'} />
                   <span>{course.lessons} درس</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Clock size={15} className="text-gray-400" />
+                  <Clock size={15} className={isDark ? 'text-gray-500' : 'text-gray-400'} />
                   <span>{course.hours} ساعة</span>
                 </div>
               </div>
 
               {/* Additional Info */}
-              <div className="relative flex items-center justify-between text-sm text-gray-500 mb-6 pb-6 border-b border-gray-200">
+              <div
+                className={`relative flex items-center justify-between text-sm mb-6 pb-6 border-b ${
+                  isDark ? 'text-gray-400 border-white/10' : 'text-gray-500 border-gray-200'
+                }`}
+              >
                 <div className="flex items-center gap-1.5">
-                  <Users size={15} className="text-gray-400" />
+                  <Users size={15} className={isDark ? 'text-gray-500' : 'text-gray-400'} />
                   <span>{course.students} طالب</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-gray-700">{course.rating}</span>
+                  <span className={`font-semibold ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>{course.rating}</span>
                 </div>
               </div>
 
@@ -140,7 +174,11 @@ export default function CoursesSection() {
           <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
             <Link
               to="/courses"
-              className="inline-flex items-center gap-2 px-8 py-3.5 border-2 border-blue-600 text-blue-600 font-bold rounded-2xl hover:bg-blue-600 hover:text-white transition-all duration-200"
+              className={`inline-flex items-center gap-2 px-8 py-3.5 border-2 font-bold rounded-2xl transition-all duration-200 ${
+                isDark
+                  ? 'border-blue-400 text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500'
+                  : 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white'
+              }`}
             >
               عرض جميع الدروس
               <ArrowLeft size={18} />

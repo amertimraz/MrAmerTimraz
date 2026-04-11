@@ -88,7 +88,17 @@ public class VideosController : ControllerBase
     {
         try
         {
-            Console.WriteLine($"Creating video: Title={dto.Title}, CourseId={dto.CourseId}, Source={dto.Source}, Url={dto.Url}");
+            // Validate required fields
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                return BadRequest(new { message = "عنوان الدرس مطلوب" });
+            
+            if (string.IsNullOrWhiteSpace(dto.Slug))
+                return BadRequest(new { message = "Slug مطلوب" });
+            
+            if (dto.CourseId <= 0)
+                return BadRequest(new { message = "معرف الكورس غير صالح" });
+            
+            Console.WriteLine($"Creating video: Title={dto.Title}, CourseId={dto.CourseId}, Source={dto.Source}, Url={dto.Url}, Slug={dto.Slug}");
             
             // If source is Mux and URL is not already a Mux stream URL, upload it
             if (dto.Source == VideoSource.Mux && !string.IsNullOrEmpty(dto.Url))

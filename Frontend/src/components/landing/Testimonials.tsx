@@ -1,14 +1,57 @@
 import { Star, Quote } from 'lucide-react';
 import { motion, type Variants } from 'framer-motion';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { useAuthStore } from '../../store/authStore';
 
 const testimonials = [
-  { name: 'محمد السيد',    role: 'طالب - ابتدائي',   avatar: 'م', color: 'from-blue-400 to-blue-600',    rating: 5, text: 'المنصة رائعة جداً! الدروس واضحة ومبسّطة، والاختبارات ساعدتني أفهم المادة بشكل أعمق. شكراً مستر عامر.' },
-  { name: 'سارة محمود',    role: 'طالبة - إعدادي',   avatar: 'س', color: 'from-purple-400 to-purple-600', rating: 5, text: 'أحسن طريقة للمذاكرة! الألعاب التعليمية ممتعة جداً وبتساعدني أحفظ وأفهم في نفس الوقت.' },
-  { name: 'عبدالرحمن علي', role: 'طالب - ثانوي',     avatar: 'ع', color: 'from-green-400 to-green-600',   rating: 5, text: 'درس البرمجة غيّر تفكيري أوي. مستر عامر بيشرح بطريقة عملية ومبسّطة تخلي البرمجة سهلة وممتعة.' },
-  { name: 'نور حسن',       role: 'طالبة - إعدادي',   avatar: 'ن', color: 'from-pink-400 to-pink-600',     rating: 5, text: 'استمتعت جداً بالدروس التفاعلية. بقيت أتقدم في مادة الحاسب بشكل واضح بفضل المنصة دي.' },
-  { name: 'خالد إبراهيم',  role: 'ولي أمر',           avatar: 'خ', color: 'from-orange-400 to-orange-600', rating: 5, text: 'ابني بقى أكتر شغفاً بالتعلم من وقت ما انضم للمنصة. المحتوى عالي الجودة وطريقة الشرح ممتازة.' },
-  { name: 'ريم عادل',      role: 'طالبة - ابتدائي',  avatar: 'ر', color: 'from-teal-400 to-teal-600',     rating: 5, text: 'الفيديوهات التعليمية واضحة ومرتبة. أقدر أذاكر في أي وقت وده ساعدني كتير في الاختبارات.' },
+  {
+    name: 'محمد السيد',
+    role: 'طالب - أولى ثانوي',
+    avatar: 'م',
+    color: 'from-blue-400 to-blue-600',
+    rating: 5,
+    text: 'مادة البرمجة والذكاء الاصطناعي كانت صعبة في أولها، لكن الشرح على المنصة واضح والاختبارات خلّتني أفهم Python والمفاهيم خطوة بخطوة.',
+  },
+  {
+    name: 'سارة محمود',
+    role: 'طالبة - أولى ثانوي',
+    avatar: 'س',
+    color: 'from-purple-400 to-purple-600',
+    rating: 5,
+    text: 'مستر عامر بيوصّل الفكرة بطريقة عملية؛ فهمت إزاي أكتب كود وأربطه بموضوعات الذكاء الاصطناعي من غير تعقيد.',
+  },
+  {
+    name: 'عبدالرحمن علي',
+    role: 'طالب - أولى ثانوي',
+    avatar: 'ع',
+    color: 'from-green-400 to-green-600',
+    rating: 5,
+    text: 'البرمجة غيّرت تفكيري في المذاكرة. المحتوى مرتب من أول السنة، والتمارين والاختبارات على المنصة فادتني جداً.',
+  },
+  {
+    name: 'نور حسن',
+    role: 'طالبة - أولى ثانوي',
+    avatar: 'ن',
+    color: 'from-pink-400 to-pink-600',
+    rating: 5,
+    text: 'الدروس التفاعلية والفيديوهات خلّتني أذاكر الحاسب في أي وقت؛ حسّيت إن منهج أولى ثانوي بقى أسهل مع التنظيم ده.',
+  },
+  {
+    name: 'خالد إبراهيم',
+    role: 'ولي أمر - طالب أولى ثانوي',
+    avatar: 'خ',
+    color: 'from-orange-400 to-orange-600',
+    rating: 5,
+    text: 'ابني بقى مهتم بالبرمجة أكتر من أي مادة تانية؛ المنصة منظمة والمتابعة من خلال الاختبارات والنتائج واضحة لينا كأولياء أمور.',
+  },
+  {
+    name: 'ريم عادل',
+    role: 'طالبة - أولى ثانوي',
+    avatar: 'ر',
+    color: 'from-teal-400 to-teal-600',
+    rating: 5,
+    text: 'الشرح مبسّط والمراجعة من غير ما أضيع وقت؛ الفيديوهات والأسئلة التفاعلية خلّتني أستعد للامتحانات براحة.',
+  },
 ];
 
 const containerVariants: Variants = {
@@ -24,9 +67,10 @@ const cardVariants: Variants = {
 export default function Testimonials() {
   const { ref: titleRef, isInView: titleInView } = useScrollReveal();
   const { ref: gridRef, isInView: gridInView } = useScrollReveal();
+  const { isDark } = useAuthStore();
 
   return (
-    <section dir="rtl" className="py-20 bg-white">
+    <section dir="rtl" className={`py-20 ${isDark ? 'bg-[#0d1117]' : 'bg-white'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -37,12 +81,18 @@ export default function Testimonials() {
           animate={titleInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
         >
-          <span className="inline-block bg-yellow-50 text-yellow-600 font-semibold text-sm px-4 py-2 rounded-full mb-4">
+          <span
+            className={`inline-block font-semibold text-sm px-4 py-2 rounded-full mb-4 ${
+              isDark ? 'bg-yellow-500/15 text-yellow-400' : 'bg-yellow-50 text-yellow-600'
+            }`}
+          >
             💬 آراء الطلاب
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">ماذا يقول طلابنا؟</h2>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            آراء حقيقية من طلاب يتعلمون على منصتنا يومياً
+          <h2 className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            ماذا يقول طلابنا؟
+          </h2>
+          <p className={`text-lg max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            آراء من طلاب أولى ثانوي يتابعون مادة البرمجة والذكاء الاصطناعي على المنصة
           </p>
           <div className="flex items-center justify-center gap-1 mt-4">
             {[1, 2, 3, 4, 5].map(s => (
@@ -55,7 +105,9 @@ export default function Testimonials() {
                 <Star size={22} className="fill-yellow-400 text-yellow-400" />
               </motion.div>
             ))}
-            <span className="text-gray-500 text-sm mr-2">4.9/5 من 200+ تقييم</span>
+            <span className={`text-sm mr-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              4.9/5 من 200+ تقييم
+            </span>
           </div>
         </motion.div>
 
@@ -71,12 +123,20 @@ export default function Testimonials() {
             <motion.div
               key={idx}
               variants={cardVariants}
-              className="bg-gray-50 rounded-2xl p-7 border border-gray-100 relative overflow-hidden"
-              whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.08)', borderColor: '#bfdbfe' }}
+              className={`rounded-2xl p-7 border relative overflow-hidden ${
+                isDark
+                  ? 'bg-white/5 border-white/10'
+                  : 'bg-gray-50 border-gray-100'
+              }`}
+              whileHover={{
+                y: -6,
+                boxShadow: isDark ? '0 20px 40px rgba(0,0,0,0.35)' : '0 20px 40px rgba(0,0,0,0.08)',
+                borderColor: isDark ? 'rgba(34,197,94,0.35)' : '#bfdbfe',
+              }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
               <motion.div
-                className="absolute top-5 left-5 text-gray-100"
+                className={`absolute top-5 left-5 ${isDark ? 'text-white/10' : 'text-gray-100'}`}
                 whileHover={{ scale: 1.3, rotate: 10, color: '#bfdbfe' }}
               >
                 <Quote size={36} />
@@ -89,7 +149,7 @@ export default function Testimonials() {
                 ))}
               </div>
 
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 relative z-10">
+              <p className={`text-sm leading-relaxed mb-6 relative z-10 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                 "{t.text}"
               </p>
 
@@ -102,8 +162,8 @@ export default function Testimonials() {
                   {t.avatar}
                 </motion.div>
                 <div>
-                  <p className="font-bold text-gray-900 text-sm">{t.name}</p>
-                  <p className="text-gray-400 text-xs">{t.role}</p>
+                  <p className={`font-bold text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.name}</p>
+                  <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{t.role}</p>
                 </div>
               </div>
             </motion.div>

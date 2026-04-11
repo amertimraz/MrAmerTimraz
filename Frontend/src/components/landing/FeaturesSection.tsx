@@ -1,6 +1,7 @@
 import { Video, FileText, Gamepad2, Bell, BarChart2, ShieldCheck } from 'lucide-react';
 import { motion, type Variants } from 'framer-motion';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { useAuthStore } from '../../store/authStore';
 
 const features = [
   { icon: <Video size={26} />,       title: 'فيديوهات تعليمية',   description: 'شاهد الدروس في أي وقت ومن أي مكان عبر فيديوهات عالية الجودة.',                            color: 'text-blue-600',   bg: 'bg-blue-50',   border: 'border-blue-100' },
@@ -25,9 +26,10 @@ export default function FeaturesSection() {
   const { ref: titleRef, isInView: titleInView } = useScrollReveal();
   const { ref: gridRef, isInView: gridInView } = useScrollReveal();
   const { ref: bannerRef, isInView: bannerInView } = useScrollReveal();
+  const { isDark } = useAuthStore();
 
   return (
-    <section dir="rtl" className="py-20 bg-gray-50">
+    <section dir="rtl" className={`py-20 ${isDark ? 'bg-[#0d1117]' : 'bg-gray-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -38,11 +40,17 @@ export default function FeaturesSection() {
           animate={titleInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
         >
-          <span className="inline-block bg-purple-50 text-purple-600 font-semibold text-sm px-4 py-2 rounded-full mb-4">
+          <span
+            className={`inline-block font-semibold text-sm px-4 py-2 rounded-full mb-4 ${
+              isDark ? 'bg-purple-500/15 text-purple-300' : 'bg-purple-50 text-purple-600'
+            }`}
+          >
             ⭐ مميزات المنصة
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">لماذا تختار منصتنا؟</h2>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
+          <h2 className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            لماذا تختار منصتنا؟
+          </h2>
+          <p className={`text-lg max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             كل ما تحتاجه لتجربة تعليمية متكاملة وممتعة في مكان واحد
           </p>
         </motion.div>
@@ -59,19 +67,24 @@ export default function FeaturesSection() {
             <motion.div
               key={idx}
               variants={itemVariants}
-              className={`group p-7 rounded-2xl bg-white border ${feature.border} cursor-default`}
-              whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+              className={`group p-7 rounded-2xl cursor-default border ${
+                isDark ? 'bg-white/5 border-white/10' : `bg-white border ${feature.border}`
+              }`}
+              whileHover={{
+                y: -6,
+                boxShadow: isDark ? '0 20px 40px rgba(0,0,0,0.35)' : '0 20px 40px rgba(0,0,0,0.1)',
+              }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
               <motion.div
-                className={`w-14 h-14 ${feature.bg} ${feature.color} rounded-2xl flex items-center justify-center mb-5`}
+                className={`w-14 h-14 ${isDark ? 'bg-white/10' : feature.bg} ${feature.color} rounded-2xl flex items-center justify-center mb-5`}
                 whileHover={{ scale: 1.12, rotate: -5 }}
                 transition={{ type: 'spring', stiffness: 400 }}
               >
                 {feature.icon}
               </motion.div>
-              <h3 className="font-bold text-gray-900 text-lg mb-3">{feature.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
+              <h3 className={`font-bold text-lg mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{feature.title}</h3>
+              <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{feature.description}</p>
             </motion.div>
           ))}
         </motion.div>
