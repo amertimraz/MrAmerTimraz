@@ -290,6 +290,8 @@ using (var scope = app.Services.CreateScope())
         {
             "ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"Slug\" TEXT NOT NULL DEFAULT ''",
             "ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"PdfUrl\" TEXT",
+            "ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"PdfFilename\" TEXT",
+            "ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"ThumbnailUrl\" TEXT",
             """
             CREATE TABLE IF NOT EXISTS "VideoComments" (
                 "Id" SERIAL PRIMARY KEY,
@@ -542,13 +544,13 @@ using (var scope = app.Services.CreateScope())
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_TofasTests_Slug\" ON \"TofasTests\"(\"Slug\")",
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Challenges_Slug\" ON \"Challenges\"(\"Slug\")",
             "CREATE INDEX IF NOT EXISTS \"IX_ChallengeSnippets_ChallengeId\" ON \"ChallengeSnippets\"(\"ChallengeId\")",
-            // Add StudentCode column for SQLite
             "ALTER TABLE \"Users\" ADD COLUMN \"StudentCode\" VARCHAR(20)",
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL",
-            // Add Profile completion fields for SQLite
             "ALTER TABLE \"Users\" ADD COLUMN \"Grade\" VARCHAR(50)",
             "ALTER TABLE \"Users\" ADD COLUMN \"School\" VARCHAR(100)",
-            "ALTER TABLE \"Users\" ADD COLUMN \"DateOfBirth\" TEXT"
+            "ALTER TABLE \"Users\" ADD COLUMN \"DateOfBirth\" TEXT",
+            "ALTER TABLE \"Videos\" ADD COLUMN \"PdfFilename\" TEXT",
+            "ALTER TABLE \"Videos\" ADD COLUMN \"ThumbnailUrl\" TEXT"
         };
 
         foreach (var sql in sqliteAlters)
