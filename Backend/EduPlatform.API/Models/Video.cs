@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EduPlatform.API.Models;
 
-public enum VideoSource { YouTube, Vimeo, Upload }
+public enum VideoSource { YouTube, Vimeo, Upload, Mux }
 
 public class Video
 {
@@ -29,6 +29,10 @@ public class Video
     public int OrderIndex { get; set; }
 
     public string? PdfUrl { get; set; }
+
+    public string? PdfFilename { get; set; }
+
+    public string? ThumbnailUrl { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

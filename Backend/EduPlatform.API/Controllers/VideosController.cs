@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using EduPlatform.API.Services;
+using EduPlatform.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EduPlatform.API.Data;
@@ -13,11 +14,13 @@ public class VideosController : ControllerBase
 {
     private readonly IVideoService _videos;
     private readonly AppDbContext _db;
+    private readonly IMuxService _mux;
 
-    public VideosController(IVideoService videos, AppDbContext db)
+    public VideosController(IVideoService videos, AppDbContext db, IMuxService mux)
     {
         _videos = videos;
         _db = db;
+        _mux = mux;
     }
 
     [HttpGet("course/{courseId}")]
@@ -83,6 +86,17 @@ public class VideosController : ControllerBase
     [HttpPost, Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> Create([FromBody] CreateVideoDto dto)
     {
+        // If source is Mux, upload video to Mux and get playback ID
+        if (dto.Source == VideoSource.Mux && !string.IsNullOrEmpty(dto.Url))
+        {
+            var playbackId = await _mux.UploadVideoAsync(dto.Url, dto.Title, dto.ThumbnailUrl);
+            if (!string.IsNullOrEmpty(playbackId))
+            {
+                // Store Mux playback URL
+                dto.Url = $"https://stream.mux.com/{playbackId}.m3u8";
+            }
+        }
+
         var video = await _videos.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = video.Id }, video);
     }

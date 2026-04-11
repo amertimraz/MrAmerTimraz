@@ -14,6 +14,8 @@ public class CreateVideoDto
     public int DurationSeconds { get; set; }
     public int OrderIndex { get; set; }
     public string? PdfUrl { get; set; }
+    public string? PdfFilename { get; set; }
+    public string? ThumbnailUrl { get; set; }
     public string Slug { get; set; } = string.Empty;
 }
 
@@ -72,6 +74,8 @@ public class VideoService : IVideoService
             DurationSeconds = dto.DurationSeconds,
             OrderIndex = dto.OrderIndex,
             PdfUrl = dto.PdfUrl,
+            PdfFilename = dto.PdfFilename,
+            ThumbnailUrl = dto.ThumbnailUrl,
             Slug = dto.Slug
         };
 
@@ -173,6 +177,8 @@ public class VideoService : IVideoService
         video.DurationSeconds = dto.DurationSeconds;
         video.OrderIndex = dto.OrderIndex;
         video.PdfUrl = dto.PdfUrl;
+        video.PdfFilename = dto.PdfFilename;
+        video.ThumbnailUrl = dto.ThumbnailUrl;
         video.Slug = dto.Slug;
 
         await _db.SaveChangesAsync();
