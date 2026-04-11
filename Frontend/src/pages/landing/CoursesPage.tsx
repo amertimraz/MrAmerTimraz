@@ -1,68 +1,73 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Clock, Play, Search, Filter } from 'lucide-react';
+import { BookOpen, Clock, Play, Search, Filter, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useAuthStore } from '../../store/authStore';
-
-const courses = [
-  {
-    id: 1,
-    emoji: '💻',
-    title: 'تقنية المعلومات - ابتدائي',
-    level: 'ابتدائي',
-    levelColor: 'text-blue-500',
-    levelBg: 'bg-blue-500/15 border border-blue-500/30',
-    description: 'دروس شاملة في تقنية المعلومات للمرحلة الابتدائية. يشمل المنهج أساسيات الحاسب الآلي، مهارات الإنترنت والبحث الآمن، التعامل مع الملفات والمجلدات، والسلامة الرقمية.',
-    lessons: 12,
-    hours: 8,
-    teacher: 'أ. عامر تمراز',
-    accent: '#3b82f6',
-    topics: ['أساسيات الحاسب', 'الإنترنت الآمن', 'إدارة الملفات', 'السلامة الرقمية'],
-  },
-  {
-    id: 2,
-    emoji: '🖥️',
-    title: 'الحاسب الآلي - إعدادي',
-    level: 'إعدادي',
-    levelColor: 'text-purple-500',
-    levelBg: 'bg-purple-500/15 border border-purple-500/30',
-    description: 'منهج الحاسب الآلي للمرحلة الإعدادية. يغطي برامج Microsoft Office كاملاً (Word, Excel, PowerPoint)، أساسيات الشبكات، والأمن المعلوماتي.',
-    lessons: 16,
-    hours: 12,
-    teacher: 'أ. عامر تمراز',
-    accent: '#a855f7',
-    topics: ['Microsoft Word', 'Excel & Spreadsheets', 'PowerPoint', 'أمن المعلومات'],
-  },
-  {
-    id: 3,
-    emoji: '⌨️',
-    title: 'البرمجة - أول ثانوي',
-    level: 'أول ثانوي',
-    levelColor: 'text-green-500',
-    levelBg: 'bg-green-500/15 border border-green-500/30',
-    description: 'مدخل إلى عالم البرمجة لطلاب أول ثانوي. يبدأ من Scratch للمبتدئين، ثم ينتقل لأساسيات Python، ويختتم ببناء مشاريع تفاعلية بسيطة.',
-    lessons: 20,
-    hours: 16,
-    teacher: 'أ. عامر تمراز',
-    accent: '#22c55e',
-    topics: ['Scratch للمبتدئين', 'أساسيات Python', 'المتغيرات والحلقات', 'مشاريع تفاعلية'],
-  },
-];
+import { coursesApi } from '../../api/courses';
+import type { Course } from '../../types';
 
 const levels = ['الكل', 'ابتدائي', 'إعدادي', 'أول ثانوي'];
+
+// Helper to get emoji based on category/title
+const getEmoji = (title: string, category?: string) => {
+  if (title?.includes('برمج') || category?.includes('برمج')) return '⌨️';
+  if (title?.includes('حاسب') || category?.includes('حاسب')) return '🖥️';
+  if (title?.includes('تقنية') || category?.includes('تقنية')) return '�';
+  if (title?.includes('شبكات') || category?.includes('شبكات')) return '🌐';
+  if (title?.includes('أمن') || category?.includes('أمن')) return '🔒';
+  return '📚';
+};
+
+// Helper to get accent color based on category
+const getAccent = (category?: string) => {
+  if (category?.includes('برمج')) return '#22c55e';
+  if (category?.includes('حاسب')) return '#a855f7';
+  if (category?.includes('تقنية')) return '#3b82f6';
+  return '#22c55e';
+};
+
+// Helper to get level from category
+const getLevel = (category?: string) => {
+  if (category?.includes('ابتدائي')) return 'ابتدائي';
+  if (category?.includes('إعدادي')) return 'إعدادي';
+  if (category?.includes('ثانوي')) return 'أول ثانوي';
+  return 'عام';
+};
 
 export default function CoursesPage() {
   const [search, setSearch] = useState('');
   const [activeLevel, setActiveLevel] = useState('الكل');
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { isDark } = useAuthStore();
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const data = await coursesApi.getAll(true); // publishedOnly = true
+        setCourses(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+        setError('فشل في تحميل الكورسات');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const card = isDark
     ? { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }
     : { background: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' };
 
   const filtered = courses.filter(c => {
-    const matchLevel = activeLevel === 'الكل' || c.level === activeLevel;
-    const matchSearch = c.title.includes(search) || c.description.includes(search);
+    const level = getLevel(c.category);
+    const matchLevel = activeLevel === 'الكل' || level === activeLevel;
+    const matchSearch = c.title?.includes(search) || c.description?.includes(search) || false;
     return matchLevel && matchSearch;
   });
 
@@ -145,7 +150,24 @@ export default function CoursesPage() {
 
         {/* Cards */}
         <AnimatePresence mode="wait">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <motion.div
+              key="loading"
+              className={`text-center py-20 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            >
+              <Loader2 size={48} className="mx-auto mb-4 animate-spin" />
+              <p className="text-lg">جاري تحميل الكورسات...</p>
+            </motion.div>
+          ) : error ? (
+            <motion.div
+              key="error"
+              className="text-center py-20 text-red-500"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            >
+              <p className="text-lg">{error}</p>
+            </motion.div>
+          ) : filtered.length === 0 ? (
             <motion.div
               key="empty"
               className={`text-center py-20 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
@@ -162,66 +184,79 @@ export default function CoursesPage() {
               animate="visible"
               variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } } as Variants}
             >
-              {filtered.map(course => (
-                <motion.div
-                  key={course.id}
-                  className="group rounded-3xl overflow-hidden flex flex-col"
-                  style={card}
-                  variants={{ hidden: { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } } as Variants}
-                  whileHover={{ y: -6, borderColor: course.accent + '60' }}
-                  transition={{ type: 'spring', stiffness: 280, damping: 20 }}
-                >
-                  {/* Card Header */}
-                  <div
-                    className="h-32 flex items-center justify-center text-5xl relative overflow-hidden"
-                    style={{ background: `linear-gradient(135deg, ${course.accent}22, ${course.accent}08)`, borderBottom: `1px solid ${course.accent}20` }}
+              {filtered.map(course => {
+                const accent = getAccent(course.category);
+                const level = getLevel(course.category);
+                const emoji = getEmoji(course.title, course.category);
+                const levelColor = level === 'ابتدائي' ? 'text-blue-500' : level === 'إعدادي' ? 'text-purple-500' : 'text-green-500';
+                const levelBg = level === 'ابتدائي' ? 'bg-blue-500/15 border border-blue-500/30' : level === 'إعدادي' ? 'bg-purple-500/15 border border-purple-500/30' : 'bg-green-500/15 border border-green-500/30';
+                
+                return (
+                  <motion.div
+                    key={course.id}
+                    className="group rounded-3xl overflow-hidden flex flex-col"
+                    style={card}
+                    variants={{ hidden: { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } } as Variants}
+                    whileHover={{ y: -6, borderColor: accent + '60' }}
+                    transition={{ type: 'spring', stiffness: 280, damping: 20 }}
                   >
-                    <motion.span className="relative z-10" whileHover={{ scale: 1.2, rotate: 8 }} transition={{ type: 'spring', stiffness: 400 }}>
-                      {course.emoji}
-                    </motion.span>
-                    <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${course.levelBg} ${course.levelColor}`}>
-                      {course.level}
-                    </span>
-                  </div>
+                    {/* Card Header */}
+                    <div
+                      className="h-32 flex items-center justify-center text-5xl relative overflow-hidden"
+                      style={{ background: `linear-gradient(135deg, ${accent}22, ${accent}08)`, borderBottom: `1px solid ${accent}20` }}
+                    >
+                      <motion.span className="relative z-10" whileHover={{ scale: 1.2, rotate: 8 }} transition={{ type: 'spring', stiffness: 400 }}>
+                        {emoji}
+                      </motion.span>
+                      <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${levelBg} ${levelColor}`}>
+                        {level}
+                      </span>
+                    </div>
 
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{course.title}</h3>
-                    <p className={`text-sm leading-relaxed mb-4 line-clamp-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{course.description}</p>
+                    <div className="p-6 flex flex-col flex-1">
+                      <h3 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{course.title}</h3>
+                      <p className={`text-sm leading-relaxed mb-4 line-clamp-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {course.description || 'لا يوجد وصف'}
+                      </p>
 
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {course.topics.map(topic => (
+                      <div className="flex flex-wrap gap-2 mb-4">
                         <span
-                          key={topic}
                           className={`text-xs px-2.5 py-1 rounded-lg font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
                           style={isDark ? { background: 'rgba(255,255,255,0.06)' } : { background: 'rgba(0,0,0,0.05)' }}
                         >
-                          {topic}
+                          {course.videoCount || 0} درس
                         </span>
-                      ))}
-                    </div>
+                        <span
+                          className={`text-xs px-2.5 py-1 rounded-lg font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+                          style={isDark ? { background: 'rgba(255,255,255,0.06)' } : { background: 'rgba(0,0,0,0.05)' }}
+                        >
+                          {course.enrolledCount || 0} طالب
+                        </span>
+                      </div>
 
-                    <div
-                      className={`flex items-center justify-between text-xs mb-5 pb-4 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}
-                      style={{ borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)' }}
-                    >
-                      <span className="flex items-center gap-1"><BookOpen size={13} /> {course.lessons} درس</span>
-                      <span className="flex items-center gap-1"><Clock size={13} /> {course.hours} ساعة</span>
-                      <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>👤 {course.teacher}</span>
-                    </div>
-
-                    <motion.div className="mt-auto" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-                      <Link
-                        to="/register"
-                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-90"
-                        style={{ background: course.accent }}
+                      <div
+                        className={`flex items-center justify-between text-xs mb-5 pb-4 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}
+                        style={{ borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)' }}
                       >
-                        <Play size={15} />
-                        ابدأ التعلم مجاناً
-                      </Link>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              ))}
+                        <span className="flex items-center gap-1"><BookOpen size={13} /> {course.videoCount || 0} درس</span>
+                        <span className="flex items-center gap-1"><Clock size={13} /> {course.price > 0 ? course.price + ' ج.م' : 'مجاني'}</span>
+                        <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>👤 {course.teacherName || 'أ. عامر تمراز'}</span>
+                      </div>
+
+                      <motion.div className="mt-auto" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+                        <Link
+                          to={`/courses/${course.id}`}
+                          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-90"
+                          style={{ background: accent }}
+                        >
+                          <Play size={15} />
+                          {course.isFree || course.price <= 0 ? 'ابدأ التعلم مجاناً' : 'شاهد التفاصيل'}
+                        </Link>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </motion.div>
           )}
         </AnimatePresence>
