@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace EduPlatform.API.Controllers;
 
@@ -46,25 +47,38 @@ public class UploadsController : ControllerBase
             if (file.Length > maxSize)
                 return BadRequest($"حجم الملف كبير جداً. الحد الأقصى: {maxSize / 1024 / 1024} MB");
 
-            // Use persistent storage path for Railway
-            var root = _env.WebRootPath;
-            if (string.IsNullOrEmpty(root))
-            {
-                // Try to use /data for Railway persistent storage, fallback to current directory
-                root = "/data/wwwroot";
-                if (!Directory.Exists("/data"))
-                {
-                    root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                }
-            }
+            // Determine storage path - try multiple options for Railway compatibility
+            string root;
+            string[] possiblePaths = {
+                _env.WebRootPath,
+                "/data/wwwroot",
+                "/tmp/wwwroot",
+                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"),
+                Path.Combine(Path.GetTempPath(), "wwwroot")
+            };
+            
+            root = possiblePaths.FirstOrDefault(p => !string.IsNullOrEmpty(p)) ?? possiblePaths[4];
+            
+            Console.WriteLine($"Using storage root: {root}");
             
             var dir = Path.Combine(root, "uploads", folder);
             
-            // Ensure directory exists with proper permissions
-            if (!Directory.Exists(dir))
+            // Ensure directory exists
+            try
             {
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                    Console.WriteLine($"Created directory: {dir}");
+                }
+            }
+            catch (Exception dirEx)
+            {
+                Console.WriteLine($"Failed to create directory {dir}: {dirEx.Message}");
+                // Fallback to temp directory
+                dir = Path.Combine(Path.GetTempPath(), "uploads", folder);
                 Directory.CreateDirectory(dir);
-                Console.WriteLine($"Created directory: {dir}");
+                Console.WriteLine($"Using fallback directory: {dir}");
             }
 
             var fileName = $"{Guid.NewGuid()}{ext}";
