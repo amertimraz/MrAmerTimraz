@@ -104,6 +104,14 @@ export default function CourseDetail() {
         <ArrowRight size={18} /> العودة
       </button>
 
+      {course.thumbnailUrl && (
+        <img
+          src={resolveUrl(course.thumbnailUrl)}
+          alt={course.title}
+          className="w-full h-64 object-cover rounded-2xl shadow-lg"
+        />
+      )}
+
       <div className="card p-6 bg-gradient-to-l from-primary-50 to-accent-50 dark:from-gray-700 dark:to-gray-800 border-none shadow-sm">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{course.title}</h1>
         {course.description && <p className="text-gray-600 dark:text-gray-300 mt-2">{course.description}</p>}
