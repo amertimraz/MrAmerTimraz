@@ -114,6 +114,13 @@ export default function LessonPage() {
       </button>
 
       <div className="card p-6 bg-gradient-to-l from-primary-50 to-accent-50 dark:from-gray-700 dark:to-gray-800 border-none shadow-sm">
+        {video.thumbnailUrl && (
+          <img
+            src={resolveFileUrl(video.thumbnailUrl)}
+            alt={video.title}
+            className="w-full h-48 object-cover rounded-xl mb-4"
+          />
+        )}
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{video.title}</h1>
         {video.description && <p className="text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">{video.description}</p>}
         <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
@@ -177,7 +184,7 @@ export default function LessonPage() {
           <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
             {video.description || 'لا يوجد وصف لهذا الدرس'}
           </p>
-          
+
           {video.pdfUrl && (
             <div className="mt-8 p-6 bg-orange-50 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -186,7 +193,7 @@ export default function LessonPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 dark:text-white uppercase">المذكرة المرفقة</h3>
-                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">ملف بصيغة PDF</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-0.5">{video.pdfFilename || 'ملف بصيغة PDF'}</p>
                 </div>
               </div>
               <a

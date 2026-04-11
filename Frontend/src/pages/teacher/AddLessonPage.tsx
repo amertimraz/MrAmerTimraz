@@ -6,7 +6,7 @@ import { coursesApi } from '../../api/courses';
 import { motion } from 'framer-motion';
 import {
   ArrowRight, Youtube, Play, Link2, FileText,
-  Hash, Clock, Eye, AlertCircle,
+  Hash, Clock, Eye, AlertCircle, Image as ImageIcon,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AiDescriptionButton from '../../components/ui/AiDescriptionButton';
@@ -33,6 +33,7 @@ export default function AddLessonPage() {
     slug: '',
   });
   const [pdfUrl, setPdfUrl] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [showPreview, setShowPreview] = useState(false);
 
   const { data: course } = useQuery({
@@ -60,6 +61,7 @@ export default function AddLessonPage() {
       ...form,
       courseId: Number(courseId),
       pdfUrl: pdfUrl || undefined,
+      thumbnailUrl: thumbnailUrl || undefined,
     };
     addLesson.mutate(payload);
   };
@@ -307,6 +309,26 @@ export default function AddLessonPage() {
             value={pdfUrl}
             onChange={setPdfUrl}
             label="ملف PDF"
+            optional={true}
+          />
+        </motion.div>
+
+        {/* Thumbnail Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="card p-6 space-y-4"
+        >
+          <h3 className="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2 border-b border-gray-100 dark:border-gray-700 pb-3">
+            <ImageIcon size={18} className="text-blue-500" />
+            صورة مصغرة للدرس <span className="text-xs text-gray-400 font-normal">(اختياري)</span>
+          </h3>
+          <MediaUploadField
+            type="image"
+            value={thumbnailUrl}
+            onChange={setThumbnailUrl}
+            label="صورة مصغرة"
             optional={true}
           />
         </motion.div>

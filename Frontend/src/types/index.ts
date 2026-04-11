@@ -111,6 +111,8 @@ export interface Video {
   durationSeconds: number;
   orderIndex: number;
   pdfUrl?: string;
+  pdfFilename?: string;
+  thumbnailUrl?: string;
   slug: string;
   createdAt: string;
 }
