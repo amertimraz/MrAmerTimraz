@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import FloatingAiChat from '../../components/ui/FloatingAiChat';
 
 export type TrackId = 'life' | 'engineering' | 'business' | 'arts';
 
@@ -681,6 +682,12 @@ export default function PathsGuidePage() {
         مسارات البكالوريا الأربعة (تقريبية): طب وعلوم حياة — هندسة وحاسب — أعمال — آداب وفنون. التفاصيل الرسمية من
         وزارة التربية والتعليم ومدرستك.
       </p>
+
+      {/* Floating AI Chat */}
+      <FloatingAiChat
+        context="أنت مساعد تعليمي متخصص في التوجيه الأكاديمي والتعليم في مصر. أسعد بمساعدة الطلاب في اختيار مساراتهم الدراسية، وفهم الكورسات المتاحة، والإجابة عن استفساراتهم التعليمية."
+        initialMessage="أهلاً! أنا هنا لمساعدتك في اختيار مسارك الدراسي أو للإجابة عن أي استفسار تعليمي. كيف يمكنني مساعدتك اليوم؟ 🎓"
+      />
     </div>
   );
 }
