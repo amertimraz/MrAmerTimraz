@@ -68,6 +68,7 @@ const AdminLiveSessions = lazy(() => import('./pages/admin/AdminLiveSessions'));
 const AdminBookletStats = lazy(() => import('./pages/admin/AdminBookletStats'));
 const AdminPaymentSettings = lazy(() => import('./pages/admin/AdminPaymentSettings'));
 const AdminAllResults = lazy(() => import('./pages/admin/AdminAllResults'));
+const FileManagerPage = lazy(() => import('./pages/admin/FileManagerPage'));
 const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
 const QuizPresenter = lazy(() => import('./pages/QuizPresenter'));
 
@@ -173,6 +174,7 @@ export default function App() {
               <Route path="booklet-stats"    element={<AdminBookletStats />} />
               <Route path="payment-settings" element={<AdminPaymentSettings />} />
               <Route path="live-sessions"   element={<AdminLiveSessions />} />
+              <Route path="files"           element={<FileManagerPage />} />
             </Route>
 
             <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />

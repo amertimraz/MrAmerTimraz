@@ -128,6 +128,81 @@ public class UploadsController : ControllerBase
         }
     }
 
+    [HttpGet("all"), Authorize(Roles = "Admin")]
+    public IActionResult GetAllFiles()
+    {
+        try
+        {
+            var allFiles = new List<FileInfoDto>();
+            long totalSize = 0;
+            string[] folders = { "images", "pdfs", "videos" };
+            string[] possiblePaths = {
+                _env.WebRootPath,
+                "/data/wwwroot",
+                "/tmp/wwwroot",
+                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"),
+                Path.Combine(Path.GetTempPath(), "wwwroot")
+            };
+            
+            var root = possiblePaths.FirstOrDefault(p => !string.IsNullOrEmpty(p)) ?? possiblePaths[4];
+
+            foreach (var folder in folders)
+            {
+                var dir = Path.Combine(root, "uploads", folder);
+                if (!Directory.Exists(dir)) continue;
+
+                var files = Directory.GetFiles(dir);
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        var info = new FileInfo(file);
+                        allFiles.Add(new FileInfoDto
+                        {
+                            FileName = info.Name,
+                            Folder = folder,
+                            Size = info.Length,
+                            SizeFormatted = FormatBytes(info.Length),
+                            CreatedAt = info.CreationTime,
+                            Url = $"/uploads/{folder}/{info.Name}",
+                            IsComplete = info.Length > 0
+                        });
+                        totalSize += info.Length;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error reading file {file}: {ex.Message}");
+                    }
+                }
+            }
+
+            return Ok(new { 
+                files = allFiles.OrderByDescending(f => f.CreatedAt).ToList(), 
+                totalCount = allFiles.Count,
+                totalSize = totalSize,
+                totalSizeFormatted = FormatBytes(totalSize)
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetAllFiles error: {ex.Message}");
+            return StatusCode(500, $"فشل في جلب الملفات: {ex.Message}");
+        }
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        int order = 0;
+        double size = bytes;
+        while (size >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            size /= 1024;
+        }
+        return $"{size:0.##} {sizes[order]}";
+    }
+
     private async Task<IActionResult> SaveFile(IFormFile? file, string folder, string[] allowed, long maxSize)
     {
         try
@@ -196,4 +271,15 @@ public class UploadsController : ControllerBase
             return StatusCode(500, $"فشل في حفظ الملف: {ex.Message}");
         }
     }
+}
+
+public class FileInfoDto
+{
+    public string FileName { get; set; } = string.Empty;
+    public string Folder { get; set; } = string.Empty;
+    public long Size { get; set; }
+    public string SizeFormatted { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public string Url { get; set; } = string.Empty;
+    public bool IsComplete { get; set; }
 }
