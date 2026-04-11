@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
-import { Upload, Link2, X, Loader2, FileText, Film } from 'lucide-react';
+import { Upload, Link2, X, Loader2, FileText, Film, Trash2 } from 'lucide-react';
 import { uploadsApi } from '../../api/uploads';
+import client from '../../api/client';
 import toast from 'react-hot-toast';
 import { resolveFileUrl } from '../../config';
 type MediaType = 'image' | 'pdf' | 'video';
@@ -47,6 +48,25 @@ export default function MediaUploadField({ type, value, onChange, label, optiona
       setUploading(false);
       setProgress(0);
     }
+  };
+
+  const deleteFile = async () => {
+    if (!value) return;
+    
+    // Extract folder and filename from URL
+    const match = value.match(/\/uploads\/(images|pdfs|videos)\/(.+)$/);
+    if (match) {
+      const [, folder, fileName] = match;
+      try {
+        await client.delete(`/uploads/${folder}/${fileName}`);
+        toast.success('تم حذف الملف من الخادم');
+      } catch (err) {
+        console.error('Failed to delete file:', err);
+        toast.error('فشل حذف الملف من الخادم');
+      }
+    }
+    
+    onChange('');
   };
 
   const previewUrl = resolveFileUrl(value);
@@ -117,9 +137,10 @@ export default function MediaUploadField({ type, value, onChange, label, optiona
           {type === 'video' && (
             <video src={previewUrl} controls className="w-full rounded-xl border border-gray-200 dark:border-gray-700 max-h-52" />
           )}
-          <button type="button" onClick={() => onChange('')}
-            className="absolute top-2 left-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow">
-            <X size={14} />
+          <button type="button" onClick={deleteFile}
+            className="absolute top-2 left-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow"
+            title="حذف الملف">
+            <Trash2 size={14} />
           </button>
         </div>
       )}
