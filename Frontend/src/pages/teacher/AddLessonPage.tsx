@@ -17,7 +17,7 @@ const getYTId = (url: string) => {
   return m ? m[1] : null;
 };
 
-type VideoSource = 'YouTube' | 'Vimeo' | 'Upload';
+type VideoSource = 'YouTube' | 'Vimeo' | 'Upload' | 'Mux';
 
 export default function AddLessonPage() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -70,6 +70,7 @@ export default function AddLessonPage() {
     { key: 'YouTube', label: 'YouTube', icon: '▶' },
     { key: 'Vimeo',   label: 'Vimeo',   icon: '🎬' },
     { key: 'Upload',  label: 'رفع فيديو', icon: '📤' },
+    { key: 'Mux',     label: 'Mux',     icon: '🎥' },
   ];
 
   return (
@@ -226,12 +227,12 @@ export default function AddLessonPage() {
           </div>
 
           {/* URL Input */}
-          {form.source === 'Upload' ? (
+          {form.source === 'Upload' || form.source === 'Mux' ? (
             <MediaUploadField
               type="video"
               value={form.url}
               onChange={url => setForm(p => ({ ...p, url }))}
-              label="فيديو الدرس"
+              label={form.source === 'Mux' ? 'فيديو الدرس (Mux)' : 'فيديو الدرس'}
               optional={false}
             />
           ) : (

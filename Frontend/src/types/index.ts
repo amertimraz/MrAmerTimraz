@@ -107,7 +107,7 @@ export interface Video {
   title: string;
   description?: string;
   url: string;
-  source: 'YouTube' | 'Vimeo' | 'Upload';
+  source: 'YouTube' | 'Vimeo' | 'Upload' | 'Mux';
   durationSeconds: number;
   orderIndex: number;
   pdfUrl?: string;

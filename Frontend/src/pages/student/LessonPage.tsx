@@ -74,6 +74,10 @@ export default function LessonPage() {
       const m = url.match(/vimeo\.com\/(\d+)/);
       return m ? `https://player.vimeo.com/video/${m[1]}` : url;
     }
+    if (source === 'Mux') {
+      // Mux playback ID format: https://stream.mux.com/{playback_id}.m3u8
+      return url;
+    }
     return resolveFileUrl(url);
   };
 
@@ -164,7 +168,7 @@ export default function LessonPage() {
           </div>
         ) : (
           <video
-            src={resolveFileUrl(video.url)}
+            src={video.source === 'Mux' ? video.url : resolveFileUrl(video.url)}
             controls
             controlsList="nodownload noremoteplayback noplaybackrate"
             disablePictureInPicture
