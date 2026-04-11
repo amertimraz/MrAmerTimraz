@@ -510,16 +510,22 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"DateOfBirth\" TIMESTAMP WITHOUT TIME ZONE"
         };
 
+        Console.WriteLine("Applying safety-nets for PostgreSQL...");
         foreach (var sql in safetyAlters)
         {
             try
             {
 #pragma warning disable EF1002
                 db.Database.ExecuteSqlRaw(sql);
+                Console.WriteLine($"Applied: {sql.Substring(0, Math.Min(50, sql.Length))}...");
 #pragma warning restore EF1002
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Safety-net failed (may already exist): {ex.Message}");
+            }
         }
+        Console.WriteLine("Safety-nets applied.");
 
         // Try to create the unique index on Slug, but don't fail if slugs have duplicates
         try
