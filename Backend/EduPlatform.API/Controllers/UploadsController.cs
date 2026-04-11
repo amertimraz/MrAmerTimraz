@@ -34,27 +34,57 @@ public class UploadsController : ControllerBase
 
     private async Task<IActionResult> SaveFile(IFormFile? file, string folder, string[] allowed, long maxSize)
     {
-        if (file == null || file.Length == 0)
-            return BadRequest("لم يتم اختيار ملف");
+        try
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("لم يتم اختيار ملف");
 
-        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (!allowed.Contains(ext))
-            return BadRequest($"نوع الملف غير مدعوم. الأنواع المسموحة: {string.Join(", ", allowed)}");
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowed.Contains(ext))
+                return BadRequest($"نوع الملف غير مدعوم. الأنواع المسموحة: {string.Join(", ", allowed)}");
 
-        if (file.Length > maxSize)
-            return BadRequest($"حجم الملف كبير جداً. الحد الأقصى: {maxSize / 1024 / 1024} MB");
+            if (file.Length > maxSize)
+                return BadRequest($"حجم الملف كبير جداً. الحد الأقصى: {maxSize / 1024 / 1024} MB");
 
-        var root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-        var dir  = Path.Combine(root, "uploads", folder);
-        Directory.CreateDirectory(dir);
+            // Use persistent storage path for Railway
+            var root = _env.WebRootPath;
+            if (string.IsNullOrEmpty(root))
+            {
+                // Try to use /data for Railway persistent storage, fallback to current directory
+                root = "/data/wwwroot";
+                if (!Directory.Exists("/data"))
+                {
+                    root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                }
+            }
+            
+            var dir = Path.Combine(root, "uploads", folder);
+            
+            // Ensure directory exists with proper permissions
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+                Console.WriteLine($"Created directory: {dir}");
+            }
 
-        var fileName = $"{Guid.NewGuid()}{ext}";
-        var path     = Path.Combine(dir, fileName);
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var path = Path.Combine(dir, fileName);
 
-        await using var stream = System.IO.File.Create(path);
-        await file.CopyToAsync(stream);
+            Console.WriteLine($"Saving file to: {path}");
+            
+            await using var stream = System.IO.File.Create(path);
+            await file.CopyToAsync(stream);
+            
+            Console.WriteLine($"File saved successfully: {fileName} ({file.Length} bytes)");
 
-        var url = $"/uploads/{folder}/{fileName}";
-        return Ok(new { url });
+            var url = $"/uploads/{folder}/{fileName}";
+            return Ok(new { url });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving file: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, $"فشل في حفظ الملف: {ex.Message}");
+        }
     }
 }
