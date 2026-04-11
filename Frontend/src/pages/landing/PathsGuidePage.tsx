@@ -1,10 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, GraduationCap, Sparkles, ChevronLeft, RotateCcw, BookOpen } from 'lucide-react';
+import { Bot, GraduationCap, MessageCircle, RotateCcw, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 export type TrackId = 'life' | 'engineering' | 'business' | 'arts';
+
+const GUIDE = {
+  name: 'مساعد التوجيه',
+  tagline: 'معاك خطوة بخطوة — ردود فورية، من غير حكم على إجاباتك',
+  /** صورة بشرية للدفء؛ لو فشل التحميل نعرض أيقونة */
+  avatarSrc: '/teacher2.png',
+};
 
 const TRACKS: Record<
   TrackId,
@@ -113,6 +120,20 @@ const QUESTIONS: {
   },
 ];
 
+const INTRO_LINES = [
+  'أهلاً 👋 أنا مساعد التوجيه على منصة أ. عامر تمراز.',
+  'هتكلم معاك كأننا قاعدين سوا — هطرح عليك شوية أسئلة بسيطة، ومفيش صحّ وغلط.',
+  'هدفي نلمّ على مسار البكالوريا اللي يقرب من ميولك. لما تكون جاهز، اضغط الزر تحت.',
+];
+
+type ChatMsg = { id: string; role: 'guide' | 'user'; body: string };
+
+function uid() {
+  return crypto.randomUUID();
+}
+
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
 function tally(choices: TrackId[]): Record<TrackId, number> {
   const base: Record<TrackId, number> = { life: 0, engineering: 0, business: 0, arts: 0 };
   for (const c of choices) base[c] += 1;
@@ -126,243 +147,346 @@ function pickTop(scores: Record<TrackId, number>): { winners: TrackId[]; max: nu
   return { winners, max };
 }
 
+function GuideAvatar({ isDark, imgErr, onImgErr }: { isDark: boolean; imgErr: boolean; onImgErr: () => void }) {
+  if (imgErr) {
+    return (
+      <div
+        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 ${
+          isDark ? 'bg-green-500/20 border-green-500/40' : 'bg-green-50 border-green-200'
+        }`}
+      >
+        <Bot className="text-green-600" size={20} />
+      </div>
+    );
+  }
+  return (
+    <div
+      className={`w-10 h-10 rounded-full overflow-hidden shrink-0 border-2 ${
+        isDark ? 'border-green-500/35' : 'border-green-400/60'
+      }`}
+    >
+      <img
+        src={GUIDE.avatarSrc}
+        alt=""
+        className="w-full h-full object-cover object-top"
+        onError={onImgErr}
+      />
+    </div>
+  );
+}
+
 export default function PathsGuidePage() {
   const { isDark } = useAuthStore();
-  const [phase, setPhase] = useState<'info' | 'quiz' | 'result'>('info');
+  const [phase, setPhase] = useState<'welcome' | 'quiz' | 'result'>('welcome');
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<TrackId[]>([]);
+  const [introDone, setIntroDone] = useState(false);
+  const [avatarErr, setAvatarErr] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   const text = isDark ? 'text-white' : 'text-gray-900';
   const subtext = isDark ? 'text-gray-400' : 'text-gray-500';
-  const cardBg = isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200';
+  const cardBg = isDark ? 'bg-[#0f1419]/90 border-white/10' : 'bg-white border-gray-200';
   const mutedBorder = isDark ? 'border-white/10' : 'border-gray-200';
 
-  const scores = useMemo(() => tally(answers), [answers]);
-  const result = useMemo(() => {
-    if (answers.length < QUESTIONS.length) return null;
-    return pickTop(scores);
-  }, [answers, scores]);
+  const scrollToBottom = useCallback(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
-  const primaryTrack = result && result.winners.length ? result.winners[0] : null;
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping, phase, scrollToBottom]);
 
-  function selectOption(track: TrackId) {
-    const next = [...answers];
-    next[step] = track;
-    setAnswers(next);
-    if (step + 1 >= QUESTIONS.length) {
-      setPhase('result');
-    } else {
-      setStep(s => s + 1);
-    }
+  const pushMsg = useCallback((role: ChatMsg['role'], body: string) => {
+    setMessages(m => [...m, { id: uid(), role, body }]);
+  }, []);
+
+  /** مقدمة واحدة + مؤشر كتابة (أبسط وأقل عرضة لتعارض Strict Mode) */
+  useEffect(() => {
+    if (phase !== 'welcome' || introDone) return;
+    let cancelled = false;
+
+    (async () => {
+      setIsTyping(true);
+      await delay(850);
+      if (cancelled) return;
+      setIsTyping(false);
+      pushMsg('guide', INTRO_LINES.join('\n\n'));
+      setIntroDone(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [phase, introDone, pushMsg]);
+
+  async function startQuiz() {
+    pushMsg('user', 'يلا نبدأ — جاهز للأسئلة 🙌');
+    setPhase('quiz');
+    setStep(0);
+    setAnswers([]);
+    setIsTyping(true);
+    await delay(700);
+    setIsTyping(false);
+    pushMsg('guide', `أول سؤال:\n${QUESTIONS[0].q}`);
   }
 
-  function restart() {
+  async function selectOption(track: TrackId, label: string) {
+    const nextAnswers = [...answers];
+    nextAnswers[step] = track;
+    setAnswers(nextAnswers);
+    pushMsg('user', label);
+
+    if (step + 1 >= QUESTIONS.length) {
+      setIsTyping(true);
+      await delay(900);
+      setIsTyping(false);
+      setPhase('result');
+      const scores = tally(nextAnswers);
+      const { winners } = pickTop(scores);
+      const primary = winners[0];
+      const tieNote =
+        winners.length > 1
+          ? `\n\nملاحظة: تقارب بين أكثر من مسار (${winners.map(w => TRACKS[w].name).join(' — ')}) — راجع مع مرشدك.`
+          : '';
+      pushMsg(
+        'guide',
+        `بناءً على إجاباتك، الأقرب لميولك دلوقتي هو:\n\n${TRACKS[primary].emoji} **${TRACKS[primary].name}**\n\n${TRACKS[primary].detail}${tieNote}`
+      );
+      return;
+    }
+
+    const nextStep = step + 1;
+    setStep(nextStep);
+    setIsTyping(true);
+    await delay(750);
+    setIsTyping(false);
+    const fillers = ['سؤال تاني:', 'نكمّل:', 'سؤال سريع:', 'وبعدين:', 'لسه معاك:', 'آخر سؤال تقريباً:', 'سؤال أخير:'];
+    const lead = fillers[Math.min(nextStep, fillers.length - 1)];
+    pushMsg('guide', `${lead}\n${QUESTIONS[nextStep].q}`);
+  }
+
+  function resetConversation() {
+    setMessages([]);
+    setAnswers([]);
+    setStep(0);
+    setIntroDone(false);
+    setPhase('welcome');
+    setIsTyping(false);
+  }
+
+  function restartQuizOnly() {
+    setMessages([]);
     setAnswers([]);
     setStep(0);
     setPhase('quiz');
+    setIntroDone(true);
+    setIsTyping(true);
+    void (async () => {
+      await delay(600);
+      setIsTyping(false);
+      pushMsg('guide', `نبدأ من تاني 👇\n${QUESTIONS[0].q}`);
+    })();
   }
 
-  function fullReset() {
-    setAnswers([]);
-    setStep(0);
-    setPhase('info');
-  }
+  const primaryTrack =
+    phase === 'result' && answers.length === QUESTIONS.length ? pickTop(tally(answers)).winners[0] : null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12 space-y-10" dir="rtl">
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-3"
-      >
-        <div
-          className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-2 ${
-            isDark ? 'bg-cyan-500/15' : 'bg-cyan-50'
+    <div className="max-w-lg mx-auto px-3 sm:px-4 py-8 sm:py-10 pb-28" dir="rtl">
+      <div className={`rounded-3xl border shadow-xl overflow-hidden flex flex-col ${cardBg} min-h-[70vh] max-h-[85vh]`}>
+        {/* شريط المحادثة */}
+        <header
+          className={`shrink-0 px-4 py-3 border-b flex items-center gap-3 ${
+            isDark ? 'bg-black/20 border-white/10' : 'bg-gray-50 border-gray-100'
           }`}
         >
-          <Compass size={32} className="text-cyan-500" />
-        </div>
-        <h1 className={`text-3xl sm:text-4xl font-black ${text}`}>دليل المسارات التوجيهي</h1>
-        <p className={`text-base ${subtext} max-w-xl mx-auto leading-relaxed`}>
-          نظرة سريعة على مسارات نظام البكالوريا المصرية (تقريبية)، ثم اختبار خفيف يقترح مساراً يناسب ميولك —
-          <span className="font-semibold text-amber-600/90"> ليس بديلاً عن قرار المدرسة أو الوزارة</span>.
-        </p>
-      </motion.div>
-
-      {/* معلومات المسارات */}
-      <section className={`rounded-2xl border p-6 sm:p-8 ${cardBg}`}>
-        <div className="flex items-center gap-2 mb-6">
-          <BookOpen className="text-green-500" size={22} />
-          <h2 className={`text-lg font-bold ${text}`}>المسارات الأربعة (باختصار)</h2>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {(Object.keys(TRACKS) as TrackId[]).map(id => {
-            const t = TRACKS[id];
-            return (
-              <div
-                key={id}
-                className={`rounded-xl border p-4 bg-gradient-to-br ${t.gradient} ${mutedBorder}`}
-              >
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl" aria-hidden>
-                    {t.emoji}
-                  </span>
-                  <div>
-                    <h3 className={`font-bold text-sm ${text}`}>{t.name}</h3>
-                    <p className={`text-xs mt-1 leading-relaxed ${subtext}`}>{t.short}</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <p className={`text-xs mt-6 leading-relaxed ${subtext} border-t ${mutedBorder} pt-4`}>
-          التسميات والمواد تُحدَّد رسمياً من وزارة التربية والتعليم؛ قد يُضاف خيار الثانوية العامة التقليدية
-          بجانب البكالوريا — راجع مدرستك لعامك الدراسي.
-        </p>
-      </section>
-
-      {phase === 'info' && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row gap-3 justify-center items-center"
-        >
-          <button
-            type="button"
-            onClick={() => {
-              setPhase('quiz');
-              setStep(0);
-              setAnswers([]);
-            }}
-            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-green-500/25 w-full sm:w-auto"
-            style={{ background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' }}
-          >
-            <Sparkles size={18} />
-            ابدأ الاختبار التوجيهي
-          </button>
-          <Link
-            to="/library"
-            className={`text-sm font-medium underline-offset-4 hover:underline ${subtext}`}
-          >
-            الرجوع للمكتبة
-          </Link>
-        </motion.div>
-      )}
-
-      {/* الاختبار */}
-      {phase === 'quiz' && (
-        <section className={`rounded-2xl border p-6 sm:p-8 ${cardBg}`}>
-          <div className="flex justify-between items-center mb-6">
-            <span className={`text-sm ${subtext}`}>
-              سؤال {step + 1} من {QUESTIONS.length}
-            </span>
-            <div className={`h-2 flex-1 mx-4 rounded-full overflow-hidden ${isDark ? 'bg-white/10' : 'bg-gray-200'}`}>
-              <motion.div
-                className="h-full bg-green-500"
-                initial={false}
-                animate={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }}
-              />
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <GuideAvatar isDark={isDark} imgErr={avatarErr} onImgErr={() => setAvatarErr(true)} />
+            <div className="min-w-0">
+              <h1 className={`font-bold text-sm sm:text-base truncate ${text}`}>{GUIDE.name}</h1>
+              <p className={`text-[11px] sm:text-xs truncate ${subtext}`}>{GUIDE.tagline}</p>
             </div>
           </div>
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full shrink-0 ${
+              isDark ? 'bg-white/10 text-gray-400' : 'bg-gray-200/80 text-gray-600'
+            }`}
+          >
+            حواري
+          </span>
+        </header>
 
-          <AnimatePresence mode="wait">
+        {/* فقاعات */}
+        <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-3">
+          {messages.length === 0 && !isTyping && phase === 'welcome' && !introDone && (
+            <p className={`text-center text-sm ${subtext}`}>جاري الاتصال…</p>
+          )}
+
+          <AnimatePresence initial={false}>
+            {messages.map(m => (
+              <motion.div
+                key={m.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex gap-2 ${m.role === 'guide' ? 'justify-end' : 'justify-start'}`}
+              >
+                {m.role === 'guide' && (
+                  <>
+                    <div
+                      className={`max-w-[88%] rounded-2xl rounded-br-md px-3.5 py-2.5 text-sm leading-relaxed ${
+                        isDark
+                          ? 'bg-green-500/15 text-gray-100 border border-green-500/25'
+                          : 'bg-green-50 text-gray-900 border border-green-100'
+                      }`}
+                    >
+                      {m.body.split('\n').map((line, i) => {
+                        const bold = line.includes('**');
+                        if (!bold) return <p key={i}>{line}</p>;
+                        const parts = line.split(/\*\*(.+?)\*\*/g);
+                        return (
+                          <p key={i}>
+                            {parts.map((p, j) => (j % 2 === 1 ? <strong key={j}>{p}</strong> : p))}
+                          </p>
+                        );
+                      })}
+                    </div>
+                    <GuideAvatar isDark={isDark} imgErr={avatarErr} onImgErr={() => setAvatarErr(true)} />
+                  </>
+                )}
+                {m.role === 'user' && (
+                  <div
+                    className={`max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 text-sm ${
+                      isDark ? 'bg-white/10 text-white border border-white/10' : 'bg-gray-800 text-white'
+                    }`}
+                  >
+                    {m.body}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {isTyping && (
             <motion.div
-              key={step}
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -16 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-end gap-2 items-center"
             >
-              <h2 className={`text-lg font-bold mb-6 ${text}`}>{QUESTIONS[step].q}</h2>
-              <div className="space-y-3">
-                {QUESTIONS[step].options.map((opt, i) => (
+              <div
+                className={`rounded-2xl rounded-br-md px-4 py-3 text-sm flex gap-1.5 ${
+                  isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-100 border border-gray-200'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+              <GuideAvatar isDark={isDark} imgErr={avatarErr} onImgErr={() => setAvatarErr(true)} />
+            </motion.div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* شريط الإجراءات */}
+        <footer
+          className={`shrink-0 border-t p-3 space-y-2 ${
+            isDark ? 'bg-black/25 border-white/10' : 'bg-gray-50 border-gray-100'
+          }`}
+        >
+          {phase === 'welcome' && introDone && (
+            <button
+              type="button"
+              onClick={() => void startQuiz()}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-green-500/20"
+              style={{ background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' }}
+            >
+              <MessageCircle size={18} />
+              يلا نبدأ المحادثة
+            </button>
+          )}
+
+          {phase === 'quiz' && !isTyping && (
+            <div className="space-y-2">
+              <p className={`text-[11px] text-center ${subtext}`}>
+                سؤال {step + 1} من {QUESTIONS.length} — اختار اللي يعبّر عنك
+              </p>
+              <div className="grid gap-2">
+                {QUESTIONS[step]?.options.map((opt, i) => (
                   <button
                     key={i}
                     type="button"
-                    onClick={() => selectOption(opt.track)}
-                    className={`w-full text-right rounded-xl border px-4 py-3.5 text-sm font-medium transition-all ${
+                    onClick={() => void selectOption(opt.track, opt.label)}
+                    className={`w-full text-right rounded-xl border px-3 py-2.5 text-sm font-medium transition-all active:scale-[0.99] ${
                       isDark
                         ? 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-green-500/40 text-white'
-                        : 'border-gray-200 bg-gray-50/80 hover:bg-white hover:border-green-400 text-gray-900'
+                        : 'border-gray-200 bg-white hover:border-green-400 text-gray-900'
                     }`}
                   >
                     {opt.label}
                   </button>
                 ))}
               </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {step > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                setStep(s => Math.max(0, s - 1));
-                setAnswers(a => a.slice(0, -1));
-              }}
-              className={`mt-6 inline-flex items-center gap-1 text-sm ${subtext} hover:text-green-500`}
-            >
-              <ChevronLeft size={16} />
-              السؤال السابق
-            </button>
+            </div>
           )}
-        </section>
-      )}
 
-      {/* النتيجة */}
-      {phase === 'result' && primaryTrack && result && (
-        <motion.section
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className={`rounded-2xl border overflow-hidden ${cardBg}`}
-        >
-          <div
-            className={`p-8 text-center bg-gradient-to-br ${TRACKS[primaryTrack].gradient} border-b ${mutedBorder}`}
-          >
-            <GraduationCap className="mx-auto mb-3 text-green-500" size={40} />
-            <p className={`text-sm font-semibold ${subtext}`}>اقتراح المسار الأنسب لإجاباتك</p>
-            <h2 className={`text-2xl font-black mt-2 ${text}`}>
-              {TRACKS[primaryTrack].emoji} {TRACKS[primaryTrack].name}
-            </h2>
-            {result.winners.length > 1 && (
-              <p className={`text-xs mt-3 ${subtext}`}>
-                تقارب بين:{' '}
-                {result.winners.map(w => TRACKS[w].name).join(' — ')}. راجع مع مرشدك أو ولي الأمر؛ التعادل يعني
-                إن الميول متنوعة.
+          {phase === 'result' && primaryTrack && (
+            <div className="space-y-3">
+              <div
+                className={`rounded-2xl p-4 text-center border ${mutedBorder} bg-gradient-to-br ${TRACKS[primaryTrack].gradient}`}
+              >
+                <GraduationCap className="mx-auto text-green-500 mb-1" size={28} />
+                <p className={`text-xs font-semibold ${subtext}`}>ملخّص سريع</p>
+                <p className={`font-black text-lg ${text}`}>
+                  {TRACKS[primaryTrack].emoji} {TRACKS[primaryTrack].name}
+                </p>
+              </div>
+              <p className={`text-[11px] leading-relaxed ${subtext} px-1`}>
+                <strong className="text-amber-600/90">تنبيه:</strong> توجيه تعليمي داخل المنصة فقط؛ القرار الرسمي
+                للوزارة والمدرسة ولي الأمر.
               </p>
-            )}
-          </div>
-          <div className="p-6 sm:p-8 space-y-4">
-            <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-              {TRACKS[primaryTrack].detail}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={restartQuizOnly}
+                  className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border border-green-500/50 text-green-600 font-semibold text-sm"
+                >
+                  <RotateCcw size={16} />
+                  محادثة جديدة
+                </button>
+                <button
+                  type="button"
+                  onClick={resetConversation}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-medium ${subtext} border ${mutedBorder}`}
+                >
+                  من البداية
+                </button>
+              </div>
+              <Link
+                to="/library"
+                className={`block text-center text-xs py-1 ${subtext} hover:text-green-500`}
+              >
+                الرجوع للمكتبة
+              </Link>
+            </div>
+          )}
+
+          {phase === 'welcome' && !introDone && (
+            <p className={`text-[11px] text-center ${subtext}`}>
+              <Sparkles size={12} className="inline ml-1 text-amber-500" />
+              جاري فتح المحادثة…
             </p>
-            <div
-              className={`rounded-xl p-4 text-xs ${isDark ? 'bg-white/5 text-gray-400' : 'bg-amber-50 text-amber-900/80'}`}
-            >
-              <strong>تنبيه:</strong> هذا اختبار توجيهي تعليمي داخل المنصة وليس قراراً إدارياً. الاختيار النهائي
-              للنظام (بكالوريا / ثانوية عامة) والمسار يخضع لقواعد الوزارة ولي الأمر والمدرسة.
-            </div>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <button
-                type="button"
-                onClick={restart}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-green-500/50 text-green-600 font-semibold text-sm hover:bg-green-500/10"
-              >
-                <RotateCcw size={16} />
-                إعادة الاختبار
-              </button>
-              <button
-                type="button"
-                onClick={fullReset}
-                className={`px-5 py-2.5 rounded-xl text-sm font-medium ${subtext} hover:text-green-500`}
-              >
-                العودة للمقدمة
-              </button>
-            </div>
-          </div>
-        </motion.section>
-      )}
+          )}
+        </footer>
+      </div>
+
+      <p className={`text-center text-xs mt-4 px-2 ${subtext}`}>
+        المسارات الأربعة للبكالوريا (تقريبية): طب وعلوم حياة — هندسة وحاسب — أعمال — آداب وفنون. راجع مدرستك للتفاصيل
+        الرسمية.
+      </p>
     </div>
   );
 }
