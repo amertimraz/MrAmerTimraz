@@ -11,10 +11,13 @@ import {
   Facebook,
   Youtube,
   ExternalLink,
+  Users,
+  TrendingUp,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import FloatingAiChat from '../../components/ui/FloatingAiChat';
+import { pathResultsApi } from '../../api/pathResults';
 
 export type TrackId = 'life' | 'engineering' | 'business' | 'arts';
 
@@ -279,6 +282,13 @@ export default function PathsGuidePage() {
   const [studentName, setStudentName] = useState('');
   const [nameInput, setNameInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  
+  // Statistics state
+  const [stats, setStats] = useState<{
+    totalUsers: number;
+    todayCount: number;
+    trackDistribution: { trackId: string; trackName: string; count: number }[];
+  } | null>(null);
 
   const displayName = safeDisplayName(studentName);
 
@@ -294,6 +304,23 @@ export default function PathsGuidePage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping, phase, scrollToBottom]);
+
+  // Fetch statistics on mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await pathResultsApi.getStats();
+        setStats(data);
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+      }
+    };
+
+    fetchStats();
+    // Refresh stats every 30 seconds
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const pushMsg = useCallback((role: ChatMsg['role'], body: string) => {
     setMessages(m => [...m, { id: uid(), role, body }]);
@@ -364,6 +391,21 @@ export default function PathsGuidePage() {
         winners.length > 1
           ? `\n\n⚠️ في **تقارب** بين أكثر من مسار (${winners.map(w => TRACKS[w].name).join(' — ')}) — من الأفضل تراجع مع ولي أمرك أو المرشد في المدرسة.`
           : '';
+      
+      // Save result to backend
+      try {
+        await pathResultsApi.create({
+          studentName: studentName || undefined,
+          trackId: primary,
+          trackName: TRACKS[primary].name,
+        });
+        // Refresh stats after saving
+        const updatedStats = await pathResultsApi.getStats();
+        setStats(updatedStats);
+      } catch (err) {
+        console.error('Error saving path result:', err);
+      }
+      
       pushMsg(
         'guide',
         `يا ${dn}، خلصنا الأسئلة وبناءً على إجاباتك الصادقة، المسار اللي **الأقرب لميولك دلوقتي** هو:\n\n${TRACKS[primary].emoji} **${TRACKS[primary].name}**\n\n${TRACKS[primary].detail}${tieNote}\n\nده **توجيه تعليمي** مش قرار رسمي — القرار النهائي للوزارة والمدرسة.\n\n📌 **لو حابب تستفسر أكتر أو تشوف منصة أ. عامر:** استخدم وسائل التواصل في الأسفل.`
@@ -420,24 +462,47 @@ export default function PathsGuidePage() {
     <div className="max-w-lg mx-auto px-3 sm:px-4 py-8 sm:py-10 pb-28" dir="rtl">
       <div className={`rounded-3xl border shadow-xl overflow-hidden flex flex-col ${cardBg} min-h-[70vh] max-h-[85vh]`}>
         <header
-          className={`shrink-0 px-4 py-3 border-b flex items-center gap-3 ${
+          className={`shrink-0 px-4 py-3 border-b ${
             isDark ? 'bg-black/20 border-white/10' : 'bg-gray-50 border-gray-100'
           }`}
         >
-          <div className="flex items-center gap-3 min-w-0 flex-1">
+          {/* Main Header Row */}
+          <div className="flex items-center gap-3 mb-2">
             <GuideAvatar isDark={isDark} imgErr={avatarErr} onImgErr={() => setAvatarErr(true)} />
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h1 className={`font-bold text-sm sm:text-base truncate ${text}`}>{GUIDE.name}</h1>
               <p className={`text-[11px] sm:text-xs truncate ${subtext}`}>{GUIDE.tagline}</p>
             </div>
+            <span
+              className={`text-[10px] px-2 py-0.5 rounded-full shrink-0 ${
+                isDark ? 'bg-white/10 text-gray-400' : 'bg-gray-200/80 text-gray-600'
+              }`}
+            >
+              {studentName.trim() ? `يا ${safeDisplayName(studentName)}` : 'حواري'}
+            </span>
           </div>
-          <span
-            className={`text-[10px] px-2 py-0.5 rounded-full shrink-0 ${
-              isDark ? 'bg-white/10 text-gray-400' : 'bg-gray-200/80 text-gray-600'
-            }`}
-          >
-            {studentName.trim() ? `يا ${safeDisplayName(studentName)}` : 'حواري'}
-          </span>
+          
+          {/* Statistics Row */}
+          {stats && (
+            <div className={`flex items-center gap-3 pt-2 border-t ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
+              <div className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+                <Users size={12} />
+                <span>{stats.totalUsers.toLocaleString()} مستخدم</span>
+              </div>
+              <div className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                <TrendingUp size={12} />
+                <span>+{stats.todayCount} اليوم</span>
+              </div>
+              {stats.trackDistribution.length > 0 && (
+                <div className={`flex items-center gap-1 text-[10px] ${subtext} mr-auto`}>
+                  <span>الأكثر: </span>
+                  <span className="font-medium text-amber-500">
+                    {stats.trackDistribution.sort((a, b) => b.count - a.count)[0]?.trackName.split(' ')[2] || '—'}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </header>
 
         <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-3">

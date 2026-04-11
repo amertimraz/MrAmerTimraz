@@ -39,6 +39,7 @@ public class AppDbContext : DbContext
     public DbSet<Challenge> Challenges => Set<Challenge>();
     public DbSet<ChallengeSnippet> ChallengeSnippets => Set<ChallengeSnippet>();
     public DbSet<TofasTestResult> TofasTestResults => Set<TofasTestResult>();
+    public DbSet<PathResult> PathResults => Set<PathResult>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
