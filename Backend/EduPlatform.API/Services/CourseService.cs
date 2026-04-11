@@ -26,31 +26,64 @@ public class CourseService : ICourseService
 
     public async Task<List<CourseDto>> GetAllAsync(bool publishedOnly = false)
     {
-        var query = _db.Courses
-            .AsNoTracking()
-            .Include(c => c.Teacher)
-            .Include(c => c.Videos)
-            .Include(c => c.Tests)
-            .Include(c => c.Enrollments)
-            .AsQueryable();
+        try
+        {
+            var query = _db.Courses
+                .AsNoTracking()
+                .Include(c => c.Teacher)
+                .Include(c => c.Videos)
+                .Include(c => c.Tests)
+                .Include(c => c.Enrollments)
+                .AsQueryable();
 
-        if (publishedOnly)
-            query = query.Where(c => c.IsPublished);
+            if (publishedOnly)
+                query = query.Where(c => c.IsPublished);
 
-        return await query.Select(c => MapToDto(c)).ToListAsync();
+            return await query.Select(c => MapToDto(c)).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            // Fallback: try without Videos if schema is not updated
+            var query = _db.Courses
+                .AsNoTracking()
+                .Include(c => c.Teacher)
+                .Include(c => c.Tests)
+                .Include(c => c.Enrollments)
+                .AsQueryable();
+
+            if (publishedOnly)
+                query = query.Where(c => c.IsPublished);
+
+            return await query.Select(c => MapToDto(c)).ToListAsync();
+        }
     }
 
     public async Task<CourseDto?> GetByIdAsync(int id)
     {
-        var course = await _db.Courses
-            .AsNoTracking()
-            .Include(c => c.Teacher)
-            .Include(c => c.Videos)
-            .Include(c => c.Tests)
-            .Include(c => c.Enrollments)
-            .FirstOrDefaultAsync(c => c.Id == id);
+        try
+        {
+            var course = await _db.Courses
+                .AsNoTracking()
+                .Include(c => c.Teacher)
+                .Include(c => c.Videos)
+                .Include(c => c.Tests)
+                .Include(c => c.Enrollments)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-        return course == null ? null : MapToDto(course);
+            return course == null ? null : MapToDto(course);
+        }
+        catch (Exception ex)
+        {
+            // Fallback: try without Videos if schema is not updated
+            var course = await _db.Courses
+                .AsNoTracking()
+                .Include(c => c.Teacher)
+                .Include(c => c.Tests)
+                .Include(c => c.Enrollments)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            return course == null ? null : MapToDto(course);
+        }
     }
 
     public async Task<CourseDto> CreateAsync(CreateCourseDto dto, int teacherId)

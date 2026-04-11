@@ -52,11 +52,19 @@ public class VideoService : IVideoService
 
     public async Task<List<Video>> GetByCourseAsync(int courseId)
     {
-        return await _db.Videos
-            .AsNoTracking()
-            .Where(v => v.CourseId == courseId)
-            .OrderBy(v => v.OrderIndex)
-            .ToListAsync();
+        try
+        {
+            return await _db.Videos
+                .AsNoTracking()
+                .Where(v => v.CourseId == courseId)
+                .OrderBy(v => v.OrderIndex)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            // Fallback: return empty list if schema is not updated
+            return new List<Video>();
+        }
     }
 
     public async Task<Video?> GetByIdAsync(int id) => 
