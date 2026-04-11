@@ -200,15 +200,30 @@ export default function CoursesPage() {
                     whileHover={{ y: -6, borderColor: accent + '60' }}
                     transition={{ type: 'spring', stiffness: 280, damping: 20 }}
                   >
-                    {/* Card Header */}
+                    {/* Card Header - Thumbnail Image */}
                     <div
-                      className="h-32 flex items-center justify-center text-5xl relative overflow-hidden"
-                      style={{ background: `linear-gradient(135deg, ${accent}22, ${accent}08)`, borderBottom: `1px solid ${accent}20` }}
+                      className="h-40 flex items-center justify-center relative overflow-hidden bg-gray-100"
+                      style={{ borderBottom: `1px solid ${accent}20` }}
                     >
-                      <motion.span className="relative z-10" whileHover={{ scale: 1.2, rotate: 8 }} transition={{ type: 'spring', stiffness: 400 }}>
-                        {emoji}
-                      </motion.span>
-                      <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${levelBg} ${levelColor}`}>
+                      {course.thumbnailUrl ? (
+                        <img
+                          src={course.thumbnailUrl}
+                          alt={course.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <motion.span
+                          className="text-5xl"
+                          whileHover={{ scale: 1.2, rotate: 8 }}
+                          transition={{ type: 'spring', stiffness: 400 }}
+                        >
+                          {emoji}
+                        </motion.span>
+                      )}
+                      <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${levelBg} ${levelColor} z-10`}>
                         {level}
                       </span>
                     </div>
