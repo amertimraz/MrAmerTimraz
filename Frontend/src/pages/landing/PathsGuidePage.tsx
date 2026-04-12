@@ -11,8 +11,8 @@ import {
   Facebook,
   Youtube,
   ExternalLink,
-  Users,
-  TrendingUp,
+  // Users,      // Temporarily hidden - stats section commented out
+  // TrendingUp, // Temporarily hidden - stats section commented out
   Send,
   Loader2,
 } from 'lucide-react';
@@ -287,12 +287,12 @@ export default function PathsGuidePage() {
   const [nameInput, setNameInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   
-  // Statistics state
-  const [stats, setStats] = useState<{
-    totalUsers: number;
-    todayCount: number;
-    trackDistribution: { trackId: string; trackName: string; count: number }[];
-  } | null>(null);
+  // Statistics state - temporarily hidden
+  // const [stats, setStats] = useState<{
+  //   totalUsers: number;
+  //   todayCount: number;
+  //   trackDistribution: { trackId: string; trackName: string; count: number }[];
+  // } | null>(null);
   
   // AI Chat state
   const [aiMessages, setAiMessages] = useState<AIMsg[]>([]);
@@ -314,23 +314,23 @@ export default function PathsGuidePage() {
     scrollToBottom();
   }, [messages, isTyping, phase, scrollToBottom]);
 
-  // Fetch statistics on mount
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await pathResultsApi.getStats();
-        console.log('Stats received:', data);
-        setStats(data);
-      } catch (err) {
-        console.error('Error fetching stats:', err);
-      }
-    };
-
-    fetchStats();
-    // Refresh stats every 30 seconds
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  // Fetch statistics on mount - temporarily disabled
+  // useEffect(() => {
+  //   const fetchStats = async () => {
+  //     try {
+  //       const data = await pathResultsApi.getStats();
+  //       console.log('Stats received:', data);
+  //       setStats(data);
+  //     } catch (err) {
+  //       console.error('Error fetching stats:', err);
+  //     }
+  //   };
+  //
+  //   fetchStats();
+  //   // Refresh stats every 30 seconds
+  //   const interval = setInterval(fetchStats, 30000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const pushMsg = useCallback((role: ChatMsg['role'], body: string) => {
     setMessages(m => [...m, { id: uid(), role, body }]);
@@ -433,9 +433,9 @@ export default function PathsGuidePage() {
           trackId: primary,
           trackName: TRACKS[primary].name,
         });
-        // Refresh stats after saving
-        const updatedStats = await pathResultsApi.getStats();
-        setStats(updatedStats);
+        // Refresh stats after saving - temporarily disabled
+        // const updatedStats = await pathResultsApi.getStats();
+        // setStats(updatedStats);
       } catch (err) {
         console.error('Error saving path result:', err);
       }
