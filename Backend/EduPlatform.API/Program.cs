@@ -507,7 +507,9 @@ using (var scope = app.Services.CreateScope())
             // Add Profile completion fields
             "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"Grade\" VARCHAR(50)",
             "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"School\" VARCHAR(100)",
-            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"DateOfBirth\" TIMESTAMP WITHOUT TIME ZONE"
+            "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"DateOfBirth\" TIMESTAMP WITHOUT TIME ZONE",
+            // Create PathResults table for guide statistics
+            "CREATE TABLE IF NOT EXISTS \"PathResults\" (\"Id\" SERIAL PRIMARY KEY, \"StudentName\" VARCHAR(100), \"TrackId\" VARCHAR(50) NOT NULL, \"TrackName\" VARCHAR(100) NOT NULL, \"CreatedAt\" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, \"SessionId\" VARCHAR(50))"
         };
 
         Console.WriteLine("Applying safety-nets for PostgreSQL...");
