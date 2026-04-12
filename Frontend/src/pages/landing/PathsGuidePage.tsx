@@ -441,7 +441,7 @@ export default function PathsGuidePage() {
       
       pushMsg(
         'guide',
-        `يا ${dn}، خلصنا الأسئلة وبناءً على إجاباتك الصادقة، المسار اللي **الأقرب لميولك دلوقتي** هو:\n\n${TRACKS[primary].emoji} **${TRACKS[primary].name}**\n\n${TRACKS[primary].detail}${tieNote}\n\nده **توجيه تعليمي** مش قرار رسمي — القرار النهائي للوزارة والمدرسة.\n\n📌 **لو حابب تستفسر أكتر أو تشوف منصة أ. عامر:** استخدم وسائل التواصل في الأسفل.`
+        `يا ${dn}، خلصنا الأسئلة وبناءً على إجاباتك الصادقة، المسار اللي **الأقرب لميولك دلوقتي** هو:\n\n${TRACKS[primary].emoji} **${TRACKS[primary].name}**\n\n${TRACKS[primary].detail}${tieNote}\n\nده **توجيه تعليمي** مش قرار رسمي — القرار النهائي ليك إنت.\n\n📌 **لو حابب تستفسر أكتر أو تشوف منصة أ. عامر:** استخدم وسائل التواصل في الأسفل.`
       );
       return;
     }
@@ -514,6 +514,20 @@ export default function PathsGuidePage() {
               {studentName.trim() ? `يا ${safeDisplayName(studentName)}` : 'حواري'}
             </span>
           </div>
+          
+          {/* AI Button in Header */}
+          <button
+            type="button"
+            onClick={() => setPhase('ai_chat')}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-medium transition-all ${
+              isDark
+                ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30'
+                : 'bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 border border-purple-300 hover:bg-purple-200'
+            }`}
+          >
+            <Bot size={12} />
+            <span>اسأل AI</span>
+          </button>
           
           {/* Statistics Row */}
           {stats && (
@@ -764,20 +778,6 @@ export default function PathsGuidePage() {
               <Link to="/library" className={`block text-center text-xs py-1 ${subtext} hover:text-green-500`}>
                 الرجوع للمكتبة
               </Link>
-              
-              {/* AI Chat Button */}
-              <button
-                type="button"
-                onClick={() => setPhase('ai_chat')}
-                className={`w-full mt-2 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isDark
-                    ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30'
-                    : 'bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 border border-purple-300 hover:bg-purple-200'
-                }`}
-              >
-                <Bot size={18} />
-                اسأل AI عن المسارات والكليات 🤖
-              </button>
             </div>
           )}
 
@@ -854,10 +854,19 @@ export default function PathsGuidePage() {
               
               <button
                 type="button"
-                onClick={() => setPhase('result')}
+                onClick={() => {
+                  // Return to appropriate phase based on user's progress
+                  if (answers.length === QUESTIONS.length) {
+                    setPhase('result');
+                  } else if (studentName.trim()) {
+                    setPhase('quiz');
+                  } else {
+                    setPhase('name_entry');
+                  }
+                }}
                 className={`w-full py-2 rounded-xl text-xs font-medium border ${mutedBorder} ${subtext}`}
               >
-                ← العودة للنتيجة
+                ← العودة للمحادثة
               </button>
             </div>
           )}
