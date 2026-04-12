@@ -96,6 +96,7 @@ public class AuthService : IAuthService
     public async Task<List<UserDto>> GetAllUsersAsync()
     {
         return await _db.Users.AsNoTracking()
+            .OrderByDescending(u => u.CreatedAt) // Sort by newest registration first
             .Select(u => new UserDto
             {
                 Id = u.Id,
