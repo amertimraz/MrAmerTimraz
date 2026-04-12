@@ -73,8 +73,8 @@ public class CoursesController : ControllerBase
         {
             Title = "🎓 كورس جديد متاح!",
             Message = $"تم إضافة كورس جديد: {course.Title}. تفضل بزيارة صفحة الكورسات لمشاهدته.",
-            Link = $"/courses/{course.Id}",
-            TargetRole = "Student"
+            LinkUrl = $"/courses/{course.Id}",
+            TargetType = "Students"
         }, course.ThumbnailUrl);
         
         return CreatedAtAction(nameof(GetById), new { id = course.Id }, course);
