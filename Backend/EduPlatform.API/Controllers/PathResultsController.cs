@@ -40,31 +40,52 @@ public class PathResultsController : ControllerBase
     [HttpGet("stats")]
     public async Task<IActionResult> GetStats()
     {
-        var totalUsers = await _db.PathResults.CountAsync();
-        
-        var trackDistribution = await _db.PathResults
-            .GroupBy(p => new { p.TrackId, p.TrackName })
-            .Select(g => new
-            {
-                trackId = g.Key.TrackId,
-                trackName = g.Key.TrackName,
-                count = g.Count()
-            })
-            .ToListAsync();
-
-        var todayCount = await _db.PathResults
-            .CountAsync(p => p.CreatedAt.Date == DateTime.UtcNow.Date);
-
-        var thisWeekCount = await _db.PathResults
-            .CountAsync(p => p.CreatedAt >= DateTime.UtcNow.AddDays(-7));
-
-        return Ok(new
+        try
         {
-            totalUsers,
-            todayCount,
-            thisWeekCount,
-            trackDistribution
-        });
+            // Ensure table exists
+            await _db.Database.EnsureCreatedAsync();
+            
+            var totalUsers = await _db.PathResults.CountAsync();
+            
+            var trackDistribution = await _db.PathResults
+                .GroupBy(p => new { p.TrackId, p.TrackName })
+                .Select(g => new
+                {
+                    trackId = g.Key.TrackId,
+                    trackName = g.Key.TrackName,
+                    count = g.Count()
+                })
+                .ToListAsync();
+
+            var todayCount = await _db.PathResults
+                .CountAsync(p => p.CreatedAt.Date == DateTime.UtcNow.Date);
+
+            var thisWeekCount = await _db.PathResults
+                .CountAsync(p => p.CreatedAt >= DateTime.UtcNow.AddDays(-7));
+
+            return Ok(new
+            {
+                totalUsers,
+                todayCount,
+                thisWeekCount,
+                trackDistribution
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] GetStats failed: {ex.Message}");
+            Console.WriteLine($"[ERROR] Stack: {ex.StackTrace}");
+            
+            // Return empty stats on error so frontend doesn't break
+            return Ok(new
+            {
+                totalUsers = 0,
+                todayCount = 0,
+                thisWeekCount = 0,
+                trackDistribution = new List<object>(),
+                error = ex.Message
+            });
+        }
     }
 
     /// <summary>
