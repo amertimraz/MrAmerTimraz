@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { coursesApi } from '../../api/courses';
-import { authApi } from '../../api/auth';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { Users, BookOpen } from 'lucide-react';
 import StatCard from '../../components/ui/StatCard';
@@ -11,12 +10,8 @@ export default function TeacherStudents() {
     queryFn: coursesApi.getMyCourses,
   });
 
-  const { data: allUsers } = useQuery({
-    queryKey: ['all-users-teacher'],
-    queryFn: authApi.getUsers,
-  });
-
-  const students = allUsers?.filter(u => u.role === 'Student') ?? [];
+  // Calculate total enrolled students from course data
+  // (Teacher can only see students enrolled in their own courses)
   const totalEnrolled = courses?.reduce((s, c) => s + c.enrolledCount, 0) ?? 0;
 
   if (isLoading) return <LoadingSpinner size="lg" />;
@@ -24,7 +19,7 @@ export default function TeacherStudents() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-2 gap-4">
-        <StatCard title="إجمالي الطلاب" value={students.length} icon={<Users size={22} />} color="blue" />
+        <StatCard title="إجمالي الطلاب" value={totalEnrolled} icon={<Users size={22} />} color="blue" />
         <StatCard title="تسجيلات الدروس" value={totalEnrolled} icon={<BookOpen size={22} />} color="purple" />
       </div>
 
