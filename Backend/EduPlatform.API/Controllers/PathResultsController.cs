@@ -19,19 +19,30 @@ public class PathResultsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePathResultDto dto)
     {
-        var pathResult = new PathResult
+        try
         {
-            StudentName = dto.StudentName,
-            TrackId = dto.TrackId,
-            TrackName = dto.TrackName,
-            SessionId = dto.SessionId ?? Guid.NewGuid().ToString("N")[..16],
-            CreatedAt = DateTime.UtcNow
-        };
+            // Ensure table exists before saving
+            await _db.Database.EnsureCreatedAsync();
+            
+            var pathResult = new PathResult
+            {
+                StudentName = dto.StudentName,
+                TrackId = dto.TrackId,
+                TrackName = dto.TrackName,
+                SessionId = dto.SessionId ?? Guid.NewGuid().ToString("N")[..16],
+                CreatedAt = DateTime.UtcNow
+            };
 
-        _db.PathResults.Add(pathResult);
-        await _db.SaveChangesAsync();
+            _db.PathResults.Add(pathResult);
+            await _db.SaveChangesAsync();
 
-        return Ok(new { id = pathResult.Id, message = "تم حفظ النتيجة بنجاح" });
+            return Ok(new { id = pathResult.Id, message = "تم حفظ النتيجة بنجاح" });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] Create path result failed: {ex.Message}");
+            return StatusCode(500, new { message = "فشل في حفظ النتيجة", error = ex.Message });
+        }
     }
 
     /// <summary>
