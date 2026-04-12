@@ -15,7 +15,7 @@ public class Course
 
     public string? Category { get; set; }
 
-    public bool IsPublished { get; set; } = false;
+    public bool IsPublished { get; set; } = true; // New courses are published by default
 
     public decimal Price { get; set; } = 0;
 

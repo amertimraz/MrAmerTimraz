@@ -11,8 +11,13 @@ namespace EduPlatform.API.Controllers;
 public class CoursesController : ControllerBase
 {
     private readonly ICourseService _courses;
+    private readonly INotificationService _notifications;
 
-    public CoursesController(ICourseService courses) => _courses = courses;
+    public CoursesController(ICourseService courses, INotificationService notifications)
+    {
+        _courses = courses;
+        _notifications = notifications;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] bool publishedOnly = false)
@@ -62,6 +67,16 @@ public class CoursesController : ControllerBase
     {
         var teacherId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var course = await _courses.CreateAsync(dto, teacherId);
+        
+        // Notify all students about the new course
+        await _notifications.BroadcastAsync(new SendNotificationDto
+        {
+            Title = "🎓 كورس جديد متاح!",
+            Message = $"تم إضافة كورس جديد: {course.Title}. تفضل بزيارة صفحة الكورسات لمشاهدته.",
+            Link = $"/courses/{course.Id}",
+            TargetRole = "Student"
+        }, course.ThumbnailUrl);
+        
         return CreatedAtAction(nameof(GetById), new { id = course.Id }, course);
     }
 

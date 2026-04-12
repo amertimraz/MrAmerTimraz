@@ -33,7 +33,7 @@ export default function AddCoursePage() {
   const createMutation = useMutation({
     mutationFn: (data: object) => coursesApi.create(data),
     onSuccess: (course) => {
-      toast.success('✅ تم إنشاء الكورس بنجاح!');
+      toast.success('✅ تم إنشاء ونشر الكورس بنجاح! الطلاب يمكنهم رؤيته الآن.');
       navigate(`/teacher/courses/${course.id}`);
     },
     onError: () => toast.error('فشل في إنشاء الكورس'),
