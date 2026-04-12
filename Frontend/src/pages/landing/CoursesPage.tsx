@@ -71,6 +71,11 @@ export default function CoursesPage() {
     return matchLevel && matchSearch;
   });
 
+  // Get the newest course for the announcement banner
+  const newestCourse = courses.length > 0 
+    ? courses.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+    : null;
+
   return (
     <div dir="rtl" className="min-h-screen">
 
@@ -95,6 +100,43 @@ export default function CoursesPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+
+        {/* New Course Announcement Banner */}
+        {newestCourse && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5, type: "spring" }}
+            className={`mb-6 rounded-2xl p-5 border-2 ${isDark 
+              ? 'bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-red-500/20 border-amber-500/50' 
+              : 'bg-gradient-to-r from-amber-100 via-orange-100 to-red-100 border-amber-400'}`}
+          >
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className={`flex items-center justify-center w-14 h-14 rounded-full ${isDark ? 'bg-amber-500/30' : 'bg-amber-500'} shrink-0`}>
+                <span className="text-2xl">🎉</span>
+              </div>
+              <div className="flex-1 text-center sm:text-right">
+                <p className={`text-xs font-bold uppercase tracking-wide mb-1 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
+                  ✨ كورس جديد تم إضافته للتو!
+                </p>
+                <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {newestCourse.title}
+                </h3>
+                <p className={`text-sm mt-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  {newestCourse.description?.slice(0, 100)}...
+                </p>
+              </div>
+              <Link
+                to={`/courses/${newestCourse.id}`}
+                className={`shrink-0 px-6 py-3 rounded-xl font-bold text-sm transition-all hover:scale-105 ${isDark 
+                  ? 'bg-amber-500 text-white hover:bg-amber-400' 
+                  : 'bg-amber-600 text-white hover:bg-amber-700'}`}
+              >
+                👈 اضغط هنا للدخول
+              </Link>
+            </div>
+          </motion.div>
+        )}
 
         {/* Filters */}
         <motion.div
