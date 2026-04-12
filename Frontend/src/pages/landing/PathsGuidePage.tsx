@@ -319,6 +319,7 @@ export default function PathsGuidePage() {
     const fetchStats = async () => {
       try {
         const data = await pathResultsApi.getStats();
+        console.log('Stats received:', data);
         setStats(data);
       } catch (err) {
         console.error('Error fetching stats:', err);
@@ -530,26 +531,24 @@ export default function PathsGuidePage() {
           </button>
           
           {/* Statistics Row */}
-          {stats && (
-            <div className={`flex items-center gap-3 pt-2 border-t ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
-              <div className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-green-400' : 'text-green-600'}`}>
-                <Users size={12} />
-                <span>{stats.totalUsers.toLocaleString()} مستخدم</span>
-              </div>
-              <div className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-                <TrendingUp size={12} />
-                <span>+{stats.todayCount} اليوم</span>
-              </div>
-              {stats.trackDistribution.length > 0 && (
-                <div className={`flex items-center gap-1 text-[10px] ${subtext} mr-auto`}>
-                  <span>الأكثر: </span>
-                  <span className="font-medium text-amber-500">
-                    {stats.trackDistribution.sort((a, b) => b.count - a.count)[0]?.trackName.split(' ')[2] || '—'}
-                  </span>
-                </div>
-              )}
+          <div className={`flex items-center gap-3 pt-2 border-t ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
+            <div className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+              <Users size={12} />
+              <span>{(stats?.totalUsers ?? 0).toLocaleString()} مستخدم</span>
             </div>
-          )}
+            <div className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+              <TrendingUp size={12} />
+              <span>+{stats?.todayCount ?? 0} اليوم</span>
+            </div>
+            {stats && stats.trackDistribution.length > 0 && (
+              <div className={`flex items-center gap-1 text-[10px] ${subtext} mr-auto`}>
+                <span>الأكثر: </span>
+                <span className="font-medium text-amber-500">
+                  {stats.trackDistribution.sort((a, b) => b.count - a.count)[0]?.trackName.split(' ')[2] || '—'}
+                </span>
+              </div>
+            )}
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-3">
