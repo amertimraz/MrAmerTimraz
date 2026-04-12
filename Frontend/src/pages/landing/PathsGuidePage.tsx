@@ -530,7 +530,8 @@ export default function PathsGuidePage() {
             <span>اسأل AI</span>
           </button>
           
-          {/* Statistics Row */}
+          {/* Statistics Row - Hidden temporarily until DB issue fixed */}
+          {/*
           <div className={`flex items-center gap-3 pt-2 border-t ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
             <div className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-green-400' : 'text-green-600'}`}>
               <Users size={12} />
@@ -549,6 +550,7 @@ export default function PathsGuidePage() {
               </div>
             )}
           </div>
+          */}
         </header>
 
         <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-3">
