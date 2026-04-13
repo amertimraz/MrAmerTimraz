@@ -37,28 +37,49 @@ export default function LevelAssessmentsPage() {
       });
   }, [quizzes]);
   const certificates = getPassedCertificates(user?.id);
+  const passedCount = levelQuizzes.filter(q => attempts[q.id]?.passed).length;
+  const totalLevels = levelQuizzes.length;
+  const unlockedLevels = levelQuizzes.filter(q => canOpenLevel(q, levelQuizzes, user?.id)).length;
+  const bestScore = Object.values(attempts).reduce((max, a) => Math.max(max, a.pct), 0);
 
   if (isLoading) return <LoadingSpinner size="lg" />;
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">اختبارات مستويات JavaScript</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">
-          كل مستوى يفتح بعد اجتياز المستوى السابق بنسبة 70% على الأقل.
-        </p>
+      <div className="rounded-2xl bg-gradient-to-l from-[#1e3a8a] via-[#1d4ed8] to-[#1e40af] p-6 text-white shadow-lg">
+        <h1 className="text-2xl font-extrabold">تقرير مستويات JavaScript</h1>
+        <p className="text-blue-100 mt-1">كل مستوى جديد يُفتح بعد اجتياز المستوى السابق بنسبة 70%.</p>
       </div>
 
-      <div className="flex gap-2">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="rounded-2xl p-4 text-white bg-gradient-to-br from-violet-600 to-indigo-600">
+          <p className="text-xs opacity-90">إجمالي المستويات</p>
+          <p className="text-3xl font-extrabold mt-1">{totalLevels}</p>
+        </div>
+        <div className="rounded-2xl p-4 text-white bg-gradient-to-br from-emerald-500 to-teal-600">
+          <p className="text-xs opacity-90">المستويات المجتازة</p>
+          <p className="text-3xl font-extrabold mt-1">{passedCount}</p>
+        </div>
+        <div className="rounded-2xl p-4 text-white bg-gradient-to-br from-amber-500 to-orange-600">
+          <p className="text-xs opacity-90">المستويات المفتوحة</p>
+          <p className="text-3xl font-extrabold mt-1">{unlockedLevels}</p>
+        </div>
+        <div className="rounded-2xl p-4 text-white bg-gradient-to-br from-blue-600 to-cyan-600">
+          <p className="text-xs opacity-90">أفضل نسبة</p>
+          <p className="text-3xl font-extrabold mt-1">{bestScore}%</p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl w-fit">
         <button
           onClick={() => setTab('levels')}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold ${tab === 'levels' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${tab === 'levels' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
         >
           المستويات
         </button>
         <button
           onClick={() => setTab('certificates')}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold ${tab === 'certificates' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${tab === 'certificates' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
         >
           الشهادات
         </button>
@@ -76,11 +97,11 @@ export default function LevelAssessmentsPage() {
             const attempt = attempts[quiz.id];
 
             return (
-              <div key={quiz.id} className="card p-5 space-y-4">
-                <div className="flex items-start justify-between gap-3">
+              <div key={quiz.id} className="rounded-2xl border border-blue-100 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 space-y-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">{quiz.title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <h3 className="text-lg font-extrabold text-gray-900 dark:text-white">{quiz.title}</h3>
+                    <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold">
                       {level ? `Level ${level}` : 'JavaScript Level'}
                     </p>
                   </div>
@@ -93,7 +114,7 @@ export default function LevelAssessmentsPage() {
                   )}
                 </div>
 
-                <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
                   <p>عدد الأسئلة: {quiz.questionCount}</p>
                   {attempt && <p>آخر نتيجة: {attempt.score}/{attempt.total} ({attempt.pct}%)</p>}
                 </div>
@@ -102,7 +123,7 @@ export default function LevelAssessmentsPage() {
                   <button
                     disabled={!unlocked}
                     onClick={() => navigate(`/student/levels/take/${quiz.slug || quiz.id}`)}
-                    className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {unlocked ? <PlayCircle size={16} /> : <Lock size={16} />}
                     {unlocked ? 'ابدأ الاختبار' : 'مغلق حتى اجتياز السابق'}
@@ -111,7 +132,7 @@ export default function LevelAssessmentsPage() {
                   {attempt?.passed && (
                     <button
                       onClick={() => navigate(`/student/levels/certificate/${quiz.id}`)}
-                      className="btn-secondary flex items-center gap-2"
+                      className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold flex items-center gap-2"
                     >
                       <Trophy size={16} />
                       عرض الشهادة
@@ -125,7 +146,7 @@ export default function LevelAssessmentsPage() {
       ) : certificates.length ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {certificates.map((cert) => (
-            <div key={cert.quizId} className="card p-5 space-y-3">
+            <div key={cert.quizId} className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-gradient-to-br from-white to-emerald-50 dark:from-slate-900 dark:to-emerald-950/20 p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-gray-900 dark:text-white">{cert.quizTitle}</h3>
                 <Award size={18} className="text-yellow-500" />
@@ -134,7 +155,7 @@ export default function LevelAssessmentsPage() {
               <p className="text-xs text-gray-500">ID: {buildCertificateId(user?.id, cert.quizId, cert.completedAt)}</p>
               <button
                 onClick={() => navigate(`/student/levels/certificate/${cert.quizId}`)}
-                className="btn-secondary flex items-center gap-2"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold flex items-center gap-2"
               >
                 <Trophy size={16} /> فتح الشهادة
               </button>
