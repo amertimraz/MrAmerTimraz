@@ -698,7 +698,7 @@ export default function AdminLevelAssessments() {
                                 <div key={idx} className={`text-xs rounded px-2 py-1 flex items-start gap-2 ${decoded.isCode ? 'bg-slate-900 text-cyan-200 font-mono' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200'}`}>
                                   {decoded.isCode && <Code2 size={12} />}
                                   <span
-                                    className="whitespace-pre-wrap"
+                                    className="block whitespace-pre-wrap"
                                     dir={decoded.align}
                                     style={{ textAlign: mapAlignToTextAlign(decoded.align) }}
                                   >

@@ -171,25 +171,25 @@ export default function LevelCodeExamPage() {
               <button
                 key={idx}
                 onClick={() => answerQuestion(idx)}
-                className={`w-full text-right p-3 rounded-xl border transition-colors ${
+                className={`w-full p-3 rounded-xl border transition-colors ${
                   answers[q.id] === idx
                     ? 'bg-primary-600 text-white border-primary-500'
                     : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                 }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-start gap-2">
                   <span className="opacity-70">{'>'}</span>
                   {opt.isCode && (
                     <span className="text-[10px] px-2 py-0.5 rounded bg-black/25 border border-white/20 font-mono">{'</>'}</span>
                   )}
                   {!opt.isCode && (
-                    <span
-                      className="whitespace-pre-wrap"
+                    <div
+                      className="flex-1 min-w-0"
                       dir={opt.align}
                       style={{ textAlign: mapAlignToTextAlign(opt.align) }}
                     >
-                      {opt.text}
-                    </span>
+                      <span className="block whitespace-pre-wrap">{opt.text}</span>
+                    </div>
                   )}
                 </div>
                 {opt.isCode && (
