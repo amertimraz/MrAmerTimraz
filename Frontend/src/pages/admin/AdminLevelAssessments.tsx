@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Plus, Pencil, Trash2, ClipboardList, Save, Sparkles } from 'lucide-react';
+import { BookOpen, Plus, Pencil, Trash2, ClipboardList, Save, Sparkles, Code2, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/ui/Modal';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { quizzesApi } from '../../api/quizzes';
 import { aiApi } from '../../api/ai';
-import type { InteractiveQuestion, InteractiveQuizSummary } from '../../types';
+import type { InteractiveQuestion, InteractiveQuizResult, InteractiveQuizSummary } from '../../types';
 
 interface LevelForm {
   title: string;
@@ -18,7 +18,7 @@ interface LevelForm {
 interface QuestionForm {
   text: string;
   type: 'MCQ' | 'TrueFalse';
-  optionsText: string;
+  options: { text: string; isCode: boolean }[];
   correctAnswer: string;
 }
 
@@ -32,11 +32,30 @@ const defaultLevelForm: LevelForm = {
 const defaultQuestionForm: QuestionForm = {
   text: '',
   type: 'MCQ',
-  optionsText: '',
+  options: [
+    { text: '', isCode: false },
+    { text: '', isCode: false },
+    { text: '', isCode: false },
+    { text: '', isCode: false },
+  ],
   correctAnswer: '',
 };
 
 const LEVEL_SUBJECT = 'JavaScript Levels';
+const CODE_PREFIX = '[code]::';
+
+function encodeOption(option: { text: string; isCode: boolean }) {
+  const text = option.text.trim();
+  if (!text) return '';
+  return option.isCode ? `${CODE_PREFIX}${text}` : text;
+}
+
+function decodeOption(raw: string): { text: string; isCode: boolean } {
+  if (raw.startsWith(CODE_PREFIX)) {
+    return { text: raw.slice(CODE_PREFIX.length), isCode: true };
+  }
+  return { text: raw, isCode: false };
+}
 
 function extractLevel(title: string): number | null {
   const m = title.match(/(?:level|lvl|المستوى)\s*([0-9]+)/i);
@@ -63,6 +82,8 @@ export default function AdminLevelAssessments() {
   const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
   const [improveLoading, setImproveLoading] = useState(false);
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<InteractiveQuestion | null>(null);
+  const [editQuestionForm, setEditQuestionForm] = useState<QuestionForm>(defaultQuestionForm);
 
   const { data: quizzes = [], isLoading } = useQuery({
     queryKey: ['interactive-quizzes'],
@@ -74,6 +95,32 @@ export default function AdminLevelAssessments() {
       .filter(q => (q.subject ?? '').toLowerCase() === LEVEL_SUBJECT.toLowerCase())
       .sort((a, b) => (extractLevel(a.title) ?? 999) - (extractLevel(b.title) ?? 999));
   }, [quizzes]);
+  const levelQuizIds = useMemo(() => levelQuizzes.map(q => q.id), [levelQuizzes]);
+
+  const { data: levelStats = {} } = useQuery({
+    queryKey: ['admin-levels-stats', levelQuizIds.join(',')],
+    queryFn: async () => {
+      const rows = await Promise.all(
+        levelQuizzes.map(async (quiz) => {
+          try {
+            const results = await quizzesApi.getLeaderboard(quiz.id);
+            const participants = results.length;
+            const avgPct = participants
+              ? Math.round(results.reduce((sum: number, r: InteractiveQuizResult) => sum + (r.pct || 0), 0) / participants)
+              : 0;
+            const bestPct = participants
+              ? Math.max(...results.map((r: InteractiveQuizResult) => r.pct || 0))
+              : 0;
+            return [quiz.id, { participants, avgPct, bestPct }] as const;
+          } catch {
+            return [quiz.id, { participants: 0, avgPct: 0, bestPct: 0 }] as const;
+          }
+        }),
+      );
+      return Object.fromEntries(rows) as Record<number, { participants: number; avgPct: number; bestPct: number }>;
+    },
+    enabled: levelQuizIds.length > 0,
+  });
 
   const { data: selectedQuiz, isLoading: loadingQuiz } = useQuery({
     queryKey: ['interactive-quiz', selectedQuizId],
@@ -136,12 +183,28 @@ export default function AdminLevelAssessments() {
     onError: () => toast.error('فشل حذف السؤال'),
   });
 
+  const updateQuestionMutation = useMutation({
+    mutationFn: ({ questionId, payload }: { questionId: number; payload: any }) =>
+      quizzesApi.updateQuestion(questionId, payload),
+    onSuccess: () => {
+      if (selectedQuizId) {
+        qc.invalidateQueries({ queryKey: ['interactive-quiz', selectedQuizId] });
+      }
+      toast.success('تم تحديث السؤال');
+      setEditingQuestion(null);
+      setEditQuestionForm(defaultQuestionForm);
+    },
+    onError: () => toast.error('فشل تعديل السؤال'),
+  });
+
   const closeModal = () => {
     setModal(null);
     setEditingQuiz(null);
     setSelectedQuizId(null);
     setLevelForm(defaultLevelForm);
     setQuestionForm(defaultQuestionForm);
+    setEditingQuestion(null);
+    setEditQuestionForm(defaultQuestionForm);
   };
 
   const openCreate = () => {
@@ -210,9 +273,8 @@ export default function AdminLevelAssessments() {
       return;
     }
 
-    const options = questionForm.optionsText
-      .split('\n')
-      .map(v => v.trim())
+    const options = questionForm.options
+      .map(encodeOption)
       .filter(Boolean);
     if (options.length < 2) return toast.error('أدخل على الأقل خيارين');
     const idx = Number(questionForm.correctAnswer);
@@ -267,7 +329,9 @@ export default function AdminLevelAssessments() {
       setQuestionForm(f => ({
         ...f,
         type: 'MCQ',
-        optionsText: generated.join('\n'),
+        options: generated.map(v => decodeOption(v)).concat(
+          Array.from({ length: Math.max(0, 4 - generated.length) }).map(() => ({ text: '', isCode: false })),
+        ).slice(0, 6),
         correctAnswer: f.correctAnswer || '0',
       }));
       toast.success('تم توليد اختيارات تلقائيًا');
@@ -276,6 +340,57 @@ export default function AdminLevelAssessments() {
     } finally {
       setOptionsLoading(false);
     }
+  };
+
+  const openEditQuestion = (q: InteractiveQuestion) => {
+    const opts = parseOptions(q.options).map(decodeOption);
+    setEditingQuestion(q);
+    setEditQuestionForm({
+      text: q.text,
+      type: q.type,
+      options: q.type === 'MCQ'
+        ? (opts.length ? opts : defaultQuestionForm.options)
+        : [{ text: 'صح', isCode: false }, { text: 'خطأ', isCode: false }],
+      correctAnswer: q.correctAnswer ?? '',
+    });
+  };
+
+  const submitEditQuestion = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingQuestion) return;
+    if (!editQuestionForm.text.trim()) return toast.error('نص السؤال مطلوب');
+
+    if (editQuestionForm.type === 'TrueFalse') {
+      if (!['true', 'false'].includes(editQuestionForm.correctAnswer)) {
+        return toast.error('اختر الإجابة الصحيحة');
+      }
+      updateQuestionMutation.mutate({
+        questionId: editingQuestion.id,
+        payload: {
+          text: editQuestionForm.text.trim(),
+          type: 'TrueFalse',
+          options: JSON.stringify(['صح', 'خطأ']),
+          correctAnswer: editQuestionForm.correctAnswer,
+        },
+      });
+      return;
+    }
+
+    const options = editQuestionForm.options.map(encodeOption).filter(Boolean);
+    if (options.length < 2) return toast.error('أدخل خيارين على الأقل');
+    const idx = Number(editQuestionForm.correctAnswer);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= options.length) {
+      return toast.error('حدد الإجابة الصحيحة');
+    }
+    updateQuestionMutation.mutate({
+      questionId: editingQuestion.id,
+      payload: {
+        text: editQuestionForm.text.trim(),
+        type: 'MCQ',
+        options: JSON.stringify(options),
+        correctAnswer: String(idx),
+      },
+    });
   };
 
   return (
@@ -306,6 +421,21 @@ export default function AdminLevelAssessments() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">{quiz.questionCount} سؤال</p>
                 </div>
                 <BookOpen size={20} className="text-primary-500" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-2">
+                  <p className="text-xs text-slate-500">دخلوا الاختبار</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">{levelStats[quiz.id]?.participants ?? 0}</p>
+                </div>
+                <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-2">
+                  <p className="text-xs text-slate-500">متوسط النسبة</p>
+                  <p className="text-lg font-bold text-amber-600">{levelStats[quiz.id]?.avgPct ?? 0}%</p>
+                </div>
+                <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-2">
+                  <p className="text-xs text-slate-500">أعلى نسبة</p>
+                  <p className="text-lg font-bold text-emerald-600">{levelStats[quiz.id]?.bestPct ?? 0}%</p>
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -414,7 +544,14 @@ export default function AdminLevelAssessments() {
               <select
                 className="input-field"
                 value={questionForm.type}
-                onChange={e => setQuestionForm(f => ({ ...f, type: e.target.value as 'MCQ' | 'TrueFalse', optionsText: '', correctAnswer: '' }))}
+                onChange={e => setQuestionForm(f => ({
+                  ...f,
+                  type: e.target.value as 'MCQ' | 'TrueFalse',
+                  options: e.target.value === 'MCQ'
+                    ? defaultQuestionForm.options
+                    : [{ text: 'صح', isCode: false }, { text: 'خطأ', isCode: false }],
+                  correctAnswer: '',
+                }))}
               >
                 <option value="MCQ">اختيار متعدد</option>
                 <option value="TrueFalse">صح / خطأ</option>
@@ -432,20 +569,38 @@ export default function AdminLevelAssessments() {
                       <Sparkles size={14} /> {optionsLoading ? 'جاري التوليد...' : 'توليد اختيارات تلقائيًا'}
                     </button>
                   </div>
-                  <textarea
-                    className="input-field min-h-[90px] resize-none"
-                    placeholder={'اكتب كل اختيار في سطر منفصل\nمثال:\nlet\nvar\nconst'}
-                    value={questionForm.optionsText}
-                    onChange={e => setQuestionForm(f => ({ ...f, optionsText: e.target.value }))}
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    className="input-field"
-                    placeholder="رقم الإجابة الصحيحة (0 لأول اختيار)"
-                    value={questionForm.correctAnswer}
-                    onChange={e => setQuestionForm(f => ({ ...f, correctAnswer: e.target.value }))}
-                  />
+                  <div className="space-y-2">
+                    {questionForm.options.map((opt, idx) => (
+                      <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
+                        <input
+                          className="input-field"
+                          placeholder={`الخيار ${idx + 1}`}
+                          value={opt.text}
+                          onChange={e => setQuestionForm(f => ({
+                            ...f,
+                            options: f.options.map((o, i) => (i === idx ? { ...o, text: e.target.value } : o)),
+                          }))}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setQuestionForm(f => ({ ...f, correctAnswer: String(idx) }))}
+                          className={`px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 ${questionForm.correctAnswer === String(idx) ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200'}`}
+                        >
+                          <CheckCircle2 size={13} /> صح
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setQuestionForm(f => ({
+                            ...f,
+                            options: f.options.map((o, i) => (i === idx ? { ...o, isCode: !o.isCode } : o)),
+                          }))}
+                          className={`px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 ${opt.isCode ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200'}`}
+                        >
+                          <Code2 size={13} /> كود
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </>
               ) : (
                 <select
@@ -469,20 +624,45 @@ export default function AdminLevelAssessments() {
                 const options = parseOptions(q.options);
                 const correct = q.type === 'TrueFalse'
                   ? (q.correctAnswer === 'true' ? 'صح' : q.correctAnswer === 'false' ? 'خطأ' : 'غير محدد')
-                  : (q.correctAnswer != null ? options[Number(q.correctAnswer)] ?? 'غير محدد' : 'غير محدد');
+                  : (q.correctAnswer != null ? decodeOption(options[Number(q.correctAnswer)] ?? '').text || 'غير محدد' : 'غير محدد');
                 return (
                   <div key={q.id} className="card p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{q.text}</p>
+                        {q.type === 'MCQ' && (
+                          <div className="mt-2 space-y-1">
+                            {options.map((opt, idx) => {
+                              const decoded = decodeOption(opt);
+                              const isCorrect = String(idx) === (q.correctAnswer ?? '');
+                              return (
+                                <div key={idx} className={`text-xs rounded px-2 py-1 flex items-center gap-2 ${decoded.isCode ? 'bg-slate-900 text-cyan-200 font-mono' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200'}`}>
+                                  {decoded.isCode && <Code2 size={12} />}
+                                  <span>{decoded.text}</span>
+                                  {isCorrect && <span className="text-emerald-400">✓</span>}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                         <p className="text-xs text-gray-500 mt-1">الإجابة الصحيحة: {correct}</p>
                       </div>
-                      <button
-                        onClick={() => deleteQuestionMutation.mutate(q.id)}
-                        className="text-red-600 hover:text-red-500"
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openEditQuestion(q)}
+                          className="text-blue-600 hover:text-blue-500"
+                          title="تعديل السؤال"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => deleteQuestionMutation.mutate(q.id)}
+                          className="text-red-600 hover:text-red-500"
+                          title="حذف السؤال"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -490,6 +670,79 @@ export default function AdminLevelAssessments() {
             </div>
           </div>
         )}
+      </Modal>
+
+      <Modal isOpen={!!editingQuestion} onClose={() => setEditingQuestion(null)} title="تعديل السؤال" size="xl">
+        <form onSubmit={submitEditQuestion} className="space-y-4" dir="rtl">
+          <textarea
+            className="input-field min-h-[90px] resize-none"
+            value={editQuestionForm.text}
+            onChange={e => setEditQuestionForm(f => ({ ...f, text: e.target.value }))}
+          />
+          <select
+            className="input-field"
+            value={editQuestionForm.type}
+            onChange={e => setEditQuestionForm(f => ({
+              ...f,
+              type: e.target.value as 'MCQ' | 'TrueFalse',
+              options: e.target.value === 'MCQ'
+                ? defaultQuestionForm.options
+                : [{ text: 'صح', isCode: false }, { text: 'خطأ', isCode: false }],
+              correctAnswer: '',
+            }))}
+          >
+            <option value="MCQ">اختيار متعدد</option>
+            <option value="TrueFalse">صح / خطأ</option>
+          </select>
+
+          {editQuestionForm.type === 'MCQ' ? (
+            <div className="space-y-2">
+              {editQuestionForm.options.map((opt, idx) => (
+                <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
+                  <input
+                    className="input-field"
+                    value={opt.text}
+                    onChange={e => setEditQuestionForm(f => ({
+                      ...f,
+                      options: f.options.map((o, i) => (i === idx ? { ...o, text: e.target.value } : o)),
+                    }))}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setEditQuestionForm(f => ({ ...f, correctAnswer: String(idx) }))}
+                    className={`px-3 py-2 rounded-lg text-xs font-bold ${editQuestionForm.correctAnswer === String(idx) ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200'}`}
+                  >
+                    صح
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditQuestionForm(f => ({
+                      ...f,
+                      options: f.options.map((o, i) => (i === idx ? { ...o, isCode: !o.isCode } : o)),
+                    }))}
+                    className={`px-3 py-2 rounded-lg text-xs font-bold ${opt.isCode ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200'}`}
+                  >
+                    كود
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <select
+              className="input-field"
+              value={editQuestionForm.correctAnswer}
+              onChange={e => setEditQuestionForm(f => ({ ...f, correctAnswer: e.target.value }))}
+            >
+              <option value="">اختر الإجابة الصحيحة</option>
+              <option value="true">صح</option>
+              <option value="false">خطأ</option>
+            </select>
+          )}
+
+          <button type="submit" className="btn-primary" disabled={updateQuestionMutation.isPending}>
+            حفظ التعديل
+          </button>
+        </form>
       </Modal>
     </div>
   );

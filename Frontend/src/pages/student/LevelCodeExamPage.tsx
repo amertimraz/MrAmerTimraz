@@ -10,11 +10,15 @@ import {
   isJavaScriptLevelQuiz,
   saveLevelAttempt,
 } from '../../utils/levelAssessments';
+const CODE_PREFIX = '[code]::';
 
-function parseOptions(raw?: string | null): string[] {
+function parseOptions(raw?: string | null): { text: string; isCode: boolean }[] {
   if (!raw) return [];
   try {
-    return JSON.parse(raw);
+    return (JSON.parse(raw) as string[]).map((opt) => {
+      if (opt.startsWith(CODE_PREFIX)) return { text: opt.slice(CODE_PREFIX.length), isCode: true };
+      return { text: opt, isCode: false };
+    });
   } catch {
     return [];
   }
@@ -48,7 +52,9 @@ export default function LevelCodeExamPage() {
   const isLocked = quiz ? !canOpenLevel(quiz, levelQuizzes, user?.id) : false;
   const questions = quiz?.questions ?? [];
   const q = questions[current];
-  const options = q?.type === 'MCQ' ? parseOptions(q.options) : ['صح', 'خطأ'];
+  const options = q?.type === 'MCQ'
+    ? parseOptions(q.options)
+    : [{ text: 'صح', isCode: false }, { text: 'خطأ', isCode: false }];
 
   const result = useMemo(() => {
     let correct = 0;
@@ -137,14 +143,24 @@ export default function LevelCodeExamPage() {
               <button
                 key={idx}
                 onClick={() => answerQuestion(idx)}
-                className={`w-full text-right p-3 rounded-xl border font-mono transition-colors ${
+                className={`w-full text-right p-3 rounded-xl border transition-colors ${
                   answers[q.id] === idx
                     ? 'bg-primary-600 text-white border-primary-500'
                     : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                 }`}
               >
-                <span className="opacity-70 ml-2">{'>'}</span>
-                {opt}
+                <div className="flex items-center gap-2">
+                  <span className="opacity-70">{'>'}</span>
+                  {opt.isCode && (
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-black/25 border border-white/20 font-mono">{'</>'}</span>
+                  )}
+                  <span className={opt.isCode ? 'font-mono' : ''}>{opt.text}</span>
+                </div>
+                {opt.isCode && (
+                  <div className="mt-2 rounded-lg bg-[#0b1020] border border-[#1f2a44] px-3 py-2 font-mono text-xs text-cyan-200 overflow-auto">
+                    {opt.text}
+                  </div>
+                )}
               </button>
             ))}
           </div>

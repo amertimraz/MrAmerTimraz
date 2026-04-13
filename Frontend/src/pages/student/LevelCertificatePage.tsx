@@ -117,8 +117,33 @@ export default function LevelCertificatePage() {
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_15%_20%,#facc15_0,transparent_35%),radial-gradient(circle_at_90%_80%,#38bdf8_0,transparent_30%)]" />
         <div className="absolute top-4 left-6 text-yellow-300/50 font-mono text-xs">const certificate = {'{'} level: "JavaScript" {'}'}</div>
         <div className="absolute bottom-4 right-6 text-cyan-300/50 font-mono text-xs">// Koryo x Mr Amer Timraz</div>
+        <div className="absolute inset-0 pointer-events-none opacity-15 text-cyan-200 font-mono text-xs">
+          <span className="absolute top-12 right-16">{'</>'}</span>
+          <span className="absolute top-24 left-20">{'{}'}</span>
+          <span className="absolute bottom-20 right-24">JS</span>
+          <span className="absolute bottom-28 left-24">function()</span>
+          <span className="absolute top-1/2 right-10 -translate-y-1/2">console.log()</span>
+          <span className="absolute top-1/2 left-10 -translate-y-1/2">async/await</span>
+        </div>
 
         <div className="relative z-10">
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3 bg-white/10 border border-white/15 rounded-2xl px-3 py-2">
+              <img
+                src="/teacher2.png"
+                alt="مستر عامر تمراز"
+                className="w-14 h-14 rounded-xl object-cover border border-white/30"
+              />
+              <div className="text-right">
+                <p className="text-xs text-cyan-200">إشراف</p>
+                <p className="text-sm font-bold text-white">مستر عامر تمراز</p>
+              </div>
+            </div>
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-600 text-[#0a0f1f] flex items-center justify-center shadow-lg border border-yellow-300">
+              <span className="text-3xl">🛡️</span>
+            </div>
+          </div>
+
           <p className="text-sm tracking-widest text-yellow-200 mb-3">KORYO JAVASCRIPT CERTIFICATE</p>
           <h1 className="text-4xl font-extrabold text-white mb-2">شهادة إتمام مستوى</h1>
           <p className="text-cyan-200 mb-2">مقدمة من منصة مستر عامر تمراز</p>

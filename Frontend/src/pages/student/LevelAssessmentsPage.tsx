@@ -95,6 +95,8 @@ export default function LevelAssessmentsPage() {
             const level = extractLevelNumber(quiz.title);
             const unlocked = canOpenLevel(quiz, levelQuizzes, user?.id);
             const attempt = attempts[quiz.id];
+            const pct = attempt?.pct ?? 0;
+            const progressColor = attempt?.passed ? 'bg-emerald-500' : attempt ? 'bg-amber-500' : 'bg-slate-300';
 
             return (
               <div key={quiz.id} className="rounded-2xl border border-blue-100 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 space-y-4 shadow-sm">
@@ -114,9 +116,20 @@ export default function LevelAssessmentsPage() {
                   )}
                 </div>
 
-                <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
+                <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
                   <p>عدد الأسئلة: {quiz.questionCount}</p>
                   {attempt && <p>آخر نتيجة: {attempt.score}/{attempt.total} ({attempt.pct}%)</p>}
+                  <div>
+                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                      <div
+                        className={`h-2 ${progressColor} transition-all`}
+                        style={{ width: `${Math.max(8, pct)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {attempt ? `تقدمك الحالي ${pct}%` : 'لم تبدأ هذا المستوى بعد'}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
