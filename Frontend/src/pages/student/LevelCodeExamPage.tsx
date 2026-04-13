@@ -46,25 +46,9 @@ export default function LevelCodeExamPage() {
 
   const levelQuizzes = allQuizzes.filter(isJavaScriptLevelQuiz);
   const isLocked = quiz ? !canOpenLevel(quiz, levelQuizzes, user?.id) : false;
-
-  useEffect(() => {
-    if (!isLocked || lockNoticeRef.current) return;
-    lockNoticeRef.current = true;
-    toast.error('هذا المستوى مقفول حتى تجتاز المستوى السابق.');
-    navigate('/student/levels', { replace: true });
-  }, [isLocked, navigate]);
-
-  if (isLoading) return <LoadingSpinner size="lg" />;
-  if (error || !quiz) return <div className="card p-8 text-center">لم يتم العثور على الاختبار.</div>;
-  if (isLocked) return null;
-
-  const questions = quiz.questions ?? [];
+  const questions = quiz?.questions ?? [];
   const q = questions[current];
   const options = q?.type === 'MCQ' ? parseOptions(q.options) : ['صح', 'خطأ'];
-
-  const answerQuestion = (value: number | boolean) => {
-    setAnswers(prev => ({ ...prev, [q.id]: value }));
-  };
 
   const result = useMemo(() => {
     let correct = 0;
@@ -83,6 +67,22 @@ export default function LevelCodeExamPage() {
     const pct = total ? Math.round((correct / total) * 100) : 0;
     return { correct, total, pct };
   }, [answers, questions]);
+
+  useEffect(() => {
+    if (!isLocked || lockNoticeRef.current) return;
+    lockNoticeRef.current = true;
+    toast.error('هذا المستوى مقفول حتى تجتاز المستوى السابق.');
+    navigate('/student/levels', { replace: true });
+  }, [isLocked, navigate]);
+
+  if (isLoading) return <LoadingSpinner size="lg" />;
+  if (error || !quiz) return <div className="card p-8 text-center">لم يتم العثور على الاختبار.</div>;
+  if (isLocked) return null;
+
+  const answerQuestion = (value: number | boolean) => {
+    if (!q) return;
+    setAnswers(prev => ({ ...prev, [q.id]: value }));
+  };
 
   const finishExam = () => {
     const isPassed = result.pct >= 70;
@@ -180,7 +180,7 @@ export default function LevelCodeExamPage() {
           >
             التالي
           </button>
-          {current === questions.length - 1 && (
+          {questions.length > 0 && current === questions.length - 1 && (
             <button onClick={finishExam} className="btn-primary">إنهاء الاختبار</button>
           )}
         </div>

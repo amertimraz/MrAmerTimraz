@@ -27,7 +27,10 @@ export default function LevelCertificatePage() {
     const dataUrl = await toPng(certRef.current, {
       cacheBust: true,
       pixelRatio: 2,
-    });
+      // Avoid cross-origin CSS rules errors from remote Google Fonts stylesheets.
+      skipFonts: true,
+      fontEmbedCSS: '',
+    } as any);
     const response = await fetch(dataUrl);
     return response.blob();
   };
