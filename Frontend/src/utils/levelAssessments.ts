@@ -23,6 +23,14 @@ export function extractLevelNumber(title: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+export function isJavaScriptLevelQuiz(quiz: Pick<InteractiveQuizSummary, 'title' | 'subject'>): boolean {
+  const subject = (quiz.subject ?? '').toLowerCase();
+  const title = quiz.title.toLowerCase();
+  return subject === 'javascript levels' ||
+    (title.includes('javascript') && extractLevelNumber(quiz.title) !== null) ||
+    (title.includes('js level'));
+}
+
 export function getStoredAttempts(userId?: number): Record<number, LevelAttemptRecord> {
   try {
     const raw = localStorage.getItem(keyForUser(userId));
@@ -63,4 +71,10 @@ export function buildCertificateId(userId: number | undefined, quizId: number, c
   const base = `${userId ?? 'guest'}-${quizId}-${completedAt}`;
   const hash = Array.from(base).reduce((acc, ch) => ((acc * 31 + ch.charCodeAt(0)) >>> 0), 7);
   return `KORYO-JS-${quizId}-${hash.toString(16).toUpperCase()}`;
+}
+
+export function getPassedCertificates(userId?: number): LevelAttemptRecord[] {
+  return Object.values(getStoredAttempts(userId))
+    .filter(v => v.passed)
+    .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
 }

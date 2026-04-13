@@ -8,7 +8,8 @@ import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, 
 import { useAuthStore } from '../store/authStore';
 import { getMediaUrl } from '../utils/media';
 import { CodeBlock } from '../components/ui/CodeBlock';
-import { saveLevelAttempt } from '../utils/levelAssessments';
+import toast from 'react-hot-toast';
+import { canOpenLevel, isJavaScriptLevelQuiz, saveLevelAttempt } from '../utils/levelAssessments';
 
 /* ─── Constants ─────────────────────────────────────────── */
 const OPTION_COLORS = [
@@ -229,6 +230,16 @@ export default function QuizPresenter() {
     enabled: !!id,
   });
 
+  const { data: allQuizzes = [] } = useQuery({
+    queryKey: ['interactive-quizzes-levels-guard'],
+    queryFn: quizzesApi.getAll,
+    enabled: !!quiz,
+  });
+  const isLevelQuiz = quiz ? isJavaScriptLevelQuiz(quiz) : false;
+  const isLevelLocked = quiz
+    ? isLevelQuiz && !canOpenLevel(quiz, allQuizzes.filter(isJavaScriptLevelQuiz), user?.id)
+    : false;
+
   /* questions */
   const [questions, setQuestions] = useState<InteractiveQuestion[]>([]);
   const [shuffled, setShuffled] = useState(false);
@@ -311,6 +322,7 @@ export default function QuizPresenter() {
   /* view count */
   const [viewCount, setViewCount] = useState<number | null>(null);
   const viewCalledRef = useRef(false);
+  const lockNoticeRef = useRef(false);
 
   /* settings */
   const [showSettings, setShowSettings] = useState(false);
@@ -374,6 +386,13 @@ export default function QuizPresenter() {
       quizzesApi.incrementView(quiz.id).then(setViewCount).catch(() => setViewCount(quiz.viewCount ?? null));
     }
   }, [quiz?.id]);
+
+  useEffect(() => {
+    if (!isLevelLocked || lockNoticeRef.current) return;
+    lockNoticeRef.current = true;
+    toast.error('لا يمكن فتح هذا المستوى قبل اجتياز المستوى السابق.');
+    navigate('/student/levels', { replace: true });
+  }, [isLevelLocked, navigate]);
 
   useEffect(() => {
     if (quiz?.questions) setQuestions([...quiz.questions]);
@@ -606,6 +625,8 @@ export default function QuizPresenter() {
       <button onClick={() => navigate('/admin/quizzes')} className="btn-primary">العودة</button>
     </div>
   );
+
+  if (isLevelLocked) return null;
 
   const isCyber = quiz?.theme === 'Cyber';
 

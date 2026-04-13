@@ -73,6 +73,7 @@ const AdminPaymentSettings = lazy(() => import('./pages/admin/AdminPaymentSettin
 const AdminAllResults = lazy(() => import('./pages/admin/AdminAllResults'));
 const FileManagerPage = lazy(() => import('./pages/admin/FileManagerPage'));
 const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
+const AdminLevelAssessments = lazy(() => import('./pages/admin/AdminLevelAssessments'));
 const QuizPresenter = lazy(() => import('./pages/QuizPresenter'));
 
 const queryClient = new QueryClient({
@@ -179,6 +180,7 @@ export default function App() {
               <Route path="booklets"        element={<BookletsManager />} />
               <Route path="booklet-stats"    element={<AdminBookletStats />} />
               <Route path="payment-settings" element={<AdminPaymentSettings />} />
+              <Route path="levels"          element={<AdminLevelAssessments />} />
               <Route path="live-sessions"   element={<AdminLiveSessions />} />
               <Route path="files"           element={<FileManagerPage />} />
             </Route>

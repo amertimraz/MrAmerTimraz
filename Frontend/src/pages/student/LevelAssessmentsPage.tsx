@@ -1,19 +1,23 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Lock, PlayCircle, Trophy } from 'lucide-react';
+import { Lock, PlayCircle, Trophy, Award } from 'lucide-react';
 import { quizzesApi } from '../../api/quizzes';
 import { useAuthStore } from '../../store/authStore';
 import {
+  buildCertificateId,
   canOpenLevel,
   extractLevelNumber,
+  getPassedCertificates,
   getStoredAttempts,
+  isJavaScriptLevelQuiz,
 } from '../../utils/levelAssessments';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 export default function LevelAssessmentsPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const [tab, setTab] = useState<'levels' | 'certificates'>('levels');
 
   const { data: quizzes = [], isLoading } = useQuery({
     queryKey: ['interactive-quizzes-levels'],
@@ -24,10 +28,7 @@ export default function LevelAssessmentsPage() {
 
   const levelQuizzes = useMemo(() => {
     return quizzes
-      .filter(q => {
-        const s = `${q.subject ?? ''} ${q.title}`.toLowerCase();
-        return s.includes('javascript') || s.includes('java script') || s.includes('js') || extractLevelNumber(q.title) !== null;
-      })
+      .filter(q => isJavaScriptLevelQuiz(q))
       .sort((a, b) => {
         const la = extractLevelNumber(a.title) ?? 9999;
         const lb = extractLevelNumber(b.title) ?? 9999;
@@ -35,6 +36,7 @@ export default function LevelAssessmentsPage() {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
   }, [quizzes]);
+  const certificates = getPassedCertificates(user?.id);
 
   if (isLoading) return <LoadingSpinner size="lg" />;
 
@@ -47,11 +49,26 @@ export default function LevelAssessmentsPage() {
         </p>
       </div>
 
-      {!levelQuizzes.length ? (
+      <div className="flex gap-2">
+        <button
+          onClick={() => setTab('levels')}
+          className={`px-4 py-2 rounded-xl text-sm font-semibold ${tab === 'levels' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+        >
+          المستويات
+        </button>
+        <button
+          onClick={() => setTab('certificates')}
+          className={`px-4 py-2 rounded-xl text-sm font-semibold ${tab === 'certificates' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+        >
+          الشهادات
+        </button>
+      </div>
+
+      {tab === 'levels' && !levelQuizzes.length ? (
         <div className="card p-10 text-center text-gray-500 dark:text-gray-400">
           لا توجد اختبارات مستويات مضافة بعد.
         </div>
-      ) : (
+      ) : tab === 'levels' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {levelQuizzes.map((quiz) => {
             const level = extractLevelNumber(quiz.title);
@@ -104,6 +121,29 @@ export default function LevelAssessmentsPage() {
               </div>
             );
           })}
+        </div>
+      ) : certificates.length ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {certificates.map((cert) => (
+            <div key={cert.quizId} className="card p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-gray-900 dark:text-white">{cert.quizTitle}</h3>
+                <Award size={18} className="text-yellow-500" />
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300">النتيجة: {cert.score}/{cert.total} ({cert.pct}%)</p>
+              <p className="text-xs text-gray-500">ID: {buildCertificateId(user?.id, cert.quizId, cert.completedAt)}</p>
+              <button
+                onClick={() => navigate(`/student/levels/certificate/${cert.quizId}`)}
+                className="btn-secondary flex items-center gap-2"
+              >
+                <Trophy size={16} /> فتح الشهادة
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="card p-10 text-center text-gray-500 dark:text-gray-400">
+          لا توجد شهادات حتى الآن. أكمل مستوى وحقق 70% لتظهر شهادتك هنا.
         </div>
       )}
     </div>

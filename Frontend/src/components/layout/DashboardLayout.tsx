@@ -27,6 +27,7 @@ const pageTitles: Record<string, string> = {
   '/admin/categories': 'الأقسام الدراسية',
   '/admin/library': 'المكتبة التعليمية',
   '/admin/quizzes': 'الاختبارات التفاعلية',
+  '/admin/levels': 'إدارة مستويات JavaScript',
   '/admin/files': 'إدارة الملفات',
   '/admin/settings': 'الإعدادات',
 };

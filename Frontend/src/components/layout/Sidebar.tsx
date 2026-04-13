@@ -46,6 +46,7 @@ const adminLinks: NavItem[] = [
   { to: '/admin/categories',    icon: <Tag size={20} />,      label: 'الأقسام الدراسية' },
   { to: '/admin/library',       icon: <FolderOpen size={20} />, label: 'المكتبة التعليمية' },
   { to: '/admin/quizzes',       icon: <Layers size={20} />,     label: 'الاختبارات التفاعلية' },
+  { to: '/admin/levels',        icon: <BookOpen size={20} />,    label: 'مستويات JavaScript' },
   { to: '/admin/challenges',    icon: <Database size={20} />,   label: 'إختبارات Tofas' },
   { to: '/admin/booklets',      icon: <BookOpen size={20} />,   label: 'الملازم الدراسية' },
   { to: '/admin/booklet-stats', icon: <CreditCard size={20} />, label: 'إحصائيات الملازم' },

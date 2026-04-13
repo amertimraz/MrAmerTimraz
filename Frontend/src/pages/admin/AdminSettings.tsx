@@ -52,15 +52,15 @@ export default function AdminSettings() {
         <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
           <p>✅ النظام مفعل للطلاب في صفحة مستقلة: <span className="font-medium">اختبارات المستويات</span>.</p>
           <p>✅ الشهادة تظهر تلقائيًا عند النجاح بنسبة 70% أو أكثر.</p>
-          <p>ℹ️ إدارة الاختبارات تتم من صفحة: <span className="font-medium">الاختبارات التفاعلية</span>.</p>
+          <p>✅ إدارة المستويات والأسئلة أصبحت في صفحة مستقلة تمامًا.</p>
         </div>
 
         <Link
-          to="/admin/quizzes"
+          to="/admin/levels"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold transition-colors"
         >
           <ExternalLink size={14} />
-          فتح إدارة اختبارات المستويات
+          فتح نظام مستويات JavaScript
         </Link>
       </div>
     </div>
