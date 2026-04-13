@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Plus, Pencil, Trash2, ClipboardList, Save } from 'lucide-react';
+import { BookOpen, Plus, Pencil, Trash2, ClipboardList, Save, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/ui/Modal';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { quizzesApi } from '../../api/quizzes';
+import { aiApi } from '../../api/ai';
 import type { InteractiveQuestion, InteractiveQuizSummary } from '../../types';
 
 interface LevelForm {
@@ -60,6 +61,8 @@ export default function AdminLevelAssessments() {
   const [levelForm, setLevelForm] = useState<LevelForm>(defaultLevelForm);
   const [questionForm, setQuestionForm] = useState<QuestionForm>(defaultQuestionForm);
   const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
+  const [improveLoading, setImproveLoading] = useState(false);
+  const [optionsLoading, setOptionsLoading] = useState(false);
 
   const { data: quizzes = [], isLoading } = useQuery({
     queryKey: ['interactive-quizzes'],
@@ -228,6 +231,53 @@ export default function AdminLevelAssessments() {
     });
   };
 
+  const improveQuestionWithAI = async () => {
+    if (!questionForm.text.trim()) {
+      toast.error('اكتب السؤال أولًا');
+      return;
+    }
+    setImproveLoading(true);
+    try {
+      const result = await aiApi.describe(
+        'Improve JavaScript MCQ question wording',
+        `Rewrite and improve this Arabic JavaScript question while keeping intent:\n${questionForm.text}`,
+      );
+      setQuestionForm(f => ({ ...f, text: result.description.trim() }));
+      toast.success('تم تحسين صياغة السؤال');
+    } catch {
+      toast.error('فشل تحسين السؤال بالذكاء الاصطناعي');
+    } finally {
+      setImproveLoading(false);
+    }
+  };
+
+  const generateOptionsWithAI = async () => {
+    if (!questionForm.text.trim()) {
+      toast.error('اكتب السؤال أولًا');
+      return;
+    }
+    setOptionsLoading(true);
+    try {
+      const parsed = await aiApi.parseQuiz(questionForm.text, 'MCQ');
+      const generated = parsed.questions?.[0]?.options?.filter(Boolean) ?? [];
+      if (generated.length < 2) {
+        toast.error('لم يتمكن الذكاء الاصطناعي من توليد اختيارات كافية');
+        return;
+      }
+      setQuestionForm(f => ({
+        ...f,
+        type: 'MCQ',
+        optionsText: generated.join('\n'),
+        correctAnswer: f.correctAnswer || '0',
+      }));
+      toast.success('تم توليد اختيارات تلقائيًا');
+    } catch {
+      toast.error('فشل توليد الاختيارات بالذكاء الاصطناعي');
+    } finally {
+      setOptionsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in" dir="rtl">
       <div className="flex items-center justify-between">
@@ -351,6 +401,16 @@ export default function AdminLevelAssessments() {
                 value={questionForm.text}
                 onChange={e => setQuestionForm(f => ({ ...f, text: e.target.value }))}
               />
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={improveQuestionWithAI}
+                  disabled={improveLoading}
+                  className="btn-secondary flex items-center gap-1.5"
+                >
+                  <Sparkles size={14} /> {improveLoading ? 'جاري التحسين...' : 'تحسين السؤال بالذكاء الاصطناعي'}
+                </button>
+              </div>
               <select
                 className="input-field"
                 value={questionForm.type}
@@ -362,6 +422,16 @@ export default function AdminLevelAssessments() {
 
               {questionForm.type === 'MCQ' ? (
                 <>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={generateOptionsWithAI}
+                      disabled={optionsLoading}
+                      className="btn-secondary flex items-center gap-1.5"
+                    >
+                      <Sparkles size={14} /> {optionsLoading ? 'جاري التوليد...' : 'توليد اختيارات تلقائيًا'}
+                    </button>
+                  </div>
                   <textarea
                     className="input-field min-h-[90px] resize-none"
                     placeholder={'اكتب كل اختيار في سطر منفصل\nمثال:\nlet\nvar\nconst'}

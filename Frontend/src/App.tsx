@@ -43,6 +43,7 @@ const ChallengePage = lazy(() => import('./pages/student/ChallengePage'));
 const ProfilePage = lazy(() => import('./pages/student/ProfilePage'));
 const LevelAssessmentsPage = lazy(() => import('./pages/student/LevelAssessmentsPage'));
 const LevelCertificatePage = lazy(() => import('./pages/student/LevelCertificatePage'));
+const LevelCodeExamPage = lazy(() => import('./pages/student/LevelCodeExamPage'));
 
 const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'));
 const TeacherCourses = lazy(() => import('./pages/teacher/TeacherCourses'));
@@ -132,6 +133,7 @@ export default function App() {
               <Route path="notifications"   element={<NotificationsPage />} />
               <Route path="profile"         element={<ProfilePage />} />
               <Route path="levels"          element={<LevelAssessmentsPage />} />
+              <Route path="levels/take/:id" element={<LevelCodeExamPage />} />
               <Route path="levels/certificate/:quizId" element={<LevelCertificatePage />} />
             </Route>
 

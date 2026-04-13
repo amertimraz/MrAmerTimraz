@@ -101,7 +101,7 @@ export default function LevelAssessmentsPage() {
                 <div className="flex gap-2 flex-wrap">
                   <button
                     disabled={!unlocked}
-                    onClick={() => navigate(`/quiz/${quiz.slug || quiz.id}`)}
+                    onClick={() => navigate(`/student/levels/take/${quiz.slug || quiz.id}`)}
                     className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {unlocked ? <PlayCircle size={16} /> : <Lock size={16} />}
