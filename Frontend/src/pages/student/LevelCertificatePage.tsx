@@ -15,25 +15,34 @@ export default function LevelCertificatePage() {
   const [sharing, setSharing] = useState(false);
   const attempts = getStoredAttempts(user?.id);
   const quizAttempt = attempts[Number(quizId)];
-  const SHARE_CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb7KXht7oQhjG0RCMp3m';
+  const WHATSAPP_NUMBER = '201096066818';
 
   const certId = useMemo(() => {
     if (!quizAttempt) return '';
     return buildCertificateId(user?.id, quizAttempt.quizId, quizAttempt.completedAt);
   }, [quizAttempt, user?.id]);
 
+  const getCertificatePngBlob = async (): Promise<Blob> => {
+    if (!certRef.current) throw new Error('Certificate ref not found');
+    const dataUrl = await toPng(certRef.current, {
+      cacheBust: true,
+      pixelRatio: 2,
+    });
+    const response = await fetch(dataUrl);
+    return response.blob();
+  };
+
   const downloadAsImage = async () => {
     if (!certRef.current || !quizAttempt) return;
     setDownloading(true);
     try {
-      const dataUrl = await toPng(certRef.current, {
-        cacheBust: true,
-        pixelRatio: 2,
-      });
+      const blob = await getCertificatePngBlob();
+      const dataUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = dataUrl;
       a.download = `Mr-Amer-JS-Certificate-Level-${quizAttempt.quizId}.png`;
       a.click();
+      URL.revokeObjectURL(dataUrl);
     } catch {
       // Fallback if image generation fails.
       window.print();
@@ -47,15 +56,27 @@ export default function LevelCertificatePage() {
     setSharing(true);
     const text = `السلام عليكم مستر عامر تمراز 🌟\nأنا ${user?.name ?? 'طالب المنصة'}\nأنهيت ${quizAttempt.quizTitle}\nالنتيجة: ${quizAttempt.score}/${quizAttempt.total} (${quizAttempt.pct}%)\nCertificate ID: ${certId}\nحابب مشاركة الشهادة لعرضها على القناة.`;
     try {
-      if (navigator.share) {
+      const blob = await getCertificatePngBlob();
+      const file = new File([blob], `Mr-Amer-Certificate-${quizAttempt.quizId}.png`, { type: 'image/png' });
+
+      // Best UX on mobile: share image + text directly (including WhatsApp target).
+      if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: 'شهادة منصة مستر عامر تمراز',
           text,
-          url: window.location.href,
+          files: [file],
         });
       } else {
-        await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
-        window.open(SHARE_CHANNEL_URL, '_blank');
+        // Web fallback: download the image then open WhatsApp chat with prefilled text.
+        const imageUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = imageUrl;
+        a.download = `Mr-Amer-Certificate-${quizAttempt.quizId}.png`;
+        a.click();
+        URL.revokeObjectURL(imageUrl);
+
+        const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, '_blank');
       }
     } finally {
       setSharing(false);

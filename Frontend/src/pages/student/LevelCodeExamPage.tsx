@@ -44,17 +44,18 @@ export default function LevelCodeExamPage() {
     enabled: !!quiz,
   });
 
-  if (isLoading) return <LoadingSpinner size="lg" />;
-  if (error || !quiz) return <div className="card p-8 text-center">لم يتم العثور على الاختبار.</div>;
-
   const levelQuizzes = allQuizzes.filter(isJavaScriptLevelQuiz);
-  const isLocked = !canOpenLevel(quiz, levelQuizzes, user?.id);
+  const isLocked = quiz ? !canOpenLevel(quiz, levelQuizzes, user?.id) : false;
+
   useEffect(() => {
     if (!isLocked || lockNoticeRef.current) return;
     lockNoticeRef.current = true;
     toast.error('هذا المستوى مقفول حتى تجتاز المستوى السابق.');
     navigate('/student/levels', { replace: true });
   }, [isLocked, navigate]);
+
+  if (isLoading) return <LoadingSpinner size="lg" />;
+  if (error || !quiz) return <div className="card p-8 text-center">لم يتم العثور على الاختبار.</div>;
   if (isLocked) return null;
 
   const questions = quiz.questions ?? [];
