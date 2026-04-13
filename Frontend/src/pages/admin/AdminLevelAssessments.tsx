@@ -17,8 +17,9 @@ interface LevelForm {
 
 interface QuestionForm {
   text: string;
+  textAlign: 'auto' | 'rtl' | 'ltr';
   type: 'MCQ' | 'TrueFalse';
-  options: { text: string; isCode: boolean }[];
+  options: { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' }[];
   correctAnswer: string;
 }
 
@@ -31,30 +32,52 @@ const defaultLevelForm: LevelForm = {
 
 const defaultQuestionForm: QuestionForm = {
   text: '',
+  textAlign: 'auto',
   type: 'MCQ',
   options: [
-    { text: '', isCode: false },
-    { text: '', isCode: false },
-    { text: '', isCode: false },
-    { text: '', isCode: false },
+    { text: '', isCode: false, align: 'auto' },
+    { text: '', isCode: false, align: 'auto' },
+    { text: '', isCode: false, align: 'auto' },
+    { text: '', isCode: false, align: 'auto' },
   ],
   correctAnswer: '',
 };
 
 const LEVEL_SUBJECT = 'JavaScript Levels';
 const CODE_PREFIX = '[code]::';
+const ALIGN_PREFIX = '[align=';
 
-function encodeOption(option: { text: string; isCode: boolean }) {
-  const text = option.text.trim();
-  if (!text) return '';
-  return option.isCode ? `${CODE_PREFIX}${text}` : text;
+function encodeAlignedText(text: string, align: 'auto' | 'rtl' | 'ltr') {
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+  if (align === 'auto') return trimmed;
+  return `${ALIGN_PREFIX}${align}]::${trimmed}`;
 }
 
-function decodeOption(raw: string): { text: string; isCode: boolean } {
-  if (raw.startsWith(CODE_PREFIX)) {
-    return { text: raw.slice(CODE_PREFIX.length), isCode: true };
+function decodeAlignedText(raw: string): { text: string; align: 'auto' | 'rtl' | 'ltr' } {
+  if (raw.startsWith(`${ALIGN_PREFIX}rtl]::`)) {
+    return { text: raw.slice(`${ALIGN_PREFIX}rtl]::`.length), align: 'rtl' };
   }
-  return { text: raw, isCode: false };
+  if (raw.startsWith(`${ALIGN_PREFIX}ltr]::`)) {
+    return { text: raw.slice(`${ALIGN_PREFIX}ltr]::`.length), align: 'ltr' };
+  }
+  return { text: raw, align: 'auto' };
+}
+
+function encodeOption(option: { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' }) {
+  const text = option.text.trim();
+  if (!text) return '';
+  const aligned = encodeAlignedText(text, option.align);
+  return option.isCode ? `${CODE_PREFIX}${aligned}` : aligned;
+}
+
+function decodeOption(raw: string): { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' } {
+  if (raw.startsWith(CODE_PREFIX)) {
+    const decoded = decodeAlignedText(raw.slice(CODE_PREFIX.length));
+    return { ...decoded, isCode: true };
+  }
+  const decoded = decodeAlignedText(raw);
+  return { ...decoded, isCode: false };
 }
 
 function extractLevel(title: string): number | null {
@@ -264,7 +287,7 @@ export default function AdminLevelAssessments() {
       addQuestionMutation.mutate({
         quizId: selectedQuizId,
         payload: {
-          text: questionForm.text.trim(),
+          text: encodeAlignedText(questionForm.text, questionForm.textAlign),
           type: 'TrueFalse',
           options: JSON.stringify(['صح', 'خطأ']),
           correctAnswer: questionForm.correctAnswer,
@@ -285,7 +308,7 @@ export default function AdminLevelAssessments() {
     addQuestionMutation.mutate({
       quizId: selectedQuizId,
       payload: {
-        text: questionForm.text.trim(),
+        text: encodeAlignedText(questionForm.text, questionForm.textAlign),
         type: 'MCQ',
         options: JSON.stringify(options),
         correctAnswer: String(idx),
@@ -330,7 +353,7 @@ export default function AdminLevelAssessments() {
         ...f,
         type: 'MCQ',
         options: generated.map(v => decodeOption(v)).concat(
-          Array.from({ length: Math.max(0, 4 - generated.length) }).map(() => ({ text: '', isCode: false })),
+          Array.from({ length: Math.max(0, 4 - generated.length) }).map(() => ({ text: '', isCode: false, align: 'auto' })),
         ).slice(0, 6),
         correctAnswer: f.correctAnswer || '0',
       }));
@@ -343,14 +366,16 @@ export default function AdminLevelAssessments() {
   };
 
   const openEditQuestion = (q: InteractiveQuestion) => {
+    const decodedQuestion = decodeAlignedText(q.text);
     const opts = parseOptions(q.options).map(decodeOption);
     setEditingQuestion(q);
     setEditQuestionForm({
-      text: q.text,
+      text: decodedQuestion.text,
+      textAlign: decodedQuestion.align,
       type: q.type,
       options: q.type === 'MCQ'
         ? (opts.length ? opts : defaultQuestionForm.options)
-        : [{ text: 'صح', isCode: false }, { text: 'خطأ', isCode: false }],
+        : [{ text: 'صح', isCode: false, align: 'auto' }, { text: 'خطأ', isCode: false, align: 'auto' }],
       correctAnswer: q.correctAnswer ?? '',
     });
   };
@@ -367,7 +392,7 @@ export default function AdminLevelAssessments() {
       updateQuestionMutation.mutate({
         questionId: editingQuestion.id,
         payload: {
-          text: editQuestionForm.text.trim(),
+          text: encodeAlignedText(editQuestionForm.text, editQuestionForm.textAlign),
           type: 'TrueFalse',
           options: JSON.stringify(['صح', 'خطأ']),
           correctAnswer: editQuestionForm.correctAnswer,
@@ -385,7 +410,7 @@ export default function AdminLevelAssessments() {
     updateQuestionMutation.mutate({
       questionId: editingQuestion.id,
       payload: {
-        text: editQuestionForm.text.trim(),
+        text: encodeAlignedText(editQuestionForm.text, editQuestionForm.textAlign),
         type: 'MCQ',
         options: JSON.stringify(options),
         correctAnswer: String(idx),
@@ -531,6 +556,15 @@ export default function AdminLevelAssessments() {
                 value={questionForm.text}
                 onChange={e => setQuestionForm(f => ({ ...f, text: e.target.value }))}
               />
+              <select
+                className="input-field"
+                value={questionForm.textAlign}
+                onChange={e => setQuestionForm(f => ({ ...f, textAlign: e.target.value as 'auto' | 'rtl' | 'ltr' }))}
+              >
+                <option value="auto">محاذاة السؤال: تلقائي</option>
+                <option value="rtl">محاذاة السؤال: يمين</option>
+                <option value="ltr">محاذاة السؤال: يسار</option>
+              </select>
               <div className="flex gap-2 flex-wrap">
                 <button
                   type="button"
@@ -549,7 +583,7 @@ export default function AdminLevelAssessments() {
                   type: e.target.value as 'MCQ' | 'TrueFalse',
                   options: e.target.value === 'MCQ'
                     ? defaultQuestionForm.options
-                    : [{ text: 'صح', isCode: false }, { text: 'خطأ', isCode: false }],
+                    : [{ text: 'صح', isCode: false, align: 'auto' }, { text: 'خطأ', isCode: false, align: 'auto' }],
                   correctAnswer: '',
                 }))}
               >
@@ -571,7 +605,7 @@ export default function AdminLevelAssessments() {
                   </div>
                   <div className="space-y-2">
                     {questionForm.options.map((opt, idx) => (
-                      <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 items-start">
+                      <div key={idx} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-start">
                         <textarea
                           className="input-field min-h-[72px] resize-y leading-6"
                           placeholder={`الخيار ${idx + 1}`}
@@ -581,6 +615,18 @@ export default function AdminLevelAssessments() {
                             options: f.options.map((o, i) => (i === idx ? { ...o, text: e.target.value } : o)),
                           }))}
                         />
+                        <select
+                          className="px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                          value={opt.align}
+                          onChange={e => setQuestionForm(f => ({
+                            ...f,
+                            options: f.options.map((o, i) => (i === idx ? { ...o, align: e.target.value as 'auto' | 'rtl' | 'ltr' } : o)),
+                          }))}
+                        >
+                          <option value="auto">تلقائي</option>
+                          <option value="rtl">يمين</option>
+                          <option value="ltr">يسار</option>
+                        </select>
                         <button
                           type="button"
                           onClick={() => setQuestionForm(f => ({ ...f, correctAnswer: String(idx) }))}
@@ -621,6 +667,7 @@ export default function AdminLevelAssessments() {
 
             <div className="space-y-3">
               {selectedQuiz.questions.map((q: InteractiveQuestion) => {
+                const decodedQuestion = decodeAlignedText(q.text);
                 const options = parseOptions(q.options);
                 const correct = q.type === 'TrueFalse'
                   ? (q.correctAnswer === 'true' ? 'صح' : q.correctAnswer === 'false' ? 'خطأ' : 'غير محدد')
@@ -629,7 +676,13 @@ export default function AdminLevelAssessments() {
                   <div key={q.id} className="card p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap">{q.text}</p>
+                        <p
+                          className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap"
+                          dir={decodedQuestion.align}
+                          style={{ textAlign: decodedQuestion.align === 'auto' ? undefined : decodedQuestion.align }}
+                        >
+                          {decodedQuestion.text}
+                        </p>
                         {q.type === 'MCQ' && (
                           <div className="mt-2 space-y-1">
                             {options.map((opt, idx) => {
@@ -638,7 +691,13 @@ export default function AdminLevelAssessments() {
                               return (
                                 <div key={idx} className={`text-xs rounded px-2 py-1 flex items-start gap-2 ${decoded.isCode ? 'bg-slate-900 text-cyan-200 font-mono' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200'}`}>
                                   {decoded.isCode && <Code2 size={12} />}
-                                  <span className="whitespace-pre-wrap">{decoded.text}</span>
+                                  <span
+                                    className="whitespace-pre-wrap"
+                                    dir={decoded.align}
+                                    style={{ textAlign: decoded.align === 'auto' ? undefined : decoded.align }}
+                                  >
+                                    {decoded.text}
+                                  </span>
                                   {isCorrect && <span className="text-emerald-400">✓</span>}
                                 </div>
                               );
@@ -681,13 +740,22 @@ export default function AdminLevelAssessments() {
           />
           <select
             className="input-field"
+            value={editQuestionForm.textAlign}
+            onChange={e => setEditQuestionForm(f => ({ ...f, textAlign: e.target.value as 'auto' | 'rtl' | 'ltr' }))}
+          >
+            <option value="auto">محاذاة السؤال: تلقائي</option>
+            <option value="rtl">محاذاة السؤال: يمين</option>
+            <option value="ltr">محاذاة السؤال: يسار</option>
+          </select>
+          <select
+            className="input-field"
             value={editQuestionForm.type}
             onChange={e => setEditQuestionForm(f => ({
               ...f,
               type: e.target.value as 'MCQ' | 'TrueFalse',
               options: e.target.value === 'MCQ'
                 ? defaultQuestionForm.options
-                : [{ text: 'صح', isCode: false }, { text: 'خطأ', isCode: false }],
+                : [{ text: 'صح', isCode: false, align: 'auto' }, { text: 'خطأ', isCode: false, align: 'auto' }],
               correctAnswer: '',
             }))}
           >
@@ -698,7 +766,7 @@ export default function AdminLevelAssessments() {
           {editQuestionForm.type === 'MCQ' ? (
             <div className="space-y-2">
               {editQuestionForm.options.map((opt, idx) => (
-                <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 items-start">
+                <div key={idx} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-start">
                   <textarea
                     className="input-field min-h-[72px] resize-y leading-6"
                     value={opt.text}
@@ -707,6 +775,18 @@ export default function AdminLevelAssessments() {
                       options: f.options.map((o, i) => (i === idx ? { ...o, text: e.target.value } : o)),
                     }))}
                   />
+                  <select
+                    className="px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    value={opt.align}
+                    onChange={e => setEditQuestionForm(f => ({
+                      ...f,
+                      options: f.options.map((o, i) => (i === idx ? { ...o, align: e.target.value as 'auto' | 'rtl' | 'ltr' } : o)),
+                    }))}
+                  >
+                    <option value="auto">تلقائي</option>
+                    <option value="rtl">يمين</option>
+                    <option value="ltr">يسار</option>
+                  </select>
                   <button
                     type="button"
                     onClick={() => setEditQuestionForm(f => ({ ...f, correctAnswer: String(idx) }))}

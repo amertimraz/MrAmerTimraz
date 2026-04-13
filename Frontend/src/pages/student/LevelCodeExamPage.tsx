@@ -11,13 +11,28 @@ import {
   saveLevelAttempt,
 } from '../../utils/levelAssessments';
 const CODE_PREFIX = '[code]::';
+const ALIGN_PREFIX = '[align=';
 
-function parseOptions(raw?: string | null): { text: string; isCode: boolean }[] {
+function decodeAlignedText(raw: string): { text: string; align: 'auto' | 'rtl' | 'ltr' } {
+  if (raw.startsWith(`${ALIGN_PREFIX}rtl]::`)) {
+    return { text: raw.slice(`${ALIGN_PREFIX}rtl]::`.length), align: 'rtl' };
+  }
+  if (raw.startsWith(`${ALIGN_PREFIX}ltr]::`)) {
+    return { text: raw.slice(`${ALIGN_PREFIX}ltr]::`.length), align: 'ltr' };
+  }
+  return { text: raw, align: 'auto' };
+}
+
+function parseOptions(raw?: string | null): { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' }[] {
   if (!raw) return [];
   try {
     return (JSON.parse(raw) as string[]).map((opt) => {
-      if (opt.startsWith(CODE_PREFIX)) return { text: opt.slice(CODE_PREFIX.length), isCode: true };
-      return { text: opt, isCode: false };
+      if (opt.startsWith(CODE_PREFIX)) {
+        const decoded = decodeAlignedText(opt.slice(CODE_PREFIX.length));
+        return { ...decoded, isCode: true };
+      }
+      const decoded = decodeAlignedText(opt);
+      return { ...decoded, isCode: false };
     });
   } catch {
     return [];
@@ -52,9 +67,10 @@ export default function LevelCodeExamPage() {
   const isLocked = quiz ? !canOpenLevel(quiz, levelQuizzes, user?.id) : false;
   const questions = quiz?.questions ?? [];
   const q = questions[current];
+  const questionText = decodeAlignedText(q?.text ?? '');
   const options = q?.type === 'MCQ'
     ? parseOptions(q.options)
-    : [{ text: 'صح', isCode: false }, { text: 'خطأ', isCode: false }];
+    : [{ text: 'صح', isCode: false, align: 'auto' }, { text: 'خطأ', isCode: false, align: 'auto' }];
 
   const result = useMemo(() => {
     let correct = 0;
@@ -133,8 +149,12 @@ export default function LevelCodeExamPage() {
       </div>
 
       <div className="card p-5 space-y-4">
-        <div className="bg-[#0b1020] border border-[#1f2a44] rounded-xl p-4 text-[#c9d4f1] font-mono text-sm leading-7 whitespace-pre-wrap">
-          {q.text}
+        <div
+          className="bg-[#0b1020] border border-[#1f2a44] rounded-xl p-4 text-[#c9d4f1] font-mono text-sm leading-7 whitespace-pre-wrap"
+          dir={questionText.align}
+          style={{ textAlign: questionText.align === 'auto' ? undefined : questionText.align }}
+        >
+          {questionText.text}
         </div>
 
         {q.type === 'MCQ' ? (
@@ -154,10 +174,22 @@ export default function LevelCodeExamPage() {
                   {opt.isCode && (
                     <span className="text-[10px] px-2 py-0.5 rounded bg-black/25 border border-white/20 font-mono">{'</>'}</span>
                   )}
-                  {!opt.isCode && <span className="whitespace-pre-wrap">{opt.text}</span>}
+                  {!opt.isCode && (
+                    <span
+                      className="whitespace-pre-wrap"
+                      dir={opt.align}
+                      style={{ textAlign: opt.align === 'auto' ? undefined : opt.align }}
+                    >
+                      {opt.text}
+                    </span>
+                  )}
                 </div>
                 {opt.isCode && (
-                  <div className="mt-2 rounded-lg bg-[#0b1020] border border-[#1f2a44] px-3 py-2 font-mono text-xs text-cyan-200 overflow-auto whitespace-pre-wrap">
+                  <div
+                    className="mt-2 rounded-lg bg-[#0b1020] border border-[#1f2a44] px-3 py-2 font-mono text-xs text-cyan-200 overflow-auto whitespace-pre-wrap"
+                    dir={opt.align}
+                    style={{ textAlign: opt.align === 'auto' ? undefined : opt.align }}
+                  >
                     {opt.text}
                   </div>
                 )}
