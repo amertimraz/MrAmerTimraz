@@ -7,6 +7,7 @@ const pageTitles: Record<string, string> = {
   '/student': 'لوحة تحكم الطالب',
   '/student/courses': 'دروسي',
   '/student/tests': 'الاختبارات',
+  '/student/levels': 'اختبارات المستويات',
   '/student/results': 'نتائجي',
   '/student/games': 'الألعاب التعليمية',
   '/student/notifications': 'الإشعارات',

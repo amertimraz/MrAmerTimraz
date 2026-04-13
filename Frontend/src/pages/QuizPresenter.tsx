@@ -8,6 +8,7 @@ import { ChevronRight, ChevronLeft, Eye, Shuffle, RotateCcw, Settings, X, Home, 
 import { useAuthStore } from '../store/authStore';
 import { getMediaUrl } from '../utils/media';
 import { CodeBlock } from '../components/ui/CodeBlock';
+import { saveLevelAttempt } from '../utils/levelAssessments';
 
 /* ─── Constants ─────────────────────────────────────────── */
 const OPTION_COLORS = [
@@ -216,7 +217,7 @@ const renderContent = (text: string) => {
 export default function QuizPresenter() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isDark, toggleDark } = useAuthStore();
+  const { isDark, toggleDark, user } = useAuthStore();
 
   const { data: quiz, isLoading, error } = useQuery({
     queryKey: ['interactive-quiz', id],
@@ -334,6 +335,7 @@ export default function QuizPresenter() {
   const [timeLeft, setTimeLeft] = useState(30);
   const [, setTimerRunning] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const attemptSavedRef = useRef(false);
 
   /* zoom */
   const [zoom, setZoom] = useState(() => {
@@ -499,6 +501,16 @@ export default function QuizPresenter() {
       if (timerRef.current) clearInterval(timerRef.current);
       const correct = answeredCorrect.filter(Boolean).length;
       saveResultToLeaderboard(score, correct);
+      if (!attemptSavedRef.current && quiz) {
+        saveLevelAttempt(user?.id, {
+          quizId: quiz.id,
+          quizTitle: quiz.title,
+          score: correct,
+          total: questions.length,
+          pct: 0,
+        });
+        attemptSavedRef.current = true;
+      }
       playSound('end');
       setScreen('end');
       return;
@@ -512,7 +524,7 @@ export default function QuizPresenter() {
     } else {
       goTo(nextIdx);
     }
-  }, [currentIdx, questions.length, stageSize, currentStageIdx, effectiveStageCount, goTo, answeredCorrect, score, saveResultToLeaderboard, playSound]);
+  }, [currentIdx, questions.length, stageSize, currentStageIdx, effectiveStageCount, goTo, answeredCorrect, score, saveResultToLeaderboard, playSound, quiz, user?.id]);
 
   const prev = useCallback(() => { if (currentIdx > 0) goTo(currentIdx - 1); }, [currentIdx, goTo]);
 
@@ -542,6 +554,7 @@ export default function QuizPresenter() {
     setScore(0);
     setAnsweredCorrect([]);
     setShowLeaderboard(false);
+    attemptSavedRef.current = false;
     resetTimer();
   };
 
@@ -555,6 +568,7 @@ export default function QuizPresenter() {
     setScore(0);
     setAnsweredCorrect([]);
     setShowLeaderboard(false);
+    attemptSavedRef.current = false;
   };
 
   const toggleShuffle = () => {
@@ -1037,6 +1051,14 @@ export default function QuizPresenter() {
           )}
 
           <div className="flex flex-wrap gap-3 justify-center">
+            {pct >= 70 && quiz?.id && (
+              <button
+                onClick={() => navigate(`/student/levels/certificate/${quiz.id}`)}
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-colors flex items-center gap-2"
+              >
+                <Trophy size={18} /> عرض الشهادة
+              </button>
+            )}
             {quiz?.teacherWhatsappNumber && (
               <button 
                 onClick={() => {

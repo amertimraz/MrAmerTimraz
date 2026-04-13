@@ -41,6 +41,8 @@ const MyBookletsPage = lazy(() => import('./pages/student/MyBookletsPage'));
 const ChallengesList = lazy(() => import('./pages/student/ChallengesList'));
 const ChallengePage = lazy(() => import('./pages/student/ChallengePage'));
 const ProfilePage = lazy(() => import('./pages/student/ProfilePage'));
+const LevelAssessmentsPage = lazy(() => import('./pages/student/LevelAssessmentsPage'));
+const LevelCertificatePage = lazy(() => import('./pages/student/LevelCertificatePage'));
 
 const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'));
 const TeacherCourses = lazy(() => import('./pages/teacher/TeacherCourses'));
@@ -128,6 +130,8 @@ export default function App() {
               <Route path="my-booklets"     element={<MyBookletsPage />} />
               <Route path="notifications"   element={<NotificationsPage />} />
               <Route path="profile"         element={<ProfilePage />} />
+              <Route path="levels"          element={<LevelAssessmentsPage />} />
+              <Route path="levels/certificate/:quizId" element={<LevelCertificatePage />} />
             </Route>
 
             {/* Common Authenticated Routes (Booklets, etc.) */}

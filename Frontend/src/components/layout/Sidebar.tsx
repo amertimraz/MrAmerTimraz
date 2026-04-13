@@ -14,6 +14,7 @@ const studentLinks: NavItem[] = [
   { to: '/student/courses', icon: <BookOpen size={20} />, label: 'دروسي' },
   { to: '/student/live-sessions', icon: <Video size={20} />, label: 'الحصص المباشرة' },
   { to: '/student/tests', icon: <FileText size={20} />, label: 'الاختبارات' },
+  { to: '/student/levels', icon: <Trophy size={20} />, label: 'اختبارات المستويات' },
   { to: '/student/results', icon: <Trophy size={20} />, label: 'نتائجي' },
   { to: '/challenges', icon: <Layers size={20} />, label: 'إختبارات Tofas' },
   { to: '/booklets', icon: <BookOpen size={20} />, label: 'الملازم' },
