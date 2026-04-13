@@ -1,4 +1,5 @@
-import { Shield, Database } from 'lucide-react';
+import { Shield, Database, Layers, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function AdminSettings() {
   return (
@@ -38,6 +39,29 @@ export default function AdminSettings() {
           <p className="flex items-center gap-2">✅ CORS محدود للنطاقات المعتمدة</p>
           <p className="flex items-center gap-2">✅ صلاحيات متدرّجة (Student / Teacher / Admin)</p>
         </div>
+      </div>
+
+      <div className="card p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center">
+            <Layers size={20} className="text-blue-600" />
+          </div>
+          <h3 className="font-bold text-gray-900 dark:text-white">اختبارات مستويات JavaScript</h3>
+        </div>
+
+        <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
+          <p>✅ النظام مفعل للطلاب في صفحة مستقلة: <span className="font-medium">اختبارات المستويات</span>.</p>
+          <p>✅ الشهادة تظهر تلقائيًا عند النجاح بنسبة 70% أو أكثر.</p>
+          <p>ℹ️ إدارة الاختبارات تتم من صفحة: <span className="font-medium">الاختبارات التفاعلية</span>.</p>
+        </div>
+
+        <Link
+          to="/admin/quizzes"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold transition-colors"
+        >
+          <ExternalLink size={14} />
+          فتح إدارة اختبارات المستويات
+        </Link>
       </div>
     </div>
   );
