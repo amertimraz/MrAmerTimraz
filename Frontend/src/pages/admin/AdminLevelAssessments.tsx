@@ -571,9 +571,9 @@ export default function AdminLevelAssessments() {
                   </div>
                   <div className="space-y-2">
                     {questionForm.options.map((opt, idx) => (
-                      <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
-                        <input
-                          className="input-field"
+                      <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 items-start">
+                        <textarea
+                          className="input-field min-h-[72px] resize-y leading-6"
                           placeholder={`الخيار ${idx + 1}`}
                           value={opt.text}
                           onChange={e => setQuestionForm(f => ({
@@ -629,16 +629,16 @@ export default function AdminLevelAssessments() {
                   <div key={q.id} className="card p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{q.text}</p>
+                        <p className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap">{q.text}</p>
                         {q.type === 'MCQ' && (
                           <div className="mt-2 space-y-1">
                             {options.map((opt, idx) => {
                               const decoded = decodeOption(opt);
                               const isCorrect = String(idx) === (q.correctAnswer ?? '');
                               return (
-                                <div key={idx} className={`text-xs rounded px-2 py-1 flex items-center gap-2 ${decoded.isCode ? 'bg-slate-900 text-cyan-200 font-mono' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200'}`}>
+                                <div key={idx} className={`text-xs rounded px-2 py-1 flex items-start gap-2 ${decoded.isCode ? 'bg-slate-900 text-cyan-200 font-mono' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200'}`}>
                                   {decoded.isCode && <Code2 size={12} />}
-                                  <span>{decoded.text}</span>
+                                  <span className="whitespace-pre-wrap">{decoded.text}</span>
                                   {isCorrect && <span className="text-emerald-400">✓</span>}
                                 </div>
                               );
@@ -698,9 +698,9 @@ export default function AdminLevelAssessments() {
           {editQuestionForm.type === 'MCQ' ? (
             <div className="space-y-2">
               {editQuestionForm.options.map((opt, idx) => (
-                <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
-                  <input
-                    className="input-field"
+                <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 items-start">
+                  <textarea
+                    className="input-field min-h-[72px] resize-y leading-6"
                     value={opt.text}
                     onChange={e => setEditQuestionForm(f => ({
                       ...f,

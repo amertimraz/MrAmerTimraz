@@ -133,7 +133,7 @@ export default function LevelCodeExamPage() {
       </div>
 
       <div className="card p-5 space-y-4">
-        <div className="bg-[#0b1020] border border-[#1f2a44] rounded-xl p-4 text-[#c9d4f1] font-mono text-sm leading-7">
+        <div className="bg-[#0b1020] border border-[#1f2a44] rounded-xl p-4 text-[#c9d4f1] font-mono text-sm leading-7 whitespace-pre-wrap">
           {q.text}
         </div>
 
@@ -154,10 +154,10 @@ export default function LevelCodeExamPage() {
                   {opt.isCode && (
                     <span className="text-[10px] px-2 py-0.5 rounded bg-black/25 border border-white/20 font-mono">{'</>'}</span>
                   )}
-                  <span className={opt.isCode ? 'font-mono' : ''}>{opt.text}</span>
+                  {!opt.isCode && <span className="whitespace-pre-wrap">{opt.text}</span>}
                 </div>
                 {opt.isCode && (
-                  <div className="mt-2 rounded-lg bg-[#0b1020] border border-[#1f2a44] px-3 py-2 font-mono text-xs text-cyan-200 overflow-auto">
+                  <div className="mt-2 rounded-lg bg-[#0b1020] border border-[#1f2a44] px-3 py-2 font-mono text-xs text-cyan-200 overflow-auto whitespace-pre-wrap">
                     {opt.text}
                   </div>
                 )}
