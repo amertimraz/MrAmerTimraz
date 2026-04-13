@@ -64,6 +64,12 @@ function decodeAlignedText(raw: string): { text: string; align: 'auto' | 'rtl' |
   return { text: raw, align: 'auto' };
 }
 
+function mapAlignToTextAlign(align: 'auto' | 'rtl' | 'ltr'): 'left' | 'right' | undefined {
+  if (align === 'rtl') return 'right';
+  if (align === 'ltr') return 'left';
+  return undefined;
+}
+
 function encodeOption(option: { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' }) {
   const text = option.text.trim();
   if (!text) return '';
@@ -679,7 +685,7 @@ export default function AdminLevelAssessments() {
                         <p
                           className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap"
                           dir={decodedQuestion.align}
-                          style={{ textAlign: decodedQuestion.align === 'auto' ? undefined : decodedQuestion.align }}
+                          style={{ textAlign: mapAlignToTextAlign(decodedQuestion.align) }}
                         >
                           {decodedQuestion.text}
                         </p>
@@ -694,7 +700,7 @@ export default function AdminLevelAssessments() {
                                   <span
                                     className="whitespace-pre-wrap"
                                     dir={decoded.align}
-                                    style={{ textAlign: decoded.align === 'auto' ? undefined : decoded.align }}
+                                    style={{ textAlign: mapAlignToTextAlign(decoded.align) }}
                                   >
                                     {decoded.text}
                                   </span>

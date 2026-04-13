@@ -23,6 +23,12 @@ function decodeAlignedText(raw: string): { text: string; align: 'auto' | 'rtl' |
   return { text: raw, align: 'auto' };
 }
 
+function mapAlignToTextAlign(align: 'auto' | 'rtl' | 'ltr'): 'left' | 'right' | undefined {
+  if (align === 'rtl') return 'right';
+  if (align === 'ltr') return 'left';
+  return undefined;
+}
+
 function parseOptions(raw?: string | null): { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' }[] {
   if (!raw) return [];
   try {
@@ -38,6 +44,8 @@ function parseOptions(raw?: string | null): { text: string; isCode: boolean; ali
     return [];
   }
 }
+
+type ParsedOption = { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' };
 
 export default function LevelCodeExamPage() {
   const { id } = useParams<{ id: string }>();
@@ -68,7 +76,7 @@ export default function LevelCodeExamPage() {
   const questions = quiz?.questions ?? [];
   const q = questions[current];
   const questionText = decodeAlignedText(q?.text ?? '');
-  const options = q?.type === 'MCQ'
+  const options: ParsedOption[] = q?.type === 'MCQ'
     ? parseOptions(q.options)
     : [{ text: 'صح', isCode: false, align: 'auto' }, { text: 'خطأ', isCode: false, align: 'auto' }];
 
@@ -152,7 +160,7 @@ export default function LevelCodeExamPage() {
         <div
           className="bg-[#0b1020] border border-[#1f2a44] rounded-xl p-4 text-[#c9d4f1] font-mono text-sm leading-7 whitespace-pre-wrap"
           dir={questionText.align}
-          style={{ textAlign: questionText.align === 'auto' ? undefined : questionText.align }}
+          style={{ textAlign: mapAlignToTextAlign(questionText.align) }}
         >
           {questionText.text}
         </div>
@@ -178,7 +186,7 @@ export default function LevelCodeExamPage() {
                     <span
                       className="whitespace-pre-wrap"
                       dir={opt.align}
-                      style={{ textAlign: opt.align === 'auto' ? undefined : opt.align }}
+                      style={{ textAlign: mapAlignToTextAlign(opt.align) }}
                     >
                       {opt.text}
                     </span>
@@ -188,7 +196,7 @@ export default function LevelCodeExamPage() {
                   <div
                     className="mt-2 rounded-lg bg-[#0b1020] border border-[#1f2a44] px-3 py-2 font-mono text-xs text-cyan-200 overflow-auto whitespace-pre-wrap"
                     dir={opt.align}
-                    style={{ textAlign: opt.align === 'auto' ? undefined : opt.align }}
+                    style={{ textAlign: mapAlignToTextAlign(opt.align) }}
                   >
                     {opt.text}
                   </div>

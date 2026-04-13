@@ -41,6 +41,11 @@ export default function LevelAssessmentsPage() {
   const totalLevels = levelQuizzes.length;
   const unlockedLevels = levelQuizzes.filter(q => canOpenLevel(q, levelQuizzes, user?.id)).length;
   const bestScore = Object.values(attempts).reduce((max, a) => Math.max(max, a.pct), 0);
+  const totalPoints = levelQuizzes.reduce((sum, quiz) => sum + (attempts[quiz.id]?.score ?? 0), 0);
+  const maxPoints = levelQuizzes.reduce((sum, quiz) => sum + quiz.questionCount, 0);
+  const mascotStep = totalLevels ? Math.min(passedCount, Math.max(totalLevels - 1, 0)) : 0;
+  const trackProgress = totalLevels > 1 ? (mascotStep / (totalLevels - 1)) * 100 : 0;
+  const mascotSrc = '/koryo-mascot.png';
 
   if (isLoading) return <LoadingSpinner size="lg" />;
 
@@ -69,6 +74,63 @@ export default function LevelAssessmentsPage() {
           <p className="text-3xl font-extrabold mt-1">{bestScore}%</p>
         </div>
       </div>
+
+      {!!levelQuizzes.length && (
+        <div className="rounded-2xl border border-blue-100 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 space-y-5 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400">مجموع النقاط</p>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                {totalPoints}
+                <span className="text-sm font-semibold text-slate-500"> / {maxPoints}</span>
+              </p>
+            </div>
+            <p className="text-sm text-blue-700 dark:text-blue-300 font-semibold">
+              موقعك الحالي: {Math.min(passedCount + 1, totalLevels)} / {totalLevels}
+            </p>
+          </div>
+
+          <div className="relative pt-14 pb-2 px-2">
+            <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+              <div
+                className="h-2 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 transition-all duration-700"
+                style={{ width: `${Math.max(5, trackProgress)}%` }}
+              />
+            </div>
+
+            <div
+              className="absolute top-0 -translate-x-1/2 transition-all duration-700"
+              style={{ left: `${trackProgress}%` }}
+            >
+              <img
+                src={mascotSrc}
+                alt="Koryo Mascot"
+                className="w-14 h-14 object-contain drop-shadow-md"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <div className="text-center -mt-1 text-lg">🚀</div>
+            </div>
+
+            <div className="mt-3 grid gap-2" style={{ gridTemplateColumns: `repeat(${totalLevels}, minmax(0, 1fr))` }}>
+              {levelQuizzes.map((quiz, idx) => {
+                const level = extractLevelNumber(quiz.title) ?? idx + 1;
+                const passed = !!attempts[quiz.id]?.passed;
+                const reached = idx <= mascotStep;
+                return (
+                  <div key={quiz.id} className="text-center space-y-1">
+                    <div className={`mx-auto w-7 h-7 rounded-full border-2 flex items-center justify-center text-[11px] font-extrabold ${passed ? 'bg-emerald-500 border-emerald-500 text-white' : reached ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-500'}`}>
+                      {level}
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">L{level}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl w-fit">
         <button
