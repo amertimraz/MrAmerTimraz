@@ -30,10 +30,19 @@ export default function LevelAssessmentsPage() {
     return quizzes
       .filter(q => isJavaScriptLevelQuiz(q))
       .sort((a, b) => {
-        const la = extractLevelNumber(a.title) ?? 9999;
-        const lb = extractLevelNumber(b.title) ?? 9999;
+        const la = extractLevelNumber(a.title);
+        const lb = extractLevelNumber(b.title);
+        if (la != null && lb != null && la !== lb) return la - lb;
+        if (la != null && lb == null) return -1;
+        if (la == null && lb != null) return 1;
+        const aCreatedAt = new Date(a.createdAt).getTime();
+        const bCreatedAt = new Date(b.createdAt).getTime();
+        if (aCreatedAt !== bCreatedAt) return aCreatedAt - bCreatedAt;
+        const aUpdatedAt = new Date(a.updatedAt ?? a.createdAt).getTime();
+        const bUpdatedAt = new Date(b.updatedAt ?? b.createdAt).getTime();
+        if (aUpdatedAt !== bUpdatedAt) return aUpdatedAt - bUpdatedAt;
         if (la !== lb) return la - lb;
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return a.id - b.id;
       });
   }, [quizzes]);
   const certificates = getPassedCertificates(user?.id);
