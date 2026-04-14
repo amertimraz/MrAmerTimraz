@@ -38,10 +38,7 @@ export default function LevelAssessmentsPage() {
         const aCreatedAt = new Date(a.createdAt).getTime();
         const bCreatedAt = new Date(b.createdAt).getTime();
         if (aCreatedAt !== bCreatedAt) return aCreatedAt - bCreatedAt;
-        const aUpdatedAt = new Date(a.updatedAt ?? a.createdAt).getTime();
-        const bUpdatedAt = new Date(b.updatedAt ?? b.createdAt).getTime();
-        if (aUpdatedAt !== bUpdatedAt) return aUpdatedAt - bUpdatedAt;
-        if (la !== lb) return la - lb;
+        if (la != null && lb != null && la !== lb) return la - lb;
         return a.id - b.id;
       });
   }, [quizzes]);
