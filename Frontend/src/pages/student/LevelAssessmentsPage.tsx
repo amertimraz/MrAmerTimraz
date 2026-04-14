@@ -161,7 +161,14 @@ export default function LevelAssessmentsPage() {
             const progressColor = attempt?.passed ? 'bg-emerald-500' : attempt ? 'bg-amber-500' : 'bg-slate-300';
 
             return (
-              <div key={quiz.id} className="rounded-2xl border border-blue-100 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 space-y-4 shadow-sm">
+              <div
+                key={quiz.id}
+                className={`rounded-2xl border p-5 space-y-4 shadow-sm transition-all ${
+                  unlocked
+                    ? 'border-blue-100 dark:border-slate-700 bg-white dark:bg-slate-900'
+                    : 'border-slate-200 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-900/60 opacity-65'
+                }`}
+              >
                 <div className="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div>
                     <h3 className="text-lg font-extrabold text-gray-900 dark:text-white">{quiz.title}</h3>
@@ -171,12 +178,25 @@ export default function LevelAssessmentsPage() {
                   </div>
                   {attempt?.passed ? (
                     <span className="badge-green">تم الاجتياز</span>
+                  ) : !unlocked ? (
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                      <Lock size={12} />
+                      مقفول
+                    </span>
                   ) : attempt ? (
                     <span className="badge-red">غير مجتاز</span>
                   ) : (
                     <span className="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500">جديد</span>
                   )}
                 </div>
+
+                {!unlocked && (
+                  <div className="rounded-xl border border-amber-200/80 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/20 px-3 py-2">
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                      هذا المستوى مقفول. لازم تُنهي وتنجح في المستوى السابق أولًا.
+                    </p>
+                  </div>
+                )}
 
                 <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
                   <p>عدد الأسئلة: {quiz.questionCount}</p>
@@ -206,8 +226,9 @@ export default function LevelAssessmentsPage() {
 
                   {attempt?.passed && (
                     <button
+                      disabled={!unlocked}
                       onClick={() => navigate(`/student/levels/certificate/${quiz.id}`)}
-                      className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold flex items-center gap-2"
+                      className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Trophy size={16} />
                       عرض الشهادة

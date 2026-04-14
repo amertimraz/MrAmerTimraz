@@ -98,6 +98,40 @@ export default function LevelCodeExamPage() {
     return { correct, total, pct };
   }, [answers, questions]);
 
+  const reviewRows = useMemo(() => {
+    return questions.map((question, index) => {
+      if (question.type === 'TrueFalse') {
+        const selected = answers[question.id];
+        const studentAnswer = selected === true ? 'صح' : selected === false ? 'خطأ' : 'بدون إجابة';
+        const correctAnswer = question.correctAnswer === 'true' ? 'صح' : 'خطأ';
+        const isCorrect = selected === (question.correctAnswer === 'true');
+        return {
+          id: question.id,
+          index: index + 1,
+          text: decodeAlignedText(question.text),
+          studentAnswer,
+          correctAnswer,
+          isCorrect,
+        };
+      }
+
+      const optionsForQuestion = parseOptions(question.options);
+      const selected = answers[question.id];
+      const selectedIdx = typeof selected === 'number' ? selected : -1;
+      const correctIdx = Number(question.correctAnswer);
+      const studentOpt = selectedIdx >= 0 ? optionsForQuestion[selectedIdx] : undefined;
+      const correctOpt = correctIdx >= 0 ? optionsForQuestion[correctIdx] : undefined;
+      return {
+        id: question.id,
+        index: index + 1,
+        text: decodeAlignedText(question.text),
+        studentAnswer: studentOpt?.text ?? 'بدون إجابة',
+        correctAnswer: correctOpt?.text ?? 'غير محدد',
+        isCorrect: selectedIdx === correctIdx,
+      };
+    });
+  }, [questions, answers]);
+
   useEffect(() => {
     if (!isLocked || lockNoticeRef.current) return;
     lockNoticeRef.current = true;
@@ -143,6 +177,48 @@ export default function LevelCodeExamPage() {
                 فتح الشهادة
               </button>
             )}
+          </div>
+        </div>
+
+        <div className="card p-5 space-y-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">مراجعة الإجابات</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">راجع كل سؤال لمعرفة إجابتك والإجابة الصحيحة.</p>
+
+          <div className="space-y-3">
+            {reviewRows.map((row) => (
+              <div
+                key={row.id}
+                className={`rounded-xl border p-4 space-y-3 ${
+                  row.isCorrect
+                    ? 'border-emerald-200 bg-emerald-50/60 dark:border-emerald-900/50 dark:bg-emerald-900/10'
+                    : 'border-rose-200 bg-rose-50/60 dark:border-rose-900/50 dark:bg-rose-900/10'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p
+                    className="font-semibold text-gray-900 dark:text-white whitespace-pre-wrap"
+                    dir={row.text.align}
+                    style={{ textAlign: mapAlignToTextAlign(row.text.align) }}
+                  >
+                    {row.index}. {row.text.text}
+                  </p>
+                  <span className={`text-xs px-2 py-1 rounded-full font-bold ${row.isCorrect ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}`}>
+                    {row.isCorrect ? 'إجابة صحيحة' : 'إجابة خاطئة'}
+                  </span>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-2 text-sm">
+                  <div className="rounded-lg bg-white/70 dark:bg-slate-900/40 border border-white/60 dark:border-slate-700 px-3 py-2">
+                    <p className="text-xs text-slate-500 mb-1">إجابتك</p>
+                    <p className="font-medium whitespace-pre-wrap">{row.studentAnswer}</p>
+                  </div>
+                  <div className="rounded-lg bg-white/70 dark:bg-slate-900/40 border border-white/60 dark:border-slate-700 px-3 py-2">
+                    <p className="text-xs text-slate-500 mb-1">الإجابة الصحيحة</p>
+                    <p className="font-medium whitespace-pre-wrap">{row.correctAnswer}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
