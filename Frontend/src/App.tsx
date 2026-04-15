@@ -21,6 +21,8 @@ const HomePage = lazy(() => import('./pages/landing/HomePage'));
 const CoursesPage = lazy(() => import('./pages/landing/CoursesPage'));
 const AboutPage = lazy(() => import('./pages/landing/AboutPage'));
 const ContactPage = lazy(() => import('./pages/landing/ContactPage'));
+const PrivacyPolicyPage = lazy(() => import('./pages/landing/PrivacyPolicyPage'));
+const TermsPage = lazy(() => import('./pages/landing/TermsPage'));
 const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
 const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -112,6 +114,8 @@ export default function App() {
               <Route path="/courses"  element={<CoursesPage />} />
               <Route path="/about"    element={<AboutPage />} />
               <Route path="/contact"  element={<ContactPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route path="/library"  element={<LibraryPage />} />
               <Route path="/masarat"  element={<PathsGuidePage />} />
             </Route>

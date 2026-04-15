@@ -61,6 +61,8 @@ export default function Footer() {
                 { to: '/courses', label: 'الدروس' },
                 { to: '/about',   label: 'عن مستر' },
                 { to: '/contact', label: 'تواصل معنا' },
+                { to: '/privacy-policy', label: 'سياسة الخصوصية' },
+                { to: '/terms', label: 'الشروط والأحكام' },
                 { to: '/login',   label: 'تسجيل الدخول' },
                 { to: '/register',label: 'إنشاء حساب' },
               ].map(link => (
