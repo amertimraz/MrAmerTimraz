@@ -60,27 +60,17 @@ export default function LevelCertificatePage() {
     const text = `السلام عليكم مستر عامر تمراز 🌟\nأنا ${user?.name ?? 'طالب المنصة'}\nأنهيت ${quizAttempt.quizTitle}\nالنتيجة: ${quizAttempt.score}/${quizAttempt.total} (${quizAttempt.pct}%)\nCertificate ID: ${certId}\nحابب مشاركة الشهادة لعرضها على القناة.`;
     try {
       const blob = await getCertificatePngBlob();
-      const file = new File([blob], `Mr-Amer-Certificate-${quizAttempt.quizId}.png`, { type: 'image/png' });
 
-      // Best UX on mobile: share image + text directly (including WhatsApp target).
-      if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: 'شهادة منصة مستر عامر تمراز',
-          text,
-          files: [file],
-        });
-      } else {
-        // Web fallback: download the image then open WhatsApp chat with prefilled text.
-        const imageUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = imageUrl;
-        a.download = `Mr-Amer-Certificate-${quizAttempt.quizId}.png`;
-        a.click();
-        URL.revokeObjectURL(imageUrl);
+      // Always open WhatsApp directly with the certificate image
+      const imageUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = imageUrl;
+      a.download = `Mr-Amer-Certificate-${quizAttempt.quizId}.png`;
+      a.click();
+      URL.revokeObjectURL(imageUrl);
 
-        const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-        window.open(waUrl, '_blank');
-      }
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
     } finally {
       setSharing(false);
     }
@@ -112,7 +102,7 @@ export default function LevelCertificatePage() {
 
       <div
         ref={certRef}
-        className="relative overflow-hidden rounded-2xl p-8 md:p-10 shadow-2xl border border-yellow-300/30 bg-gradient-to-br from-[#070b18] via-[#0f1933] to-[#070b18]"
+        className="relative overflow-hidden rounded-2xl p-8 md:p-10 shadow-2xl border border-yellow-300/30 bg-gradient-to-br from-[#070b18] via-[#0f1933] to-[#070b18] aspect-[4/3] max-w-4xl mx-auto"
       >
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_12%_18%,#facc15_0,transparent_32%),radial-gradient(circle_at_88%_80%,#38bdf8_0,transparent_28%)]" />
         <div className="absolute inset-4 rounded-xl border border-white/15" />
