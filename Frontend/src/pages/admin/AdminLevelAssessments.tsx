@@ -120,20 +120,14 @@ export default function AdminLevelAssessments() {
   });
 
   const levelQuizzes = useMemo(() => {
-    console.log('[DEBUG] LEVEL_SUBJECT:', LEVEL_SUBJECT);
-    const filtered = quizzes
-      .filter(q => {
-        const match = (q.subject ?? '').toLowerCase() === LEVEL_SUBJECT.toLowerCase();
-        console.log(`[DEBUG] Quiz "${q.title}" subject: "${q.subject}" - matches: ${match}`);
-        return match;
-      })
+    // Show all quizzes instead of filtering by JavaScript Levels
+    return quizzes
       .sort((a, b) => (extractLevel(a.title) ?? 999) - (extractLevel(b.title) ?? 999));
-    return filtered;
   }, [quizzes]);
   const levelQuizIds = useMemo(() => levelQuizzes.map(q => q.id), [levelQuizzes]);
 
   console.log('[DEBUG] All quizzes:', quizzes);
-  console.log('[DEBUG] Level quizzes:', levelQuizzes);
+  console.log('[DEBUG] Showing all quizzes:', levelQuizzes);
   console.log('[DEBUG] Level quiz IDs:', levelQuizIds);
 
   const { data: levelStats = {} } = useQuery({
