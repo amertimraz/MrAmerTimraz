@@ -102,7 +102,8 @@ export default function LevelCertificatePage() {
 
       <div
         ref={certRef}
-        className="relative overflow-hidden rounded-2xl p-8 md:p-10 shadow-2xl border border-yellow-300/30 bg-gradient-to-br from-[#070b18] via-[#0f1933] to-[#070b18] aspect-[4/3] max-w-4xl mx-auto"
+        className="relative overflow-hidden rounded-2xl p-8 md:p-10 shadow-2xl border border-yellow-300/30 bg-gradient-to-br from-[#070b18] via-[#0f1933] to-[#070b18] max-w-4xl mx-auto"
+        style={{ minHeight: '600px' }}
       >
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_12%_18%,#facc15_0,transparent_32%),radial-gradient(circle_at_88%_80%,#38bdf8_0,transparent_28%)]" />
         <div className="absolute inset-4 rounded-xl border border-white/15" />
