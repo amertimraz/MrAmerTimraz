@@ -126,6 +126,10 @@ export default function AdminLevelAssessments() {
   }, [quizzes]);
   const levelQuizIds = useMemo(() => levelQuizzes.map(q => q.id), [levelQuizzes]);
 
+  console.log('[DEBUG] All quizzes:', quizzes);
+  console.log('[DEBUG] Level quizzes:', levelQuizzes);
+  console.log('[DEBUG] Level quiz IDs:', levelQuizIds);
+
   const { data: levelStats = {} } = useQuery({
     queryKey: ['admin-levels-stats', levelQuizIds.join(',')],
     queryFn: async () => {
