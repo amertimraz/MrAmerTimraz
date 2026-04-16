@@ -30,6 +30,16 @@ export default function PublicLevelsPage() {
   });
 
   useEffect(() => {
+    // Check if player already registered
+    const playerData = localStorage.getItem('public-levels-player');
+    if (playerData) {
+      const data = JSON.parse(playerData);
+      setPlayerName(data.name);
+      setGovernorate(data.governorate);
+      setScreen('levels');
+    }
+
+    // Check for shared link
     const sharedId = searchParams.get('id');
     if (sharedId) {
       const storedData = localStorage.getItem(`public-levels-${sharedId}`);
@@ -147,6 +157,18 @@ export default function PublicLevelsPage() {
               title="مشاركة التحدي"
             >
               <Share2 size={20} className="text-white" />
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem('public-levels-player');
+                setScreen('start');
+                setPlayerName('');
+                setGovernorate('');
+              }}
+              className="p-2 bg-red-500/20 border border-red-500/50 rounded-xl hover:bg-red-500/30 transition-colors"
+              title="تغيير الاسم"
+            >
+              <Unlock size={20} className="text-red-400" />
             </button>
           </div>
           <p className="text-lg text-purple-200">اختبر معلوماتك واجمع شهاداتك</p>

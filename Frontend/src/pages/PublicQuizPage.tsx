@@ -155,7 +155,10 @@ export default function PublicQuizPage() {
           </div>
 
           <div className="mb-8">
-            <p className="text-xl text-white leading-relaxed">{currentQuestion?.text}</p>
+            <div
+              className="text-xl text-white leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: currentQuestion?.text || '' }}
+            />
           </div>
 
           <div className="space-y-3 mb-6">
