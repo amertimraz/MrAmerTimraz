@@ -138,7 +138,7 @@ export default function PublicCertificatePage() {
               </div>
             </div>
 
-            <p className="text-xs md:text-sm tracking-[0.22em] text-yellow-200 mb-2">KORYO JAVASCRIPT CERTIFICATE</p>
+            <p className="text-xs md:text-sm tracking-[0.22em] text-yellow-200 mb-2">QUREO JAVASCRIPT CERTIFICATE</p>
             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">شهادة إتمام مستوى</h1>
             <p className="text-cyan-200 mb-8">مقدمة من منصة مستر عامر تمراز</p>
 

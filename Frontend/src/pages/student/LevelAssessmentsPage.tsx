@@ -51,7 +51,7 @@ export default function LevelAssessmentsPage() {
   const maxPoints = levelQuizzes.reduce((sum, quiz) => sum + quiz.questionCount, 0);
   const mascotStep = totalLevels ? Math.min(passedCount, Math.max(totalLevels - 1, 0)) : 0;
   const trackProgress = totalLevels > 1 ? (mascotStep / (totalLevels - 1)) * 100 : 0;
-  const mascotSrc = '/koryo-mascot.png';
+  const mascotSrc = '/qureo-mascot.png';
 
   if (isLoading) return <LoadingSpinner size="lg" />;
 
@@ -110,7 +110,7 @@ export default function LevelAssessmentsPage() {
             >
               <img
                 src={mascotSrc}
-                alt="Koryo Mascot"
+                alt="Qureo Mascot"
                 className="w-14 h-14 object-contain drop-shadow-md"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = 'none';

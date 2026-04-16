@@ -70,7 +70,7 @@ export function canOpenLevel(quiz: InteractiveQuizSummary, quizzes: InteractiveQ
 export function buildCertificateId(userId: number | undefined, quizId: number, completedAt: string) {
   const base = `${userId ?? 'guest'}-${quizId}-${completedAt}`;
   const hash = Array.from(base).reduce((acc, ch) => ((acc * 31 + ch.charCodeAt(0)) >>> 0), 7);
-  return `KORYO-JS-${quizId}-${hash.toString(16).toUpperCase()}`;
+  return `QUREO-JS-${quizId}-${hash.toString(16).toUpperCase()}`;
 }
 
 export function getPassedCertificates(userId?: number): LevelAttemptRecord[] {
