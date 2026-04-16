@@ -80,7 +80,7 @@ export default function PublicQuizPage() {
 
             {passed && (
               <button
-                onClick={() => navigate(`/levels/certificate/${quiz.id}`)}
+                onClick={() => navigate(`/public-certificate/${quiz.id}`)}
                 className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-xl hover:opacity-90 transition-opacity mb-3"
               >
                 عرض الشهادة
