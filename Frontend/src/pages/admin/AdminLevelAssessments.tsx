@@ -141,7 +141,8 @@ export default function AdminLevelAssessments() {
               ? Math.max(...results.map((r: InteractiveQuizResult) => r.pct || 0))
               : 0;
             return [quiz.id, { participants, avgPct, bestPct }] as const;
-          } catch {
+          } catch (err) {
+            console.error(`Error fetching stats for quiz ${quiz.id}:`, err);
             return [quiz.id, { participants: 0, avgPct: 0, bestPct: 0 }] as const;
           }
         }),
