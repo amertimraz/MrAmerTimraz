@@ -52,7 +52,13 @@ function cleanOption(raw: string): { text: string; isCode: boolean; align: 'auto
     text = text.slice(5);
   }
 
-  // 2. Strip RTL:/LTR: prefix
+  // 2. Strip [code]:: prefix (format used in admin panel)
+  if (text.startsWith('[code]::')) {
+    isCode = true;
+    text = text.slice(8);
+  }
+
+  // 3. Strip RTL:/LTR: prefix
   if (text.startsWith('RTL:')) {
     align = 'rtl';
     text = text.slice(4);
@@ -61,7 +67,7 @@ function cleanOption(raw: string): { text: string; isCode: boolean; align: 'auto
     text = text.slice(4);
   }
 
-  // 3. Strip inline metadata markers (::[code], ::[align=...])
+  // 4. Strip inline metadata markers (::[code], ::[align=...])
   const meta = stripMetaMarkers(text);
   text = meta.text;
   if (meta.isCode) isCode = true;
