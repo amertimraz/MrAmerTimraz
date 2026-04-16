@@ -135,20 +135,21 @@ export default function AdminLevelAssessments() {
           try {
             const results = await quizzesApi.getLeaderboard(quiz.id);
             const participants = results.length;
+            const passed = results.filter((r: InteractiveQuizResult) => (r.pct || 0) >= 70).length;
             const avgPct = participants
               ? Math.round(results.reduce((sum: number, r: InteractiveQuizResult) => sum + (r.pct || 0), 0) / participants)
               : 0;
             const bestPct = participants
               ? Math.max(...results.map((r: InteractiveQuizResult) => r.pct || 0))
               : 0;
-            return [quiz.id, { participants, avgPct, bestPct }] as const;
+            return [quiz.id, { participants, passed, avgPct, bestPct }] as const;
           } catch (err) {
             console.error(`Error fetching stats for quiz ${quiz.id}:`, err);
-            return [quiz.id, { participants: 0, avgPct: 0, bestPct: 0 }] as const;
+            return [quiz.id, { participants: 0, passed: 0, avgPct: 0, bestPct: 0 }] as const;
           }
         }),
       );
-      return Object.fromEntries(rows) as Record<number, { participants: number; avgPct: number; bestPct: number }>;
+      return Object.fromEntries(rows) as Record<number, { participants: number; passed: number; avgPct: number; bestPct: number }>;
     },
     enabled: levelQuizIds.length > 0,
   });
@@ -456,10 +457,14 @@ export default function AdminLevelAssessments() {
                 <BookOpen size={20} className="text-primary-500" />
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="grid grid-cols-4 gap-2 text-center">
                 <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-2">
                   <p className="text-xs text-slate-500">دخلوا الاختبار</p>
                   <p className="text-lg font-bold text-slate-900 dark:text-white">{levelStats[quiz.id]?.participants ?? 0}</p>
+                </div>
+                <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-2">
+                  <p className="text-xs text-slate-500">ناجحون (70%+)</p>
+                  <p className="text-lg font-bold text-green-600">{levelStats[quiz.id]?.passed ?? 0}</p>
                 </div>
                 <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-2">
                   <p className="text-xs text-slate-500">متوسط النسبة</p>
