@@ -35,19 +35,48 @@ public class AuthService : IAuthService
         _config = config;
     }
 
+    // Normalize phone number: remove country code, remove leading zero
+    private string NormalizePhoneNumber(string phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone)) return phone;
+
+        // Remove all non-digit characters
+        var digits = new string(phone.Where(char.IsDigit).ToArray());
+
+        // Remove country codes (Egypt: +20, Saudi: +966, etc.)
+        string[] countryCodes = { "20", "966", "971", "965", "974", "973", "968", "218", "249", "962", "970", "964", "963", "961", "213", "212", "216", "967" };
+        foreach (var code in countryCodes)
+        {
+            if (digits.StartsWith(code))
+            {
+                digits = digits.Substring(code.Length);
+                break;
+            }
+        }
+
+        // Remove leading zero if present
+        if (digits.StartsWith("0"))
+        {
+            digits = digits.Substring(1);
+        }
+
+        return digits;
+    }
+
     public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
     {
         if (await _db.Users.AsNoTracking().AnyAsync(u => u.Username == dto.Username))
             return null;
 
-        if (await _db.Users.AsNoTracking().AnyAsync(u => u.PhoneNumber == dto.PhoneNumber))
+        var normalizedPhone = NormalizePhoneNumber(dto.PhoneNumber);
+        if (await _db.Users.AsNoTracking().AnyAsync(u => u.PhoneNumber == normalizedPhone))
             return null;
 
         var user = new User
         {
             Name = dto.Name,
             Username = dto.Username,
-            PhoneNumber = dto.PhoneNumber,
+            PhoneNumber = normalizedPhone,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Role = dto.Role
         };
@@ -70,8 +99,9 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
     {
+        var normalizedIdentifier = NormalizePhoneNumber(dto.Identifier);
         var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u =>
-            (u.Username == dto.Identifier || u.PhoneNumber == dto.Identifier) && u.IsActive);
+            (u.Username == dto.Identifier || u.PhoneNumber == normalizedIdentifier) && u.IsActive);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             return null;
