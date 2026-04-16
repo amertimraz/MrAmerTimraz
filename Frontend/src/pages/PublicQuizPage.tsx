@@ -5,6 +5,32 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate, useParams } from 'react-router-dom';
 
+const CODE_PREFIX = 'CODE:';
+
+function decodeAlignedText(raw: string): { text: string; align: 'auto' | 'rtl' | 'ltr' } {
+  if (raw.startsWith('RTL:')) return { text: raw.slice(4), align: 'rtl' };
+  if (raw.startsWith('LTR:')) return { text: raw.slice(4), align: 'ltr' };
+  return { text: raw, align: 'auto' };
+}
+
+function decodeOption(raw: string): string {
+  if (raw.startsWith(CODE_PREFIX)) {
+    const decoded = decodeAlignedText(raw.slice(CODE_PREFIX.length));
+    return decoded.text;
+  }
+  const decoded = decodeAlignedText(raw);
+  return decoded.text;
+}
+
+function parseOptions(options?: string | null): string[] {
+  if (!options) return [];
+  try {
+    return JSON.parse(options) as string[];
+  } catch {
+    return [];
+  }
+}
+
 export default function PublicQuizPage() {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
@@ -40,13 +66,14 @@ export default function PublicQuizPage() {
   });
 
   const currentQuestion = quiz?.questions[currentQuestionIndex];
-  const options = currentQuestion?.options ? JSON.parse(currentQuestion.options) : [];
+  const options = parseOptions(currentQuestion?.options).map(decodeOption);
+  const correctAnswer = currentQuestion?.correctAnswer ? decodeOption(currentQuestion.correctAnswer) : '';
   const progress = quiz ? ((currentQuestionIndex + 1) / quiz.questions.length) * 100 : 0;
 
   const handleAnswer = () => {
     if (!selectedAnswer) return;
 
-    const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+    const isCorrect = selectedAnswer === correctAnswer;
     if (isCorrect) {
       setScore(score + 1);
     }
@@ -164,8 +191,8 @@ export default function PublicQuizPage() {
           <div className="space-y-3 mb-6">
             {options.map((option: string, index: number) => {
               const isSelected = selectedAnswer === option;
-              const isCorrect = showResult && option === currentQuestion?.correctAnswer;
-              const isWrong = showResult && isSelected && option !== currentQuestion?.correctAnswer;
+              const isCorrect = showResult && option === correctAnswer;
+              const isWrong = showResult && isSelected && option !== correctAnswer;
 
               return (
                 <button
@@ -190,7 +217,7 @@ export default function PublicQuizPage() {
 
           {showResult && (
             <div className="mb-6 text-center">
-              {selectedAnswer === currentQuestion?.correctAnswer ? (
+              {selectedAnswer === correctAnswer ? (
                 <div className="flex items-center justify-center gap-2 text-green-400">
                   <CheckCircle size={24} />
                   <span className="font-bold">إجابة صحيحة!</span>
