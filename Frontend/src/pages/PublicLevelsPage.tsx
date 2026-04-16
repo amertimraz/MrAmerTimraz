@@ -1,11 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, Play, Award } from 'lucide-react';
+import { BookOpen, Play, Award, Lock, Unlock, Gamepad2 } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate } from 'react-router-dom';
 
 const LEVEL_SUBJECT = 'JavaScript Levels';
+const GOVERNORATES = [
+  'القاهرة', 'الجيزة', 'الإسكندرية', 'الدقهلية', 'الشرقية', 'المنوفية',
+  'القليوبية', 'الغربية', 'بورسعيد', 'دمياط', 'الإسماعيلية', 'كفر الشيخ',
+  'الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر',
+  'أسوان', 'البحر الأحمر', 'الوادي الجديد', 'مطروح', 'شمال سيناء', 'جنوب سيناء'
+];
 
 function extractLevel(title: string): number | null {
   const match = title.match(/Level\s+(\d+)/i);
@@ -14,6 +20,9 @@ function extractLevel(title: string): number | null {
 
 export default function PublicLevelsPage() {
   const navigate = useNavigate();
+  const [screen, setScreen] = useState<'start' | 'levels'>('start');
+  const [playerName, setPlayerName] = useState('');
+  const [governorate, setGovernorate] = useState('');
   const { data: quizzes = [], isLoading } = useQuery({
     queryKey: ['interactive-quizzes'],
     queryFn: quizzesApi.getAll,
@@ -25,7 +34,68 @@ export default function PublicLevelsPage() {
       .sort((a, b) => (extractLevel(a.title) ?? 999) - (extractLevel(b.title) ?? 999));
   }, [quizzes]);
 
+  const handleStart = () => {
+    if (!playerName.trim() || !governorate) {
+      alert('الرجاء إدخال اسمك واختيار محافظتك');
+      return;
+    }
+    localStorage.setItem('public-levels-player', JSON.stringify({ name: playerName, governorate }));
+    setScreen('levels');
+  };
+
   if (isLoading) return <LoadingSpinner size="lg" />;
+
+  if (screen === 'start') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full">
+          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 text-slate-900 mb-6 shadow-2xl">
+                <Gamepad2 size={40} />
+              </div>
+              <h1 className="text-3xl font-extrabold text-white mb-2">🎮 تحدي JavaScript</h1>
+              <p className="text-purple-200">اختبر معلوماتك واجمع شهاداتك</p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm mb-2 text-white">اكتب اسمك:</label>
+                <input
+                  type="text"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400"
+                  placeholder="أدخل اسمك"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm mb-2 text-white">اختر محافظتك:</label>
+                <select
+                  value={governorate}
+                  onChange={(e) => setGovernorate(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-yellow-400"
+                >
+                  <option value="" className="bg-slate-900">اختر محافظتك</option>
+                  {GOVERNORATES.map((gov) => (
+                    <option key={gov} value={gov} className="bg-slate-900">{gov}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                onClick={handleStart}
+                className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-lg"
+              >
+                ابدأ التحدي 🚀
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
@@ -44,28 +114,38 @@ export default function PublicLevelsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {levelQuizzes.map((quiz) => (
-              <div
-                key={quiz.id}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:border-yellow-400/50 transition-all hover:scale-105 cursor-pointer"
-                onClick={() => navigate(`/quiz/${quiz.id}`)}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-2">{quiz.title}</h3>
-                    <p className="text-sm text-purple-200">{quiz.questionCount} سؤال</p>
+            {levelQuizzes.map((quiz) => {
+              const level = extractLevel(quiz.title) ?? 1;
+              const isUnlocked = level === 1; // TODO: Implement unlock logic based on previous level completion
+              return (
+                <div
+                  key={quiz.id}
+                  className={`bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:border-yellow-400/50 transition-all hover:scale-105 cursor-pointer ${!isUnlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={() => isUnlocked && navigate(`/quiz/${quiz.id}`)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-2xl font-bold text-white">Level {level}</span>
+                        {isUnlocked ? <Unlock size={20} className="text-green-400" /> : <Lock size={20} className="text-gray-400" />}
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-2">{quiz.title}</h3>
+                      <p className="text-sm text-purple-200">{quiz.questionCount} سؤال</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-slate-900">
+                      <BookOpen size={24} />
+                    </div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-slate-900">
-                    <BookOpen size={24} />
-                  </div>
-                </div>
 
-                <button className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-                  <Play size={18} />
-                  ابدأ الاختبار
-                </button>
-              </div>
-            ))}
+                  {isUnlocked && (
+                    <button className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                      <Play size={18} />
+                      ابدأ التحدي
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
