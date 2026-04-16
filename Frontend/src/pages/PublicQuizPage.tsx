@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, CheckCircle, XCircle, Trophy, Clock, Target } from 'lucide-react';
+import { ArrowRight, CheckCircle, XCircle, Trophy, Clock, Target, Code2, ChevronLeft } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -276,14 +276,18 @@ export default function PublicQuizPage() {
             </div>
           </div>
 
-          <div className="mb-8">
-            <div
-              className="text-xl text-white leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: stripMetaMarkers(currentQuestion?.text || '').text }}
-            />
+          {/* Question Box - Dark style like admin panel */}
+          <div className="mb-6">
+            <div className="bg-slate-900 rounded-xl p-5 border border-slate-700">
+              <div
+                className="text-lg text-white leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: stripMetaMarkers(currentQuestion?.text || '').text }}
+              />
+            </div>
           </div>
 
-          <div className="space-y-3 mb-6">
+          {/* Options - Styled like admin panel */}
+          <div className="space-y-2 mb-6">
             {cleanedOptions.map((option, index) => {
               const isSelected = selectedOptionIndex === index;
               const isCorrect = showResult && index === correctIdx;
@@ -294,24 +298,29 @@ export default function PublicQuizPage() {
                   key={index}
                   onClick={() => !showResult && setSelectedOptionIndex(index)}
                   disabled={showResult}
-                  className={`w-full p-4 rounded-xl transition-all ${
+                  className={`w-full p-3 rounded-lg transition-all flex items-center justify-between group ${
                     isSelected && !showResult
-                      ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold'
+                      ? 'bg-yellow-400/20 border-2 border-yellow-400 text-white'
                       : isCorrect
                       ? 'bg-green-500/20 border-2 border-green-500 text-white'
                       : isWrong
                       ? 'bg-red-500/20 border-2 border-red-500 text-white'
-                      : 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
+                      : option.isCode
+                      ? 'bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-yellow-400/50'
+                      : 'bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-yellow-400/50'
                   }`}
-                  style={{ direction: option.align === 'ltr' ? 'ltr' : option.align === 'rtl' ? 'rtl' : undefined }}
                 >
-                  {option.isCode ? (
-                    <code className="font-mono text-base bg-black/20 px-2 py-0.5 rounded" dir="ltr">
-                      {option.text}
-                    </code>
-                  ) : (
-                    <span>{option.text}</span>
-                  )}
+                  <div className="flex items-center gap-3 flex-1" style={{ direction: option.align === 'ltr' ? 'ltr' : option.align === 'rtl' ? 'rtl' : 'rtl' }}>
+                    {option.isCode ? (
+                      <div className="flex items-center gap-2 bg-slate-900 text-cyan-300 px-3 py-1.5 rounded-lg font-mono text-sm flex-1">
+                        <Code2 size={14} />
+                        <span>{option.text}</span>
+                      </div>
+                    ) : (
+                      <span className="text-base">{option.text}</span>
+                    )}
+                  </div>
+                  <ChevronLeft size={16} className={`text-slate-400 ${isSelected ? 'text-yellow-400' : ''}`} />
                 </button>
               );
             })}
