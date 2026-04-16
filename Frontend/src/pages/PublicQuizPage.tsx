@@ -209,7 +209,7 @@ export default function PublicQuizPage() {
                       : 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
                   }`}
                 >
-                  {option}
+                  <span dangerouslySetInnerHTML={{ __html: option }} />
                 </button>
               );
             })}
