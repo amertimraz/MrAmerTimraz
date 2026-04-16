@@ -264,6 +264,12 @@ public class InteractiveQuizzesController : ControllerBase
     [HttpGet("{id}/leaderboard"), AllowAnonymous]
     public async Task<IActionResult> GetLeaderboard(int id)
     {
+        var allResults = await _db.InteractiveQuizResults
+            .Where(r => r.QuizId == id)
+            .ToListAsync();
+
+        Console.WriteLine($"[DEBUG] Quiz {id} total results in DB: {allResults.Count}");
+
         var rawResults = await _db.InteractiveQuizResults
             .Where(r => r.QuizId == id)
             .OrderByDescending(r => r.Score)
@@ -280,6 +286,8 @@ public class InteractiveQuizzesController : ControllerBase
                 r.CompletedAt
             })
             .ToListAsync();
+
+        Console.WriteLine($"[DEBUG] Quiz {id} returned results: {rawResults.Count}");
 
         var leaderboard = rawResults.Select(r => new
         {
