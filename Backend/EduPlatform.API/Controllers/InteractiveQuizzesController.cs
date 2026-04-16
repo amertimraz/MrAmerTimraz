@@ -305,14 +305,17 @@ public class InteractiveQuizzesController : ControllerBase
     [HttpPost("{id}/results"), AllowAnonymous]
     public async Task<IActionResult> SubmitResult(int id, [FromBody] SubmitQuizResultDto dto)
     {
+        Console.WriteLine($"[DEBUG] SubmitResult for Quiz {id}: name={dto.name}, score={dto.score}, sessionId={dto.sessionId}");
+
         var quiz = await _db.InteractiveQuizzes.FindAsync(id);
         if (quiz == null) return NotFound();
- 
+
         var existing = await _db.InteractiveQuizResults
             .FirstOrDefaultAsync(r => r.QuizId == id && r.SessionId == dto.sessionId);
 
         if (existing != null)
         {
+            Console.WriteLine($"[DEBUG] Updating existing result for sessionId={dto.sessionId}");
             existing.PlayerName = dto.name;
             existing.Score = dto.score;
             existing.CorrectCount = dto.correct;
@@ -323,6 +326,7 @@ public class InteractiveQuizzesController : ControllerBase
             return Ok(existing);
         }
 
+        Console.WriteLine($"[DEBUG] Creating new result for sessionId={dto.sessionId}");
         var result = new InteractiveQuizResult
         {
             QuizId = id,
@@ -334,9 +338,10 @@ public class InteractiveQuizzesController : ControllerBase
             Percentage = dto.pct,
             CompletedAt = DateTime.UtcNow
         };
- 
+
         _db.InteractiveQuizResults.Add(result);
         await _db.SaveChangesAsync();
+        Console.WriteLine($"[DEBUG] Result saved successfully. Total results for quiz {id}: {await _db.InteractiveQuizResults.CountAsync(r => r.QuizId == id)}");
         return Ok(result);
     }
 }
