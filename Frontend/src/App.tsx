@@ -26,6 +26,7 @@ const TermsPage = lazy(() => import('./pages/landing/TermsPage'));
 const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
 const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 const PublicLevelsPage = lazy(() => import('./pages/PublicLevelsPage'));
+const PublicQuizPage = lazy(() => import('./pages/PublicQuizPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 
@@ -124,6 +125,7 @@ export default function App() {
 
             <Route path="/login"    element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/public-quiz/:quizId" element={<PublicQuizPage />} />
 
             {/* Student Routes */}
             <Route path="/student" element={<RequireAuth roles={['Student']}><DashboardLayout /></RequireAuth>}>

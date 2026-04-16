@@ -121,7 +121,7 @@ export default function PublicLevelsPage() {
                 <div
                   key={quiz.id}
                   className={`bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:border-yellow-400/50 transition-all hover:scale-105 cursor-pointer ${!isUnlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={() => isUnlocked && navigate(`/quiz/${quiz.id}`)}
+                  onClick={() => isUnlocked && navigate(`/public-quiz/${quiz.id}`)}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
