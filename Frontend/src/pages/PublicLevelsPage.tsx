@@ -149,27 +149,36 @@ export default function PublicLevelsPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 text-slate-900 mb-6 shadow-2xl">
             <Award size={40} />
           </div>
+          {screen === 'levels' && playerName && (
+            <div className="mb-4 text-2xl font-bold text-yellow-300">
+              أهلاً بك يا {playerName} من محافظة {governorate}
+            </div>
+          )}
           <div className="flex items-center justify-center gap-4 mb-4">
             <h1 className="text-4xl md:text-5xl font-extrabold text-white">مستويات JavaScript</h1>
-            <button
-              onClick={handleShare}
-              className="p-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-colors"
-              title="مشاركة التحدي"
-            >
-              <Share2 size={20} className="text-white" />
-            </button>
-            <button
-              onClick={() => {
-                localStorage.removeItem('public-levels-player');
-                setScreen('start');
-                setPlayerName('');
-                setGovernorate('');
-              }}
-              className="p-2 bg-red-500/20 border border-red-500/50 rounded-xl hover:bg-red-500/30 transition-colors"
-              title="تغيير الاسم"
-            >
-              <Unlock size={20} className="text-red-400" />
-            </button>
+            {screen === 'levels' && (
+              <>
+                <button
+                  onClick={handleShare}
+                  className="p-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-colors"
+                  title="مشاركة التحدي"
+                >
+                  <Share2 size={20} className="text-white" />
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('public-levels-player');
+                    setScreen('start');
+                    setPlayerName('');
+                    setGovernorate('');
+                  }}
+                  className="p-2 bg-red-500/20 border border-red-500/50 rounded-xl hover:bg-red-500/30 transition-colors"
+                  title="تغيير الاسم"
+                >
+                  <Unlock size={20} className="text-red-400" />
+                </button>
+              </>
+            )}
           </div>
           <p className="text-lg text-purple-200">اختبر معلوماتك واجمع شهاداتك</p>
         </div>
