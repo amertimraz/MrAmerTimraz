@@ -1,9 +1,15 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Play, Award, Lock, Unlock, Gamepad2, Trophy, Share2 } from 'lucide-react';
+import { Play, Award, Lock, Unlock, Gamepad2, Trophy, Share2, CheckCircle } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  extractLevelNumber,
+  getStoredAttempts,
+  canOpenLevel,
+  isJavaScriptLevelQuiz,
+} from '../utils/levelAssessments';
 
 const LEVEL_SUBJECT = 'JavaScript Levels';
 const GOVERNORATES = [
@@ -12,11 +18,6 @@ const GOVERNORATES = [
   'الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر',
   'أسوان', 'البحر الأحمر', 'الوادي الجديد', 'مطروح', 'شمال سيناء', 'جنوب سيناء'
 ];
-
-function extractLevel(title: string): number | null {
-  const match = title.match(/Level\s+(\d+)/i);
-  return match ? parseInt(match[1]) : null;
-}
 
 export default function PublicLevelsPage() {
   const navigate = useNavigate();
@@ -55,8 +56,16 @@ export default function PublicLevelsPage() {
   const levelQuizzes = useMemo(() => {
     return quizzes
       .filter(q => (q.subject ?? '').toLowerCase() === LEVEL_SUBJECT.toLowerCase())
-      .sort((a, b) => (extractLevel(a.title) ?? 999) - (extractLevel(b.title) ?? 999));
+      .sort((a, b) => (extractLevelNumber(a.title) ?? 999) - (extractLevelNumber(b.title) ?? 999));
   }, [quizzes]);
+
+  // Get stored attempts to determine which levels are completed
+  const attempts = useMemo(() => getStoredAttempts(undefined), [screen, levelQuizzes]);
+
+  // Count completed (passed) levels
+  const completedLevels = useMemo(() => {
+    return levelQuizzes.filter(q => attempts[q.id]?.passed).length;
+  }, [levelQuizzes, attempts]);
 
   const { data: leaderboard = [] } = useQuery({
     queryKey: ['leaderboard'],
@@ -64,8 +73,19 @@ export default function PublicLevelsPage() {
       const allResults = await Promise.all(
         levelQuizzes.map(q => quizzesApi.getLeaderboard(q.id))
       );
-      const combined = allResults.flat().sort((a: any, b: any) => b.score - a.score).slice(0, 10);
-      return combined;
+      // Combine results by player name, summing scores
+      const playerMap = new Map<string, { name: string; score: number }>();
+      allResults.flat().forEach((r: any) => {
+        const existing = playerMap.get(r.name);
+        if (existing) {
+          existing.score += r.score;
+        } else {
+          playerMap.set(r.name, { name: r.name, score: r.score });
+        }
+      });
+      return Array.from(playerMap.values())
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
     },
     enabled: levelQuizzes.length > 0,
   });
@@ -181,6 +201,22 @@ export default function PublicLevelsPage() {
             )}
           </div>
           <p className="text-lg text-purple-200">اختبر معلوماتك واجمع شهاداتك</p>
+
+          {/* Progress Summary */}
+          {levelQuizzes.length > 0 && (
+            <div className="mt-6 inline-flex items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-6 py-3 border border-white/20">
+              <span className="text-yellow-400 font-bold text-lg">{completedLevels}</span>
+              <span className="text-white">/</span>
+              <span className="text-gray-300 font-bold text-lg">{levelQuizzes.length}</span>
+              <span className="text-purple-200 text-sm">مستويات مكتملة</span>
+              <div className="w-24 bg-white/10 rounded-full h-2 mr-2">
+                <div
+                  className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all duration-1000"
+                  style={{ width: `${levelQuizzes.length > 0 ? (completedLevels / levelQuizzes.length) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Leaderboard Section */}
@@ -210,7 +246,7 @@ export default function PublicLevelsPage() {
                       index === 2 ? 'text-orange-400' :
                       'text-gray-500'
                     }`}>
-                      {index + 1}
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                     </span>
                     <span className="text-white font-semibold">{player.name}</span>
                   </div>
@@ -231,14 +267,17 @@ export default function PublicLevelsPage() {
             <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-white/10 -translate-x-1/2 hidden md:block" />
             <div
               className="absolute left-1/2 top-0 w-1 bg-gradient-to-b from-yellow-400 to-orange-500 -translate-x-1/2 hidden md:block transition-all duration-1000"
-              style={{ height: `${((levelQuizzes.filter((_, i) => i === 0).length) / levelQuizzes.length) * 100}%` }}
+              style={{ height: `${levelQuizzes.length > 0 ? (completedLevels / levelQuizzes.length) * 100 : 0}%` }}
             />
 
             {/* Game Map */}
             <div className="space-y-12 py-8">
               {levelQuizzes.map((quiz, index) => {
-                const level = extractLevel(quiz.title) ?? 1;
-                const isUnlocked = level === 1;
+                const level = extractLevelNumber(quiz.title) ?? (index + 1);
+                const jsLevelQuizzes = levelQuizzes.filter(isJavaScriptLevelQuiz);
+                const isUnlocked = canOpenLevel(quiz, jsLevelQuizzes, undefined);
+                const isPassed = attempts[quiz.id]?.passed;
+                const attemptData = attempts[quiz.id];
                 const isEven = index % 2 === 0;
 
                 return (
@@ -253,38 +292,58 @@ export default function PublicLevelsPage() {
                     >
                       <div
                         className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shadow-2xl ${
-                          isUnlocked
-                            ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-slate-900 border-4 border-yellow-300'
+                          isPassed
+                            ? 'bg-gradient-to-br from-green-400 to-emerald-500 text-white border-4 border-green-300'
+                            : isUnlocked
+                            ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-slate-900 border-4 border-yellow-300 animate-pulse'
                             : 'bg-gray-800 text-gray-500 border-4 border-gray-700'
-                        } animate-pulse`}
+                        }`}
                       >
-                        {level}
+                        {isPassed ? <CheckCircle size={32} /> : level}
                       </div>
 
                       {/* Level Card */}
                       <div
                         className={`mt-4 p-6 rounded-2xl backdrop-blur-lg border-2 transition-all ${
-                          isUnlocked
+                          isPassed
+                            ? 'bg-green-500/10 border-green-400/50'
+                            : isUnlocked
                             ? 'bg-white/10 border-yellow-400/50 hover:border-yellow-400'
                             : 'bg-gray-800/50 border-gray-700'
                         } max-w-xs`}
                       >
                         <div className="flex items-center gap-2 mb-2">
-                          {isUnlocked ? <Unlock size={20} className="text-green-400" /> : <Lock size={20} className="text-gray-400" />}
+                          {isPassed ? (
+                            <CheckCircle size={20} className="text-green-400" />
+                          ) : isUnlocked ? (
+                            <Unlock size={20} className="text-green-400" />
+                          ) : (
+                            <Lock size={20} className="text-gray-400" />
+                          )}
                           <h3 className="text-lg font-bold text-white">{quiz.title}</h3>
                         </div>
-                        <p className="text-sm text-purple-200 mb-3">{quiz.questionCount} سؤال</p>
+                        <p className="text-sm text-purple-200 mb-1">{quiz.questionCount} سؤال</p>
+                        
+                        {/* Show score if attempted */}
+                        {attemptData && (
+                          <p className={`text-sm mb-2 ${isPassed ? 'text-green-300' : 'text-red-300'}`}>
+                            النتيجة: {attemptData.pct}% ({attemptData.score}/{attemptData.total})
+                          </p>
+                        )}
+
                         {isUnlocked && (
                           <button className="w-full py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
                             <Play size={16} />
-                            ابدأ التحدي
+                            {isPassed ? 'إعادة التحدي' : 'ابدأ التحدي'}
                           </button>
                         )}
                       </div>
                     </div>
 
                     {/* Connector Dot */}
-                    <div className="absolute left-1/2 top-10 w-4 h-4 rounded-full bg-yellow-400 -translate-x-1/2 hidden md:block" />
+                    <div className={`absolute left-1/2 top-10 w-4 h-4 rounded-full -translate-x-1/2 hidden md:block ${
+                      isPassed ? 'bg-green-400' : isUnlocked ? 'bg-yellow-400' : 'bg-gray-600'
+                    }`} />
                   </div>
                 );
               })}

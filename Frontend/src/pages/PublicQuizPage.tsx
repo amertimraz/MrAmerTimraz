@@ -1,43 +1,73 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, CheckCircle, XCircle, Trophy, Clock, Target } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate, useParams } from 'react-router-dom';
+import type { InteractiveQuestion } from '../types';
+import { saveLevelAttempt } from '../utils/levelAssessments';
 
-const CODE_PREFIX = 'CODE:';
+/* ─── Helpers ────────────────────────────────────────────── */
 
-function decodeAlignedText(raw: string): { text: string; align: 'auto' | 'rtl' | 'ltr' } {
-  if (raw.startsWith('RTL:')) return { text: raw.slice(4), align: 'rtl' };
-  if (raw.startsWith('LTR:')) return { text: raw.slice(4), align: 'ltr' };
-  return { text: raw, align: 'auto' };
+/** Strip alignment metadata like ::[align=ltr] or ::[align=rtl] from option text */
+function stripAlignMeta(raw: string): string {
+  return raw.replace(/::\[align=(ltr|rtl|auto)\]/gi, '').trim();
 }
 
-function decodeOption(raw: string): string {
-  if (raw.startsWith(CODE_PREFIX)) {
-    const decoded = decodeAlignedText(raw.slice(CODE_PREFIX.length));
-    return decoded.text;
-  }
-  const decoded = decodeAlignedText(raw);
-  return decoded.text;
+/** Parse options JSON string into array */
+function parseOptions(raw?: string | null): string[] {
+  if (!raw) return [];
+  try { return JSON.parse(raw) as string[]; } catch { return []; }
 }
 
-function parseOptions(options?: string | null): string[] {
-  if (!options) return [];
-  try {
-    return JSON.parse(options) as string[];
-  } catch {
-    return [];
+/** Clean an option for display: strip CODE:, RTL:/LTR: prefixes, and ::[align=...] suffixes */
+function cleanOption(raw: string): { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' } {
+  let text = raw;
+  let isCode = false;
+  let align: 'auto' | 'rtl' | 'ltr' = 'auto';
+
+  // Strip CODE: prefix
+  if (text.startsWith('CODE:')) {
+    isCode = true;
+    text = text.slice(5);
   }
+
+  // Strip RTL:/LTR: prefix
+  if (text.startsWith('RTL:')) {
+    align = 'rtl';
+    text = text.slice(4);
+  } else if (text.startsWith('LTR:')) {
+    align = 'ltr';
+    text = text.slice(4);
+  }
+
+  // Strip ::[align=...] suffix
+  text = stripAlignMeta(text);
+
+  // Auto-detect code-like content
+  if (!isCode && /^[a-zA-Z0-9_.<>(){}[\]=;]+$/.test(text.trim())) {
+    isCode = true;
+    align = 'ltr';
+  }
+
+  return { text: text.trim(), isCode, align };
+}
+
+/** Get the correct answer index (same logic as QuizPresenter) */
+function getCorrectIdx(q: InteractiveQuestion): number {
+  if (q.type === 'TrueFalse') return q.correctAnswer === 'true' ? 0 : 1;
+  const n = Number(q.correctAnswer);
+  return isNaN(n) ? -1 : n;
 }
 
 export default function PublicQuizPage() {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string>('');
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
   const [showFinalResult, setShowFinalResult] = useState(false);
   const [timer, setTimer] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -66,16 +96,18 @@ export default function PublicQuizPage() {
   });
 
   const currentQuestion = quiz?.questions[currentQuestionIndex];
-  const options = parseOptions(currentQuestion?.options).map(decodeOption);
-  const correctAnswer = currentQuestion?.correctAnswer ? decodeOption(currentQuestion.correctAnswer) : '';
+  const options = useMemo(() => parseOptions(currentQuestion?.options), [currentQuestion]);
+  const cleanedOptions = useMemo(() => options.map(cleanOption), [options]);
+  const correctIdx = currentQuestion ? getCorrectIdx(currentQuestion) : -1;
   const progress = quiz ? ((currentQuestionIndex + 1) / quiz.questions.length) * 100 : 0;
 
   const handleAnswer = () => {
-    if (!selectedAnswer) return;
+    if (selectedOptionIndex === null) return;
 
-    const isCorrect = selectedAnswer === correctAnswer;
+    const isCorrect = selectedOptionIndex === correctIdx;
     if (isCorrect) {
       setScore(score + 1);
+      setCorrectCount(prev => prev + 1);
     }
     setShowResult(true);
   };
@@ -96,11 +128,23 @@ export default function PublicQuizPage() {
 
   const handleNext = () => {
     setShowResult(false);
-    setSelectedAnswer('');
+    setSelectedOptionIndex(null);
 
     if (currentQuestionIndex < (quiz?.questions.length ?? 0) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
+      // Quiz finished — save attempt for level unlocking
+      if (quiz) {
+        const totalCorrect = correctCount;
+        const totalQuestions = quiz.questions.length;
+        saveLevelAttempt(undefined, {
+          quizId: quiz.id,
+          quizTitle: quiz.title,
+          score: totalCorrect,
+          total: totalQuestions,
+          pct: 0, // will be calculated in saveLevelAttempt
+        });
+      }
       setShowFinalResult(true);
     }
   };
@@ -129,6 +173,7 @@ export default function PublicQuizPage() {
             <div className="bg-white/10 rounded-2xl p-6 mb-6">
               <p className="text-4xl font-bold text-white mb-2">{percentage}%</p>
               <p className="text-purple-200">Score: {score}/{quiz.questions.length}</p>
+              <p className="text-purple-300 text-sm mt-1">الوقت: {formatTime(timer)}</p>
             </div>
 
             {passed && (
@@ -184,22 +229,22 @@ export default function PublicQuizPage() {
           <div className="mb-8">
             <div
               className="text-xl text-white leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: currentQuestion?.text || '' }}
+              dangerouslySetInnerHTML={{ __html: stripAlignMeta(currentQuestion?.text || '') }}
             />
           </div>
 
           <div className="space-y-3 mb-6">
-            {options.map((option: string, index: number) => {
-              const isSelected = selectedAnswer === option;
-              const isCorrect = showResult && option === correctAnswer;
-              const isWrong = showResult && isSelected && option !== correctAnswer;
+            {cleanedOptions.map((option, index) => {
+              const isSelected = selectedOptionIndex === index;
+              const isCorrect = showResult && index === correctIdx;
+              const isWrong = showResult && isSelected && index !== correctIdx;
 
               return (
                 <button
                   key={index}
-                  onClick={() => !showResult && setSelectedAnswer(option)}
+                  onClick={() => !showResult && setSelectedOptionIndex(index)}
                   disabled={showResult}
-                  className={`w-full p-4 rounded-xl text-right transition-all ${
+                  className={`w-full p-4 rounded-xl transition-all ${
                     isSelected && !showResult
                       ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold'
                       : isCorrect
@@ -208,8 +253,15 @@ export default function PublicQuizPage() {
                       ? 'bg-red-500/20 border-2 border-red-500 text-white'
                       : 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
                   }`}
+                  style={{ direction: option.align === 'ltr' ? 'ltr' : option.align === 'rtl' ? 'rtl' : undefined }}
                 >
-                  <span dangerouslySetInnerHTML={{ __html: option }} />
+                  {option.isCode ? (
+                    <code className="font-mono text-base bg-black/20 px-2 py-0.5 rounded" dir="ltr">
+                      {option.text}
+                    </code>
+                  ) : (
+                    <span>{option.text}</span>
+                  )}
                 </button>
               );
             })}
@@ -217,15 +269,22 @@ export default function PublicQuizPage() {
 
           {showResult && (
             <div className="mb-6 text-center">
-              {selectedAnswer === correctAnswer ? (
+              {selectedOptionIndex === correctIdx ? (
                 <div className="flex items-center justify-center gap-2 text-green-400">
                   <CheckCircle size={24} />
-                  <span className="font-bold">إجابة صحيحة!</span>
+                  <span className="font-bold">إجابة صحيحة! 🔥</span>
                 </div>
               ) : (
-                <div className="flex items-center justify-center gap-2 text-red-400">
-                  <XCircle size={24} />
-                  <span className="font-bold">إجابة خاطئة!</span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-center gap-2 text-red-400">
+                    <XCircle size={24} />
+                    <span className="font-bold">إجابة خاطئة!</span>
+                  </div>
+                  <p className="text-green-300 text-sm">
+                    الإجابة الصحيحة: {correctIdx >= 0 && correctIdx < cleanedOptions.length
+                      ? cleanedOptions[correctIdx].text
+                      : '—'}
+                  </p>
                 </div>
               )}
             </div>
@@ -233,8 +292,8 @@ export default function PublicQuizPage() {
 
           <button
             onClick={showResult ? handleNext : handleAnswer}
-            disabled={!selectedAnswer && !showResult}
-            className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-lg"
+            disabled={selectedOptionIndex === null && !showResult}
+            className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-lg disabled:opacity-50"
           >
             {showResult ? (
               <>

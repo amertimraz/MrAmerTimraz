@@ -1,9 +1,10 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toPng } from 'html-to-image';
 import { Download, Share2, QrCode } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
+import { buildCertificateId } from '../utils/levelAssessments';
 
 export default function PublicCertificatePage() {
   const { quizId } = useParams<{ quizId: string }>();
@@ -70,7 +71,10 @@ export default function PublicCertificatePage() {
 
   if (!quiz || !playerData) return <LoadingSpinner size="lg" />;
 
-  const certId = `CERT-${quizId}-${Date.now()}`;
+  const certId = useMemo(
+    () => buildCertificateId(undefined, Number(quizId), new Date().toISOString()),
+    [quizId]
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
