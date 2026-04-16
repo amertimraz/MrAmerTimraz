@@ -344,6 +344,79 @@ public class InteractiveQuizzesController : ControllerBase
         Console.WriteLine($"[DEBUG] Result saved successfully. Total results for quiz {id}: {await _db.InteractiveQuizResults.CountAsync(r => r.QuizId == id)}");
         return Ok(result);
     }
+
+    // Public Levels APIs
+    [HttpPost("public/start-session"), AllowAnonymous]
+    public async Task<IActionResult> StartPublicSession([FromBody] StartSessionDto dto)
+    {
+        var sessionId = Guid.NewGuid().ToString();
+        return Ok(new { sessionId });
+    }
+
+    [HttpPost("public/submit-answer"), AllowAnonymous]
+    public async Task<IActionResult> SubmitPublicAnswer([FromBody] SubmitAnswerDto dto)
+    {
+        // Store answer in temporary storage (could use Redis or database)
+        // For now, we'll store in database with a flag
+        var existing = await _db.InteractiveQuizResults
+            .FirstOrDefaultAsync(r => r.SessionId == dto.sessionId && r.QuizId == dto.quizId);
+
+        if (existing == null)
+        {
+            var tempResult = new InteractiveQuizResult
+            {
+                QuizId = dto.quizId,
+                SessionId = dto.sessionId,
+                PlayerName = dto.playerName,
+                Score = 0,
+                CorrectCount = 0,
+                TotalCount = 0,
+                Percentage = 0,
+                CompletedAt = DateTime.UtcNow
+            };
+            _db.InteractiveQuizResults.Add(tempResult);
+            await _db.SaveChangesAsync();
+        }
+
+        return Ok(new { success = true });
+    }
+
+    [HttpPost("public/submit-final"), AllowAnonymous]
+    public async Task<IActionResult> SubmitPublicFinal([FromBody] SubmitQuizResultDto dto)
+    {
+        return await SubmitResult(dto.quizId, dto);
+    }
+
+    [HttpGet("public/leaderboard/{governorate?}"), AllowAnonymous]
+    public async Task<IActionResult> GetPublicLeaderboard(string? governorate = null)
+    {
+        var query = _db.InteractiveQuizResults.AsQueryable();
+
+        if (!string.IsNullOrEmpty(governorate))
+        {
+            // Filter by governorate if stored in player data
+            // For now, we'll return all results sorted by score
+        }
+
+        var results = await query
+            .OrderByDescending(r => r.Score)
+            .ThenByDescending(r => r.Percentage)
+            .ThenBy(r => r.CompletedAt)
+            .Take(50)
+            .Select(r => new
+            {
+                r.PlayerName,
+                r.Score,
+                r.CorrectCount,
+                r.TotalCount,
+                r.Percentage,
+                r.CompletedAt,
+                r.QuizId
+            })
+            .ToListAsync();
+
+        return Ok(results);
+    }
 }
 
 public class CreateQuizDto
@@ -391,4 +464,20 @@ public class SubmitQuizResultDto
     public int correct { get; set; }
     public int total { get; set; }
     public double pct { get; set; }
+    public int quizId { get; set; }
+}
+
+public class StartSessionDto
+{
+    public string playerName { get; set; } = string.Empty;
+    public string governorate { get; set; } = string.Empty;
+}
+
+public class SubmitAnswerDto
+{
+    public string sessionId { get; set; } = string.Empty;
+    public int quizId { get; set; }
+    public int questionId { get; set; }
+    public string answer { get; set; } = string.Empty;
+    public string playerName { get; set; } = string.Empty;
 }
