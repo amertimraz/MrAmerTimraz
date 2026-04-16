@@ -120,9 +120,15 @@ export default function AdminLevelAssessments() {
   });
 
   const levelQuizzes = useMemo(() => {
-    return quizzes
-      .filter(q => (q.subject ?? '').toLowerCase() === LEVEL_SUBJECT.toLowerCase())
+    console.log('[DEBUG] LEVEL_SUBJECT:', LEVEL_SUBJECT);
+    const filtered = quizzes
+      .filter(q => {
+        const match = (q.subject ?? '').toLowerCase() === LEVEL_SUBJECT.toLowerCase();
+        console.log(`[DEBUG] Quiz "${q.title}" subject: "${q.subject}" - matches: ${match}`);
+        return match;
+      })
       .sort((a, b) => (extractLevel(a.title) ?? 999) - (extractLevel(b.title) ?? 999));
+    return filtered;
   }, [quizzes]);
   const levelQuizIds = useMemo(() => levelQuizzes.map(q => q.id), [levelQuizzes]);
 
