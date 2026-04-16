@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, CheckCircle, XCircle, Trophy } from 'lucide-react';
+import { ArrowRight, CheckCircle, XCircle, Trophy, Clock, Target } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -13,6 +13,8 @@ export default function PublicQuizPage() {
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [showFinalResult, setShowFinalResult] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   useEffect(() => {
     const playerData = localStorage.getItem('public-levels-player');
@@ -20,6 +22,16 @@ export default function PublicQuizPage() {
       navigate('/public-levels');
     }
   }, [navigate]);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isTimerRunning && !showFinalResult) {
+      interval = setInterval(() => {
+        setTimer(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, showFinalResult]);
 
   const { data: quiz, isLoading } = useQuery({
     queryKey: ['quiz', quizId],
@@ -39,6 +51,20 @@ export default function PublicQuizPage() {
       setScore(score + 1);
     }
     setShowResult(true);
+  };
+
+  // Start timer when quiz loads
+  useEffect(() => {
+    if (quiz && !showFinalResult) {
+      setIsTimerRunning(true);
+    }
+    return () => setIsTimerRunning(false);
+  }, [quiz, showFinalResult]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleNext = () => {
@@ -106,9 +132,19 @@ export default function PublicQuizPage() {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-xl font-bold text-white">{quiz.title}</h2>
-              <span className="text-purple-200 text-sm">
-                {currentQuestionIndex + 1} / {quiz.questions.length}
-              </span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
+                  <Clock size={16} className="text-yellow-400" />
+                  <span className="text-white text-sm">{formatTime(timer)}</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
+                  <Target size={16} className="text-green-400" />
+                  <span className="text-white text-sm">{score}/{quiz.questions.length}</span>
+                </div>
+                <span className="text-purple-200 text-sm">
+                  {currentQuestionIndex + 1} / {quiz.questions.length}
+                </span>
+              </div>
             </div>
             <div className="w-full bg-white/10 rounded-full h-3">
               <div

@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, Play, Award, Lock, Unlock, Gamepad2, Trophy } from 'lucide-react';
+import { BookOpen, Play, Award, Lock, Unlock, Gamepad2, Trophy, Share2 } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const LEVEL_SUBJECT = 'JavaScript Levels';
 const GOVERNORATES = [
@@ -20,6 +20,7 @@ function extractLevel(title: string): number | null {
 
 export default function PublicLevelsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [screen, setScreen] = useState<'start' | 'levels'>('start');
   const [playerName, setPlayerName] = useState('');
   const [governorate, setGovernorate] = useState('');
@@ -27,6 +28,19 @@ export default function PublicLevelsPage() {
     queryKey: ['interactive-quizzes'],
     queryFn: quizzesApi.getAll,
   });
+
+  useEffect(() => {
+    const sharedId = searchParams.get('id');
+    if (sharedId) {
+      const storedData = localStorage.getItem(`public-levels-${sharedId}`);
+      if (storedData) {
+        const data = JSON.parse(storedData);
+        setPlayerName(data.name);
+        setGovernorate(data.governorate);
+        setScreen('levels');
+      }
+    }
+  }, [searchParams]);
 
   const levelQuizzes = useMemo(() => {
     return quizzes
@@ -51,8 +65,17 @@ export default function PublicLevelsPage() {
       alert('الرجاء إدخال اسمك واختيار محافظتك');
       return;
     }
-    localStorage.setItem('public-levels-player', JSON.stringify({ name: playerName, governorate }));
+    const uniqueId = `USER${Date.now()}${Math.random().toString(36).substring(7)}`;
+    localStorage.setItem('public-levels-player', JSON.stringify({ name: playerName, governorate, uniqueId }));
+    localStorage.setItem(`public-levels-${uniqueId}`, JSON.stringify({ name: playerName, governorate }));
     setScreen('levels');
+  };
+
+  const handleShare = () => {
+    const playerData = JSON.parse(localStorage.getItem('public-levels-player') || '{}');
+    const shareUrl = `${window.location.origin}/public-levels?id=${playerData.uniqueId}`;
+    navigator.clipboard.writeText(shareUrl);
+    alert('تم نسخ رابط المشاركة!');
   };
 
   if (isLoading) return <LoadingSpinner size="lg" />;
@@ -116,7 +139,16 @@ export default function PublicLevelsPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 text-slate-900 mb-6 shadow-2xl">
             <Award size={40} />
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">مستويات JavaScript</h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white">مستويات JavaScript</h1>
+            <button
+              onClick={handleShare}
+              className="p-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-colors"
+              title="مشاركة التحدي"
+            >
+              <Share2 size={20} className="text-white" />
+            </button>
+          </div>
           <p className="text-lg text-purple-200">اختبر معلوماتك واجمع شهاداتك</p>
         </div>
 
