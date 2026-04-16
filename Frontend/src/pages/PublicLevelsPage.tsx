@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, Play, Award, Lock, Unlock, Gamepad2 } from 'lucide-react';
+import { BookOpen, Play, Award, Lock, Unlock, Gamepad2, Trophy } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +33,18 @@ export default function PublicLevelsPage() {
       .filter(q => (q.subject ?? '').toLowerCase() === LEVEL_SUBJECT.toLowerCase())
       .sort((a, b) => (extractLevel(a.title) ?? 999) - (extractLevel(b.title) ?? 999));
   }, [quizzes]);
+
+  const { data: leaderboard = [] } = useQuery({
+    queryKey: ['leaderboard'],
+    queryFn: async () => {
+      const allResults = await Promise.all(
+        levelQuizzes.map(q => quizzesApi.getLeaderboard(q.id))
+      );
+      const combined = allResults.flat().sort((a: any, b: any) => b.score - a.score).slice(0, 10);
+      return combined;
+    },
+    enabled: levelQuizzes.length > 0,
+  });
 
   const handleStart = () => {
     if (!playerName.trim() || !governorate) {
@@ -107,6 +119,44 @@ export default function PublicLevelsPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">مستويات JavaScript</h1>
           <p className="text-lg text-purple-200">اختبر معلوماتك واجمع شهاداتك</p>
         </div>
+
+        {/* Leaderboard Section */}
+        {leaderboard.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Trophy size={24} className="text-yellow-400" />
+                🏆 أفضل 10
+              </h2>
+            </div>
+            <div className="space-y-3">
+              {leaderboard.map((player: any, index: number) => (
+                <div
+                  key={index}
+                  className={`flex items-center justify-between p-4 rounded-xl ${
+                    index === 0 ? 'bg-gradient-to-r from-yellow-400/20 to-orange-500/20 border border-yellow-400/30' :
+                    index === 1 ? 'bg-gradient-to-r from-gray-300/20 to-gray-400/20 border border-gray-300/30' :
+                    index === 2 ? 'bg-gradient-to-r from-orange-400/20 to-orange-600/20 border border-orange-400/30' :
+                    'bg-white/5 border border-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className={`text-2xl font-bold ${
+                      index === 0 ? 'text-yellow-400' :
+                      index === 1 ? 'text-gray-300' :
+                      index === 2 ? 'text-orange-400' :
+                      'text-gray-500'
+                    }`}>
+                      {index + 1}
+                    </span>
+                    <span className="text-white font-semibold">{player.name}</span>
+                  </div>
+                  <span className="text-yellow-400 font-bold">{player.score} نقطة</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {levelQuizzes.length === 0 ? (
           <div className="card p-8 text-center">
