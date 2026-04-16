@@ -9,9 +9,29 @@ import { saveLevelAttempt } from '../utils/levelAssessments';
 
 /* ─── Helpers ────────────────────────────────────────────── */
 
-/** Strip alignment metadata like ::[align=ltr] or ::[align=rtl] from option text */
-function stripAlignMeta(raw: string): string {
-  return raw.replace(/::\[align=(ltr|rtl|auto)\]/gi, '').trim();
+/** Strip all metadata markers from text:
+ *  - ::[align=ltr], ::[align=rtl], ::[align=auto]
+ *  - ::[code]
+ */
+function stripMetaMarkers(raw: string): { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' } {
+  let text = raw;
+  let isCode = false;
+  let align: 'auto' | 'rtl' | 'ltr' = 'auto';
+
+  // Extract ::[code] marker
+  if (text.includes('::[code]')) {
+    isCode = true;
+    text = text.replace(/::\[code\]/gi, '');
+  }
+
+  // Extract ::[align=...] marker
+  const alignMatch = text.match(/::\[align=(ltr|rtl|auto)\]/i);
+  if (alignMatch) {
+    align = alignMatch[1].toLowerCase() as 'ltr' | 'rtl' | 'auto';
+    text = text.replace(/::\[align=(ltr|rtl|auto)\]/gi, '');
+  }
+
+  return { text: text.trim(), isCode, align };
 }
 
 /** Parse options JSON string into array */
@@ -20,19 +40,19 @@ function parseOptions(raw?: string | null): string[] {
   try { return JSON.parse(raw) as string[]; } catch { return []; }
 }
 
-/** Clean an option for display: strip CODE:, RTL:/LTR: prefixes, and ::[align=...] suffixes */
+/** Clean an option for display: handle all metadata markers */
 function cleanOption(raw: string): { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' } {
   let text = raw;
   let isCode = false;
   let align: 'auto' | 'rtl' | 'ltr' = 'auto';
 
-  // Strip CODE: prefix
+  // 1. Strip CODE: prefix
   if (text.startsWith('CODE:')) {
     isCode = true;
     text = text.slice(5);
   }
 
-  // Strip RTL:/LTR: prefix
+  // 2. Strip RTL:/LTR: prefix
   if (text.startsWith('RTL:')) {
     align = 'rtl';
     text = text.slice(4);
@@ -41,16 +61,24 @@ function cleanOption(raw: string): { text: string; isCode: boolean; align: 'auto
     text = text.slice(4);
   }
 
-  // Strip ::[align=...] suffix
-  text = stripAlignMeta(text);
+  // 3. Strip inline metadata markers (::[code], ::[align=...])
+  const meta = stripMetaMarkers(text);
+  text = meta.text;
+  if (meta.isCode) isCode = true;
+  if (meta.align !== 'auto') align = meta.align;
 
-  // Auto-detect code-like content
-  if (!isCode && /^[a-zA-Z0-9_.<>(){}[\]=;]+$/.test(text.trim())) {
+  // 4. Auto-detect code-like content (HTML tags, JS code, etc.)
+  const trimmed = text.trim();
+  if (!isCode && (
+    /^<[a-zA-Z]/.test(trimmed) ||                           // HTML tags like <img, <div
+    /^[a-zA-Z_$][a-zA-Z0-9_$.]*\s*\(/.test(trimmed) ||     // function calls like console.log(
+    /^[a-zA-Z0-9_.<>(){}[\]=;:,"'\s\/\\-]+$/.test(trimmed) && /[<>(){}[\]=;]/.test(trimmed)  // code with special chars
+  )) {
     isCode = true;
-    align = 'ltr';
+    if (align === 'auto') align = 'ltr';
   }
 
-  return { text: text.trim(), isCode, align };
+  return { text: trimmed, isCode, align };
 }
 
 /** Get the correct answer index (same logic as QuizPresenter) */
