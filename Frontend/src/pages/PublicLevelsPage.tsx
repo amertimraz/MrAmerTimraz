@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, Play, Award, Lock, Unlock, Gamepad2, Trophy, Share2 } from 'lucide-react';
+import { Play, Award, Lock, Unlock, Gamepad2, Trophy, Share2 } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -195,39 +195,69 @@ export default function PublicLevelsPage() {
             <p className="text-gray-600 dark:text-gray-400">لا توجد مستويات متاحة حالياً</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {levelQuizzes.map((quiz) => {
-              const level = extractLevel(quiz.title) ?? 1;
-              const isUnlocked = level === 1; // TODO: Implement unlock logic based on previous level completion
-              return (
-                <div
-                  key={quiz.id}
-                  className={`bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:border-yellow-400/50 transition-all hover:scale-105 cursor-pointer ${!isUnlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={() => isUnlocked && navigate(`/public-quiz/${quiz.id}`)}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-2xl font-bold text-white">Level {level}</span>
-                        {isUnlocked ? <Unlock size={20} className="text-green-400" /> : <Lock size={20} className="text-gray-400" />}
-                      </div>
-                      <h3 className="text-lg font-bold text-white mb-2">{quiz.title}</h3>
-                      <p className="text-sm text-purple-200">{quiz.questionCount} سؤال</p>
-                    </div>
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-slate-900">
-                      <BookOpen size={24} />
-                    </div>
-                  </div>
+          <div className="relative">
+            {/* Progress Line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-white/10 -translate-x-1/2 hidden md:block" />
+            <div
+              className="absolute left-1/2 top-0 w-1 bg-gradient-to-b from-yellow-400 to-orange-500 -translate-x-1/2 hidden md:block transition-all duration-1000"
+              style={{ height: `${((levelQuizzes.filter((_, i) => i === 0).length) / levelQuizzes.length) * 100}%` }}
+            />
 
-                  {isUnlocked && (
-                    <button className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-                      <Play size={18} />
-                      ابدأ التحدي
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+            {/* Game Map */}
+            <div className="space-y-12 py-8">
+              {levelQuizzes.map((quiz, index) => {
+                const level = extractLevel(quiz.title) ?? 1;
+                const isUnlocked = level === 1;
+                const isEven = index % 2 === 0;
+
+                return (
+                  <div
+                    key={quiz.id}
+                    className={`relative flex items-center ${isEven ? 'justify-start md:justify-end' : 'justify-start md:justify-start'}`}
+                  >
+                    {/* Level Node */}
+                    <div
+                      className={`relative z-10 transition-all duration-500 hover:scale-105 ${isEven ? 'md:mr-12' : 'md:ml-12'} ${!isUnlocked ? 'opacity-50' : 'cursor-pointer'}`}
+                      onClick={() => isUnlocked && navigate(`/public-quiz/${quiz.id}`)}
+                    >
+                      <div
+                        className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shadow-2xl ${
+                          isUnlocked
+                            ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-slate-900 border-4 border-yellow-300'
+                            : 'bg-gray-800 text-gray-500 border-4 border-gray-700'
+                        } animate-pulse`}
+                      >
+                        {level}
+                      </div>
+
+                      {/* Level Card */}
+                      <div
+                        className={`mt-4 p-6 rounded-2xl backdrop-blur-lg border-2 transition-all ${
+                          isUnlocked
+                            ? 'bg-white/10 border-yellow-400/50 hover:border-yellow-400'
+                            : 'bg-gray-800/50 border-gray-700'
+                        } max-w-xs`}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          {isUnlocked ? <Unlock size={20} className="text-green-400" /> : <Lock size={20} className="text-gray-400" />}
+                          <h3 className="text-lg font-bold text-white">{quiz.title}</h3>
+                        </div>
+                        <p className="text-sm text-purple-200 mb-3">{quiz.questionCount} سؤال</p>
+                        {isUnlocked && (
+                          <button className="w-full py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                            <Play size={16} />
+                            ابدأ التحدي
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Connector Dot */}
+                    <div className="absolute left-1/2 top-10 w-4 h-4 rounded-full bg-yellow-400 -translate-x-1/2 hidden md:block" />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
