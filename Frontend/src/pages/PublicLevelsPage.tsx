@@ -54,9 +54,12 @@ export default function PublicLevelsPage() {
   }, [searchParams]);
 
   const levelQuizzes = useMemo(() => {
-    return quizzes
-      .filter(q => (q.subject ?? '').toLowerCase() === LEVEL_SUBJECT.toLowerCase())
-      .sort((a, b) => (extractLevelNumber(a.title) ?? 999) - (extractLevelNumber(b.title) ?? 999));
+    const filtered = quizzes.filter(q => q.subject === LEVEL_SUBJECT);
+    return filtered.sort((a, b) => {
+      const levelA = extractLevelNumber(a.title) ?? 999;
+      const levelB = extractLevelNumber(b.title) ?? 999;
+      return levelA - levelB;
+    });
   }, [quizzes]);
 
   // Get stored attempts to determine which levels are completed
@@ -271,7 +274,7 @@ export default function PublicLevelsPage() {
             />
 
             {/* Game Map */}
-            <div className="space-y-12 py-8">
+            <div className="space-y-4 py-4">
               {levelQuizzes.map((quiz, index) => {
                 const level = extractLevelNumber(quiz.title) ?? (index + 1);
                 const jsLevelQuizzes = levelQuizzes.filter(isJavaScriptLevelQuiz);
@@ -304,7 +307,7 @@ export default function PublicLevelsPage() {
 
                       {/* Level Card */}
                       <div
-                        className={`mt-4 p-6 rounded-2xl backdrop-blur-lg border-2 transition-all ${
+                        className={`mt-2 p-4 rounded-xl backdrop-blur-lg border-2 transition-all ${
                           isPassed
                             ? 'bg-green-500/10 border-green-400/50'
                             : isUnlocked

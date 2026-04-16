@@ -161,10 +161,13 @@ export default function PublicQuizPage() {
     if (currentQuestionIndex < (quiz?.questions.length ?? 0) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Quiz finished — save attempt for level unlocking
+      // Quiz finished — save attempt for level unlocking and submit to backend
       if (quiz) {
         const totalCorrect = correctCount;
         const totalQuestions = quiz.questions.length;
+        const percentage = Math.round((totalCorrect / totalQuestions) * 100);
+
+        // Save to localStorage for level unlocking
         saveLevelAttempt(undefined, {
           quizId: quiz.id,
           quizTitle: quiz.title,
@@ -172,6 +175,19 @@ export default function PublicQuizPage() {
           total: totalQuestions,
           pct: 0, // will be calculated in saveLevelAttempt
         });
+
+        // Submit to backend leaderboard
+        const playerData = JSON.parse(localStorage.getItem('public-levels-player') || '{}');
+        if (playerData.name) {
+          quizzesApi.submitResult(quiz.id, {
+            sessionId: playerData.uniqueId || `USER${Date.now()}`,
+            name: playerData.name,
+            score: totalCorrect,
+            correct: totalCorrect,
+            total: totalQuestions,
+            pct: percentage,
+          }).catch(err => console.error('Failed to submit result:', err));
+        }
       }
       setShowFinalResult(true);
     }
