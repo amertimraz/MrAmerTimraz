@@ -120,15 +120,12 @@ export default function AdminLevelAssessments() {
   });
 
   const levelQuizzes = useMemo(() => {
-    // Show all quizzes instead of filtering by JavaScript Levels
+    // Only show quizzes with subject = JavaScript Levels (manually added levels)
     return quizzes
+      .filter(q => (q.subject ?? '').toLowerCase() === LEVEL_SUBJECT.toLowerCase())
       .sort((a, b) => (extractLevel(a.title) ?? 999) - (extractLevel(b.title) ?? 999));
   }, [quizzes]);
   const levelQuizIds = useMemo(() => levelQuizzes.map(q => q.id), [levelQuizzes]);
-
-  console.log('[DEBUG] All quizzes:', quizzes);
-  console.log('[DEBUG] Showing all quizzes:', levelQuizzes);
-  console.log('[DEBUG] Level quiz IDs:', levelQuizIds);
 
   const { data: levelStats = {} } = useQuery({
     queryKey: ['admin-levels-stats', levelQuizIds.join(',')],
@@ -137,7 +134,6 @@ export default function AdminLevelAssessments() {
         levelQuizzes.map(async (quiz) => {
           try {
             const results = await quizzesApi.getLeaderboard(quiz.id);
-            console.log(`[DEBUG] Quiz ${quiz.id} (${quiz.title}): ${results.length} results`, results);
             const participants = results.length;
             const avgPct = participants
               ? Math.round(results.reduce((sum: number, r: InteractiveQuizResult) => sum + (r.pct || 0), 0) / participants)
@@ -145,7 +141,6 @@ export default function AdminLevelAssessments() {
             const bestPct = participants
               ? Math.max(...results.map((r: InteractiveQuizResult) => r.pct || 0))
               : 0;
-            console.log(`[DEBUG] Quiz ${quiz.id} stats:`, { participants, avgPct, bestPct });
             return [quiz.id, { participants, avgPct, bestPct }] as const;
           } catch (err) {
             console.error(`Error fetching stats for quiz ${quiz.id}:`, err);
@@ -153,9 +148,7 @@ export default function AdminLevelAssessments() {
           }
         }),
       );
-      const stats = Object.fromEntries(rows) as Record<number, { participants: number; avgPct: number; bestPct: number }>;
-      console.log('[DEBUG] Final levelStats:', stats);
-      return stats;
+      return Object.fromEntries(rows) as Record<number, { participants: number; avgPct: number; bestPct: number }>;
     },
     enabled: levelQuizIds.length > 0,
   });
