@@ -55,15 +55,21 @@ export default function PublicLevelsPage() {
 
   const levelQuizzes = useMemo(() => {
     const filtered = quizzes.filter(q => q.subject === LEVEL_SUBJECT);
-    return filtered.sort((a, b) => {
+    const sorted = filtered.sort((a, b) => {
       const levelA = extractLevelNumber(a.title) ?? 999;
       const levelB = extractLevelNumber(b.title) ?? 999;
       return levelA - levelB;
     });
+    console.log('[DEBUG] Level quizzes:', sorted.map(q => ({ id: q.id, title: q.title, level: extractLevelNumber(q.title) })));
+    return sorted;
   }, [quizzes]);
 
   // Get stored attempts to determine which levels are completed
-  const attempts = useMemo(() => getStoredAttempts(undefined), [screen, levelQuizzes]);
+  const attempts = useMemo(() => {
+    const att = getStoredAttempts(undefined);
+    console.log('[DEBUG] Stored attempts:', att);
+    return att;
+  }, [screen, levelQuizzes]);
 
   // Count completed (passed) levels
   const completedLevels = useMemo(() => {
