@@ -8,7 +8,6 @@ import {
   extractLevelNumber,
   getStoredAttempts,
   canOpenLevel,
-  isJavaScriptLevelQuiz,
   buildCertificateId,
 } from '../utils/levelAssessments';
 import { toPng } from 'html-to-image';
