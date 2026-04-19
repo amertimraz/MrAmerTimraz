@@ -30,6 +30,7 @@ export default function PublicLevelsPage() {
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
   const [downloading, setDownloading] = useState(false);
+  const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
   const { data: quizzes = [], isLoading } = useQuery({
     queryKey: ['interactive-quizzes'],
@@ -251,11 +252,19 @@ export default function PublicLevelsPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 <Trophy size={24} className="text-yellow-400" />
-                🏆 أفضل 10
+                🏆 {showAllLeaderboard ? 'جميع المتسابقين' : `أفضل ${Math.min(10, leaderboard.length)}`}
               </h2>
+              {leaderboard.length > 10 && (
+                <button
+                  onClick={() => setShowAllLeaderboard(!showAllLeaderboard)}
+                  className="px-4 py-2 bg-white/10 border border-white/20 text-white font-semibold rounded-lg hover:bg-white/20 transition-colors text-sm"
+                >
+                  {showAllLeaderboard ? 'عرض أول 10' : 'عرض الكل'}
+                </button>
+              )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-              {leaderboard.map((player: any, index: number) => (
+              {(showAllLeaderboard ? leaderboard : leaderboard.slice(0, 10)).map((player: any, index: number) => (
                 <div
                   key={index}
                   className={`p-4 rounded-xl ${
