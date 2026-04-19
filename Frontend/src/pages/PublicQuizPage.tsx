@@ -298,7 +298,7 @@ export default function PublicQuizPage() {
           <div className="mb-6">
             <div className="bg-slate-900 rounded-xl p-5 border border-slate-700">
               <div
-                className="text-lg text-white leading-relaxed"
+                className="text-lg text-white leading-relaxed whitespace-pre-wrap"
                 dangerouslySetInnerHTML={{ __html: stripMetaMarkers(currentQuestion?.text || '').text }}
               />
             </div>
