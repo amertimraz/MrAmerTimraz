@@ -173,7 +173,7 @@ export default function PublicQuizPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setShowResult(false);
     setSelectedOptionIndex(null);
 
@@ -198,14 +198,19 @@ export default function PublicQuizPage() {
         // Submit to backend leaderboard
         const playerData = JSON.parse(localStorage.getItem('public-levels-player') || '{}');
         if (playerData.name) {
-          quizzesApi.submitResult(quiz.id, {
-            sessionId: playerData.uniqueId || `USER${Date.now()}`,
-            name: playerData.name,
-            score: totalCorrect,
-            correct: totalCorrect,
-            total: totalQuestions,
-            pct: percentage,
-          }).catch(err => console.error('Failed to submit result:', err));
+          try {
+            await quizzesApi.submitResult(quiz.id, {
+              sessionId: playerData.uniqueId || `USER${Date.now()}`,
+              name: playerData.name,
+              score: totalCorrect,
+              correct: totalCorrect,
+              total: totalQuestions,
+              pct: percentage,
+            });
+            console.log('Result submitted successfully');
+          } catch (err) {
+            console.error('Failed to submit result:', err);
+          }
         }
       }
       setShowFinalResult(true);
