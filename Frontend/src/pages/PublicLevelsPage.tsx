@@ -442,27 +442,14 @@ function CertificateModalContent({ quiz, playerName, certRef, downloading, setDo
         pixelRatio: 2,
       });
 
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'certificate.png', { type: 'image/png' });
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'certificate.png';
+      a.click();
 
       const message = `السلام عليكم، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${attemptData?.pct || 0}%`;
-
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'شهادة إتمام المستوى',
-          text: message,
-        });
-      } else {
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = 'certificate.png';
-        a.click();
-
-        const whatsappUrl = `https://wa.me/201096066818?text=${encodeURIComponent(message + '\n\n(يرجى إرفاق صورة الشهادة المحملة)')}`;
-        window.open(whatsappUrl, '_blank');
-      }
+      const whatsappUrl = `https://wa.me/201096066818?text=${encodeURIComponent(message + '\n\n(يرجى إرفاق صورة الشهادة المحملة)')}`;
+      window.open(whatsappUrl, '_blank');
     } catch (err) {
       console.error('Share failed:', err);
       const message = `السلام عليكم، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${attemptData?.pct || 0}%`;

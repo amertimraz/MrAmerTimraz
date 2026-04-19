@@ -259,30 +259,16 @@ export default function PublicQuizPage() {
           pixelRatio: 2,
         });
 
-        // Convert data URL to blob
-        const response = await fetch(dataUrl);
-        const blob = await response.blob();
-        const file = new File([blob], 'certificate.png', { type: 'image/png' });
+        // Download image
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'certificate.png';
+        a.click();
 
+        // Open WhatsApp directly
         const message = `السلام عليكم، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${percentage}%`;
-
-        // Try Web Share API with file
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'شهادة إتمام المستوى',
-            text: message,
-          });
-        } else {
-          // Fallback: download image and open WhatsApp with text
-          const a = document.createElement('a');
-          a.href = dataUrl;
-          a.download = 'certificate.png';
-          a.click();
-
-          const whatsappUrl = `https://wa.me/201096066818?text=${encodeURIComponent(message + '\n\n(يرجى إرفاق صورة الشهادة المحملة)')}`;
-          window.open(whatsappUrl, '_blank');
-        }
+        const whatsappUrl = `https://wa.me/201096066818?text=${encodeURIComponent(message + '\n\n(يرجى إرفاق صورة الشهادة المحملة)')}`;
+        window.open(whatsappUrl, '_blank');
       } catch (err) {
         console.error('Share failed:', err);
         // Fallback to text-only WhatsApp
