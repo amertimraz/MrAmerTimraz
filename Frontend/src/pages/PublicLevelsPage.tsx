@@ -76,6 +76,17 @@ export default function PublicLevelsPage() {
     return levelQuizzes.filter(q => attempts[q.id]?.passed).length;
   }, [levelQuizzes, attempts]);
 
+  // Calculate total score for logged user
+  const totalScore = useMemo(() => {
+    return levelQuizzes.reduce((sum, quiz) => {
+      const attempt = attempts[quiz.id];
+      if (attempt?.passed) {
+        return sum + attempt.score;
+      }
+      return sum;
+    }, 0);
+  }, [levelQuizzes, attempts]);
+
   const { data: leaderboard = [] } = useQuery({
     queryKey: ['leaderboard'],
     queryFn: async () => {
@@ -213,11 +224,17 @@ export default function PublicLevelsPage() {
 
           {/* Progress Summary */}
           {levelQuizzes.length > 0 && (
-            <div className="mt-6 inline-flex items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-6 py-3 border border-white/20">
-              <span className="text-yellow-400 font-bold text-lg">{completedLevels}</span>
-              <span className="text-white">/</span>
-              <span className="text-gray-300 font-bold text-lg">{levelQuizzes.length}</span>
-              <span className="text-purple-200 text-sm">مستويات مكتملة</span>
+            <div className="mt-6 flex flex-wrap items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-6 py-3 border border-white/20">
+              <div className="flex items-center gap-2">
+                <span className="text-purple-200 text-sm">مستويات مكتملة:</span>
+                <span className="text-yellow-400 font-bold text-lg">{completedLevels}</span>
+                <span className="text-white">/</span>
+                <span className="text-gray-300 font-bold text-lg">{levelQuizzes.length}</span>
+              </div>
+              <div className="flex items-center gap-2 border-l border-white/20 pl-3">
+                <span className="text-purple-200 text-sm">إجمالي النقاط:</span>
+                <span className="text-green-400 font-bold text-lg">{totalScore}</span>
+              </div>
               <div className="w-24 bg-white/10 rounded-full h-2 mr-2">
                 <div
                   className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all duration-1000"
@@ -237,19 +254,19 @@ export default function PublicLevelsPage() {
                 🏆 أفضل 10
               </h2>
             </div>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
               {leaderboard.map((player: any, index: number) => (
                 <div
                   key={index}
-                  className={`flex items-center justify-between p-4 rounded-xl ${
-                    index === 0 ? 'bg-gradient-to-r from-yellow-400/20 to-orange-500/20 border border-yellow-400/30' :
-                    index === 1 ? 'bg-gradient-to-r from-gray-300/20 to-gray-400/20 border border-gray-300/30' :
-                    index === 2 ? 'bg-gradient-to-r from-orange-400/20 to-orange-600/20 border border-orange-400/30' :
+                  className={`p-4 rounded-xl ${
+                    index === 0 ? 'bg-gradient-to-br from-yellow-400/20 to-orange-500/20 border-2 border-yellow-400/30' :
+                    index === 1 ? 'bg-gradient-to-br from-gray-300/20 to-gray-400/20 border-2 border-gray-300/30' :
+                    index === 2 ? 'bg-gradient-to-br from-orange-400/20 to-orange-600/20 border-2 border-orange-400/30' :
                     'bg-white/5 border border-white/10'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <span className={`text-2xl font-bold ${
+                  <div className="flex flex-col items-center text-center">
+                    <span className={`text-3xl font-bold mb-2 ${
                       index === 0 ? 'text-yellow-400' :
                       index === 1 ? 'text-gray-300' :
                       index === 2 ? 'text-orange-400' :
@@ -257,9 +274,9 @@ export default function PublicLevelsPage() {
                     }`}>
                       {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                     </span>
-                    <span className="text-white font-semibold">{player.name}</span>
+                    <span className="text-white font-semibold text-sm mb-2">{player.name}</span>
+                    <span className="text-yellow-400 font-bold">{player.score} نقطة</span>
                   </div>
-                  <span className="text-yellow-400 font-bold">{player.score} نقطة</span>
                 </div>
               ))}
             </div>
