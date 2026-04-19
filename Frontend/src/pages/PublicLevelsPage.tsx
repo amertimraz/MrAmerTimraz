@@ -343,7 +343,10 @@ export default function PublicLevelsPage() {
                         {isUnlocked && (
                           <div className="flex gap-2">
                             <button
-                              onClick={() => navigate(`/public-quiz/${quiz.id}`)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/public-quiz/${quiz.id}`);
+                              }}
                               className="flex-1 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                             >
                               <Play size={16} />
@@ -351,7 +354,8 @@ export default function PublicLevelsPage() {
                             </button>
                             {isPassed && (
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setSelectedQuiz(quiz);
                                   setShowCertificateModal(true);
                                 }}
