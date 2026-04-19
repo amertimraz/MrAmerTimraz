@@ -394,11 +394,9 @@ export default function PublicLevelsPage() {
               <div className="p-4">
                 <CertificateModalContent
                   quiz={selectedQuiz}
-                  playerName={playerName}
                   certRef={certRef}
                   downloading={downloading}
                   setDownloading={setDownloading}
-                  onClose={() => setShowCertificateModal(false)}
                 />
               </div>
             </div>
@@ -409,7 +407,7 @@ export default function PublicLevelsPage() {
   );
 }
 
-function CertificateModalContent({ quiz, playerName, certRef, downloading, setDownloading, onClose }: any) {
+function CertificateModalContent({ quiz, certRef, downloading, setDownloading }: any) {
   const playerData = JSON.parse(localStorage.getItem('public-levels-player') || '{}');
   const certId = buildCertificateId(undefined, quiz.id, new Date().toISOString());
   const attemptData = getStoredAttempts(undefined)[quiz.id];
