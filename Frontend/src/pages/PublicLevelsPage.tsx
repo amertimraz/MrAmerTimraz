@@ -300,8 +300,7 @@ export default function PublicLevelsPage() {
             <div className="space-y-4 py-4">
               {levelQuizzes.map((quiz, index) => {
                 const level = extractLevelNumber(quiz.title) ?? (index + 1);
-                const jsLevelQuizzes = levelQuizzes.filter(isJavaScriptLevelQuiz);
-                const isUnlocked = canOpenLevel(quiz, jsLevelQuizzes, undefined);
+                const isUnlocked = canOpenLevel(quiz, levelQuizzes, undefined);
                 const isPassed = attempts[quiz.id]?.passed;
                 const attemptData = attempts[quiz.id];
                 const isEven = index % 2 === 0;
