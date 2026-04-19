@@ -10,25 +10,38 @@ import { saveLevelAttempt } from '../utils/levelAssessments';
 /* ─── Helpers ────────────────────────────────────────────── */
 
 /** Strip all metadata markers from text:
- *  - ::[align=ltr], ::[align=rtl], ::[align=auto]
- *  - ::[code]
+ *  - [align=ltr]::, [align=rtl]::, [align=auto]::
+ *  - ::[code] and [code]::
  */
 function stripMetaMarkers(raw: string): { text: string; isCode: boolean; align: 'auto' | 'rtl' | 'ltr' } {
   let text = raw;
   let isCode = false;
   let align: 'auto' | 'rtl' | 'ltr' = 'auto';
 
-  // Extract ::[code] marker
+  // Extract [align=...]:: marker (format used in admin panel)
+  const alignMatch = text.match(/\[align=(ltr|rtl|auto)\]::/i);
+  if (alignMatch) {
+    align = alignMatch[1].toLowerCase() as 'ltr' | 'rtl' | 'auto';
+    text = text.replace(/\[align=(ltr|rtl|auto)\]::/gi, '');
+  }
+
+  // Extract ::[align=...] marker (legacy format)
+  const legacyAlignMatch = text.match(/::\[align=(ltr|rtl|auto)\]/i);
+  if (legacyAlignMatch) {
+    align = legacyAlignMatch[1].toLowerCase() as 'ltr' | 'rtl' | 'auto';
+    text = text.replace(/::\[align=(ltr|rtl|auto)\]/gi, '');
+  }
+
+  // Extract [code]:: marker
+  if (text.includes('[code]::')) {
+    isCode = true;
+    text = text.replace(/\[code\]::/gi, '');
+  }
+
+  // Extract ::[code] marker (legacy format)
   if (text.includes('::[code]')) {
     isCode = true;
     text = text.replace(/::\[code\]/gi, '');
-  }
-
-  // Extract ::[align=...] marker
-  const alignMatch = text.match(/::\[align=(ltr|rtl|auto)\]/i);
-  if (alignMatch) {
-    align = alignMatch[1].toLowerCase() as 'ltr' | 'rtl' | 'auto';
-    text = text.replace(/::\[align=(ltr|rtl|auto)\]/gi, '');
   }
 
   return { text: text.trim(), isCode, align };
