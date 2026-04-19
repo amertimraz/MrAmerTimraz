@@ -466,12 +466,12 @@ function CertificateModalContent({ quiz, certRef, downloading, setDownloading }:
       a.download = 'certificate.png';
       a.click();
 
-      const message = `السلام عليكم، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${attemptData?.pct || 0}%`;
+      const message = `السلام عليكم مستر عامر، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${attemptData?.pct || 0}%، أرجو منك عرض الشهادة على القناة`;
       const whatsappUrl = `https://wa.me/201096066818?text=${encodeURIComponent(message + '\n\n(يرجى إرفاق صورة الشهادة المحملة)')}`;
       window.open(whatsappUrl, '_blank');
     } catch (err) {
       console.error('Share failed:', err);
-      const message = `السلام عليكم، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${attemptData?.pct || 0}%`;
+      const message = `السلام عليكم مستر عامر، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${attemptData?.pct || 0}%، أرجو منك عرض الشهادة على القناة`;
       const whatsappUrl = `https://wa.me/201096066818?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     }
@@ -571,7 +571,7 @@ function CertificateModalContent({ quiz, certRef, downloading, setDownloading }:
           className="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
         >
           <MessageCircle size={18} />
-          إرسال للمعلم
+          إرسال لمستر عامر
         </button>
       </div>
     </>

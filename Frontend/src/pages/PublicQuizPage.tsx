@@ -266,13 +266,13 @@ export default function PublicQuizPage() {
         a.click();
 
         // Open WhatsApp directly
-        const message = `السلام عليكم، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${percentage}%`;
+        const message = `السلام عليكم مستر عامر، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${percentage}%، أرجو منك عرض الشهادة على القناة`;
         const whatsappUrl = `https://wa.me/201096066818?text=${encodeURIComponent(message + '\n\n(يرجى إرفاق صورة الشهادة المحملة)')}`;
         window.open(whatsappUrl, '_blank');
       } catch (err) {
         console.error('Share failed:', err);
         // Fallback to text-only WhatsApp
-        const message = `السلام عليكم، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${percentage}%`;
+        const message = `السلام عليكم مستر عامر، أنا ${playerData.name} وأتممت اختبار ${quiz.title} بنجاح وحصلت على ${percentage}%، أرجو منك عرض الشهادة على القناة`;
         const whatsappUrl = `https://wa.me/201096066818?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
       }
@@ -424,7 +424,7 @@ export default function PublicQuizPage() {
                     className="flex-1 py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
                   >
                     <MessageCircle size={18} />
-                    إرسال للمعلم
+                    إرسال لمستر عامر
                   </button>
                 </div>
               </div>
