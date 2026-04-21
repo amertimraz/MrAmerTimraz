@@ -190,6 +190,14 @@ export default function PublicQuizPage() {
         const totalQuestions = quiz.questions.length;
         const percentage = Math.round((totalCorrect / totalQuestions) * 100);
 
+        console.log('[DEBUG] Quiz finished:', {
+          totalCorrect,
+          totalQuestions,
+          percentage,
+          score,
+          correctCount
+        });
+
         // Submit to backend leaderboard
         const playerData = JSON.parse(localStorage.getItem('public-levels-player') || '{}');
         if (playerData.name) {
