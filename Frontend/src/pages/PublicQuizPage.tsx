@@ -200,9 +200,11 @@ export default function PublicQuizPage() {
 
         // Submit to backend leaderboard
         const playerData = JSON.parse(localStorage.getItem('public-levels-player') || '{}');
+        console.log('[DEBUG] Player data:', playerData);
         if (playerData.name) {
           // Save to localStorage for level unlocking
           const userId = playerData.uniqueId;
+          console.log('[DEBUG] Saving level attempt for userId:', userId);
           saveLevelAttempt(userId, {
             quizId: quiz.id,
             quizTitle: quiz.title,
@@ -210,6 +212,7 @@ export default function PublicQuizPage() {
             total: totalQuestions,
             pct: 0, // will be calculated in saveLevelAttempt
           });
+          console.log('[DEBUG] Level attempt saved');
           try {
             await quizzesApi.submitResult(quiz.id, {
               sessionId: playerData.uniqueId || `USER${Date.now()}`,
