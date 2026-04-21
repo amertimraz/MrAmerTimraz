@@ -190,18 +190,18 @@ export default function PublicQuizPage() {
         const totalQuestions = quiz.questions.length;
         const percentage = Math.round((totalCorrect / totalQuestions) * 100);
 
-        // Save to localStorage for level unlocking
-        saveLevelAttempt(undefined, {
-          quizId: quiz.id,
-          quizTitle: quiz.title,
-          score: totalCorrect,
-          total: totalQuestions,
-          pct: 0, // will be calculated in saveLevelAttempt
-        });
-
         // Submit to backend leaderboard
         const playerData = JSON.parse(localStorage.getItem('public-levels-player') || '{}');
         if (playerData.name) {
+          // Save to localStorage for level unlocking
+          const userId = playerData.uniqueId;
+          saveLevelAttempt(userId, {
+            quizId: quiz.id,
+            quizTitle: quiz.title,
+            score: totalCorrect,
+            total: totalQuestions,
+            pct: 0, // will be calculated in saveLevelAttempt
+          });
           try {
             await quizzesApi.submitResult(quiz.id, {
               sessionId: playerData.uniqueId || `USER${Date.now()}`,

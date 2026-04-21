@@ -69,7 +69,9 @@ export default function PublicLevelsPage() {
   }, [quizzes]);
 
   // Get stored attempts to determine which levels are completed
-  const attempts = useMemo(() => getStoredAttempts(undefined), [screen, levelQuizzes]);
+  const playerData = JSON.parse(localStorage.getItem('public-levels-player') || '{}');
+  const userId = playerData.uniqueId;
+  const attempts = useMemo(() => getStoredAttempts(userId), [screen, levelQuizzes, userId]);
 
   // Count completed (passed) levels
   const completedLevels = useMemo(() => {
@@ -308,7 +310,7 @@ export default function PublicLevelsPage() {
             <div className="space-y-4 py-4">
               {levelQuizzes.map((quiz, index) => {
                 const level = extractLevelNumber(quiz.title) ?? (index + 1);
-                const isUnlocked = canOpenLevel(quiz, levelQuizzes, undefined);
+                const isUnlocked = canOpenLevel(quiz, levelQuizzes, userId);
                 const isPassed = attempts[quiz.id]?.passed;
                 const attemptData = attempts[quiz.id];
                 const isEven = index % 2 === 0;
