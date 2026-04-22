@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { videosApi } from '../../api/videos';
@@ -8,12 +10,16 @@ import { Play, FileText, ArrowRight, Download, MessageCircle, Send, Lock } from 
 import { resolveFileUrl } from '../../config';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
+import InteractiveProgrammingTheory from '../../components/interactive/InteractiveProgrammingTheory';
+
 
 export default function LessonPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [comment, setComment] = useState('');
+  const [viewMode, setViewMode] = useState<'description' | 'interactive'>('description');
+
 
   const { data: video, isLoading, error } = useQuery({
     queryKey: ['video', slug],
@@ -182,12 +188,50 @@ export default function LessonPage() {
       <div className="space-y-6">
         {/* Description & PDF */}
         <div className="card p-6 border-none shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <Play size={20} className="text-primary-600" /> وصف الدرس
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-            {video.description || 'لا يوجد وصف لهذا الدرس'}
-          </p>
+          <div className="flex items-center justify-between mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Play size={20} className="text-primary-600" /> تفاصيل الدرس
+            </h2>
+            <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+              <button 
+                onClick={() => setViewMode('description')}
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${viewMode === 'description' ? 'bg-white dark:bg-gray-700 shadow-sm text-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                الوصف
+              </button>
+              <button 
+                onClick={() => setViewMode('interactive')}
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${viewMode === 'interactive' ? 'bg-white dark:bg-gray-700 shadow-sm text-orange-600' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                شرح تفاعلي ✨
+              </button>
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {viewMode === 'description' ? (
+              <motion.div
+                key="desc"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                  {video.description || 'لا يوجد وصف لهذا الدرس'}
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="interactive"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.02 }}
+              >
+                <InteractiveProgrammingTheory />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
 
           {video.pdfUrl && (
             <div className="mt-8 p-6 bg-orange-50 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20 flex items-center justify-between gap-4">
