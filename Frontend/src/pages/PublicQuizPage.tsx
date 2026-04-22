@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { ArrowRight, CheckCircle, XCircle, Trophy, Clock, Target, Code2, ChevronLeft, Download, X, MessageCircle } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
@@ -447,7 +448,19 @@ export default function PublicQuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
+    <>
+      <Helmet>
+        <title>اختبار تفاعلي | منصة الأستاذ عامر تمراز</title>
+        <meta name="description" content="اختبر معلوماتك في البرمجة والذكاء الاصطناعي — اختبارات تفاعلية لطلاب أول ثانوي مع شهادات عند النجاح." />
+        <meta property="og:title" content="اختبار تفاعلي | منصة الأستاذ عامر تمراز" />
+        <meta property="og:description" content="اختبر معلوماتك في البرمجة والذكاء الاصطناعي — اختبارات تفاعلية مع شهادات عند النجاح." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.amertimraz.com/teacher.png" />
+        <meta name="twitter:title" content="اختبار تفاعلي | منصة الأستاذ عامر تمراز" />
+        <meta name="twitter:description" content="اختبر معلوماتك في البرمجة والذكاء الاصطناعي — اختبارات تفاعلية مع شهادات عند النجاح." />
+        <meta name="twitter:image" content="https://www.amertimraz.com/teacher.png" />
+      </Helmet>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
           <div className="mb-6">
@@ -565,5 +578,6 @@ export default function PublicQuizPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

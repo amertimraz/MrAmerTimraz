@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { Play, Award, Lock, Unlock, Gamepad2, Trophy, Share2, CheckCircle, Download, X, MessageCircle } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { quizzesApi } from '../api/quizzes';
@@ -185,7 +186,20 @@ export default function PublicLevelsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
+    <>
+      <Helmet>
+        <title>المستويات العامة | منصة الأستاذ عامر تمراز</title>
+        <meta name="description" content="اختبر معلوماتك في مستويات البرمجة والذكاء الاصطناعي — تحديات تفاعلية لطلاب أول ثانوي مع شهادات عند النجاح." />
+        <meta property="og:title" content="المستويات العامة | منصة الأستاذ عامر تمراز" />
+        <meta property="og:description" content="اختبر معلوماتك في مستويات البرمجة والذكاء الاصطناعي — تحديات تفاعلية مع شهادات عند النجاح." />
+        <meta property="og:url" content="https://www.amertimraz.com/public-levels" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.amertimraz.com/teacher.png" />
+        <meta name="twitter:title" content="المستويات العامة | منصة الأستاذ عامر تمراز" />
+        <meta name="twitter:description" content="اختبر معلوماتك في مستويات البرمجة والذكاء الاصطناعي — تحديات تفاعلية مع شهادات عند النجاح." />
+        <meta name="twitter:image" content="https://www.amertimraz.com/teacher.png" />
+      </Helmet>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 text-slate-900 mb-6 shadow-2xl">
@@ -434,6 +448,7 @@ export default function PublicLevelsPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
 
