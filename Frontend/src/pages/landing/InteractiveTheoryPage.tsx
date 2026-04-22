@@ -1,5 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
+
 import InteractiveProgrammingTheory from '../../components/interactive/InteractiveProgrammingTheory';
 import { Sparkles } from 'lucide-react';
 
