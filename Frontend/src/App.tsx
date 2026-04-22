@@ -26,6 +26,8 @@ const TermsPage = lazy(() => import('./pages/landing/TermsPage'));
 const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
 const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 const PublicLevelsPage = lazy(() => import('./pages/PublicLevelsPage'));
+const InteractiveTheoryPage = lazy(() => import('./pages/landing/InteractiveTheoryPage'));
+
 const PublicQuizPage = lazy(() => import('./pages/PublicQuizPage'));
 const PublicCertificatePage = lazy(() => import('./pages/PublicCertificatePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -122,7 +124,9 @@ export default function App() {
               <Route path="/library"  element={<LibraryPage />} />
               <Route path="/masarat"  element={<PathsGuidePage />} />
               <Route path="/public-levels" element={<PublicLevelsPage />} />
+              <Route path="/interactive-theory" element={<InteractiveTheoryPage />} />
             </Route>
+
 
             <Route path="/login"    element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />

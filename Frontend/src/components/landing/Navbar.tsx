@@ -31,10 +31,12 @@ const navLinks = [
   { to: '/',        label: 'الرئيسية'   },
   { to: '/courses', label: 'الدروس'     },
   { to: '/library', label: 'المكتبة'    },
+  { to: '/interactive-theory', label: 'شرح تفاعلي ✨' },
   { to: '/masarat', label: 'دليل المسارات' },
   { to: '/about',   label: 'عن مستر' },
   { to: '/contact', label: 'تواصل معنا' },
 ];
+
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
