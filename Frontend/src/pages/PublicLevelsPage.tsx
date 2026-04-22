@@ -477,32 +477,32 @@ export default function PublicLevelsPage() {
               <div
                 key={index}
                 className={`flex items-center gap-4 p-3 rounded-xl ${
-                  index === 0 ? 'bg-yellow-500/10 border border-yellow-400/30' :
-                  index === 1 ? 'bg-gray-300/10 border border-gray-300/30' :
-                  index === 2 ? 'bg-orange-500/10 border border-orange-400/30' :
-                  'bg-white/5 border border-white/10'
+                  index === 0 ? 'bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-400/30' :
+                  index === 1 ? 'bg-gray-50 dark:bg-gray-300/10 border border-gray-200 dark:border-gray-300/30' :
+                  index === 2 ? 'bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-400/30' :
+                  'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10'
                 }`}
               >
                 <span className={`text-xl font-bold w-8 text-center ${
-                  index === 0 ? 'text-yellow-400' :
-                  index === 1 ? 'text-gray-300' :
-                  index === 2 ? 'text-orange-400' :
-                  'text-gray-500'
+                  index === 0 ? 'text-yellow-600 dark:text-yellow-400' :
+                  index === 1 ? 'text-gray-500 dark:text-gray-300' :
+                  index === 2 ? 'text-orange-600 dark:text-orange-400' :
+                  'text-gray-500 dark:text-gray-400'
                 }`}>
                   {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                 </span>
-                <span className="flex-1 text-white font-semibold text-sm">{player.name}</span>
+                <span className="flex-1 text-gray-900 dark:text-white font-semibold text-sm">{player.name}</span>
                 <div className="text-left">
-                  <span className="text-yellow-400 font-bold">{player.score}</span>
-                  <span className="text-gray-400 text-xs mr-1">/ {maxTotalPoints}</span>
+                  <span className="text-amber-600 dark:text-yellow-400 font-bold">{player.score}</span>
+                  <span className="text-gray-500 dark:text-gray-400 text-xs mr-1">/ {maxTotalPoints}</span>
                 </div>
-                <div className="w-24 bg-white/10 rounded-full h-2">
+                <div className="w-24 bg-gray-200 dark:bg-white/10 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full ${
-                      index === 0 ? 'bg-yellow-400' :
-                      index === 1 ? 'bg-gray-300' :
-                      index === 2 ? 'bg-orange-400' :
-                      'bg-blue-400'
+                      index === 0 ? 'bg-yellow-500 dark:bg-yellow-400' :
+                      index === 1 ? 'bg-gray-400 dark:bg-gray-300' :
+                      index === 2 ? 'bg-orange-500 dark:bg-orange-400' :
+                      'bg-blue-500 dark:bg-blue-400'
                     }`}
                     style={{ width: `${maxTotalPoints > 0 ? (player.score / maxTotalPoints) * 100 : 0}%` }}
                   />
