@@ -11,7 +11,6 @@ import {
   Search,
   Activity,
   Zap,
-  Mail,
   FileCode,
   Share2
 } from 'lucide-react';
@@ -22,18 +21,18 @@ export default function InteractiveProgrammingTheory() {
   const [searchUrl, setSearchUrl] = useState('google.com');
   const [resolvedIp, setResolvedIp] = useState('');
   const [selectedTopology, setSelectedTopology] = useState('Star');
-  const [selectedProtocol, setSelectedProtocol] = useState('HTTP');
+  const [selectedProtocol, setSelectedProtocol] = useState('TCP/IP');
 
   const topologies = [
-    { name: 'Star (النجمة)', icon: '⭐', desc: 'جميع الأجهزة متصلة بجهاز مركزي (Switch). إذا تعطل جهاز لا تتأثر الشبكة.' },
-    { name: 'Mesh (الشبكي)', icon: '🕸️', desc: 'كل جهاز متصل بكل الأجهزة الأخرى. يوفر أعلى مستويات الموثوقية والسرعة.' },
-    { name: 'Bus (الناقل)', icon: '🚌', desc: 'جميع الأجهزة متصلة بكابل واحد رئيسي. إذا تعطل الكابل تعطلت الشبكة بالكامل.' },
+    { name: 'Star (النجمة)', icon: '⭐', desc: 'تتصل جميع أجهزة الشبكة بجهاز مركزي (Switch). وهي الأكثر انتشاراً لسهولة إدارتها.' },
+    { name: 'Mesh (الشبكي)', icon: '🕸️', desc: 'كل جهاز متصل بكل الأجهزة الأخرى في الشبكة بمسارات مباشرة.' },
+    { name: 'Bus (الناقل)', icon: '🚌', desc: 'تتصل جميع الأجهزة بكابل واحد رئيسي يبدأ بنقطة وينتهي بنقطة.' },
   ];
 
   const protocols = [
-    { id: 'HTTP', name: 'HTTP / HTTPS', icon: <Globe size={24} />, desc: 'بروتوكول نقل النص الفائق. يستخدم لتصفح مواقع الويب بأمان.', color: 'blue' },
-    { id: 'FTP', name: 'FTP', icon: <FileCode size={24} />, desc: 'بروتوكول نقل الملفات. يستخدم لرفع وتحميل الملفات من السيرفر.', color: 'orange' },
-    { id: 'SMTP', name: 'SMTP', icon: <Mail size={24} />, desc: 'بروتوكول نقل البريد البسيط. يستخدم لإرسال رسائل البريد الإلكتروني.', color: 'purple' },
+    { id: 'TCP/IP', name: 'TCP/IP', icon: <Share2 size={24} />, desc: 'البروتوكول الأساسي الذي يربط أجهزة الكمبيوتر ببعضها عبر الإنترنت.', color: 'blue' },
+    { id: 'HTTP', name: 'HTTP', icon: <Globe size={24} />, desc: 'يستخدم لنقل صفحات الويب من الخادم (Server) إلى جهاز المستخدم.', color: 'orange' },
+    { id: 'FTP', name: 'FTP', icon: <FileCode size={24} />, desc: 'يستخدم لنقل الملفات من وإلى أجهزة الكمبيوتر على الشبكة.', color: 'purple' },
   ];
 
   const handleDnsLookup = () => {
@@ -72,7 +71,6 @@ export default function InteractiveProgrammingTheory() {
         </div>
       </div>
 
-      {/* Tabs based on lesson */}
       <div className="flex bg-gray-900/50 p-2 gap-2 border-b border-gray-800">
         {currentLesson === 1 && (
           <>
@@ -98,17 +96,17 @@ export default function InteractiveProgrammingTheory() {
         <AnimatePresence mode="wait">
           {activeTab === 'types' && (
             <motion.div key="types" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-              <SectionHeader title="الدرس الأول: شبكات الكمبيوتر" desc="مفهوم الشبكة وأنواعها حسب النطاق الجغرافي." />
+              <SectionHeader title="الدرس الأول: شبكات الكمبيوتر" desc="مفهوم الشبكة: مجموعة من الأجهزة المتصلة معاً لمشاركة الموارد." />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <NetworkCard title="LAN (شبكة محلية)" subtitle="Local Area Network" desc="تغطي مساحة صغيرة مثل مدرسة أو معامل الكمبيوتر." color="blue" icon={<Server size={30} />} />
-                <NetworkCard title="WAN (شبكة واسعة)" subtitle="Wide Area Network" desc="تربط بين مدن ودول مختلفة مثل شبكة الإنترنت." color="orange" icon={<Globe size={30} />} />
+                <NetworkCard title="LAN (شبكة محلية)" subtitle="Local Area Network" desc="شبكة تغطي مساحة جغرافية محدودة (مثل معمل الكمبيوتر)." color="blue" icon={<Server size={30} />} />
+                <NetworkCard title="WAN (شبكة واسعة)" subtitle="Wide Area Network" desc="شبكة تغطي مساحات جغرافية واسعة (مثل شبكة الإنترنت)." color="orange" icon={<Globe size={30} />} />
               </div>
             </motion.div>
           )}
 
           {activeTab === 'topologies' && (
             <motion.div key="topologies" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
-              <SectionHeader title="طوبولوجيا الشبكة" desc="الطريقة الفيزيائية أو المنطقية لربط الأجهزة." />
+              <SectionHeader title="طوبولوجيا الشبكة" desc="الطريقة التي يتم بها تنظيم وتوصيل أجهزة الشبكة." />
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-3">
                   {topologies.map((t) => (
@@ -127,7 +125,7 @@ export default function InteractiveProgrammingTheory() {
 
           {activeTab === 'dns' && (
             <motion.div key="dns" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className="space-y-6">
-               <SectionHeader title="الدرس الثاني: عناوين IP وأسماء النطاقات" desc="كيف يتم تحديد مكان المواقع على الإنترنت؟" />
+               <SectionHeader title="الدرس الثاني: عناوين IP وأسماء النطاقات" desc="يستخدم نظام DNS لتحويل أسماء النطاقات إلى عناوين IP." />
                <div className="bg-purple-500/5 border border-purple-500/20 p-8 rounded-3xl text-center space-y-8">
                   <div className="max-w-md mx-auto">
                     <div className="relative group">
@@ -148,7 +146,7 @@ export default function InteractiveProgrammingTheory() {
 
           {activeTab === 'ip' && (
             <motion.div key="ip" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 py-6 text-center">
-               <SectionHeader title="ما هو عنوان الـ IP؟" desc="رقم فريد لكل جهاز متصل بالإنترنت." />
+               <SectionHeader title="عنوان الـ IP" desc="رقم فريد يميز كل جهاز على شبكة الإنترنت." />
                <div className="flex flex-wrap justify-center gap-4">
                   {['192', '168', '1', '10'].map((num, i) => (
                     <motion.div 
@@ -162,13 +160,13 @@ export default function InteractiveProgrammingTheory() {
                     </motion.div>
                   ))}
                </div>
-               <p className="text-gray-500 max-w-lg mx-auto text-sm">مثال لعنوان IPv4. يتكون من 4 أرقام تفصل بينها نقطة.</p>
+               <p className="text-gray-500 max-w-lg mx-auto text-sm">عنوان الـ IP (Internet Protocol) هو العنوان الرقمي للجهاز.</p>
             </motion.div>
           )}
 
           {activeTab === 'protocols' && (
             <motion.div key="protocols" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-               <SectionHeader title="الدرس الثالث: بروتوكول الاتصال" desc="القواعد والقوانين التي تحكم عملية نقل البيانات." />
+               <SectionHeader title="الدرس الثالث: بروتوكول الاتصال" desc="البروتوكول هو مجموعة القواعد التي تنظم عملية الاتصال ونقل البيانات." />
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {protocols.map((p) => (
                     <button 
@@ -189,21 +187,21 @@ export default function InteractiveProgrammingTheory() {
 
           {activeTab === 'how-it-works' && (
             <motion.div key="how-it-works" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 flex flex-col items-center py-10">
-               <SectionHeader title="كيفية عمل البروتوكول" desc="تبادل الطلبات والردود بين العميل والخادم." />
+               <SectionHeader title="آلية عمل البروتوكول" desc="تنظيم تبادل البيانات بين العميل (Client) والخادم (Server)." />
                <div className="flex gap-10 items-center">
                   <div className="text-center space-y-2">
                     <div className="p-4 bg-blue-500/10 rounded-2xl border border-blue-500/30 text-blue-500"><Globe size={32} /></div>
-                    <p className="text-[10px] text-white font-bold">Client (أنت)</p>
+                    <p className="text-[10px] text-white font-bold">Client (جهاز المستخدم)</p>
                   </div>
                   
                   <div className="flex flex-col gap-4">
-                    <motion.div animate={{ x: [100, -100] }} transition={{ duration: 2, repeat: Infinity }} className="bg-primary-600 text-white px-3 py-1 rounded-full text-[10px] font-bold">Request (طلب)</motion.div>
-                    <motion.div animate={{ x: [-100, 100] }} transition={{ duration: 2, repeat: Infinity, delay: 1 }} className="bg-green-600 text-white px-3 py-1 rounded-full text-[10px] font-bold">Response (رد)</motion.div>
+                    <motion.div animate={{ x: [100, -100] }} transition={{ duration: 2, repeat: Infinity }} className="bg-primary-600 text-white px-3 py-1 rounded-full text-[10px] font-bold">Request</motion.div>
+                    <motion.div animate={{ x: [-100, 100] }} transition={{ duration: 2, repeat: Infinity, delay: 1 }} className="bg-green-600 text-white px-3 py-1 rounded-full text-[10px] font-bold">Response</motion.div>
                   </div>
 
                   <div className="text-center space-y-2">
                     <div className="p-4 bg-orange-500/10 rounded-2xl border border-orange-500/30 text-orange-500"><Server size={32} /></div>
-                    <p className="text-[10px] text-white font-bold">Server (الموقع)</p>
+                    <p className="text-[10px] text-white font-bold">Server (الخادم)</p>
                   </div>
                </div>
             </motion.div>
@@ -212,10 +210,10 @@ export default function InteractiveProgrammingTheory() {
       </div>
 
       <div className="bg-gray-900 p-4 border-t border-gray-800 flex justify-between items-center text-xs text-gray-500">
-        <span>محتوى تفاعلي - مادة البرمجة - أولى ثانوي</span>
+        <span>محتوى تفاعلي - مادة الحاسب الآلي - أولى ثانوي</span>
         <div className="flex gap-2 items-center">
           <Info size={14} />
-          <span>تم استخراج المحتوى من مذكرة الطالب المرفقة</span>
+          <span>الشرح مطابق لمذكرة الطالب المرفقة</span>
         </div>
       </div>
     </div>
