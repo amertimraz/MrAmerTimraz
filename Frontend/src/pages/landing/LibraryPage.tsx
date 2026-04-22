@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { libraryApi } from '../../api/library';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -40,7 +41,20 @@ export default function LibraryPage() {
   const subtext = isDark ? 'text-gray-400' : 'text-gray-500';
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 space-y-10" dir="rtl">
+    <>
+      <Helmet>
+        <title>المكتبة التعليمية | منصة الأستاذ عامر تمراز</title>
+        <meta name="description" content="المكتبة التعليمية لمنصة الأستاذ عامر تمراز — مذكرات وملفات تعليمية مجانية للبرمجة والذكاء الاصطناعي لطلاب أول ثانوي." />
+        <meta property="og:title" content="المكتبة التعليمية | منصة الأستاذ عامر تمراز" />
+        <meta property="og:description" content="مذكرات وملفات تعليمية مجانية — حمّلها وادرس بكل سهولة" />
+        <meta property="og:url" content="https://www.amertimraz.com/library" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.amertimraz.com/teacher.png" />
+        <meta name="twitter:title" content="المكتبة التعليمية | منصة الأستاذ عامر تمراز" />
+        <meta name="twitter:description" content="مذكرات وملفات تعليمية مجانية — حمّلها وادرس بكل سهولة" />
+        <meta name="twitter:image" content="https://www.amertimraz.com/teacher.png" />
+      </Helmet>
+      <div className="max-w-5xl mx-auto px-4 py-12 space-y-10" dir="rtl">
 
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-orange-500/15 mb-2">
@@ -219,5 +233,6 @@ export default function LibraryPage() {
         />
       )}
     </div>
+    </>
   );
 }
