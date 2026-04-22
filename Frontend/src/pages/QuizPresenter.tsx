@@ -266,23 +266,23 @@ export default function QuizPresenter() {
     onSuccess: () => refetchLeaderboard(),
   });
 
-  const saveResultToLeaderboard = useCallback((finalScore: number, correct: number) => {
+  const saveResultToLeaderboard = useCallback((correct: number) => {
     if (!quiz || !playerName) return;
     const pct = Math.round((correct / questions.length) * 100);
-    
+
     // Save to server
     submitMutation.mutate({
       sessionId,
       name: playerName,
-      score: finalScore,
+      score: correct,
       correct,
       total: questions.length,
       pct,
     });
 
-    // Also update local for immediate feedback if needed, 
+    // Also update local for immediate feedback if needed,
     // but the global query will refetch on success.
-    const entry = { name: playerName, score: finalScore, correct, total: questions.length, pct, date: new Date().toLocaleDateString('ar-EG') };
+    const entry = { name: playerName, score: correct, correct, total: questions.length, pct, date: new Date().toLocaleDateString('ar-EG') };
     const key = `quiz-leaderboard-${quiz.id}`;
     const existing = JSON.parse(localStorage.getItem(key) ?? '[]');
     localStorage.setItem(key, JSON.stringify([...existing, entry].sort((a, b) => b.score - a.score).slice(0, 50)));
@@ -506,11 +506,6 @@ export default function QuizPresenter() {
       setTimeout(() => setShowMotiv(false), 2000);
     }
 
-    // Live update leaderboard
-    const currentCorrect = answeredCorrect.filter(Boolean).length + (correct ? 1 : 0);
-    const currentScore = score + (correct ? pointsForQ : 0);
-    saveResultToLeaderboard(currentScore, currentCorrect);
-
   }, [revealed, questions, currentIdx, pointsForQ, isGolden, reveal, playSound, answeredCorrect, score, saveResultToLeaderboard]);
 
   /* next question / stage transition / end */
@@ -519,7 +514,7 @@ export default function QuizPresenter() {
     if (nextIdx >= questions.length) {
       if (timerRef.current) clearInterval(timerRef.current);
       const correct = answeredCorrect.filter(Boolean).length;
-      saveResultToLeaderboard(score, correct);
+      saveResultToLeaderboard(correct);
       if (!attemptSavedRef.current && quiz) {
         saveLevelAttempt(user?.id, {
           quizId: quiz.id,
@@ -664,14 +659,14 @@ export default function QuizPresenter() {
             autoFocus
           />
           <button
-            onClick={() => { if (playerNameInput.trim()) { const name = playerNameInput.trim(); setPlayerName(name); saveResultToLeaderboard(0, 0); setScreen('start'); } }}
+            onClick={() => { if (playerNameInput.trim()) { const name = playerNameInput.trim(); setPlayerName(name); saveResultToLeaderboard(0); setScreen('start'); } }}
             disabled={!playerNameInput.trim()}
             className="w-full py-4 bg-gradient-to-r from-primary-500 to-accent-600 text-white text-xl font-bold rounded-2xl hover:opacity-90 transition-opacity shadow-2xl shadow-primary-500/30 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             🚀 ابدأ الاختبار
           </button>
           {quiz.allowSkipWithoutRegistration !== false && (
-            <button onClick={() => { setPlayerName('زائر'); saveResultToLeaderboard(0, 0); setScreen('start'); }} className="w-full py-3 bg-white/5 text-gray-400 rounded-2xl hover:bg-white/10 transition-colors text-sm">
+            <button onClick={() => { setPlayerName('زائر'); saveResultToLeaderboard(0); setScreen('start'); }} className="w-full py-3 bg-white/5 text-gray-400 rounded-2xl hover:bg-white/10 transition-colors text-sm">
               تخطي — بدون تسجيل
             </button>
           )}

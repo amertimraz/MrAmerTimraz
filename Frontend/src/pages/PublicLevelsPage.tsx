@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { Play, Award, Lock, Unlock, Gamepad2, Trophy, Share2, CheckCircle, Download, X, MessageCircle } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import Modal from '../components/ui/Modal';
 import { quizzesApi } from '../api/quizzes';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -30,7 +31,7 @@ export default function PublicLevelsPage() {
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
   const [downloading, setDownloading] = useState(false);
-  const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
   const { data: quizzes = [], isLoading } = useQuery({
     queryKey: ['interactive-quizzes'],
@@ -90,25 +91,42 @@ export default function PublicLevelsPage() {
     }, 0);
   }, [levelQuizzes, attempts]);
 
+  const maxTotalPoints = useMemo(
+    () => levelQuizzes.reduce((sum, q) => sum + q.questionCount, 0),
+    [levelQuizzes],
+  );
+
   const { data: leaderboard = [] } = useQuery({
     queryKey: ['leaderboard'],
     queryFn: async () => {
       const allResults = await Promise.all(
         levelQuizzes.map(q => quizzesApi.getLeaderboard(q.id))
       );
-      // Combine results by player name, summing scores
+      // For each level, take the best CORRECT count per player (capped at that level's question count)
       const playerMap = new Map<string, { name: string; score: number }>();
-      allResults.flat().forEach((r: any) => {
-        const existing = playerMap.get(r.name);
-        if (existing) {
-          existing.score += r.score;
-        } else {
-          playerMap.set(r.name, { name: r.name, score: r.score });
-        }
+      allResults.forEach((levelResults, levelIdx) => {
+        const levelMax = levelQuizzes[levelIdx]?.questionCount || 0;
+        const bestPerPlayer = new Map<string, number>();
+        levelResults.forEach((r: any) => {
+          const current = bestPerPlayer.get(r.name) ?? 0;
+          const raw = r.correct ?? r.score ?? 0;
+          const capped = Math.min(raw, levelMax);
+          if (capped > current) {
+            bestPerPlayer.set(r.name, capped);
+          }
+        });
+        bestPerPlayer.forEach((score, name) => {
+          const existing = playerMap.get(name);
+          if (existing) {
+            existing.score += score;
+          } else {
+            playerMap.set(name, { name, score });
+          }
+        });
       });
       return Array.from(playerMap.values())
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10);
+        .map(p => ({ ...p, score: Math.min(p.score, maxTotalPoints) }))
+        .sort((a, b) => b.score - a.score);
     },
     enabled: levelQuizzes.length > 0,
   });
@@ -267,19 +285,19 @@ export default function PublicLevelsPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 <Trophy size={24} className="text-yellow-400" />
-                🏆 {showAllLeaderboard ? 'جميع المتسابقين' : `أفضل ${Math.min(10, leaderboard.length)}`}
+                🏆 أفضل المتسابقين <span className="text-sm font-normal text-purple-200">(من {maxTotalPoints} نقطة)</span>
               </h2>
               {leaderboard.length > 10 && (
                 <button
-                  onClick={() => setShowAllLeaderboard(!showAllLeaderboard)}
+                  onClick={() => setShowLeaderboardModal(true)}
                   className="px-4 py-2 bg-white/10 border border-white/20 text-white font-semibold rounded-lg hover:bg-white/20 transition-colors text-sm"
                 >
-                  {showAllLeaderboard ? 'عرض أول 10' : 'عرض الكل'}
+                  عرض الكل ({leaderboard.length})
                 </button>
               )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-              {(showAllLeaderboard ? leaderboard : leaderboard.slice(0, 10)).map((player: any, index: number) => (
+              {leaderboard.slice(0, 10).map((player: any, index: number) => (
                 <div
                   key={index}
                   className={`p-4 rounded-xl ${
@@ -446,6 +464,53 @@ export default function PublicLevelsPage() {
             </div>
           </div>
         )}
+
+        {/* Leaderboard Full Modal */}
+        <Modal
+          isOpen={showLeaderboardModal}
+          onClose={() => setShowLeaderboardModal(false)}
+          title={`جميع المتسابقين (${leaderboard.length}) — من ${maxTotalPoints} نقطة`}
+          size="lg"
+        >
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1" dir="rtl">
+            {leaderboard.map((player: any, index: number) => (
+              <div
+                key={index}
+                className={`flex items-center gap-4 p-3 rounded-xl ${
+                  index === 0 ? 'bg-yellow-500/10 border border-yellow-400/30' :
+                  index === 1 ? 'bg-gray-300/10 border border-gray-300/30' :
+                  index === 2 ? 'bg-orange-500/10 border border-orange-400/30' :
+                  'bg-white/5 border border-white/10'
+                }`}
+              >
+                <span className={`text-xl font-bold w-8 text-center ${
+                  index === 0 ? 'text-yellow-400' :
+                  index === 1 ? 'text-gray-300' :
+                  index === 2 ? 'text-orange-400' :
+                  'text-gray-500'
+                }`}>
+                  {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                </span>
+                <span className="flex-1 text-white font-semibold text-sm">{player.name}</span>
+                <div className="text-left">
+                  <span className="text-yellow-400 font-bold">{player.score}</span>
+                  <span className="text-gray-400 text-xs mr-1">/ {maxTotalPoints}</span>
+                </div>
+                <div className="w-24 bg-white/10 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full ${
+                      index === 0 ? 'bg-yellow-400' :
+                      index === 1 ? 'bg-gray-300' :
+                      index === 2 ? 'bg-orange-400' :
+                      'bg-blue-400'
+                    }`}
+                    style={{ width: `${maxTotalPoints > 0 ? (player.score / maxTotalPoints) * 100 : 0}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Modal>
       </div>
     </div>
     </>
