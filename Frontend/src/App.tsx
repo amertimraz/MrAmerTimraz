@@ -27,6 +27,7 @@ const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
 const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 const PublicLevelsPage = lazy(() => import('./pages/PublicLevelsPage'));
 const InteractiveTheoryPage = lazy(() => import('./pages/landing/InteractiveTheoryPage'));
+const TofasExamPage = lazy(() => import('./pages/TofasExamPage'));
 
 const PublicQuizPage = lazy(() => import('./pages/PublicQuizPage'));
 const PublicCertificatePage = lazy(() => import('./pages/PublicCertificatePage'));
@@ -126,6 +127,8 @@ export default function App() {
               <Route path="/public-levels" element={<PublicLevelsPage />} />
               <Route path="/interactive-theory" element={<InteractiveTheoryPage />} />
             </Route>
+
+            <Route path="/tofas-exam" element={<TofasExamPage />} />
 
 
             <Route path="/login"    element={<LoginPage />} />
