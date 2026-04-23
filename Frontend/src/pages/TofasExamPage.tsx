@@ -152,27 +152,7 @@ export default function TofasExamPage() {
       </header>
 
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        <section className="flex-1 bg-[#0b1020] text-[#c9d4f1] overflow-auto p-4 font-mono text-sm leading-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs text-[#64748b] flex items-center gap-1"><PlayCircle size={14} /> JavaScript</span>
-            <button onClick={() => setShowExp(v => !v)} className="text-xs bg-[#1e293b] hover:bg-[#334155] text-white px-3 py-1.5 rounded-lg transition">{showExp ? 'إخفاء الشرح' : 'عرض شرح الكود'}</button>
-          </div>
-          {showExp && q.explanation && (
-            <div className="mb-4 bg-[#1e293b]/80 border border-[#334155] rounded-lg p-3 text-xs text-slate-300 leading-relaxed">
-              <AlertCircle size={14} className="inline ml-1 text-amber-400" />{q.explanation}
-            </div>
-          )}
-          <div className="space-y-0">
-            {codeLines.map(ln => (
-              <div key={ln.n} className="flex items-start hover:bg-[#1e293b]/30">
-                <span className="text-[#475569] select-none w-10 text-right pr-3 text-xs shrink-0">{ln.n}</span>
-                <pre className="flex-1 whitespace-pre-wrap break-all text-xs sm:text-sm">{ln.t || ' '}</pre>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="flex-1 bg-white border-t lg:border-t-0 lg:border-r border-slate-200 overflow-auto">
+        <section className="flex-1 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 overflow-auto">
           <div className="max-w-2xl mx-auto p-5 space-y-5">
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
@@ -206,6 +186,26 @@ export default function TofasExamPage() {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        <section className="flex-1 bg-[#0b1020] text-[#c9d4f1] overflow-auto p-4 font-mono text-sm leading-6" dir="ltr">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-[#64748b] flex items-center gap-1"><PlayCircle size={14} /> JavaScript</span>
+            <button onClick={() => setShowExp(v => !v)} className="text-xs bg-[#1e293b] hover:bg-[#334155] text-white px-3 py-1.5 rounded-lg transition">{showExp ? 'Hide Explanation' : 'Show Code Explanation'}</button>
+          </div>
+          {showExp && q.explanation && (
+            <div className="mb-4 bg-[#1e293b]/80 border border-[#334155] rounded-lg p-3 text-xs text-slate-300 leading-relaxed">
+              <AlertCircle size={14} className="inline ml-1 text-amber-400" />{q.explanation}
+            </div>
+          )}
+          <div className="space-y-0">
+            {codeLines.map(ln => (
+              <div key={ln.n} className="flex items-start hover:bg-[#1e293b]/30">
+                <span className="text-[#475569] select-none w-10 text-right pr-3 text-xs shrink-0">{ln.n}</span>
+                <pre className="flex-1 whitespace-pre-wrap break-all text-xs sm:text-sm">{ln.t || ' '}</pre>
+              </div>
+            ))}
           </div>
         </section>
       </main>
