@@ -129,7 +129,7 @@ export default function TofasExamPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-[#1e293b] flex flex-col" dir="rtl">
-      <header className="h-14 bg-[#0d9488] text-white flex items-center justify-between px-4 shadow-md shrink-0">
+      <header className="h-14 bg-[#0d9488] text-white flex items-center justify-between px-4 shadow-md shrink-0 relative">
         <div className="flex items-center gap-4">
           <button onClick={() => setShowMenu(true)} className="font-bold text-sm flex items-center gap-1 hover:bg-white/10 px-3 py-1.5 rounded-lg transition">
             <ListChecks size={18} /> قائمة الأسئلة
@@ -142,11 +142,11 @@ export default function TofasExamPage() {
           <span className="bg-white/10 px-3 py-1 rounded-full hidden sm:inline">مجاب عليها: {answeredCount}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button disabled={current === 0} onClick={() => setCurrent(c => c - 1)} className="flex items-center gap-1 bg-white/10 hover:bg-white/20 disabled:opacity-40 px-3 py-1.5 rounded-lg text-sm transition">
-            <ChevronRight size={16} /> التالي
+          <button disabled={current === MOCK_QUESTIONS.length - 1} onClick={() => setCurrent(c => c + 1)} className="flex items-center gap-1 bg-white/10 hover:bg-white/20 disabled:opacity-40 px-3 py-1.5 rounded-lg text-sm transition font-bold">
+            السابق <ChevronRight size={16} />
           </button>
-          <button disabled={current === MOCK_QUESTIONS.length - 1} onClick={() => setCurrent(c => c + 1)} className="flex items-center gap-1 bg-white/10 hover:bg-white/20 disabled:opacity-40 px-3 py-1.5 rounded-lg text-sm transition">
-            السابق <ChevronLeft size={16} />
+          <button disabled={current === 0} onClick={() => setCurrent(c => c - 1)} className="flex items-center gap-1 bg-white/10 hover:bg-white/20 disabled:opacity-40 px-3 py-1.5 rounded-lg text-sm transition font-bold">
+            <ChevronLeft size={16} /> التالي
           </button>
           <button onClick={() => { if (answeredCount < MOCK_QUESTIONS.length && !window.confirm('لم تجب على جميع الأسئلة. هل تريد الإنهاء؟')) return; setSubmitted(true); }} className="bg-red-500 hover:bg-red-600 px-4 py-1.5 rounded-lg text-sm font-bold transition shadow">
             إنهاء الامتحان
@@ -157,65 +157,69 @@ export default function TofasExamPage() {
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         <section className="flex-1 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 overflow-auto">
           <div className="max-w-2xl mx-auto p-5 space-y-5">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-[#0d9488] bg-[#0d9488]/10 px-2 py-1 rounded">السؤال {current + 1}</span>
-                <button onClick={() => setFlagged(prev => { const n = new Set(prev); n.has(q.id) ? n.delete(q.id) : n.add(q.id); return n; })} className={`p-1.5 rounded-lg transition ${flagged.has(q.id) ? 'text-amber-500 bg-amber-50' : 'text-slate-400 hover:text-amber-500 hover:bg-amber-50'}`}>
-                  <Flag size={18} fill={flagged.has(q.id) ? 'currentColor' : 'none'} />
+            <div className="bg-[#f0fdfa] border-2 border-[#0d9488]/30 rounded-xl p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-bold text-white bg-[#0d9488] px-3 py-1.5 rounded-lg">السؤال {current + 1}</span>
+                <button onClick={() => setFlagged(prev => { const n = new Set(prev); n.has(q.id) ? n.delete(q.id) : n.add(q.id); return n; })} className={`p-2 rounded-lg transition ${flagged.has(q.id) ? 'text-amber-500 bg-amber-50' : 'text-slate-400 hover:text-amber-500 hover:bg-amber-50'}`}>
+                  <Flag size={20} fill={flagged.has(q.id) ? 'currentColor' : 'none'} />
                 </button>
               </div>
-              <p className="font-bold text-lg leading-relaxed">{q.questionText}</p>
+              <p className="font-bold text-xl leading-relaxed text-[#134e4a]">{q.questionText}</p>
             </div>
 
             <div className="space-y-3">
               {q.options.map((opt, idx) => {
                 const isSel = answers[q.id] === opt.id;
                 return (
-                  <button key={opt.id} onClick={() => setAnswers(p => ({ ...p, [q.id]: opt.id }))} className={`w-full flex items-start gap-3 p-4 rounded-xl border-2 text-right transition-all ${isSel ? 'border-[#0d9488] bg-[#0d9488]/5 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
-                    <span className={`shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold ${isSel ? 'bg-[#0d9488] text-white' : 'bg-slate-100 text-slate-600'}`}>{letters[idx]}</span>
-                    <span className="flex-1 text-sm font-medium leading-relaxed whitespace-pre-wrap text-start">{opt.text}</span>
+                  <button key={opt.id} onClick={() => setAnswers(p => ({ ...p, [q.id]: opt.id }))} className={`w-full flex items-start gap-3 p-5 rounded-xl border-2 text-right transition-all ${isSel ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-slate-300 hover:border-blue-300 bg-white hover:bg-blue-50/30'}`}>
+                    <span className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-base font-bold ${isSel ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-700'}`}>{letters[idx]}</span>
+                    <span className="flex-1 text-base font-medium leading-relaxed whitespace-pre-wrap text-start">{opt.text}</span>
                   </button>
                 );
               })}
             </div>
 
-            <div className="flex flex-wrap gap-2 pt-2">
-              {MOCK_QUESTIONS.map((qu, i) => {
-                const st = answers[qu.id] !== undefined ? 'answered' : flagged.has(qu.id) ? 'flagged' : 'unanswered';
-                return (
-                  <button key={qu.id} onClick={() => setCurrent(i)} className={`w-10 h-10 rounded-lg text-sm font-bold transition border ${current === i ? 'ring-2 ring-[#0d9488] ring-offset-1' : ''} ${st === 'answered' ? 'bg-[#0d9488] text-white border-[#0d9488]' : st === 'flagged' ? 'bg-amber-50 text-amber-600 border-amber-300' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
-                    {i + 1}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {showMenu && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center" onClick={() => setShowMenu(false)}>
-            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-lg text-[#0d9488]">قائمة الأسئلة</h2>
-                <button onClick={() => setShowMenu(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition">X</button>
-              </div>
-              <div className="grid grid-cols-5 gap-2 mb-4">
+            <div className="pt-2">
+              <p className="text-sm text-slate-500 font-medium mb-2">التنقل السريع:</p>
+              <div className="flex flex-wrap gap-2">
                 {MOCK_QUESTIONS.map((qu, i) => {
                   const st = answers[qu.id] !== undefined ? 'answered' : flagged.has(qu.id) ? 'flagged' : 'unanswered';
                   return (
-                    <button key={qu.id} onClick={() => { setCurrent(i); setShowMenu(false); }} className={`w-full aspect-square rounded-lg text-sm font-bold transition border flex items-center justify-center ${current === i ? 'ring-2 ring-[#0d9488] ring-offset-1' : ''} ${st === 'answered' ? 'bg-[#0d9488] text-white border-[#0d9488]' : st === 'flagged' ? 'bg-amber-50 text-amber-600 border-amber-300' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
+                    <button key={qu.id} onClick={() => setCurrent(i)} className={`w-10 h-10 rounded-lg text-sm font-bold transition border ${current === i ? 'ring-2 ring-[#0d9488] ring-offset-1' : ''} ${st === 'answered' ? 'bg-[#0d9488] text-white border-[#0d9488]' : st === 'flagged' ? 'bg-amber-50 text-amber-600 border-amber-300' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
                       {i + 1}
                     </button>
                   );
                 })}
               </div>
-              <div className="flex items-center gap-4 text-xs text-slate-500 justify-center">
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#0d9488] block"></span> مجاب</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-50 border border-amber-300 block"></span> مُعلم</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-white border border-slate-200 block"></span> غير مجاب</span>
-              </div>
             </div>
           </div>
+        </section>
+
+        {showMenu && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+            <div className="absolute top-14 right-4 z-50 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 w-72" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-bold text-base text-[#0d9488]">قائمة الأسئلة</h2>
+              <button onClick={() => setShowMenu(false)} className="text-slate-400 hover:text-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 transition text-sm">X</button>
+            </div>
+            <div className="grid grid-cols-5 gap-2 mb-3">
+              {MOCK_QUESTIONS.map((qu, i) => {
+                const st = answers[qu.id] !== undefined ? 'answered' : flagged.has(qu.id) ? 'flagged' : 'unanswered';
+                return (
+                  <button key={qu.id} onClick={() => { setCurrent(i); setShowMenu(false); }} className={`aspect-square rounded-lg text-sm font-bold transition border flex items-center justify-center ${current === i ? 'ring-2 ring-[#0d9488] ring-offset-1' : ''} ${st === 'answered' ? 'bg-[#0d9488] text-white border-[#0d9488]' : st === 'flagged' ? 'bg-amber-50 text-amber-600 border-amber-300' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
+                    {i + 1}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-3 text-xs text-slate-500 justify-center border-t pt-2">
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#0d9488] block"></span> مجاب</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-50 border border-amber-300 block"></span> مُعلم</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-white border border-slate-200 block"></span> غير مجاب</span>
+            </div>
+            </div>
+          </>
         )}
 
         <section className="flex-1 bg-[#0b1020] text-[#c9d4f1] overflow-auto p-4 font-mono text-sm leading-6" dir="ltr">
