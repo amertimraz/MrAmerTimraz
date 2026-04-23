@@ -63,8 +63,9 @@ export default function TofasExamPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [showExp, setShowExp] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(35 * 60 + 29);
+  const [timeLeft, setTimeLeft] = useState(40 * 60);
   const [flagged, setFlagged] = useState<Set<number>>(new Set());
+  const [showMenu, setShowMenu] = useState(false);
 
   const q = MOCK_QUESTIONS[current];
   const codeLines = q.codeSnippet.split('\n').map((l, i) => ({ n: i + 1, t: l }));
@@ -130,8 +131,10 @@ export default function TofasExamPage() {
     <div className="min-h-screen bg-[#f8fafc] text-[#1e293b] flex flex-col" dir="rtl">
       <header className="h-14 bg-[#0d9488] text-white flex items-center justify-between px-4 shadow-md shrink-0">
         <div className="flex items-center gap-4">
-          <span className="font-bold text-sm flex items-center gap-1"><ListChecks size={18} /> قائمة الأسئلة</span>
-          <span className="hidden sm:inline text-xs opacity-80">تصميم مستر عصام فؤاد</span>
+          <button onClick={() => setShowMenu(true)} className="font-bold text-sm flex items-center gap-1 hover:bg-white/10 px-3 py-1.5 rounded-lg transition">
+            <ListChecks size={18} /> قائمة الأسئلة
+          </button>
+          <span className="hidden sm:inline text-xs opacity-80">تصميم عامر تمراز</span>
         </div>
         <div className="flex items-center gap-4 text-sm">
           <span className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full"><Timer size={16} />{formatTime(timeLeft)}</span>
@@ -188,6 +191,32 @@ export default function TofasExamPage() {
             </div>
           </div>
         </section>
+
+        {showMenu && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center" onClick={() => setShowMenu(false)}>
+            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-lg text-[#0d9488]">قائمة الأسئلة</h2>
+                <button onClick={() => setShowMenu(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition">X</button>
+              </div>
+              <div className="grid grid-cols-5 gap-2 mb-4">
+                {MOCK_QUESTIONS.map((qu, i) => {
+                  const st = answers[qu.id] !== undefined ? 'answered' : flagged.has(qu.id) ? 'flagged' : 'unanswered';
+                  return (
+                    <button key={qu.id} onClick={() => { setCurrent(i); setShowMenu(false); }} className={`w-full aspect-square rounded-lg text-sm font-bold transition border flex items-center justify-center ${current === i ? 'ring-2 ring-[#0d9488] ring-offset-1' : ''} ${st === 'answered' ? 'bg-[#0d9488] text-white border-[#0d9488]' : st === 'flagged' ? 'bg-amber-50 text-amber-600 border-amber-300' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
+                      {i + 1}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-4 text-xs text-slate-500 justify-center">
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#0d9488] block"></span> مجاب</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-50 border border-amber-300 block"></span> مُعلم</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-white border border-slate-200 block"></span> غير مجاب</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         <section className="flex-1 bg-[#0b1020] text-[#c9d4f1] overflow-auto p-4 font-mono text-sm leading-6" dir="ltr">
           <div className="flex items-center justify-between mb-3">
