@@ -41,7 +41,7 @@ export default function InteractiveProgrammingTheory() {
           </div>
           <div>
             <h2 className="text-white font-bold leading-tight">الوحدة الثامنة: الشبكات والإنترنت</h2>
-            <p className="text-gray-500 text-xs">شرح كامل وشامل لكل محتوى المذكرة</p>
+            <p className="text-gray-500 text-xs">تحديث شامل: شرح كامل وشامل لكل محتوى المذكرة</p>
           </div>
         </div>
         <div className="flex bg-black/40 p-1 rounded-2xl border border-gray-800 overflow-x-auto max-w-full">
