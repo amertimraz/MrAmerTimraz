@@ -10,14 +10,13 @@ import {
   Search,
   Activity,
   Zap,
-  FileCode,
   Layers,
   Cpu,
   ShieldCheck,
-  Send,
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
+
 
 export default function InteractiveProgrammingTheory() {
   const [currentLesson, setCurrentLesson] = useState(1);
@@ -405,42 +404,4 @@ function DnsBox({ label, value, icon, active, highlight, success }: any) {
   );
 }
 
-function TopologyVisual({ type }: { type: string }) {
-  return (
-    <div className="relative w-48 h-48 sm:w-64 sm:h-64 border-2 border-dashed border-gray-800 rounded-full flex items-center justify-center">
-      {type === 'Star' && (
-        <>
-          <div className="w-12 h-12 bg-yellow-500 rounded-xl shadow-lg z-10 flex items-center justify-center text-white font-bold text-[10px]">Switch</div>
-          {[0, 60, 120, 180, 240, 300].map((deg) => (
-            <motion.div key={deg} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute w-10 h-10 bg-blue-500 rounded-lg" style={{ transform: `rotate(${deg}deg) translateY(-80px) rotate(-${deg}deg)` }} />
-          ))}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
-            {[0, 60, 120, 180, 240, 300].map((deg) => (
-              <line key={deg} x1="50%" y1="50%" x2={`${50 + 35 * Math.cos((deg - 90) * Math.PI / 180)}%`} y2={`${50 + 35 * Math.sin((deg - 90) * Math.PI / 180)}%`} stroke="white" strokeWidth="2" />
-            ))}
-          </svg>
-        </>
-      )}
-      {type === 'Bus' && (
-        <div className="w-full flex flex-col items-center gap-4">
-          <div className="w-full h-2 bg-gray-700 rounded-full relative">
-             {[20, 40, 60, 80].map(pos => (
-                <div key={pos} className="absolute w-8 h-8 bg-blue-500 rounded-lg -top-12" style={{ left: `${pos}%` }} />
-             ))}
-          </div>
-          <span className="text-gray-500 text-[10px]">كابل رئيسي</span>
-        </div>
-      )}
-      {type === 'Mesh' && (
-        <div className="relative w-full h-full flex items-center justify-center">
-          {[0, 72, 144, 216, 288].map((deg) => (
-            <div key={deg} className="absolute w-8 h-8 bg-blue-500 rounded-lg z-10" style={{ transform: `rotate(${deg}deg) translateY(-80px) rotate(-${deg}deg)` }} />
-          ))}
-          <svg className="absolute inset-0 w-full h-full opacity-30">
-            <polygon points="128,48 204,103 175,193 81,193 52,103" fill="none" stroke="white" strokeWidth="2" />
-          </svg>
-        </div>
-      )}
-    </div>
-  );
-}
+
