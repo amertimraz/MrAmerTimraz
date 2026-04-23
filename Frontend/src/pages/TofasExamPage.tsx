@@ -68,7 +68,7 @@ export default function TofasExamPage() {
 
   const q = MOCK_QUESTIONS[current];
   const codeLines = q.codeSnippet.split('\n').map((l, i) => ({ n: i + 1, t: l }));
-  const letters = ['أ', 'ب', 'ج', 'د'];
+  const letters = ['1', '2', '3', '4'];
   const answeredCount = Object.keys(answers).length;
 
   useEffect(() => {
