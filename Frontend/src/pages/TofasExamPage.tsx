@@ -2,12 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Timer, ChevronLeft, ChevronRight, PlayCircle, ListChecks, Flag, AlertCircle } from 'lucide-react';
 
+interface TofasOption {
+  id: number;
+  text: string;
+  isCode?: boolean;
+}
+
 interface TofasQuestion {
   id: number;
   questionText: string;
   codeSnippet: string;
   explanation?: string;
-  options: { id: number; text: string }[];
+  options: TofasOption[];
   correctOptionId: number;
 }
 
@@ -18,10 +24,10 @@ const MOCK_QUESTIONS: TofasQuestion[] = [
     codeSnippet: `let menu = "أرز بالكاري";\n\nconsole.log("هذه هي القائمة الحالية.", menu);\nmenu = "طبق النودلز";\nconsole.log(menu);\nconsole.log("القائمة سوف تتغير.", menu);\nconsole.log(menu);`,
     explanation: 'يتم تغيير قيمة المتغير menu مرتين. القيمة الأخيرة هي "طبق النودلز" وتُطبع مرتين.',
     options: [
-      { id: 1, text: 'هذه هي القائمة الحالية.\nأرز بالكاري\nالقائمة سوف تتغير.\nطبق النودلز' },
-      { id: 2, text: 'هذه هي القائمة الحالية.\nأرز بالكاري\nطبق النودلز\nالقائمة سوف تتغير.\nأرز بالكاري' },
-      { id: 3, text: 'هذه هي القائمة الحالية.\nأرز بالكاري\nطبق النودلز\nالقائمة سوف تتغير.\nطبق النودلز' },
-      { id: 4, text: 'هذه هي القائمة الحالية.\nطبق النودلز\nأرز بالكاري\nالقائمة سوف تتغير.\nطبق النودلز' },
+      { id: 1, text: 'هذه هي القائمة الحالية.\nأرز بالكاري\nالقائمة سوف تتغير.\nطبق النودلز', isCode: true },
+      { id: 2, text: 'هذه هي القائمة الحالية.\nأرز بالكاري\nطبق النودلز\nالقائمة سوف تتغير.\nأرز بالكاري', isCode: true },
+      { id: 3, text: 'هذه هي القائمة الحالية.\nأرز بالكاري\nطبق النودلز\nالقائمة سوف تتغير.\nطبق النودلز', isCode: true },
+      { id: 4, text: 'هذه هي القائمة الحالية.\nطبق النودلز\nأرز بالكاري\nالقائمة سوف تتغير.\nطبق النودلز', isCode: true },
     ],
     correctOptionId: 3,
   },
@@ -155,7 +161,7 @@ export default function TofasExamPage() {
       </header>
 
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        <section className="flex-1 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 overflow-auto">
+        <section className="flex-1 lg:flex-[0_0_40%] bg-white border-t lg:border-t-0 lg:border-l border-slate-200 overflow-auto">
           <div className="max-w-2xl mx-auto p-5 space-y-5">
             <div className="bg-[#f0fdfa] border-2 border-[#0d9488]/30 rounded-xl p-5 shadow-sm">
               <div className="flex items-center justify-between mb-3">
@@ -164,7 +170,7 @@ export default function TofasExamPage() {
                   <Flag size={20} fill={flagged.has(q.id) ? 'currentColor' : 'none'} />
                 </button>
               </div>
-              <p className="font-bold text-xl leading-relaxed text-[#134e4a]">{q.questionText}</p>
+              <p className="font-bold text-xl leading-relaxed text-[#134e4a] whitespace-pre-wrap">{q.questionText}</p>
             </div>
 
             <div className="space-y-3">
@@ -173,7 +179,11 @@ export default function TofasExamPage() {
                 return (
                   <button key={opt.id} onClick={() => setAnswers(p => ({ ...p, [q.id]: opt.id }))} className={`w-full flex items-start gap-3 p-5 rounded-xl border-2 text-right transition-all ${isSel ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-slate-300 hover:border-blue-300 bg-white hover:bg-blue-50/30'}`}>
                     <span className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-base font-bold ${isSel ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-700'}`}>{letters[idx]}</span>
-                    <span className="flex-1 text-base font-medium leading-relaxed whitespace-pre-wrap text-start">{opt.text}</span>
+                    {opt.isCode ? (
+                      <pre className={`flex-1 text-sm font-mono leading-relaxed whitespace-pre-wrap text-start rounded-lg p-3 border ${isSel ? 'bg-slate-800 text-white border-slate-700' : 'bg-slate-100 text-slate-800 border-slate-200'}`} dir="auto">{opt.text}</pre>
+                    ) : (
+                      <span className="flex-1 text-base font-medium leading-relaxed whitespace-pre-wrap text-start">{opt.text}</span>
+                    )}
                   </button>
                 );
               })}
@@ -222,7 +232,7 @@ export default function TofasExamPage() {
           </>
         )}
 
-        <section className="flex-1 bg-[#0b1020] text-[#c9d4f1] overflow-auto p-4 font-mono text-sm leading-6" dir="ltr">
+        <section className="flex-1 lg:flex-[0_0_60%] bg-[#0b1020] text-[#c9d4f1] overflow-auto p-4 font-mono text-base leading-7" dir="ltr">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-[#64748b] flex items-center gap-1"><PlayCircle size={14} /> JavaScript</span>
             <button onClick={() => setShowExp(v => !v)} className="text-xs bg-[#1e293b] hover:bg-[#334155] text-white px-3 py-1.5 rounded-lg transition">{showExp ? 'Hide Explanation' : 'Show Code Explanation'}</button>
@@ -236,7 +246,7 @@ export default function TofasExamPage() {
             {codeLines.map(ln => (
               <div key={ln.n} className="flex items-start hover:bg-[#1e293b]/30">
                 <span className="text-[#475569] select-none w-10 text-right pr-3 text-xs shrink-0">{ln.n}</span>
-                <pre className="flex-1 whitespace-pre-wrap break-all text-xs sm:text-sm">{ln.t || ' '}</pre>
+                <pre className="flex-1 whitespace-pre-wrap break-all text-sm sm:text-base">{ln.t || ' '}</pre>
               </div>
             ))}
           </div>
