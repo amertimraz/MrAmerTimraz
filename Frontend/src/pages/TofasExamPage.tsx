@@ -149,7 +149,7 @@ export default function TofasExamPage() {
               const cor = qu.options.find(o => o.id === qu.correctOptionId);
               return (
                 <div key={qu.id} className={`rounded-xl border p-4 ${ok ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-rose-500/50 bg-rose-900/10'}`}>
-                  <p className="font-semibold mb-2">{idx + 1}. {qu.questionText}</p>
+                  <p className="font-bold mb-2">{idx + 1}. {qu.questionText}</p>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="rounded-lg bg-[#0f172a] border border-[#334155] px-3 py-2">
                       <span className="text-slate-400 block text-xs mb-1">إجابتك</span>
@@ -202,7 +202,7 @@ export default function TofasExamPage() {
               <Flag size={20} fill={flagged.has(q.id) ? 'currentColor' : 'none'} />
             </button>
           </div>
-          <p className="font-bold text-lg leading-relaxed whitespace-pre-wrap">{q.questionText}</p>
+          <p className="font-extrabold text-xl leading-relaxed whitespace-pre-wrap">{q.questionText}</p>
         </div>
 
         {/* Light Code Panel */}
@@ -235,9 +235,9 @@ export default function TofasExamPage() {
                 <button key={opt.id} onClick={() => setAnswers(p => ({ ...p, [q.id]: opt.id }))} className={`relative flex flex-col items-start gap-2 p-4 rounded-xl border-2 text-right transition-all min-h-[120px] ${isSel ? 'border-blue-500 bg-white shadow-md' : 'border-white hover:border-blue-300 bg-white hover:shadow-sm'}`}>
                   <span className={`absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full text-sm font-bold ${isSel ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'}`}>{letters[idx]}</span>
                   {opt.isCode ? (
-                    <pre className={`flex-1 w-full text-xs font-mono leading-relaxed whitespace-pre-wrap text-start rounded-lg p-2 border mt-8 ${isSel ? 'bg-slate-800 text-white border-slate-700' : 'bg-slate-100 text-slate-800 border-slate-200'}`} dir="auto">{opt.text}</pre>
+                    <pre className={`flex-1 w-full text-sm font-mono font-bold leading-relaxed whitespace-pre-wrap text-start rounded-lg p-2 border mt-8 ${isSel ? 'bg-slate-800 text-white border-slate-700' : 'bg-slate-100 text-slate-800 border-slate-200'}`} dir="auto">{opt.text}</pre>
                   ) : (
-                    <span className="flex-1 w-full text-sm font-medium leading-relaxed whitespace-pre-wrap text-start mt-8">{opt.text}</span>
+                    <span className="flex-1 w-full text-base font-bold leading-relaxed whitespace-pre-wrap text-start mt-8">{opt.text}</span>
                   )}
                 </button>
               );
