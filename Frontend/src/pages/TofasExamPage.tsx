@@ -55,6 +55,42 @@ const MOCK_QUESTIONS: TofasQuestion[] = [
     ],
     correctOptionId: 2,
   },
+  {
+    id: 4,
+    questionText: 'حدد النتيجة التي سيتم إخراجها عند تنفيذ هذا البرنامج:',
+    codeSnippet: `let weekday = "السبت";\nlet periodOfDay = "الصباح";\nlet currentTime = 6;\n\nif (weekday != "الأربعاء") {\n    console.log("اليوم ليس يوم تخفيضات");\n} else {\n    console.log("اليوم هو يوم التخفيضات");\n}\n\nif ((periodOfDay == "الصباح") && (currentTime >= 8)) {\n    console.log("المحل مفتوح الآن");\n} else {\n    console.log("نحن نستعد الآن");\n}`,
+    options: [
+      { id: 1, text: 'اليوم ليس يوم تخفيضات\nالمحل مفتوح الآن', isCode: true },
+      { id: 2, text: 'اليوم ليس يوم تخفيضات\nنحن نستعد الآن', isCode: true },
+      { id: 3, text: 'اليوم هو يوم التخفيضات\nالمحل مفتوح الآن', isCode: true },
+      { id: 4, text: 'اليوم هو يوم التخفيضات\nنحن نستعد الآن', isCode: true },
+    ],
+    correctOptionId: 2,
+  },
+  {
+    id: 5,
+    questionText: 'في المصفوفات التي تحتوي عناصر مكتوبة بالعربية، يكون ترتيب العناصر من اليمين إلى اليسار، لذلك أول عنصر في المصفوفة يكون في أقصى اليمين.',
+    codeSnippet: `مدخل المقعد أ: البوابة الأولى\nمدخل المقعد ب: البوابة الأولى\nمدخل المقعد س: البوابة الثانية`,
+    options: [
+      { id: 1, text: `let seatTypeList = ["أ", "ب", "س"];\nlet gateName;\n\nfor (let i = 0; i < seatTypeList.length; i++) {\n    if (seatTypeList[i] == "أ") {\n        gateName = "البوابة الأولى";\n    } else {\n        gateName = "البوابة الثانية";\n    }\n}\nconsole.log(seatTypeList[i] + " : " + gateName);`, isCode: true },
+      { id: 2, text: `let seatTypeList = ["أ", "ب", "س"];\nlet gateName;\n\nfor (let i = 0; i < seatTypeList.length; i++) {\n    if ((seatTypeList[i] == "أ") || (seatTypeList[i] == "ب")) {\n        gateName = "البوابة الأولى";\n    } else {\n        gateName = "البوابة الثانية";\n    }\n}\nconsole.log(seatTypeList[i] + " : " + gateName);`, isCode: true },
+      { id: 3, text: `let seatTypeList = ["أ", "ب", "س"];\nlet gateName;\n\nfor (let i = 0; i < seatTypeList.length; i++) {\n    if ((seatTypeList[i] == "أ") && (seatTypeList[i] == "ب")) {\n        gateName = "البوابة الأولى";\n    } else {\n        gateName = "البوابة الثانية";\n    }\n}\nconsole.log(seatTypeList[i] + " : " + gateName);`, isCode: true },
+      { id: 4, text: `let seatTypeList = ["أ", "ب", "س"];\nlet gateName;\n\nfor (let i = 0; i < seatTypeList.length; i++) {\n    if ((seatTypeList[i] != "أ") || (seatTypeList[i] != "ب")) {\n        gateName = "البوابة الأولى";\n    } else {\n        gateName = "البوابة الثانية";\n    }\n}\nconsole.log(seatTypeList[i] + " : " + gateName);`, isCode: true },
+    ],
+    correctOptionId: 2,
+  },
+  {
+    id: 6,
+    questionText: 'حدد البرنامج الذي يقوم بإخراج القائمة التالية:',
+    codeSnippet: `يخنة لحم البقر من الأطباق الفرنسية\nيخنة الخضار واللحم من الأطباق الفرنسية`,
+    options: [
+      { id: 1, text: `let cuisines = ["يخنة لحم البقر", "السمك", "يخنة الخضار واللحم"];\nfor (let i = 0; i < cuisines.length; i++) {\n    if (cuisines[i] == "المسا") {\n        console.log(cuisines[i] + " من الأطباق الفرنسية");\n    }\n}`, isCode: true },
+      { id: 2, text: `let cuisines = ["يخنة لحم البقر", "السمك", "يخنة الخضار واللحم"];\nfor (let i = 0; i < cuisines.length; i++) {\n    if (cuisines[i] != "السمك") {\n        console.log(cuisines[i] + " من الأطباق الفرنسية");\n    }\n}`, isCode: true },
+      { id: 3, text: `let cuisines = ["يخنة لحم البقر", "السمك", "يخنة الخضار واللحم"];\nfor (let i = 0; i < cuisines.length; i++) {\n    if (cuisines[i] != "المسا") {\n        console.log(cuisines[i] + " من الأطباق الفرنسية");\n    }\n}`, isCode: true },
+      { id: 4, text: `let cuisines = ["يخنة لحم البقر", "السمك", "يخنة الخضار واللحم"];\nfor (let i = 0; i < cuisines.length; i++) {\n    if (cuisines[i] == "السمك") {\n        console.log(cuisines[i] + " من الأطباق الفرنسية");\n    }\n}`, isCode: true },
+    ],
+    correctOptionId: 2,
+  },
 ];
 
 function formatTime(s: number) {
