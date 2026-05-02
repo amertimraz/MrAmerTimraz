@@ -289,9 +289,9 @@ export default function LibraryPage() {
                   <span className={`text-xs ${subtext}`}>تحويل على نفس الرقم</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <code className={`flex-1 text-sm font-mono p-2 rounded-lg ${isDark ? 'bg-black/30' : 'bg-white'}`}>+20 10 1234 5678</code>
+                  <code className={`flex-1 text-sm font-mono p-2 rounded-lg ${isDark ? 'bg-black/30' : 'bg-white'}`}>+20 10 9606 6818</code>
                   <button
-                    onClick={() => copyNumber('+20101234567', 'vodafone')}
+                    onClick={() => copyNumber('+201096066818', 'vodafone')}
                     className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-200'}`}
                   >
                     {copied === 'vodafone' ? <CheckCircle2 size={18} className="text-green-500" /> : <Copy size={18} className={subtext} />}
@@ -306,9 +306,9 @@ export default function LibraryPage() {
                   <span className={`text-xs ${subtext}`}>أرسل على يوزر نيم</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <code className={`flex-1 text-sm font-mono p-2 rounded-lg ${isDark ? 'bg-black/30' : 'bg-white'}`}>@amer.timraz</code>
+                  <code className={`flex-1 text-sm font-mono p-2 rounded-lg ${isDark ? 'bg-black/30' : 'bg-white'}`}>01096066818</code>
                   <button
-                    onClick={() => copyNumber('@amer.timraz', 'instapay')}
+                    onClick={() => copyNumber('01096066818', 'instapay')}
                     className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-200'}`}
                   >
                     {copied === 'instapay' ? <CheckCircle2 size={18} className="text-green-500" /> : <Copy size={18} className={subtext} />}
