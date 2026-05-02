@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { libraryApi } from '../../api/library';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Download, Search, FolderOpen, Eye, Gamepad2 } from 'lucide-react';
+import { Download, Search, FolderOpen, Eye, Gamepad2, X, Heart, Copy, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import PdfThumbnail from '../../components/ui/PdfThumbnail';
 import PdfViewerModal from '../../components/ui/PdfViewerModal';
@@ -21,6 +21,28 @@ export default function LibraryPage() {
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('');
   const [viewing, setViewing] = useState<LibraryItem | null>(null);
+  const [showDonation, setShowDonation] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem('libraryDonationDismissed');
+    if (!dismissed) {
+      const timer = setTimeout(() => setShowDonation(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleDismiss = () => {
+    localStorage.setItem('libraryDonationDismissed', 'true');
+    setShowDonation(false);
+  };
+
+  const copyNumber = (num: string, type: string) => {
+    navigator.clipboard.writeText(num).then(() => {
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  };
 
   const { data: items, isLoading } = useQuery({
     queryKey: ['library-public', filterCat],
@@ -231,6 +253,81 @@ export default function LibraryPage() {
           title={viewing.title}
           onClose={() => setViewing(null)}
         />
+      )}
+
+      {/* Donation Modal */}
+      {showDonation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className={`relative w-full max-w-md rounded-2xl p-6 shadow-2xl ${isDark ? 'bg-gray-900 border border-white/10' : 'bg-white border border-gray-100'}`}
+          >
+            <button
+              onClick={handleDismiss}
+              className={`absolute top-3 left-3 p-1.5 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
+            >
+              <X size={20} />
+            </button>
+
+            <div className="text-center space-y-3 mb-6">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-pink-500">
+                <Heart size={28} className="text-white fill-white" />
+              </div>
+              <h2 className={`text-xl font-bold ${text}`}>ادعم المكتبة التعليمية</h2>
+              <p className={`text-sm leading-relaxed ${subtext}`}>
+                كل المحتوى هنا مجاني 100% لمساعدة الطلاب 📚<br/>
+                لو استفدت من المذكرات، ممكن تدعمنا بأي مبلق عشان نستمر في تقديم محتوى أكتر وأفضل
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {/* Vodafone Cash */}
+              <div className={`p-4 rounded-xl border-2 ${isDark ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`font-bold text-sm ${isDark ? 'text-red-400' : 'text-red-600'}`}>فودافون كاش</span>
+                  <span className={`text-xs ${subtext}`}>تحويل على نفس الرقم</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <code className={`flex-1 text-sm font-mono p-2 rounded-lg ${isDark ? 'bg-black/30' : 'bg-white'}`}>+20 10 1234 5678</code>
+                  <button
+                    onClick={() => copyNumber('+20101234567', 'vodafone')}
+                    className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-200'}`}
+                  >
+                    {copied === 'vodafone' ? <CheckCircle2 size={18} className="text-green-500" /> : <Copy size={18} className={subtext} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* InstaPay */}
+              <div className={`p-4 rounded-xl border-2 ${isDark ? 'bg-purple-500/10 border-purple-500/30' : 'bg-purple-50 border-purple-200'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`font-bold text-sm ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>إنستا باي</span>
+                  <span className={`text-xs ${subtext}`}>أرسل على يوزر نيم</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <code className={`flex-1 text-sm font-mono p-2 rounded-lg ${isDark ? 'bg-black/30' : 'bg-white'}`}>@amer.timraz</code>
+                  <button
+                    onClick={() => copyNumber('@amer.timraz', 'instapay')}
+                    className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-200'}`}
+                  >
+                    {copied === 'instapay' ? <CheckCircle2 size={18} className="text-green-500" /> : <Copy size={18} className={subtext} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 text-center space-y-3">
+              <p className={`text-xs ${subtext}`}>جزاك الله خيراً على دعمك ❤️</p>
+              <button
+                onClick={handleDismiss}
+                className="w-full py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
+              >
+                شكراً، سأدعم لاحقاً
+              </button>
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
     </>
