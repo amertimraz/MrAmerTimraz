@@ -238,6 +238,8 @@ using (var scope = app.Services.CreateScope())
             ("20260405064300_AddUserActivityTracking",    "9.0.1"),
             ("20260408000000_AddStudentCode",              "9.0.1"),
             ("20260408010000_AddProfileCompletionFields", "9.0.1"),
+            ("202604111700_AddVideoFields",               "9.0.1"),
+            ("20260506130000_AddEducationLevelToLibraryStudentInfo", "8.0.10"),
         };
         try
         {
@@ -339,6 +341,7 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"PaymentRequests\" ADD COLUMN IF NOT EXISTS \"LiveSessionId\" INTEGER REFERENCES \"LiveSessions\"(\"Id\") ON DELETE CASCADE",
             "ALTER TABLE \"LibraryItems\" ADD COLUMN IF NOT EXISTS \"DownloadCount\" INTEGER NOT NULL DEFAULT 0",
             "ALTER TABLE \"LibraryItems\" ADD COLUMN IF NOT EXISTS \"ViewCount\" INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE \"LibraryStudentInfos\" ADD COLUMN IF NOT EXISTS \"EducationLevel\" VARCHAR(20) NOT NULL DEFAULT 'secondary'",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"AllowSkipWithoutRegistration\" BOOLEAN NOT NULL DEFAULT FALSE",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Theme\" TEXT",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"StageCount\" INTEGER NOT NULL DEFAULT 3",
