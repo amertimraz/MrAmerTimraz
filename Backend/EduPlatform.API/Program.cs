@@ -678,6 +678,13 @@ using (var scope = app.Services.CreateScope())
                 db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN DateOfBirth DATETIME;");
             }
             catch { }
+            
+            // Add EducationLevel to LibraryStudentInfos if not exists (SQLite)
+            try
+            {
+                db.Database.ExecuteSqlRaw("ALTER TABLE LibraryStudentInfos ADD COLUMN EducationLevel VARCHAR(20) NOT NULL DEFAULT 'secondary';");
+            }
+            catch { }
         }
         
         // Generate StudentCode for existing students without one
