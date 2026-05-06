@@ -17,8 +17,8 @@ public class LibraryStudentInfo
     [Required, MaxLength(20)]
     public string Governorate { get; set; } = string.Empty;
 
-    [Required, MaxLength(20)]
-    public string EducationLevel { get; set; } = string.Empty; // primary, middle, secondary
+    [MaxLength(20)]
+    public string? EducationLevel { get; set; } // primary, middle, secondary
 
     [Required, MaxLength(300)]
     public string NoteTitle { get; set; } = string.Empty;

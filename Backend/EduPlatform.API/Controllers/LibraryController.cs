@@ -180,7 +180,7 @@ public class LibraryStudentInfoDto
     [JsonPropertyName("governorate")]
     public string Governorate { get; set; } = string.Empty;
     [JsonPropertyName("educationLevel")]
-    public string EducationLevel { get; set; } = string.Empty;
+    public string? EducationLevel { get; set; }
     [JsonPropertyName("noteTitle")]
     public string NoteTitle { get; set; } = string.Empty;
     [JsonPropertyName("noteId")]
