@@ -38,6 +38,11 @@ export default function LibraryPage() {
     queryFn: libraryApi.getCategories,
   });
 
+  const { data: requireInfo } = useQuery({
+    queryKey: ['library-require-info'],
+    queryFn: libraryApi.getRequireInfo,
+  });
+
   const filtered = items?.filter((item: LibraryItem) =>
     item.title.toLowerCase().includes(search.toLowerCase()) ||
     item.description?.toLowerCase().includes(search.toLowerCase())
@@ -243,7 +248,13 @@ export default function LibraryPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
-                        setStudentInfoModal({ isOpen: true, item, action: 'view' });
+                        if (requireInfo?.require !== false) {
+                          setStudentInfoModal({ isOpen: true, item, action: 'view' });
+                        } else {
+                          // Skip modal, view directly
+                          setViewing(item);
+                          libraryApi.incrementView(item.id).catch(() => {});
+                        }
                       }}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold border transition-colors ${
                         isDark
@@ -256,7 +267,20 @@ export default function LibraryPage() {
                     </button>
                     <button
                       onClick={() => {
-                        setStudentInfoModal({ isOpen: true, item, action: 'download' });
+                        if (requireInfo?.require !== false) {
+                          setStudentInfoModal({ isOpen: true, item, action: 'download' });
+                        } else {
+                          // Skip modal, download directly
+                          libraryApi.incrementDownload(item.id).catch(() => {});
+                          const downloadUrl = getMediaUrl(item.fileUrl);
+                          const link = document.createElement('a');
+                          link.href = downloadUrl;
+                          link.download = `${item.title}.pdf`;
+                          link.target = '_blank';
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }
                       }}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
                     >

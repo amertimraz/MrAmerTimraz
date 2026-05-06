@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { libraryApi } from '../../api/library';
-import { Users, Download, Eye, GraduationCap, User, BookOpen, Search, Filter } from 'lucide-react';
+import { Users, Download, Eye, GraduationCap, User, BookOpen, Search, Filter, ToggleLeft, ToggleRight } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { useState } from 'react';
 import type { LibraryStudentInfo } from '../../types';
@@ -10,9 +10,23 @@ export default function AdminLibraryStudentStats() {
   const [filterAction, setFilterAction] = useState<'all' | 'view' | 'download'>('all');
   const [filterUserType, setFilterUserType] = useState<'all' | 'student' | 'parent' | 'teacher'>('all');
 
+  const queryClient = useQueryClient();
+
   const { data: studentInfos, isLoading } = useQuery({
     queryKey: ['library-student-info'],
     queryFn: libraryApi.getStudentInfos,
+  });
+
+  const { data: requireInfo, isLoading: requireLoading } = useQuery({
+    queryKey: ['library-require-info'],
+    queryFn: libraryApi.getRequireInfo,
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: (require: boolean) => libraryApi.setRequireInfo(require),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['library-require-info'] });
+    },
   });
 
   const filteredData = studentInfos?.filter((info: LibraryStudentInfo) => {
@@ -55,9 +69,24 @@ export default function AdminLibraryStudentStats() {
 
   return (
     <div className="space-y-6 animate-fade-in" dir="rtl">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">بيانات المذكرات</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">سجل الطلاب الذين قاموا بتحميل أو معاينة المذكرات</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">بيانات المذكرات</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">سجل الطلاب الذين قاموا بتحميل أو معاينة المذكرات</p>
+        </div>
+        <button
+          onClick={() => toggleMutation.mutate(!requireInfo?.require)}
+          disabled={requireLoading || toggleMutation.isPending}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            requireInfo?.require
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+          } disabled:opacity-50`}
+          title={requireInfo?.require ? 'النموذج مطلوب - اضغط للإخفاء' : 'النموذج مخفي - اضغط للإظهار'}
+        >
+          {requireInfo?.require ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
+          {requireInfo?.require ? 'مطلوب تسجيل البيانات' : 'مباشر بدون تسجيل'}
+        </button>
       </div>
 
       {/* Stats Cards */}

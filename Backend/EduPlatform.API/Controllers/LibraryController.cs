@@ -157,6 +157,43 @@ public class LibraryController : ControllerBase
             .ToListAsync();
         return Ok(infos);
     }
+
+    // Check if student info is required before download/view
+    [HttpGet("require-info")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetRequireInfo()
+    {
+        var setting = await _db.AppSettings
+            .FirstOrDefaultAsync(s => s.Key == "Library_RequireStudentInfo");
+        var require = setting?.Value != "false"; // default: true
+        return Ok(new { require });
+    }
+
+    // Toggle require-student-info (Admin only)
+    [HttpPost("require-info")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> SetRequireInfo([FromBody] RequireInfoDto dto)
+    {
+        var setting = await _db.AppSettings
+            .FirstOrDefaultAsync(s => s.Key == "Library_RequireStudentInfo");
+        if (setting == null)
+        {
+            setting = new AppSetting { Key = "Library_RequireStudentInfo", Value = dto.Require ? "true" : "false" };
+            _db.AppSettings.Add(setting);
+        }
+        else
+        {
+            setting.Value = dto.Require ? "true" : "false";
+            setting.UpdatedAt = DateTime.UtcNow;
+        }
+        await _db.SaveChangesAsync();
+        return Ok(new { require = dto.Require });
+    }
+}
+
+public class RequireInfoDto
+{
+    public bool Require { get; set; }
 }
 
 public class LibraryItemDto

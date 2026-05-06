@@ -43,4 +43,10 @@ export const libraryApi = {
 
   getStudentInfos: () =>
     client.get<LibraryStudentInfo[]>('/library/student-info').then(r => r.data),
+
+  getRequireInfo: () =>
+    client.get<{ require: boolean }>('/library/require-info').then(r => r.data),
+
+  setRequireInfo: (require: boolean) =>
+    client.post('/library/require-info', { require }).then(r => r.data),
 };
