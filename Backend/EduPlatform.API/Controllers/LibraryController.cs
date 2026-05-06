@@ -3,6 +3,7 @@ using EduPlatform.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace EduPlatform.API.Controllers;
 
@@ -167,8 +168,6 @@ public class LibraryItemDto
     public string? ThumbnailUrl { get; set; }
     public string? QuizUrl { get; set; }
 }
-
-using System.Text.Json.Serialization;
 
 public class LibraryStudentInfoDto
 {
