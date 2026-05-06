@@ -137,6 +137,7 @@ public class LibraryController : ControllerBase
             UserType = dto.UserType,
             Phone = dto.Phone,
             Governorate = dto.Governorate,
+            EducationLevel = dto.EducationLevel,
             NoteTitle = dto.NoteTitle,
             NoteId = dto.NoteId,
             Action = dto.Action,
@@ -167,13 +168,24 @@ public class LibraryItemDto
     public string? QuizUrl { get; set; }
 }
 
+using System.Text.Json.Serialization;
+
 public class LibraryStudentInfoDto
 {
+    [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("userType")]
     public string UserType { get; set; } = string.Empty;
+    [JsonPropertyName("phone")]
     public string Phone { get; set; } = string.Empty;
+    [JsonPropertyName("governorate")]
     public string Governorate { get; set; } = string.Empty;
+    [JsonPropertyName("educationLevel")]
+    public string EducationLevel { get; set; } = string.Empty;
+    [JsonPropertyName("noteTitle")]
     public string NoteTitle { get; set; } = string.Empty;
+    [JsonPropertyName("noteId")]
     public int NoteId { get; set; }
+    [JsonPropertyName("action")]
     public string Action { get; set; } = string.Empty;
 }

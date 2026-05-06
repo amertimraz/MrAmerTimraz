@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { libraryApi } from '../../api/library';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Download, Search, FolderOpen, Eye, Gamepad2, X, Heart, Copy, CheckCircle2 } from 'lucide-react';
+import { Download, Search, FolderOpen, Eye, Gamepad2, X, Heart, Copy, CheckCircle2, Facebook, Youtube, MessageCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import PdfThumbnail from '../../components/ui/PdfThumbnail';
 import PdfViewerModal from '../../components/ui/PdfViewerModal';
@@ -91,6 +91,49 @@ export default function LibraryPage() {
         <h1 className={`text-4xl font-black ${text}`}>المكتبة التعليمية</h1>
         <p className={`text-lg ${subtext}`}>مذكرات وملفات تعليمية مجانية — حمّلها وادرس بكل سهولة</p>
       </motion.div>
+
+      {/* Social Media Links */}
+      <div className="flex justify-center gap-4">
+        <a
+          href="https://www.facebook.com/Mr.AmerTimraz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+            isDark
+              ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30'
+              : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+          }`}
+        >
+          <Facebook size={20} />
+          <span className="text-sm font-medium">فيسبوك</span>
+        </a>
+        <a
+          href="https://www.youtube.com/@AmerTimraz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+            isDark
+              ? 'bg-red-600/20 text-red-400 hover:bg-red-600/30'
+              : 'bg-red-100 text-red-600 hover:bg-red-200'
+          }`}
+        >
+          <Youtube size={20} />
+          <span className="text-sm font-medium">يوتيوب</span>
+        </a>
+        <a
+          href="https://wa.me/201096066818"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+            isDark
+              ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30'
+              : 'bg-green-100 text-green-600 hover:bg-green-200'
+          }`}
+        >
+          <MessageCircle size={20} />
+          <span className="text-sm font-medium">واتساب</span>
+        </a>
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
