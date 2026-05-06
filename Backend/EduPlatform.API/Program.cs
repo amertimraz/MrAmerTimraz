@@ -655,6 +655,13 @@ using (var scope = app.Services.CreateScope())
                 db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"DateOfBirth\" TIMESTAMP WITHOUT TIME ZONE;");
             }
             catch { }
+            
+            // Add EducationLevel to LibraryStudentInfos if not exists
+            try
+            {
+                db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryStudentInfos\" ADD COLUMN IF NOT EXISTS \"EducationLevel\" VARCHAR(20) NOT NULL DEFAULT 'secondary';");
+            }
+            catch { }
         }
         else // SQLite
         {
