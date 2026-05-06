@@ -9,11 +9,7 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Suppress the false-positive PendingModelChangesWarning that occurs when
-        // the snapshot is generated with SQLite locally but the app runs on PostgreSQL.
-        // The actual schema IS in sync via migrations; this is a provider type-name mismatch.
-        optionsBuilder.ConfigureWarnings(w =>
-            w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        // EF Core 8 configuration
     }
 
     public DbSet<User> Users => Set<User>();
