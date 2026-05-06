@@ -138,7 +138,6 @@ public class LibraryController : ControllerBase
             UserType = dto.UserType,
             Phone = dto.Phone,
             Governorate = dto.Governorate,
-            EducationLevel = dto.EducationLevel,
             NoteTitle = dto.NoteTitle,
             NoteId = dto.NoteId,
             Action = dto.Action,
@@ -179,8 +178,6 @@ public class LibraryStudentInfoDto
     public string Phone { get; set; } = string.Empty;
     [JsonPropertyName("governorate")]
     public string Governorate { get; set; } = string.Empty;
-    [JsonPropertyName("educationLevel")]
-    public string EducationLevel { get; set; } = string.Empty;
     [JsonPropertyName("noteTitle")]
     public string NoteTitle { get; set; } = string.Empty;
     [JsonPropertyName("noteId")]

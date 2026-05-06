@@ -14,7 +14,6 @@ interface StudentInfoPayload {
   userType: UserType;
   phone: string;
   governorate: string;
-  educationLevel: 'primary' | 'middle' | 'secondary';
   noteTitle: string;
   action: 'view' | 'download';
 }
