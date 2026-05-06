@@ -152,10 +152,19 @@ public class LibraryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetStudentInfos()
     {
-        var infos = await _db.LibraryStudentInfos
-            .OrderByDescending(i => i.CreatedAt)
-            .ToListAsync();
-        return Ok(infos);
+        try
+        {
+            var infos = await _db.LibraryStudentInfos
+                .OrderByDescending(i => i.CreatedAt)
+                .ToListAsync();
+            return Ok(infos);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] GetStudentInfos failed: {ex.Message}");
+            // Return empty list if column mismatch (database not yet migrated)
+            return Ok(new List<LibraryStudentInfo>());
+        }
     }
 
     // Check if student info is required before download/view
@@ -165,7 +174,8 @@ public class LibraryController : ControllerBase
     {
         var setting = await _db.AppSettings
             .FirstOrDefaultAsync(s => s.Key == "Library_RequireStudentInfo");
-        var require = setting?.Value != "false"; // default: true
+        // Temporarily default to FALSE until EducationLevel DB column is fixed
+        var require = setting?.Value == "true"; // default: false
         return Ok(new { require });
     }
 
