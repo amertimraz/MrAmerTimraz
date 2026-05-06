@@ -9,16 +9,15 @@ public class LibraryStudentInfo
     [Required, MaxLength(200)]
     public string Name { get; set; } = string.Empty;
 
-    [Required, MaxLength(20)]
     public string UserType { get; set; } = string.Empty; // student, parent, teacher
 
     [Required, MaxLength(20)]
     public string Phone { get; set; } = string.Empty;
 
-    [Required, MaxLength(50)]
+    [Required, MaxLength(20)]
     public string Governorate { get; set; } = string.Empty;
 
-    [Required, MaxLength(20)]
+    [MaxLength(20)]
     public string EducationLevel { get; set; } = string.Empty; // primary, middle, secondary
 
     [Required, MaxLength(300)]
