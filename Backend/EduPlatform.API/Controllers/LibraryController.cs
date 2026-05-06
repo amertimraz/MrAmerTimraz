@@ -127,6 +127,34 @@ public class LibraryController : ControllerBase
             .ToListAsync();
         return Ok(cats);
     }
+
+    [HttpPost("student-info")]
+    public async Task<IActionResult> SubmitStudentInfo([FromBody] LibraryStudentInfoDto dto)
+    {
+        var info = new LibraryStudentInfo
+        {
+            Name = dto.Name,
+            UserType = dto.UserType,
+            Phone = dto.Phone,
+            Governorate = dto.Governorate,
+            NoteTitle = dto.NoteTitle,
+            NoteId = dto.NoteId,
+            Action = dto.Action,
+        };
+        _db.LibraryStudentInfos.Add(info);
+        await _db.SaveChangesAsync();
+        return Ok(new { id = info.Id, message = "تم تسجيل البيانات بنجاح" });
+    }
+
+    [HttpGet("student-info")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetStudentInfos()
+    {
+        var infos = await _db.LibraryStudentInfos
+            .OrderByDescending(i => i.CreatedAt)
+            .ToListAsync();
+        return Ok(infos);
+    }
 }
 
 public class LibraryItemDto
@@ -137,4 +165,15 @@ public class LibraryItemDto
     public string? Category { get; set; }
     public string? ThumbnailUrl { get; set; }
     public string? QuizUrl { get; set; }
+}
+
+public class LibraryStudentInfoDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string UserType { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
+    public string Governorate { get; set; } = string.Empty;
+    public string NoteTitle { get; set; } = string.Empty;
+    public int NoteId { get; set; }
+    public string Action { get; set; } = string.Empty;
 }

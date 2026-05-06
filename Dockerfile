@@ -2,10 +2,10 @@
 FROM node:22-alpine AS frontend
 WORKDIR /frontend
 
-COPY ../../Frontend/package.json ../../Frontend/package-lock.json ./
+COPY Frontend/package.json Frontend/package-lock.json ./
 RUN npm ci
 
-COPY ../../Frontend/ ./
+COPY Frontend/ ./
 # نفس المنشأ: الواجهة تستدعي /api على نفس الدومين
 ARG VITE_API_URL=/api
 ENV VITE_API_URL=${VITE_API_URL}

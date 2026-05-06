@@ -26,6 +26,7 @@ public class AppDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<PaymentRequest> PaymentRequests => Set<PaymentRequest>();
     public DbSet<LibraryItem> LibraryItems => Set<LibraryItem>();
+    public DbSet<LibraryStudentInfo> LibraryStudentInfos => Set<LibraryStudentInfo>();
     public DbSet<InteractiveQuiz> InteractiveQuizzes => Set<InteractiveQuiz>();
     public DbSet<InteractiveQuestion> InteractiveQuestions => Set<InteractiveQuestion>();
     public DbSet<InteractiveQuizResult> InteractiveQuizResults => Set<InteractiveQuizResult>();

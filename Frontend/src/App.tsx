@@ -74,6 +74,7 @@ const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
 const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'));
 const AdminLibrary = lazy(() => import('./pages/admin/AdminLibrary'));
+const AdminLibraryStudentStats = lazy(() => import('./pages/admin/AdminLibraryStudentStats'));
 const AdminQuizzes = lazy(() => import('./pages/admin/AdminQuizzes'));
 const AdminChallenges = lazy(() => import('./pages/admin/AdminChallenges'));
 const AdminLiveSessions = lazy(() => import('./pages/admin/AdminLiveSessions'));
@@ -193,6 +194,7 @@ export default function App() {
               <Route path="settings"        element={<AdminSettings />} />
               <Route path="categories"      element={<AdminCategories />} />
               <Route path="library"         element={<AdminLibrary />} />
+              <Route path="library-stats"   element={<AdminLibraryStudentStats />} />
               <Route path="quizzes"         element={<AdminQuizzes />} />
               <Route path="challenges"      element={<AdminChallenges />} />
               <Route path="all-results"     element={<AdminAllResults />} />

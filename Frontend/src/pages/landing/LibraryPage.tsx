@@ -8,6 +8,7 @@ import { Download, Search, FolderOpen, Eye, Gamepad2, X, Heart, Copy, CheckCircl
 import { useAuthStore } from '../../store/authStore';
 import PdfThumbnail from '../../components/ui/PdfThumbnail';
 import PdfViewerModal from '../../components/ui/PdfViewerModal';
+import StudentInfoModal, { type StudentInfo } from '../../components/ui/StudentInfoModal';
 import { getMediaUrl } from '../../utils/media';
 import type { LibraryItem } from '../../types';
 
@@ -23,6 +24,11 @@ export default function LibraryPage() {
   const [viewing, setViewing] = useState<LibraryItem | null>(null);
   const [showDonation, setShowDonation] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [studentInfoModal, setStudentInfoModal] = useState<{
+    isOpen: boolean;
+    item: LibraryItem | null;
+    action: 'view' | 'download';
+  }>({ isOpen: false, item: null, action: 'view' });
 
   useEffect(() => {
     const dismissed = localStorage.getItem('libraryDonationDismissed');
@@ -216,8 +222,7 @@ export default function LibraryPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
-                        setViewing(item);
-                        libraryApi.incrementView(item.id).catch(() => {});
+                        setStudentInfoModal({ isOpen: true, item, action: 'view' });
                       }}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold border transition-colors ${
                         isDark
@@ -228,17 +233,15 @@ export default function LibraryPage() {
                       <Eye size={15} />
                       عرض
                     </button>
-                    <a
-                      href={getMediaUrl(item.fileUrl)}
-                      download
+                    <button
                       onClick={() => {
-                        libraryApi.incrementDownload(item.id).catch(() => {});
+                        setStudentInfoModal({ isOpen: true, item, action: 'download' });
                       }}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
                     >
                       <Download size={15} />
                       تحميل
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -254,6 +257,50 @@ export default function LibraryPage() {
           onClose={() => setViewing(null)}
         />
       )}
+
+      {/* Student Info Modal */}
+      <StudentInfoModal
+        isOpen={studentInfoModal.isOpen}
+        onClose={() => setStudentInfoModal({ isOpen: false, item: null, action: 'view' })}
+        onSubmit={async (info: StudentInfo) => {
+          const item = studentInfoModal.item;
+          if (!item) return;
+
+          try {
+            // Submit student info
+            await libraryApi.submitStudentInfo(item.id, {
+              ...info,
+              noteTitle: item.title,
+              action: studentInfoModal.action,
+            });
+
+            // Close modal
+            setStudentInfoModal({ isOpen: false, item: null, action: 'view' });
+
+            // Perform the action
+            if (studentInfoModal.action === 'view') {
+              setViewing(item);
+              libraryApi.incrementView(item.id).catch(() => {});
+            } else {
+              // Trigger download
+              libraryApi.incrementDownload(item.id).catch(() => {});
+              const downloadUrl = getMediaUrl(item.fileUrl);
+              const link = document.createElement('a');
+              link.href = downloadUrl;
+              link.download = `${item.title}.pdf`;
+              link.target = '_blank';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }
+          } catch (error) {
+            console.error('Error submitting student info:', error);
+            alert('حدث خطأ أثناء إرسال البيانات، يرجى المحاولة مرة أخرى');
+          }
+        }}
+        noteTitle={studentInfoModal.item?.title || ''}
+        action={studentInfoModal.action}
+      />
 
       {/* Donation Modal */}
       {showDonation && (

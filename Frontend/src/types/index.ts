@@ -239,6 +239,8 @@ export interface InteractiveQuizResult {
   date: string;
 }
 
+export type UserType = 'student' | 'parent' | 'teacher';
+
 export interface LibraryItem {
   id: number;
   title: string;
@@ -249,6 +251,18 @@ export interface LibraryItem {
   quizUrl?: string;
   viewCount: number;
   downloadCount: number;
+  createdAt: string;
+}
+
+export interface LibraryStudentInfo {
+  id: number;
+  name: string;
+  userType: 'student' | 'parent' | 'teacher';
+  phone: string;
+  governorate: string;
+  noteTitle: string;
+  noteId: number;
+  action: 'view' | 'download';
   createdAt: string;
 }
 

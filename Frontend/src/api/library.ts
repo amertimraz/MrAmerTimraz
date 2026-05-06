@@ -1,5 +1,5 @@
 import client from './client';
-import type { LibraryItem } from '../types';
+import type { LibraryItem, LibraryStudentInfo, UserType } from '../types';
 
 interface LibraryItemPayload {
   title: string;
@@ -7,6 +7,15 @@ interface LibraryItemPayload {
   fileUrl: string;
   category?: string;
   thumbnailUrl?: string;
+}
+
+interface StudentInfoPayload {
+  name: string;
+  userType: UserType;
+  phone: string;
+  governorate: string;
+  noteTitle: string;
+  action: 'view' | 'download';
 }
 
 export const libraryApi = {
@@ -27,4 +36,10 @@ export const libraryApi = {
     client.post<{ viewCount: number }>(`/library/${id}/view`).then(r => r.data),
   incrementDownload: (id: number) =>
     client.post<{ downloadCount: number }>(`/library/${id}/download`).then(r => r.data),
+
+  submitStudentInfo: (noteId: number, data: StudentInfoPayload) =>
+    client.post('/library/student-info', { noteId, ...data }).then(r => r.data),
+
+  getStudentInfos: () =>
+    client.get<LibraryStudentInfo[]>('/library/student-info').then(r => r.data),
 };

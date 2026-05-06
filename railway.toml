@@ -1,6 +1,6 @@
 [build]
 builder = "dockerfile"
-dockerfilePath = "Backend/EduPlatform.API/Dockerfile"
+dockerfilePath = "Dockerfile"
 watchPatterns = ["Backend/**", "Frontend/**"]
 
 [deploy]
