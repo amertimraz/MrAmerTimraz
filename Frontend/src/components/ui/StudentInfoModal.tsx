@@ -10,7 +10,6 @@ export interface StudentInfo {
   userType: UserType;
   phone: string;
   governorate: string;
-  educationLevel: 'primary' | 'middle' | 'secondary';
 }
 
 interface StudentInfoModalProps {
@@ -49,12 +48,6 @@ const GOVERNORATES = [
   'الوادي الجديد',
 ];
 
-const EDUCATION_LEVELS: { value: 'primary' | 'middle' | 'secondary'; label: string }[] = [
-  { value: 'primary', label: 'المرحلة الابتدائية' },
-  { value: 'middle', label: 'المرحلة الإعدادية' },
-  { value: 'secondary', label: 'المرحلة الثانوية' },
-];
-
 const USER_TYPES: { value: UserType; label: string; icon: typeof GraduationCap }[] = [
   { value: 'student', label: 'طالب', icon: GraduationCap },
   { value: 'parent', label: 'ولي أمر', icon: User },
@@ -68,7 +61,6 @@ export default function StudentInfoModal({ isOpen, onClose, onSubmit, noteTitle,
     userType: 'student',
     phone: '',
     governorate: '',
-    educationLevel: 'secondary',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof StudentInfo, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,10 +84,6 @@ export default function StudentInfoModal({ isOpen, onClose, onSubmit, noteTitle,
 
     if (!formData.governorate) {
       newErrors.governorate = 'الرجاء اختيار المحافظة';
-    }
-
-    if (!formData.educationLevel) {
-      newErrors.educationLevel = 'الرجاء اختيار المرحلة الدراسية';
     }
 
     setErrors(newErrors);
@@ -246,31 +234,6 @@ export default function StudentInfoModal({ isOpen, onClose, onSubmit, noteTitle,
               </div>
             </div>
             {errors.governorate && <p className={errorClass}>{errors.governorate}</p>}
-          </div>
-
-          {/* المرحلة الدراسية */}
-          <div>
-            <label className={labelClass}>المرحلة الدراسية *</label>
-            <div className="grid grid-cols-3 gap-2">
-              {EDUCATION_LEVELS.map(({ value, label }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, educationLevel: value })}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
-                    formData.educationLevel === value
-                      ? 'border-orange-500 bg-orange-500/10 text-orange-500'
-                      : isDark
-                      ? 'border-white/10 hover:border-white/20 text-gray-400'
-                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                  }`}
-                >
-                  <GraduationCap size={20} />
-                  <span className="text-xs font-medium">{label}</span>
-                </button>
-              ))}
-            </div>
-            {errors.educationLevel && <p className={errorClass}>{errors.educationLevel}</p>}
           </div>
 
           {/* زر الإرسال */}

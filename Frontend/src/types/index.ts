@@ -260,7 +260,6 @@ export interface LibraryStudentInfo {
   userType: 'student' | 'parent' | 'teacher';
   phone: string;
   governorate: string;
-  educationLevel: 'primary' | 'middle' | 'secondary';
   noteTitle: string;
   noteId: number;
   action: 'view' | 'download';
