@@ -215,7 +215,20 @@ export default function RevisionPresenter() {
       const isRevealed = revealed[absoluteIdx] || showAnswers[absoluteIdx];
       const selIdx = selectedOptions[absoluteIdx];
       const currentInput = completionAnswers[absoluteIdx] || '';
-      const isCorrectCompletion = currentInput.trim() === q.correctAnswer?.trim();
+      
+      // Flexible matching logic
+      const normalize = (str: string) => {
+        if (!str) return '';
+        return str
+          .toLowerCase() // Ignore Case
+          .trim()
+          .replace(/\s+/g, ' ') // Collapse multiple spaces
+          .replace(/[أإآ]/g, 'ا') // Normalize Arabic Alif
+          .replace(/ة/g, 'ه')   // Normalize Arabic Teh Marbuta
+          .replace(/[^\w\s\u0600-\u06FF]/g, ''); // Remove punctuation but keep Alphanumeric and Arabic
+      };
+
+      const isCorrectCompletion = normalize(currentInput) === normalize(q.correctAnswer);
 
       const rawType = String(q.type);
       const questionType = (rawType === 'MCQ' || Number(q.type) === 0) ? 'MCQ' : (rawType === 'TrueFalse' || Number(q.type) === 1) ? 'TrueFalse' : 'Completion';
