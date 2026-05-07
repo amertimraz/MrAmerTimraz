@@ -586,7 +586,9 @@ export default function ChallengePage() {
 
       {/* Persistent PDF Layout (Hidden normally, shown physically when printing) */}
       {/* Ensures it prints perfectly even on the final results page */}
-      <div className="hidden print:block print-area-full mt-20" dir="rtl">
+      {/* Persistent PDF Layout (Hidden normally, shown physically when printing) */}
+      {/* Ensures it prints perfectly even on the final results page */}
+      <div className="hidden print:block print-area-full pt-32 px-12" dir="rtl">
          
          {/* Premium Print Frame (Fixed on every page) */}
          <div className="fixed inset-4 pointer-events-none z-[1000] border-2 border-slate-200 rounded-[3rem] print:border-slate-300">
@@ -611,7 +613,7 @@ export default function ChallengePage() {
                   <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white rotate-12">
                      <Brain size={20} />
                   </div>
-                  <div className="font-black text-slate-800 text-lg tracking-tighter">AMER <span className="text-primary-600">PLATFORM</span></div>
+                  <div className="font-black text-slate-800 text-lg tracking-tighter uppercase">AMER <span className="text-primary-600">PLATFORM</span></div>
                </div>
             </div>
 
@@ -641,7 +643,7 @@ export default function ChallengePage() {
          </div>
 
          {/* Tutorial Content */}
-         <div className="question-card p-10 font-cairo">
+         <div className="question-card p-10 font-cairo mt-10">
             <h1 className="text-4xl font-black mb-6 text-slate-900 border-b-4 border-slate-200 pb-4 inline-block tracking-tight">الدليل التعليمي السريع للمنصة</h1>
             
             <div className="space-y-12">
@@ -680,7 +682,7 @@ export default function ChallengePage() {
 
          <div className="w-full border-t-4 border-slate-900 my-16 opacity-10"></div>
 
-         <div className="mb-10 text-center">
+         <div className="mb-10 text-center pt-20">
             <h1 className="text-4xl font-black text-slate-900 tracking-tight">أسئلة وإجابات الاختبار</h1>
             <p className="text-xl text-slate-500 font-bold mt-2">"{test.title}"</p>
          </div>

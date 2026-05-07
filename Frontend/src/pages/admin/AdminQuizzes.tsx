@@ -11,6 +11,7 @@ import {
   Plus, Pencil, Trash2, Play, BookOpen, X, FileText,
   Upload, ClipboardList, CheckCircle, AlertCircle, Sparkles,
   Settings, Download, Trophy, Timer, Star, Layers, Link2, Copy,
+  Video,
 } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { getMediaUrl } from '../../utils/media';
@@ -619,6 +620,13 @@ export default function AdminQuizzes() {
                       className="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 hover:bg-green-200 transition-colors"
                     >
                       <Play size={16} />
+                    </button>
+                    <button
+                      onClick={() => navigate(`/interactive-revision/${quiz.id}`)}
+                      title="نمط المراجعة (للتسجيل)"
+                      className="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 hover:bg-indigo-200 transition-colors"
+                    >
+                      <Video size={16} />
                     </button>
                     <button
                       onClick={() => openQuestions(quiz)}

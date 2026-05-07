@@ -22,6 +22,7 @@ const studentLinks: NavItem[] = [
   { to: '/student/games', icon: <div className="relative"><Gamepad2 size={20} /><span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span></div>, label: 'الألعاب التعليمية (قريباً)' },
   { to: '/student/notifications', icon: <Bell size={20} />, label: 'الإشعارات' },
   { to: '/student/profile', icon: <UserCircle2 size={20} />, label: 'ملفي الشخصي' },
+  { to: '/interactive-revision', icon: <Video size={20} />, label: 'المراجعة التفاعلية' },
 ];
 
 const teacherLinks: NavItem[] = [
@@ -32,6 +33,7 @@ const teacherLinks: NavItem[] = [
   { to: '/teacher/question-bank',icon: <Database size={20} />,        label: 'بنك الأسئلة' },
   { to: '/teacher/tests/generate',icon: <Zap size={20} />,           label: 'مولّد الاختبارات' },
   { to: '/teacher/notifications',icon: <Bell size={20} />,            label: 'الإشعارات' },
+  { to: '/interactive-revision', icon: <Video size={20} />,           label: 'المراجعة التفاعلية' },
 ];
 
 const adminLinks: NavItem[] = [
@@ -55,6 +57,7 @@ const adminLinks: NavItem[] = [
   { to: '/admin/files',         icon: <HardDrive size={20} />,  label: 'إدارة الملفات' },
   { to: '/student/games',       icon: <div className="relative"><Gamepad2 size={20} /><span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span></div>, label: 'الألعاب التعليمية (قريباً)' },
   { to: '/admin/settings',      icon: <Settings size={20} />, label: 'الإعدادات' },
+  { to: '/interactive-revision', icon: <Video size={20} />,    label: 'المراجعة التفاعلية' },
 ];
 
 export default function Sidebar() {
