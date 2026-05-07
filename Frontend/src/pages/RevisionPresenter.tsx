@@ -29,36 +29,36 @@ const THEMES: Record<ThemeType, ThemeConfig> = {
     card: 'bg-white/5 backdrop-blur-xl border-white/10',
     accent: 'from-indigo-500 to-purple-600',
     text: 'text-white',
-    secondaryText: 'text-indigo-300/70',
-    border: 'border-indigo-500/20',
-    glow: 'shadow-indigo-500/10'
+    secondaryText: 'text-indigo-400',
+    border: 'border-indigo-500/30',
+    glow: 'shadow-indigo-500/20'
   },
   emerald: {
     bg: 'bg-[#022c22]',
-    card: 'bg-emerald-950/40 backdrop-blur-xl border-emerald-500/10',
+    card: 'bg-emerald-950/40 backdrop-blur-xl border-emerald-500/20',
     accent: 'from-emerald-400 to-teal-600',
     text: 'text-emerald-50',
-    secondaryText: 'text-emerald-300/60',
-    border: 'border-emerald-500/20',
-    glow: 'shadow-emerald-500/10'
+    secondaryText: 'text-emerald-400',
+    border: 'border-emerald-500/30',
+    glow: 'shadow-emerald-500/20'
   },
   sunset: {
     bg: 'bg-[#1a0b05]',
-    card: 'bg-orange-950/30 backdrop-blur-xl border-orange-500/10',
+    card: 'bg-orange-950/30 backdrop-blur-xl border-orange-500/20',
     accent: 'from-orange-400 to-rose-600',
     text: 'text-orange-50',
-    secondaryText: 'text-orange-300/60',
-    border: 'border-orange-500/20',
-    glow: 'shadow-orange-500/10'
+    secondaryText: 'text-orange-400',
+    border: 'border-orange-500/30',
+    glow: 'shadow-orange-500/20'
   },
   frost: {
-    bg: 'bg-[#f0f4f8]',
-    card: 'bg-white/80 backdrop-blur-lg border-slate-200',
-    accent: 'from-blue-500 to-cyan-600',
+    bg: 'bg-[#f8fafc]',
+    card: 'bg-white border-slate-200 shadow-xl',
+    accent: 'from-blue-600 to-indigo-700',
     text: 'text-slate-900',
-    secondaryText: 'text-slate-500',
-    border: 'border-slate-200',
-    glow: 'shadow-blue-500/5'
+    secondaryText: 'text-indigo-600',
+    border: 'border-slate-300',
+    glow: 'shadow-blue-500/10'
   }
 };
 
@@ -202,8 +202,8 @@ export default function RevisionPresenter() {
       
       {/* Animated Background Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full opacity-20 blur-[150px] bg-gradient-to-br ${activeTheme.accent} animate-pulse`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full opacity-20 blur-[120px] bg-gradient-to-tl ${activeTheme.accent} animate-pulse delay-1000`} />
+        <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full opacity-10 blur-[150px] bg-gradient-to-br ${activeTheme.accent}`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full opacity-10 blur-[120px] bg-gradient-to-tl ${activeTheme.accent}`} />
       </div>
 
       {/* Floating Toolbar */}
@@ -219,7 +219,7 @@ export default function RevisionPresenter() {
             <div>
               <h1 className="text-sm font-black text-white leading-tight">{quiz.title}</h1>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <p className="text-[10px] text-white/50 font-bold tracking-wider">مباشر • أ. عامر تمراز</p>
               </div>
             </div>
@@ -269,7 +269,7 @@ export default function RevisionPresenter() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto pt-28 pb-12 px-6 scrollbar-hide no-print">
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8">
           
           {/* Header Card */}
           <div className={`${activeTheme.card} p-8 rounded-[2.5rem] border flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden group`}>
@@ -373,7 +373,7 @@ export default function RevisionPresenter() {
                       </div>
 
                       {q.type === 'MCQ' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8">
+                        <div className="flex flex-wrap gap-3 mt-8">
                           {options.map((opt, optIdx) => {
                             const isCorrect = optIdx === correctIdx;
                             const isSelected = optIdx === selIdx;
@@ -387,13 +387,13 @@ export default function RevisionPresenter() {
                                   setRevealed(p => ({...p, [idx]: true}));
                                 }}
                                 className={`
-                                  p-5 rounded-2xl border-2 text-right font-bold text-lg flex items-center gap-4 transition-all
+                                  flex-1 min-w-[200px] p-4 rounded-2xl border-2 text-right font-bold text-base flex items-center gap-3 transition-all
                                   ${state === 'correct' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-lg shadow-emerald-500/20' :
                                     state === 'wrong' ? 'bg-red-500/20 border-red-500 text-red-400 shadow-lg shadow-red-500/20' :
-                                    'bg-white/5 border-white/5 hover:border-white/20 text-white/70 hover:text-white'}
+                                    `${activeTheme.bg} border-white/10 text-white/80 hover:border-white/30 hover:text-white`}
                                 `}
                               >
-                                <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-black border ${
+                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-black border ${
                                   state === 'correct' ? 'bg-emerald-500 text-white border-emerald-400' :
                                   state === 'wrong' ? 'bg-red-500 text-white border-red-400' :
                                   'bg-white/10 border-white/10'
