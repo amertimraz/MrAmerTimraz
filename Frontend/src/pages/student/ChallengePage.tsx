@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, HelpCircle, Search, Trophy, ArrowLeft, Lock, ChevronRight, ChevronLeft, Sparkles, X, Brain, Maximize2, Minimize2, User as UserIcon, Award, Medal, FileText } from 'lucide-react';
+import { Clock, HelpCircle, Search, Trophy, ArrowLeft, Lock, ChevronRight, ChevronLeft, Sparkles, X, Brain, Maximize2, Minimize2, User as UserIcon, Award, Medal, FileText, MessageCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { challengesApi, type TofasTest } from '../../api/challenges';
@@ -352,17 +352,19 @@ export default function ChallengePage() {
 
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
                         {[
-                          { title: "تسمية المتغيرات", desc: "لا يمكن أن يبدأ اسم المتغير برقم", good: "let name5 = 'x';", bad: "let 5name = 'x';", icon: <Lock className="text-rose-600" /> },
-                          { title: "عكس التعيين", desc: "المتغير دائماً لليسار والقيمة لليمين", good: "age = 20;", bad: "20 = age;", icon: <Lock className="text-rose-600" /> },
-                          { title: "أقواس الشرط", desc: "Else لا تأخذ أقواس أبداً، IF تأخذ أقواس للصواب والخطأ", good: "if (x>5) { } else { }", bad: "else (x>5) { }", icon: <Lock className="text-rose-600" /> },
-                          { title: "بداية الأكواد", desc: "لا يمكن البدء بـ Else أو Else If مباشرة", good: "if (x) { }", bad: "else if (x) { }", icon: <Lock className="text-rose-600" /> }
+                          { title: "تسمية المتغيرات", desc: "لا يمكن أن يبدأ اسم المتغير برقم، ولا يحتوي على مسافات.", good: "let player1 = 'x';", bad: "let 1player = 'x';", icon: <Lock className="text-rose-600" /> },
+                          { title: "عكس التعيين", desc: "المتغير دائماً لليسار والقيمة لليمين. التعيين يكون باستخدام '=' واحدة.", good: "score = 100;", bad: "100 = score;", icon: <Lock className="text-rose-600" /> },
+                          { title: "أقواس الشرط (If/Else)", desc: "Else لا تأخذ أقواس شرط أبداً. If تأخذ القوس للصواب والخطأ.", good: "else { score = 0; }", bad: "else (score < 50) { }", icon: <Lock className="text-rose-600" /> },
+                          { title: "ترتيب الجمل الشرطية", desc: "لا يمكن البدء بـ Else أو Else If. يجب دائماً البدء بـ If.", good: "if (x) { ... }", bad: "else if (x) { ... }", icon: <Lock className="text-rose-600" /> },
+                          { title: "نهاية الأسطر", desc: "تأكد من وجود الفاصلة المنقوطة ';' (اختياري لكن مفضل) وعدم وجود رموز غريبة.", good: "let total = 50;", bad: "let total = 50 :", icon: <Lock className="text-rose-600" /> },
+                          { title: "العمليات البرمجية", desc: "استخدام الرموز الصحيحة للزيادة (++) والنقصان (--).", good: "x++; // زيادة بمقدار 1", bad: "x + + ; // خطأ مسافة", icon: <Lock className="text-rose-600" /> }
                         ].map((item, i) => (
                            <div key={i} className="bg-white border-2 border-slate-100 p-8 rounded-[3rem] shadow-xl space-y-6">
                               <div className="flex items-center gap-3">
                                  <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center">{item.icon}</div>
                                  <h4 className="text-xl font-black text-slate-800">{item.title}</h4>
                               </div>
-                              <p className="text-slate-500 font-bold text-sm">{item.desc}</p>
+                              <p className="text-slate-500 font-bold text-sm leading-relaxed">{item.desc}</p>
                               <div className="space-y-3">
                                  <div className="flex flex-col gap-1">
                                     <span className="text-[10px] uppercase font-black text-emerald-500">صح ✅</span>
@@ -385,51 +387,73 @@ export default function ChallengePage() {
                      </div>
                    </div>
                 ) : (
-                  <div className="max-w-5xl mx-auto w-full space-y-12">
+                  <div className="max-w-5xl mx-auto w-full space-y-12 pb-12">
                     <div className="text-center space-y-2">
-                       <h2 className="text-5xl font-black text-slate-900 tracking-tight">مصفوفة أسرار المنطق (Logic)</h2>
-                       <p className="text-2xl text-amber-500 font-black tracking-widest uppercase">الكود يعمل.. لكن النتيجة خاطئة!</p>
+                       <h2 className="text-5xl font-black text-slate-900 tracking-tight">مصفوفة أسرار المنطق (Logic & Arrays)</h2>
+                       <p className="text-2xl text-amber-500 font-black tracking-widest uppercase">الكود يعمل.. لكن النتيجة قد تكون فخاً!</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                      <div className="space-y-6">
-                        <div className="flex items-center gap-3 p-4 bg-amber-500 text-white rounded-2xl shadow-lg"><Brain size={24} /><h3 className="text-xl font-black">أسرار العمليات الحسابية</h3></div>
+                      {/* Column 1: Arithmetic & Variables */}
+                      <div className="space-y-8">
+                        <div className="flex items-center gap-3 p-5 bg-amber-500 text-white rounded-[2rem] shadow-lg"><Brain size={24} /><h3 className="text-xl font-black">أفخاخ الحساب والمتغيرات</h3></div>
+                        
                         <div className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm space-y-4">
-                           <h4 className="font-black text-slate-800">1. تبديل المعاملات:</h4>
-                           <p className="text-sm text-slate-500 font-bold">استخدام + بدلاً من - أو * بدلاً من / لتغيير النتيجة النهائية.</p>
+                           <h4 className="font-black text-slate-800">1. تبديل المعاملات (+، -، *، /):</h4>
+                           <p className="text-sm text-slate-500 font-bold leading-relaxed">أشهر فخ هو استخدام الجمع بدلاً من الضرب أو العكس لتغيير النتيجة.</p>
                            <div className="bg-slate-50 p-6 rounded-2xl">
-                              <code className="block text-amber-600 font-mono text-sm font-black" dir="ltr">{`let x = 10; \nlet y = x + 5; // توقعت 15 \nlet z = x - 5; // قد يكون الفخ هنا!`}</code>
+                              <code className="block text-amber-600 font-mono text-sm font-black" dir="ltr">{`let x = 10; \nlet y = x * 2; // النتيجة 20 \nlet z = x + 2; // فخ: النتيجة 12`}</code>
                            </div>
                         </div>
+
                         <div className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm space-y-4">
-                           <h4 className="font-black text-slate-800">2. مقارنة لا تعويض:</h4>
-                           <p className="text-sm text-slate-500 font-bold">استخدام مقارنة {"<"} بدلاً من تعيين =. لا يتم تغيير القيمة!</p>
+                           <h4 className="font-black text-slate-800">2. مقارنة لا تعويض ({"<"} مقابل =):</h4>
+                           <p className="text-sm text-slate-500 font-bold leading-relaxed">استخدام {"<"} فقط يفحص القيمة ولا يغيرها. لتغيير القيمة يجب استخدام =.</p>
                            <div className="bg-slate-50 p-6 rounded-2xl">
-                              <code className="block text-amber-600 font-mono text-sm font-black" dir="ltr">{`x < x + 10; // لا يفعل شيء! \nx = x + 10; // هو التعديل الحقيقي.`}</code>
+                              <code className="block text-rose-500 font-mono text-sm font-black" dir="ltr">{`x < x + 5; // فخ: لم يتغير شيء! \nx = x + 5; // هذا هو التعديل الصحيح.`}</code>
+                           </div>
+                        </div>
+
+                        <div className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm space-y-4">
+                           <h4 className="font-black text-slate-800">3. البوابات المنطقية (&&، ||، !):</h4>
+                           <p className="text-sm text-slate-500 font-bold leading-relaxed">استخدم && للتحقق من شرطين معاً، و || لأحدهما فقط، و ! لعكس النتيجة.</p>
+                           <div className="bg-slate-50 p-6 rounded-2xl">
+                              <code className="block text-slate-700 font-mono text-xs" dir="ltr">{`if (x > 0 && x < 10) // بين 0 و 10 \nif (!(x == 0)) // أي رقم ما عدا 0`}</code>
                            </div>
                         </div>
                       </div>
 
-                      <div className="space-y-6">
-                         <div className="flex items-center gap-3 p-4 bg-slate-800 text-white rounded-2xl shadow-lg"><Search size={24} /><h3 className="text-xl font-black">أسرار الطباعة والثوابت</h3></div>
+                      {/* Column 2: Arrays & Loops */}
+                      <div className="space-y-8">
+                         <div className="flex items-center gap-3 p-5 bg-slate-800 text-white rounded-[2rem] shadow-lg"><Search size={24} /><h3 className="text-xl font-black">أفخاخ المصفوفات والحلقات</h3></div>
+                         
                          <div className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm space-y-4">
-                            <h4 className="font-black text-slate-800">3. تتبع المتغير النهائي:</h4>
-                            <p className="text-sm text-slate-500 font-bold">تغيير المتغير عدة مرات ثم طباعة القيمة البدائية.</p>
-                            <div className="bg-slate-50 p-6 rounded-2xl space-y-3">
-                               <code className="block text-slate-400 font-mono text-[10px]" dir="ltr">{`let score = 0; \nscore = 10; \nscore = score + 5;`}</code>
-                               <code className="block text-rose-500 font-mono text-xs font-black underline decoration-2" dir="ltr">{`print(0); // الفخ: طباعة 0 بدلاً من 15`}</code>
+                            <h4 className="font-black text-slate-800">4. فخ طول المصفوفة (Length):</h4>
+                            <p className="text-sm text-slate-500 font-bold leading-relaxed">الفهرس يبدأ من 0. لذا آخر عنصر هو length - 1. الفخ يكون في استخدام {"<="} بدلاً من {"<"}.</p>
+                            <div className="bg-slate-50 p-6 rounded-2xl">
+                               <code className="block text-slate-400 font-mono text-xs" dir="ltr">{`let list = [10, 20, 30]; // الطول 3 \nlist[3]; // فخ: غير موجود! (خارج النطاق) \nlist[2]; // هو العنصر الأخير (30).`}</code>
                             </div>
                          </div>
-                         <div className="bg-primary-600 p-8 rounded-[2.5rem] text-white space-y-4 shadow-2xl">
-                            <h4 className="font-black text-xl flex items-center gap-2"><Sparkles /> نصيحة ذهبية:</h4>
-                            <p className="font-bold text-sm leading-relaxed">دائماً تتبع القيمة النهائية لكل متغير قبل إصدار حكمك على الخيار الصحيح.</p>
+
+                         <div className="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm space-y-4">
+                            <h4 className="font-black text-slate-800">5. تتبع الحلقة (For Loop):</h4>
+                            <p className="text-sm text-slate-500 font-bold leading-relaxed">انتبه للقيمة الابتدائية (i=0) وقيمة الزيادة (i++) وشرط التوقف.</p>
+                            <div className="bg-slate-50 p-6 rounded-2xl">
+                               <code className="block text-emerald-600 font-mono text-xs" dir="ltr">{`for (let i=0; i<3; i++) { \n  // ستنفذ 3 مرات: 0، 1، 2 \n}`}</code>
+                            </div>
+                         </div>
+
+                         <div className="bg-primary-600 p-10 rounded-[3rem] text-white space-y-4 shadow-2xl relative overflow-hidden group">
+                            <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition duration-700"><Trophy size={120} /></div>
+                            <h4 className="font-black text-2xl flex items-center gap-2"><Sparkles /> السر النهائي:</h4>
+                            <p className="font-bold text-sm leading-relaxed">دائماً اقرأ سطر الطباعة (console.log) بعناية. هل يطبع المتغير الحقيقي أم نصاً ثابتاً يخدعك؟ تتبع الكود بعقلك كأنك أنت الحاسوب!</p>
                          </div>
                       </div>
                     </div>
 
                     <div className="flex gap-4">
                       <button onClick={() => setGuideStep(2)} className="flex-1 bg-slate-100 text-slate-600 py-6 rounded-3xl font-black text-xl">العودة</button>
-                      <button onClick={() => setShowGuide(false)} className="flex-[2] bg-emerald-600 text-white py-6 rounded-3xl font-black text-2xl shadow-2xl hover:bg-emerald-700 transition flex items-center justify-center gap-4">فهمت كل شيء، لنبدأ الاختبار! <ChevronLeft size={28} /></button>
+                      <button onClick={() => setShowGuide(false)} className="flex-[2] bg-emerald-600 text-white py-6 rounded-3xl font-black text-2xl shadow-2xl hover:bg-emerald-700 transition flex items-center justify-center gap-4">أنا مستعد تماماً، لنكتسح الاختبار! <ChevronLeft size={28} /></button>
                     </div>
                   </div>
                 )}
@@ -563,6 +587,59 @@ export default function ChallengePage() {
       {/* Persistent PDF Layout (Hidden normally, shown physically when printing) */}
       {/* Ensures it prints perfectly even on the final results page */}
       <div className="hidden print:block print-area-full mt-20" dir="rtl">
+         
+         {/* Premium Print Frame (Fixed on every page) */}
+         <div className="fixed inset-4 pointer-events-none z-[1000] border-2 border-slate-200 rounded-[3rem] print:border-slate-300">
+            {/* Corner Accents */}
+            <div className="absolute top-0 left-10 w-20 h-2 bg-slate-900 rounded-b-full" />
+            <div className="absolute bottom-0 right-10 w-20 h-2 bg-emerald-500 rounded-t-full" />
+
+            {/* Top Corner Decor (Amer Timraz Photo & Identity) */}
+            <div className="absolute top-6 right-8 flex items-center gap-4">
+               <div className="flex flex-col text-right">
+                  <span className="text-base font-black text-slate-900 leading-none">الأستاذ عامر تمراز</span>
+                  <span className="text-[10px] font-bold text-primary-600 mt-1 uppercase tracking-wider">Expert Coding Instructor</span>
+               </div>
+               <div className="w-20 h-20 rounded-full border-4 border-white p-1 overflow-hidden bg-white shadow-2xl ring-2 ring-slate-100">
+                  <img src="/teacher.png" alt="Amer Timraz" className="w-full h-full object-cover rounded-full" />
+               </div>
+            </div>
+
+            {/* Top Left Logo / Badge */}
+            <div className="absolute top-10 left-10">
+               <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white rotate-12">
+                     <Brain size={20} />
+                  </div>
+                  <div className="font-black text-slate-800 text-lg tracking-tighter">AMER <span className="text-primary-600">PLATFORM</span></div>
+               </div>
+            </div>
+
+            {/* Bottom Left: Rights & Brand */}
+            <div className="absolute bottom-8 left-12 flex flex-col gap-1">
+               <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-slate-400" />
+                  <span className="text-[10px] font-black text-slate-400">جميع الحقوق محفوظة © {new Date().getFullYear()}</span>
+               </div>
+               <span className="text-[9px] font-bold text-slate-300 ml-4 italic">منصة التعليم البرمجي المتكاملة</span>
+            </div>
+
+            {/* Bottom Right: Contact Info (WhatsApp) */}
+            <div className="absolute bottom-8 right-12 flex items-center gap-4">
+               <div className="flex flex-col text-right">
+                  <span className="text-[10px] font-black text-slate-400 uppercase">للتواصل والاستفسار</span>
+                  <span className="text-sm font-black text-slate-800 tracking-wider" dir="ltr">01096066818</span>
+               </div>
+               <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                  <MessageCircle size={24} />
+               </div>
+            </div>
+
+            {/* Circular Decorative Watermarks (Subtle background) */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-[60px] border-slate-50 rounded-full opacity-[0.05]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border-[1px] border-dashed border-slate-200 rounded-full opacity-[0.1]" />
+         </div>
+
          {/* Tutorial Content */}
          <div className="question-card p-10 font-cairo">
             <h1 className="text-4xl font-black mb-6 text-slate-900 border-b-4 border-slate-200 pb-4 inline-block tracking-tight">الدليل التعليمي السريع للمنصة</h1>
