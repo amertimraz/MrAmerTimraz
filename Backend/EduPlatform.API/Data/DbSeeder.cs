@@ -10,10 +10,7 @@ namespace EduPlatform.API.Data
     {
         public static async Task SeedAsync(AppDbContext context)
         {
-            if (!context.InteractiveQuizzes.Any())
-            {
-                await SeedInteractiveQuizzesAsync(context);
-            }
+            await SeedInteractiveQuizzesAsync(context);
         }
 
         private static async Task SeedInteractiveQuizzesAsync(AppDbContext context)
