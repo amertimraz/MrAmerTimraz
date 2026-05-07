@@ -3,12 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { quizzesApi } from '../api/quizzes';
 import { 
-  Video, Square, Download, X, HelpCircle, Eye, EyeOff, 
+  Download, X, Eye, EyeOff, 
   Maximize2, Minimize2, Palette, Sparkles, Trophy,
   CheckCircle2, XCircle
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { getMediaUrl } from '../api/client';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { CodeBlock } from '../components/ui/CodeBlock';
 
