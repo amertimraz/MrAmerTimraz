@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://amertimraz.com/sitemap.xml
+
+# Allow search engines to crawl educational content
+Allow: /src/
+Allow: /pages/
+Allow: /components/
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /api/private/
+
+# Crawl delay for educational content
+Crawl-delay: 1

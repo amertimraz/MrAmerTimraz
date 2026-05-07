@@ -77,6 +77,20 @@ export default function AboutPage() {
           >
             معلم متميز في مجال التقنية والحاسب والبرمجة
           </motion.p>
+          <motion.div
+            className="flex flex-wrap justify-center gap-4 text-sm font-medium mb-6"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
+          >
+            <span className={`px-4 py-2 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-700'}`}>
+              📧 amertimraz@example.com
+            </span>
+            <span className={`px-4 py-2 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-700'}`}>
+              📱 01234567890
+            </span>
+            <span className={`px-4 py-2 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-700'}`}>
+              📍 مصر - القاهرة
+            </span>
+          </motion.div>
           <motion.div className="flex flex-wrap justify-center gap-2"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}>
             {['تقنية المعلومات', 'الحاسب الآلي', 'البرمجة'].map(tag => (

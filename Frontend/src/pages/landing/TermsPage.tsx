@@ -43,6 +43,13 @@ export default function TermsPage() {
         </section>
 
         <section className={`rounded-2xl p-6 space-y-4 ${cardClass}`}>
+          <h2 className="text-xl font-bold">الإعلانات والدفعات</h2>
+          <p>قد تعرض المنصة إعلانات لتمويل المحتوى التعليمي المجاني. يمكن للمستخدمين اختيار مشاهدة الإعلانات مقابل الوصول للمحتوى المميز.</p>
+          <p>جميع الدفعات المشتركة عبر المنصة تتم عبر قنوات آمنة ومعتمدة، وتخضع لسياسة الاسترداد المعتمدة.</p>
+          <p>أسعار الاشتراكات معروضة بشكل شفاف، ويتم إشعار المستخدم بأي تغييرات قبل تطبيقها.</p>
+        </section>
+
+        <section className={`rounded-2xl p-6 space-y-4 ${cardClass}`}>
           <h2 className="text-xl font-bold">روابط مهمة</h2>
           <div className="flex flex-wrap gap-4 text-sm font-semibold">
             <Link to="/privacy-policy" className="text-green-500 hover:underline">سياسة الخصوصية</Link>
