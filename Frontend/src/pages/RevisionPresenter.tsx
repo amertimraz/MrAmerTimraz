@@ -1,14 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { quizzesApi } from '../api/quizzes';
 import { 
   ChevronRight, ChevronLeft, Video, Square, Download, 
-  Settings, X, Maximize, Minimize, CheckCircle2, XCircle,
-  HelpCircle, Eye, EyeOff, RotateCcw
+  X, HelpCircle, Eye, EyeOff, RotateCcw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuthStore } from '../store/authStore';
+import { getMediaUrl } from '../api/client';
 import toast from 'react-hot-toast';
 import { CodeBlock } from '../components/ui/CodeBlock';
 
@@ -47,7 +46,6 @@ const renderContent = (text: string) => {
 export default function RevisionPresenter() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isDark } = useAuthStore();
   
   const [viewMode, setViewMode] = useState<'slide' | 'paper'>('paper');
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -229,9 +227,9 @@ export default function RevisionPresenter() {
                       {questions.map((q, qIdx) => {
                         const qOptions = parseOptions(q.options);
                         const qCorrect = getCorrectIdx(q);
-                        const isRevealed = revealed[qIdx];
+                        const isRevealed = !!revealed[qIdx];
                         const selOpt = selectedOptions[qIdx];
-                        const isShowingAns = showAnswers[qIdx];
+                        const isShowingAns = !!showAnswers[qIdx];
 
                         return (
                           <div key={q.id} className="group relative">
@@ -240,9 +238,9 @@ export default function RevisionPresenter() {
                                    {qIdx + 1}
                                 </div>
                                 <div className="flex-1 pt-1">
-                                   <h3 className="text-2xl font-bold text-slate-900 leading-relaxed">
+                                   <div className="text-2xl font-bold text-slate-900 leading-relaxed">
                                       {renderContent(q.text)}
-                                   </h3>
+                                   </div>
                                 </div>
                                 <div className="flex gap-1 no-print">
                                    <button 

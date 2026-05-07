@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { quizzesApi } from '../api/quizzes';
-import { Video, BookOpen, ChevronLeft, Search, Filter, Sparkles, Trophy, HelpCircle } from 'lucide-react';
+import { Video, BookOpen, ChevronLeft, Search, Sparkles, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
