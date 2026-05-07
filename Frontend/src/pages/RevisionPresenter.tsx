@@ -1,15 +1,67 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { quizzesApi } from '../api/quizzes';
 import { 
-  ChevronRight, ChevronLeft, Video, Square, Download, 
-  X, HelpCircle, Eye, EyeOff, RotateCcw
+  Video, Square, Download, X, HelpCircle, Eye, EyeOff, 
+  RotateCcw, Maximize2, Minimize2, Palette, Sparkles, Trophy,
+  CheckCircle2, XCircle, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getMediaUrl } from '../api/client';
 import toast from 'react-hot-toast';
 import { CodeBlock } from '../components/ui/CodeBlock';
+
+type ThemeType = 'midnight' | 'emerald' | 'sunset' | 'frost';
+
+interface ThemeConfig {
+  bg: string;
+  card: string;
+  accent: string;
+  text: string;
+  secondaryText: string;
+  border: string;
+  glow: string;
+}
+
+const THEMES: Record<ThemeType, ThemeConfig> = {
+  midnight: {
+    bg: 'bg-[#050b1a]',
+    card: 'bg-white/5 backdrop-blur-xl border-white/10',
+    accent: 'from-indigo-500 to-purple-600',
+    text: 'text-white',
+    secondaryText: 'text-indigo-300/70',
+    border: 'border-indigo-500/20',
+    glow: 'shadow-indigo-500/10'
+  },
+  emerald: {
+    bg: 'bg-[#022c22]',
+    card: 'bg-emerald-950/40 backdrop-blur-xl border-emerald-500/10',
+    accent: 'from-emerald-400 to-teal-600',
+    text: 'text-emerald-50',
+    secondaryText: 'text-emerald-300/60',
+    border: 'border-emerald-500/20',
+    glow: 'shadow-emerald-500/10'
+  },
+  sunset: {
+    bg: 'bg-[#1a0b05]',
+    card: 'bg-orange-950/30 backdrop-blur-xl border-orange-500/10',
+    accent: 'from-orange-400 to-rose-600',
+    text: 'text-orange-50',
+    secondaryText: 'text-orange-300/60',
+    border: 'border-orange-500/20',
+    glow: 'shadow-orange-500/10'
+  },
+  frost: {
+    bg: 'bg-[#f0f4f8]',
+    card: 'bg-white/80 backdrop-blur-lg border-slate-200',
+    accent: 'from-blue-500 to-cyan-600',
+    text: 'text-slate-900',
+    secondaryText: 'text-slate-500',
+    border: 'border-slate-200',
+    glow: 'shadow-blue-500/5'
+  }
+};
 
 /* --- Helpers --- */
 function parseOptions(raw?: string | null): string[] {
@@ -47,16 +99,17 @@ export default function RevisionPresenter() {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const navigate = useNavigate();
   
-  const [viewMode, setViewMode] = useState<'slide' | 'paper'>('paper');
-  const [currentIdx, setCurrentIdx] = useState(0);
+  const [theme, setTheme] = useState<ThemeType>('midnight');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number | null>>({});
   const [showAnswers, setShowAnswers] = useState<Record<number, boolean>>({});
   
-  // Recording State
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  const activeTheme = THEMES[theme];
 
   const { data: quiz, isLoading, error } = useQuery({
     queryKey: ['interactive-quiz', id, slug],
@@ -68,26 +121,31 @@ export default function RevisionPresenter() {
     enabled: !!(id || slug),
   });
 
-  const questions = quiz?.questions || [];
-  const isCyberTech = quiz?.theme === 'CyberTech';
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
-  /* --- Recording Logic --- */
+  useEffect(() => {
+    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: { frameRate: { ideal: 30 } },
         audio: true
       });
-      
       streamRef.current = stream;
       const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
       mediaRecorderRef.current = recorder;
-      
       const chunks: Blob[] = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-      
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
@@ -98,13 +156,11 @@ export default function RevisionPresenter() {
         setIsRecording(false);
         toast.success('تم حفظ تسجيل المراجعة!');
       };
-
       recorder.start();
       setIsRecording(true);
       toast.success('بدأ التسجيل... بالتوفيق!');
     } catch (err) {
-      console.error(err);
-      toast.error('فشل بدء التسجيل. تأكد من إعطاء الصلاحيات.');
+      toast.error('فشل بدء التسجيل.');
     }
   };
 
@@ -115,276 +171,289 @@ export default function RevisionPresenter() {
     }
   };
 
-  /* --- Interaction --- */
-  const handleSelect = (qIdx: number, optIdx: number) => {
-    setSelectedOptions(prev => ({ ...prev, [qIdx]: optIdx }));
-    setRevealed(prev => ({ ...prev, [qIdx]: true }));
-  };
-
-  const toggleShowAnswer = (qIdx: number) => {
-    setShowAnswers(prev => ({ ...prev, [qIdx]: !prev[qIdx] }));
-  };
-
-  if (isLoading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
-  if (error || !quiz) return <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white"><p>حدث خطأ في تحميل الاختبار</p><button onClick={() => navigate(-1)} className="mt-4 px-6 py-2 bg-indigo-600 rounded-xl">العودة</button></div>;
+  if (isLoading) return <div className="min-h-screen bg-[#050b1a] flex items-center justify-center"><div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
+  if (error || !quiz) return <div className="min-h-screen bg-[#050b1a] flex flex-col items-center justify-center text-white font-['Cairo']"><p>حدث خطأ في تحميل المراجعة</p><button onClick={() => navigate(-1)} className="mt-4 px-6 py-2 bg-indigo-600 rounded-xl">العودة</button></div>;
 
   return (
-    <div className={`min-h-screen ${viewMode === 'paper' ? (isCyberTech ? 'bg-slate-950' : 'bg-slate-200 dark:bg-slate-900') : 'bg-[#0f172a]'} text-white flex flex-col font-sans`} dir="rtl">
-      {/* Header (ToolBar) */}
-      <header className="sticky top-0 z-50 p-4 flex items-center justify-between border-b border-white/5 bg-slate-900/90 backdrop-blur-md shadow-xl no-print">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            <Video size={20} className="text-white" />
-          </div>
-          <div className="hidden sm:block">
-            <h1 className="text-sm font-black text-white">{quiz.title}</h1>
-            <p className="text-[10px] text-slate-400 font-bold uppercase">نمط المراجعة والتسجيل</p>
-          </div>
-        </div>
+    <div className={`min-h-screen ${activeTheme.bg} transition-colors duration-1000 flex flex-col font-['Cairo'] overflow-hidden relative`} dir="rtl">
+      
+      {/* Animated Background Orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full opacity-20 blur-[150px] bg-gradient-to-br ${activeTheme.accent} animate-pulse`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full opacity-20 blur-[120px] bg-gradient-to-tl ${activeTheme.accent} animate-pulse delay-1000`} />
+      </div>
 
-        <div className="flex items-center gap-2">
-          <div className="bg-white/5 rounded-full p-1 flex gap-1 mr-4">
-            <button 
-              onClick={() => setViewMode('paper')}
-              className={`px-4 py-1.5 rounded-full text-xs font-black transition-all ${viewMode === 'paper' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
-            >
-              نمط الملزمة 📄
-            </button>
-            <button 
-              onClick={() => setViewMode('slide')}
-              className={`px-4 py-1.5 rounded-full text-xs font-black transition-all ${viewMode === 'slide' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
-            >
-              نمط العرض 📽️
-            </button>
+      {/* Floating Toolbar */}
+      <header className="fixed top-6 left-6 right-6 z-[100] no-print">
+        <div className="max-w-7xl mx-auto flex items-center justify-between p-3 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
+          <div className="flex items-center gap-4 px-2">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl blur opacity-40 group-hover:opacity-75 transition duration-500" />
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/20">
+                <img src="/teacher.png" alt="Amer Timraz" className="w-full h-full object-cover" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-sm font-black text-white leading-tight">{quiz.title}</h1>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <p className="text-[10px] text-white/50 font-bold tracking-wider">مباشر • أ. عامر تمراز</p>
+              </div>
+            </div>
           </div>
 
-          <button 
-            onClick={isRecording ? stopRecording : startRecording}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-black transition-all ${isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-indigo-600 hover:bg-indigo-500'}`}
-          >
-            {isRecording ? <Square size={16} fill="currentColor" /> : <Video size={16} />}
-            <span className="hidden md:inline">{isRecording ? 'إيقاف التسجيل' : 'بدء تسجيل المراجعة'}</span>
-          </button>
-          
-          <button onClick={() => window.print()} className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300" title="طباعة الملزمة">
-            <Download size={18} />
-          </button>
-          
-          <button onClick={() => navigate(-1)} className="p-2.5 rounded-full bg-white/5 hover:bg-white/10">
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Theme Picker */}
+            <div className="hidden sm:flex items-center bg-black/20 p-1 rounded-xl mr-2 border border-white/5">
+              {(Object.keys(THEMES) as ThemeType[]).map(t => (
+                <button
+                  key={t}
+                  onClick={() => setTheme(t)}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${theme === t ? 'bg-white/20 scale-110 shadow-lg' : 'hover:bg-white/5 opacity-50 hover:opacity-100'}`}
+                  title={t}
+                >
+                  <Palette size={14} className={theme === t ? 'text-white' : 'text-white/40'} />
+                </button>
+              ))}
+            </div>
+
+            <button 
+              onClick={toggleFullscreen}
+              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all border border-white/5"
+            >
+              {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+            </button>
+
+            <button 
+              onClick={isRecording ? stopRecording : startRecording}
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black transition-all ${isRecording ? 'bg-red-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            >
+              <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-white animate-ping' : 'bg-red-500'}`} />
+              <span className="hidden md:inline">{isRecording ? 'إيقاف' : 'تسجيل'}</span>
+            </button>
+
+            <div className="h-6 w-px bg-white/10 mx-1" />
+
+            <button onClick={() => window.print()} className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 transition-all">
+              <Download size={18} />
+            </button>
+            <button onClick={() => navigate(-1)} className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all">
+              <X size={18} />
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        {viewMode === 'paper' ? (
-          /* --- PAPER MODE (Booklet Style) --- */
-          <div className="flex-1 py-12 px-4 flex justify-center">
-             <div className={`w-full max-w-4xl rounded-sm shadow-2xl relative min-h-[1400px] flex flex-col border-[12px] border-double ${isCyberTech ? 'bg-slate-950 border-indigo-500/50 shadow-indigo-500/20 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
-                {/* Decorative Frame inside */}
-                <div className={`absolute inset-0 border-2 m-2 pointer-events-none ${isCyberTech ? 'border-indigo-500/30' : 'border-slate-300'}`} />
-                
-                {/* Branding Header */}
-                <div className={`p-8 border-b-4 border-double flex items-center justify-between relative z-10 ${isCyberTech ? 'border-indigo-500/50 bg-slate-900/50' : 'border-slate-900 bg-white'}`}>
-                   <div className="text-right">
-                      <h2 className={`text-3xl font-black mb-1 ${isCyberTech ? 'text-indigo-400' : 'text-slate-900'}`}>مستر عامر تمراز</h2>
-                      <p className={`text-xl font-bold ${isCyberTech ? 'text-emerald-400' : 'text-indigo-700'}`}>خبير البرمجة والذكاء الاصطناعي</p>
-                      <div className="mt-4 flex flex-col gap-1">
-                         <span className={`text-sm font-black px-3 py-1 rounded-md w-fit ${isCyberTech ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-900 text-white'}`}>المادة: {quiz.subject || 'تكنولوجيا المعلومات'}</span>
-                         <span className={`text-sm font-black px-3 py-0.5 rounded-md w-fit border-2 ${isCyberTech ? 'border-emerald-500/30 text-emerald-300' : 'border-slate-900 text-slate-900'}`}>الصف: {quiz.grade || 'الأول الثانوي'}</span>
-                      </div>
-                   </div>
-                   <div className="text-center">
-                      <div className={`w-24 h-24 rounded-full border-4 p-1 overflow-hidden mb-2 mx-auto ${isCyberTech ? 'border-indigo-500 shadow-lg shadow-indigo-500/40' : 'border-slate-900 bg-slate-50'}`}>
-                         {quiz.teacherImage ? (
-                           <img src={getMediaUrl(quiz.teacherImage)} alt="Teacher" className="w-full h-full object-cover rounded-full" />
-                         ) : (
-                           <div className="w-full h-full flex items-center justify-center text-slate-300"><HelpCircle size={40} /></div>
-                         )}
-                      </div>
-                      <p className={`text-xs font-black uppercase tracking-widest ${isCyberTech ? 'text-indigo-400' : 'text-slate-400'}`}>Official Revision</p>
-                   </div>
-                   <div className="text-left">
-                      <h3 className={`text-4xl font-black opacity-20 ${isCyberTech ? 'text-indigo-500' : 'text-slate-900'}`}>2026</h3>
-                      <p className={`text-sm font-bold ${isCyberTech ? 'text-slate-400' : 'text-slate-500'}`}>ترم ثاني - مراجعة ليلة الامتحان</p>
-                   </div>
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto pt-28 pb-12 px-6 scrollbar-hide no-print">
+        <div className="max-w-5xl mx-auto space-y-8">
+          
+          {/* Header Card */}
+          <div className={`${activeTheme.card} p-8 rounded-[2.5rem] border flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden group`}>
+            <div className={`absolute top-0 right-0 w-64 h-64 bg-gradient-to-br ${activeTheme.accent} opacity-5 blur-[80px]`} />
+            
+            <div className="relative text-center md:text-right">
+              <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${activeTheme.bg} ${activeTheme.text} border ${activeTheme.border}`}>
+                  Premium Revision 2026
+                </span>
+              </div>
+              <h2 className={`text-4xl md:text-5xl font-black mb-3 ${activeTheme.text}`}>
+                {quiz.title}
+              </h2>
+              <p className={`text-lg font-bold ${activeTheme.secondaryText}`}>
+                {quiz.subject} • {quiz.grade}
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-md">
+              <div className="flex items-center gap-2 mb-2">
+                <Trophy size={20} className="text-amber-400" />
+                <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Teacher Info</span>
+              </div>
+              <h3 className="text-white font-black text-xl">مستر عامر تمراز</h3>
+              <div className="flex gap-4 mt-2">
+                <div className="flex flex-col items-center">
+                  <span className="text-2xl font-black text-white">{quiz.questions.length}</span>
+                  <span className="text-[8px] text-white/40 uppercase font-bold">سؤالاً</span>
                 </div>
-
-                {/* Content Body */}
-                <div className="flex-1 p-10 relative">
-                   {/* Watermark */}
-                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none">
-                      <span className={`text-[120px] font-black -rotate-45 uppercase whitespace-nowrap opacity-[0.03] ${isCyberTech ? 'text-indigo-500' : 'text-slate-900'}`}>AMER TIMRAZ</span>
-                   </div>
-
-                   <div className="relative z-10 space-y-12">
-                      <div className="text-center mb-12">
-                         <h4 className="inline-block border-b-4 border-indigo-600 pb-2 text-2xl font-black text-slate-900 px-8 italic">
-                            « أقوى مراجعة نهائية - {quiz.title} »
-                         </h4>
-                      </div>
-
-                      {questions.map((q, qIdx) => {
-                        const qOptions = parseOptions(q.options);
-                        const qCorrect = getCorrectIdx(q);
-                        const isRevealed = !!revealed[qIdx];
-                        const selOpt = selectedOptions[qIdx];
-                        const isShowingAns = !!showAnswers[qIdx];
-
-                        return (
-                          <div key={q.id} className="group relative">
-                             <div className="flex items-start gap-4 mb-4">
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 font-black text-xl shadow-lg ${isCyberTech ? 'bg-indigo-500 text-white shadow-indigo-500/50' : 'bg-slate-900 text-white'}`}>
-                                   {qIdx + 1}
-                                </div>
-                                <div className="flex-1 pt-1">
-                                   <div className={`text-2xl font-bold leading-relaxed ${isCyberTech ? 'text-white' : 'text-slate-900'}`}>
-                                      {renderContent(q.text)}
-                                   </div>
-                                </div>
-                                <div className="flex gap-1 no-print">
-                                   <button 
-                                     onClick={() => toggleShowAnswer(qIdx)}
-                                     className={`p-2 rounded-lg transition-colors ${isShowingAns ? 'bg-indigo-600 text-white' : isCyberTech ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
-                                   >
-                                     <Eye size={18} />
-                                   </button>
-                                </div>
-                             </div>
-
-                             {/* Options Area */}
-                             <div className={`grid gap-3 mr-14 ${q.type === 'TrueFalse' ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2'}`}>
-                                {qOptions.map((opt, optIdx) => {
-                                   const isCorrect = optIdx === qCorrect;
-                                   const isSelected = optIdx === selOpt;
-                                   const status = (isRevealed && isCorrect) || (isShowingAns && isCorrect) ? 'correct' : 
-                                                 (isRevealed && isSelected && !isCorrect) ? 'wrong' : 'idle';
-
-                                   return (
-                                     <button
-                                       key={optIdx}
-                                       onClick={() => handleSelect(qIdx, optIdx)}
-                                       className={`
-                                         p-4 rounded-xl border-2 text-lg font-bold flex items-center gap-3 transition-all text-right
-                                         ${status === 'correct' ? (isCyberTech ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-emerald-50 border-emerald-500 text-emerald-700') : 
-                                           status === 'wrong' ? (isCyberTech ? 'bg-red-500/20 border-red-500 text-red-400 shadow-lg shadow-red-500/20' : 'bg-red-50 border-red-500 text-red-700') : 
-                                           (isCyberTech ? 'bg-slate-900/50 border-indigo-500/20 hover:border-indigo-500/50 text-slate-300 hover:text-white' : 'bg-slate-50 border-slate-200 hover:border-slate-400 text-slate-600')}
-                                       `}
-                                     >
-                                       <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-black text-sm border ${status === 'correct' ? 'bg-emerald-500 text-white border-emerald-600' : status === 'wrong' ? 'bg-red-500 text-white border-red-600' : (isCyberTech ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' : 'bg-white border-slate-300')}`}>
-                                          {q.type === 'TrueFalse' ? (optIdx === 0 ? '✔️' : '❌') : String.fromCharCode(65 + optIdx)}
-                                       </span>
-                                       <span className="flex-1">{opt}</span>
-                                     </button>
-                                   );
-                                })}
-                             </div>
-                          </div>
-                        );
-                      })}
-                   </div>
+                <div className="w-px h-8 bg-white/10" />
+                <div className="flex flex-col items-center">
+                  <span className="text-2xl font-black text-white">45</span>
+                  <span className="text-[8px] text-white/40 uppercase font-bold">دقيقة</span>
                 </div>
-
-                {/* Footer Branding */}
-                <div className={`p-8 border-t-2 flex items-center justify-between font-black text-xs uppercase tracking-widest mt-auto ${isCyberTech ? 'bg-slate-900 border-indigo-500/30 text-indigo-400' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
-                   <span>© 2026 MR AMER TIMRAZ</span>
-                   <span>ممنوع التداول أو النسخ دون إذن المؤلف</span>
-                   <span>WWW.AMERTIMRAZ.COM</span>
-                </div>
-             </div>
+              </div>
+            </div>
           </div>
-        ) : (
-          /* --- SLIDE MODE (Original Modern Presenter) --- */
-          <div className="flex-1 flex flex-col">
-             <div className="h-1.5 w-full bg-white/5 relative z-20">
-                <motion.div 
-                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
-                />
-             </div>
 
-             <main className="flex-1 flex items-center justify-center p-6 md:p-12 relative overflow-hidden">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-7xl">
-                   <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/10 blur-[120px] rounded-full animate-pulse" />
-                   <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/10 blur-[120px] rounded-full animate-pulse delay-700" />
-                </div>
+          {/* Questions Grid */}
+          <div className="grid gap-6">
+            {quiz.questions.map((q, idx) => {
+              const options = parseOptions(q.options);
+              const correctIdx = getCorrectIdx(q);
+              const isRevealed = revealed[idx] || showAnswers[idx];
+              const selIdx = selectedOptions[idx];
 
-                <AnimatePresence mode="wait">
-                  <motion.div 
-                    key={currentIdx}
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 50 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="w-full max-w-5xl z-10"
-                  >
-                    <div className="flex flex-col gap-8">
-                      {(() => {
-                         const q = questions[currentIdx];
-                         const qOptions = parseOptions(q.options);
-                         const qCorrect = getCorrectIdx(q);
-                         const isRevealed = revealed[currentIdx];
-                         const selOpt = selectedOptions[currentIdx];
-                         const isShowingAns = showAnswers[currentIdx];
-
-                         return (
-                           <>
-                              <div className="bg-slate-900/40 border border-white/10 rounded-[2.5rem] p-10 md:p-16 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] -mr-32 -mt-32" />
-                                <div className="relative">
-                                  <div className="flex items-center gap-3 mb-8">
-                                    <span className="px-4 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-400 text-sm font-black border border-indigo-500/20">سؤال {currentIdx + 1} من {questions.length}</span>
-                                    <span className={`px-4 py-1.5 rounded-xl text-sm font-black border flex items-center gap-2 ${q.type === 'TrueFalse' ? 'bg-amber-500/20 text-amber-400 border-amber-500/20' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20'}`}>
-                                       <HelpCircle size={16} /> {q.type === 'TrueFalse' ? 'صح أو خطأ' : 'اختيار من متعدد'}
-                                    </span>
-                                  </div>
-                                  <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-4">{renderContent(q.text)}</h2>
-                                </div>
-                              </div>
-
-                              <div className={`grid gap-4 ${q.type === 'TrueFalse' ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2'}`}>
-                                {qOptions.map((opt, i) => {
-                                   const status = (isRevealed && i === qCorrect) || (isShowingAns && i === qCorrect) ? 'correct' : 
-                                                 (isRevealed && i === selOpt && i !== qCorrect) ? 'wrong' : 'idle';
-                                   return (
-                                     <motion.button
-                                       key={i}
-                                       whileHover={{ scale: 1.02 }}
-                                       whileTap={{ scale: 0.98 }}
-                                       onClick={() => handleSelect(currentIdx, i)}
-                                       className={`p-6 md:p-8 rounded-[2rem] border-2 text-2xl font-bold flex items-center gap-6 transition-all text-right relative overflow-hidden ${status === 'correct' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-lg shadow-emerald-500/20' : status === 'wrong' ? 'bg-red-500/20 border-red-500 text-red-400 shadow-lg shadow-red-500/20' : 'bg-slate-900/40 border-white/10 text-slate-300 hover:text-white'}`}
-                                     >
-                                       <span className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 text-2xl font-black ${status === 'correct' ? 'bg-emerald-50 text-emerald-600' : status === 'wrong' ? 'bg-red-50 text-red-600' : 'bg-white/10'}`}>
-                                          {q.type === 'TrueFalse' ? (i === 0 ? '✔️' : '❌') : String.fromCharCode(65 + i)}
-                                       </span>
-                                       <span className="flex-1">{opt}</span>
-                                     </motion.button>
-                                   );
-                                })}
-                              </div>
-                           </>
-                         )
-                      })()}
+              return (
+                <motion.div
+                  key={q.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className={`${activeTheme.card} p-8 rounded-[2rem] border hover:border-white/20 transition-all duration-500 shadow-xl group`}
+                >
+                  <div className="flex items-start gap-6">
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${activeTheme.accent} flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg`}>
+                      {idx + 1}
                     </div>
-                  </motion.div>
-                </AnimatePresence>
-             </main>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className={`text-2xl font-black leading-relaxed flex flex-wrap items-center gap-3 ${activeTheme.text}`}>
+                          {renderContent(q.text)}
+                          
+                          {/* True/False Inline Quick Icons */}
+                          {q.type === 'TrueFalse' && (
+                            <div className="flex items-center gap-2 ms-auto">
+                              {[0, 1].map(btnIdx => {
+                                const isCorrect = btnIdx === correctIdx;
+                                const isSelected = btnIdx === selIdx;
+                                const state = (isRevealed && isCorrect) ? 'correct' : (revealed[idx] && isSelected && !isCorrect) ? 'wrong' : 'idle';
+                                
+                                return (
+                                  <button
+                                    key={btnIdx}
+                                    onClick={() => {
+                                      setSelectedOptions(p => ({...p, [idx]: btnIdx}));
+                                      setRevealed(p => ({...p, [idx]: true}));
+                                    }}
+                                    className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all border-2 ${
+                                      state === 'correct' ? 'bg-emerald-500 border-emerald-400 text-white scale-110 shadow-lg shadow-emerald-500/40' :
+                                      state === 'wrong' ? 'bg-red-500 border-red-400 text-white scale-110 shadow-lg shadow-red-500/40' :
+                                      'bg-white/5 border-white/10 text-white/30 hover:text-white hover:border-white/30'
+                                    }`}
+                                  >
+                                    {btnIdx === 0 ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <button 
+                          onClick={() => setShowAnswers(p => ({...p, [idx]: !p[idx]}))}
+                          className={`p-3 rounded-xl transition-all ${showAnswers[idx] ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white/5 text-white/30 hover:bg-white/10 hover:text-white'}`}
+                        >
+                          {showAnswers[idx] ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
 
-             <footer className="p-8 bg-slate-900/80 backdrop-blur-2xl border-t border-white/5 flex items-center justify-between z-20">
-                <button onClick={() => currentIdx > 0 && setCurrentIdx(currentIdx - 1)} disabled={currentIdx === 0} className="w-16 h-16 rounded-[1.5rem] bg-white/5 hover:bg-white/10 flex items-center justify-center disabled:opacity-20"><ChevronRight size={36} /></button>
-                <div className="flex items-center gap-6">
-                   <button onClick={() => toggleShowAnswer(currentIdx)} className={`flex items-center gap-3 font-black text-lg px-8 py-4 rounded-[1.5rem] transition-all ${showAnswers[currentIdx] ? 'bg-indigo-600 text-white' : 'bg-white/5 text-slate-400 border border-white/10'}`}>
-                      {showAnswers[currentIdx] ? <EyeOff size={24} /> : <Eye size={24} />} {showAnswers[currentIdx] ? 'إخفاء الإجابة' : 'عرض الإجابة'}
-                   </button>
-                   <button onClick={() => { setRevealed(prev => ({...prev, [currentIdx]: false})); setSelectedOptions(prev => ({...prev, [currentIdx]: null})); setShowAnswers(prev => ({...prev, [currentIdx]: false})); }} className="px-8 py-4 rounded-[1.5rem] bg-white/5 text-slate-400 hover:text-white border border-white/10 transition-all"><RotateCcw size={24} /></button>
-                </div>
-                <button onClick={() => currentIdx < questions.length - 1 && setCurrentIdx(currentIdx + 1)} disabled={currentIdx === questions.length - 1} className="w-16 h-16 rounded-[1.5rem] bg-white/5 hover:bg-white/10 flex items-center justify-center disabled:opacity-20"><ChevronLeft size={36} /></button>
-             </footer>
+                      {q.type === 'MCQ' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8">
+                          {options.map((opt, optIdx) => {
+                            const isCorrect = optIdx === correctIdx;
+                            const isSelected = optIdx === selIdx;
+                            const state = (isRevealed && isCorrect) ? 'correct' : (revealed[idx] && isSelected && !isCorrect) ? 'wrong' : 'idle';
+
+                            return (
+                              <button
+                                key={optIdx}
+                                onClick={() => {
+                                  setSelectedOptions(p => ({...p, [idx]: optIdx}));
+                                  setRevealed(p => ({...p, [idx]: true}));
+                                }}
+                                className={`
+                                  p-5 rounded-2xl border-2 text-right font-bold text-lg flex items-center gap-4 transition-all
+                                  ${state === 'correct' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-lg shadow-emerald-500/20' :
+                                    state === 'wrong' ? 'bg-red-500/20 border-red-500 text-red-400 shadow-lg shadow-red-500/20' :
+                                    'bg-white/5 border-white/5 hover:border-white/20 text-white/70 hover:text-white'}
+                                `}
+                              >
+                                <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-black border ${
+                                  state === 'correct' ? 'bg-emerald-500 text-white border-emerald-400' :
+                                  state === 'wrong' ? 'bg-red-500 text-white border-red-400' :
+                                  'bg-white/10 border-white/10'
+                                }`}>
+                                  {String.fromCharCode(65 + optIdx)}
+                                </span>
+                                <span className="flex-1">{opt}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {isRevealed && q.explanation && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          className="mt-6 p-6 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-sm"
+                        >
+                          <div className="flex items-center gap-2 mb-2 text-indigo-400 font-black">
+                            <Sparkles size={16} />
+                            <span>توضيح الإجابة:</span>
+                          </div>
+                          <p className="text-white/60 leading-relaxed font-medium">{q.explanation}</p>
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
-        )}
+        </div>
+      </main>
+
+      {/* Footer Branding */}
+      <footer className="p-8 text-center relative z-10 no-print">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">
+          Created with ❤️ for Mr. Amer Timraz Platform • 2026
+        </p>
+      </footer>
+
+      {/* Print View (Only visible during print) */}
+      <div className="hidden print:block bg-white text-slate-900 p-8 font-['Cairo']">
+        <div className="flex items-center justify-between border-b-4 border-slate-900 pb-4 mb-8">
+           <div>
+              <h1 className="text-3xl font-black">مستر عامر تمراز</h1>
+              <p className="text-xl font-bold">مراجعة ليلة الامتحان - {quiz.title}</p>
+           </div>
+           <div className="text-right">
+              <p className="font-bold">{quiz.subject}</p>
+              <p className="text-sm font-bold">{quiz.grade}</p>
+           </div>
+        </div>
+        <div className="space-y-8">
+           {quiz.questions.map((q, i) => (
+             <div key={q.id} className="border-b border-slate-200 pb-4">
+                <p className="text-xl font-bold mb-4">{i+1}. {q.text}</p>
+                {q.type === 'MCQ' ? (
+                  <div className="grid grid-cols-2 gap-4">
+                     {parseOptions(q.options).map((opt, idx) => (
+                       <p key={idx} className="text-lg">({String.fromCharCode(65+idx)}) {opt}</p>
+                     ))}
+                  </div>
+                ) : (
+                  <div className="flex gap-8 italic font-bold">
+                     <span>( ) صح</span>
+                     <span>( ) خطأ</span>
+                  </div>
+                )}
+             </div>
+           ))}
+        </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          .no-print { display: none !important; }
+          body { background: white !important; }
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}} />
     </div>
   );
 }
