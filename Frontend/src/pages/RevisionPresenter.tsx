@@ -7,7 +7,7 @@ import {
   Maximize2, Minimize2, Palette, Sparkles, Trophy,
   CheckCircle2, XCircle, BookOpen, Layers, Check, AlertCircle, Code
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { CodeBlock } from '../components/ui/CodeBlock';
 
@@ -148,15 +148,15 @@ export default function RevisionPresenter() {
     enabled: !!(id || slug),
   });
 
-  const tfQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'TrueFalse' || q.type === 1) || [], [quiz]);
+  const tfQuestions = useMemo(() => quiz?.questions.filter(q => String(q.type) === 'TrueFalse' || Number(q.type) === 1) || [], [quiz]);
   
-  const allOtherQuestions = useMemo(() => quiz?.questions.filter(q => q.type !== 'TrueFalse' && q.type !== 1) || [], [quiz]);
+  const allOtherQuestions = useMemo(() => quiz?.questions.filter(q => String(q.type) !== 'TrueFalse' && Number(q.type) !== 1) || [], [quiz]);
   
-  const mcqQuestions = useMemo(() => allOtherQuestions.filter(q => (q.type === 'MCQ' || q.type === 0) && !q.text.includes('```')), [allOtherQuestions]);
+  const mcqQuestions = useMemo(() => allOtherQuestions.filter(q => (String(q.type) === 'MCQ' || Number(q.type) === 0) && !q.text.includes('```')), [allOtherQuestions]);
   
-  const codeQuestions = useMemo(() => allOtherQuestions.filter(q => (q.type === 'MCQ' || q.type === 0) && q.text.includes('```')), [allOtherQuestions]);
+  const codeQuestions = useMemo(() => allOtherQuestions.filter(q => (String(q.type) === 'MCQ' || Number(q.type) === 0) && q.text.includes('```')), [allOtherQuestions]);
   
-  const completionQuestions = useMemo(() => allOtherQuestions.filter(q => q.type === 'Completion' || q.type === 2), [allOtherQuestions]);
+  const completionQuestions = useMemo(() => allOtherQuestions.filter(q => String(q.type) === 'Completion' || Number(q.type) === 2), [allOtherQuestions]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -213,7 +213,8 @@ export default function RevisionPresenter() {
       const currentInput = completionAnswers[absoluteIdx] || '';
       const isCorrectCompletion = currentInput.trim() === q.correctAnswer?.trim();
 
-      const questionType = (q.type === 'MCQ' || q.type === 0) ? 'MCQ' : (q.type === 'TrueFalse' || q.type === 1) ? 'TrueFalse' : 'Completion';
+      const rawType = String(q.type);
+      const questionType = (rawType === 'MCQ' || Number(q.type) === 0) ? 'MCQ' : (rawType === 'TrueFalse' || Number(q.type) === 1) ? 'TrueFalse' : 'Completion';
 
       return (
         <motion.div key={q.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className={`${activeTheme.card} p-8 rounded-[2rem] border hover:border-white/20 transition-all duration-500 shadow-xl group relative overflow-hidden`}>
