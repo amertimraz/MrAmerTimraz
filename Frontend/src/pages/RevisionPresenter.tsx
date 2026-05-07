@@ -44,7 +44,7 @@ const renderContent = (text: string) => {
 };
 
 export default function RevisionPresenter() {
-  const { id } = useParams<{ id: string }>();
+  const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const navigate = useNavigate();
   
   const [viewMode, setViewMode] = useState<'slide' | 'paper'>('paper');
@@ -59,13 +59,13 @@ export default function RevisionPresenter() {
   const streamRef = useRef<MediaStream | null>(null);
 
   const { data: quiz, isLoading, error } = useQuery({
-    queryKey: ['interactive-quiz', id],
+    queryKey: ['interactive-quiz', id, slug],
     queryFn: () => {
-       const cleanId = id?.trim() || '';
-       const isNumeric = /^\d+$/.test(cleanId);
-       return isNumeric ? quizzesApi.getById(Number(cleanId)) : quizzesApi.getBySlug(cleanId);
+      if (id) return quizzesApi.getById(Number(id));
+      if (slug) return quizzesApi.getBySlug(slug);
+      throw new Error('No ID or Slug provided');
     },
-    enabled: !!id,
+    enabled: !!(id || slug),
   });
 
   const questions = quiz?.questions || [];

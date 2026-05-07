@@ -211,6 +211,7 @@ export default function App() {
             <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
             <Route path="/interactive-revision" element={<RevisionHub />} />
             <Route path="/interactive-revision/:id" element={<RevisionPresenter />} />
+            <Route path="/interactive-revision/slug/:slug" element={<RevisionPresenter />} />
             <Route path="/quiz/:id" element={<QuizPresenter />} />
 
             <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
