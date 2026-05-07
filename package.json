@@ -20,6 +20,8 @@
   "homepage": "https://github.com/amertimraz/MrAmerTimraz#readme",
   "dependencies": {
     "better-sqlite3": "^12.6.2",
-    "pg": "^8.20.0"
+    "pdf2json": "^4.0.3",
+    "pg": "^8.20.0",
+    "tesseract.js": "^7.0.0"
   }
 }
