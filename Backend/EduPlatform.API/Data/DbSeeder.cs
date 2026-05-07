@@ -18,7 +18,7 @@ namespace EduPlatform.API.Data
 
         private static async Task SeedInteractiveQuizzesAsync(AppDbContext context)
         {
-            var existing = await context.InteractiveQuizzes.FirstOrDefaultAsync(q => q.Slug == "3rd-prep-cs-final-revision");
+            var existing = await context.InteractiveQuizzes.Include(q => q.Questions).FirstOrDefaultAsync(q => q.Slug == "3rd-prep-cs-final-revision");
             if (existing != null)
             {
                 context.InteractiveQuizzes.Remove(existing);
