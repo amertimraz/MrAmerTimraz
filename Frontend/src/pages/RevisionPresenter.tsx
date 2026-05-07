@@ -5,7 +5,7 @@ import { quizzesApi } from '../api/quizzes';
 import { 
   Download, X, Eye, EyeOff, 
   Maximize2, Minimize2, Palette, Sparkles, Trophy,
-  CheckCircle2, XCircle, BookOpen, Layers, Check, AlertCircle
+  CheckCircle2, XCircle, BookOpen, Layers, Check, AlertCircle, Code
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -78,7 +78,6 @@ const renderContent = (text: string) => {
   const cleanText = text.replace(/\\n/g, '\n');
   if (!cleanText.includes('```') && !cleanText.includes('<div dir="ltr"')) return <span className="whitespace-pre-line">{cleanText}</span>;
   
-  // Handle the injected LTR div from seeder
   const parts = cleanText.split(/(```[\s\S]*?```|<div dir="ltr"[\s\S]*?<\/div>)/g);
   return (
     <>
@@ -149,9 +148,15 @@ export default function RevisionPresenter() {
     enabled: !!(id || slug),
   });
 
-  const mcqQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'MCQ' || q.type === 0) || [], [quiz]);
   const tfQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'TrueFalse' || q.type === 1) || [], [quiz]);
-  const completionQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'Completion' || q.type === 2) || [], [quiz]);
+  
+  const allOtherQuestions = useMemo(() => quiz?.questions.filter(q => q.type !== 'TrueFalse' && q.type !== 1) || [], [quiz]);
+  
+  const mcqQuestions = useMemo(() => allOtherQuestions.filter(q => (q.type === 'MCQ' || q.type === 0) && !q.text.includes('```')), [allOtherQuestions]);
+  
+  const codeQuestions = useMemo(() => allOtherQuestions.filter(q => (q.type === 'MCQ' || q.type === 0) && q.text.includes('```')), [allOtherQuestions]);
+  
+  const completionQuestions = useMemo(() => allOtherQuestions.filter(q => q.type === 'Completion' || q.type === 2), [allOtherQuestions]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -259,7 +264,7 @@ export default function RevisionPresenter() {
                   ) : renderContent(q.text)}
                   
                   {questionType === 'TrueFalse' && (
-                    <div className="flex flex-col gap-2 ms-auto shrink-0">
+                    <div className="flex items-center gap-2 ms-auto shrink-0">
                       {[0, 1].map(btnIdx => {
                         const isCorrect = btnIdx === correctIdx;
                         const isSelected = btnIdx === selIdx;
@@ -404,12 +409,13 @@ export default function RevisionPresenter() {
             </div>
           </div>
 
-          {/* 1. True/False Section (First) */}
+          {/* 1. True/False Section */}
           {tfQuestions.length > 0 && (
             <section className="space-y-6">
               <div className="flex items-center gap-4 mb-8">
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
-                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl`}>
+                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
+                    <CheckCircle2 className="text-emerald-500" size={24} />
                     أولاً: أسئلة الصواب والخطأ (True / False)
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
@@ -425,7 +431,8 @@ export default function RevisionPresenter() {
             <section className="space-y-6 mt-16">
               <div className="flex items-center gap-4 mb-8">
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
-                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl`}>
+                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
+                    <Layers className="text-blue-500" size={24} />
                     ثانياً: أسئلة الاختيار من متعدد (MCQ)
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
@@ -436,18 +443,36 @@ export default function RevisionPresenter() {
             </section>
           )}
 
-          {/* 3. Completion Section */}
-          {completionQuestions.length > 0 && (
+          {/* 3. Code Questions Section */}
+          {codeQuestions.length > 0 && (
             <section className="space-y-6 mt-16">
               <div className="flex items-center gap-4 mb-8">
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
-                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl`}>
-                    ثالثاً: أسئلة الإكمال (Complete)
+                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
+                    <Code className="text-purple-500" size={24} />
+                    ثالثاً: أسئلة قراءة الأكواد وفهمها
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(completionQuestions, tfQuestions.length + mcqQuestions.length)}
+                {renderQuestionList(codeQuestions, tfQuestions.length + mcqQuestions.length)}
+              </div>
+            </section>
+          )}
+
+          {/* 4. Completion Section */}
+          {completionQuestions.length > 0 && (
+            <section className="space-y-6 mt-16">
+              <div className="flex items-center gap-4 mb-8">
+                 <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
+                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
+                    <Sparkles className="text-amber-500" size={24} />
+                    رابعاً: أسئلة الإكمال التفاعلية
+                 </h3>
+                 <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
+              </div>
+              <div className="grid gap-6">
+                {renderQuestionList(completionQuestions, tfQuestions.length + mcqQuestions.length + codeQuestions.length)}
               </div>
             </section>
           )}
