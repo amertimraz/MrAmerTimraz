@@ -8,6 +8,7 @@ import {
   CheckCircle2, XCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getMediaUrl } from '../api/client';
 import toast from 'react-hot-toast';
 import { CodeBlock } from '../components/ui/CodeBlock';
 
@@ -56,7 +57,7 @@ const THEMES: Record<ThemeType, ThemeConfig> = {
     card: 'bg-white border-slate-200 shadow-xl',
     accent: 'from-blue-600 to-indigo-700',
     text: 'text-slate-900',
-    secondaryText: 'text-indigo-600',
+    secondaryText: 'text-indigo-700 font-bold',
     border: 'border-slate-300',
     glow: 'shadow-blue-500/10'
   }
@@ -75,41 +76,30 @@ function getCorrectIdx(q: any): number {
 }
 
 const renderContent = (text: string) => {
-  // Clean literal \n strings and replace with actual newlines
   const cleanText = text.replace(/\\n/g, '\n');
-  
-  if (!cleanText.includes('```')) {
-    return <span className="whitespace-pre-line">{cleanText}</span>;
-  }
-
+  if (!cleanText.includes('```')) return <span className="whitespace-pre-line">{cleanText}</span>;
   const parts = cleanText.split(/(```[\s\S]*?```)/g);
   return (
     <>
       {parts.map((part, i) => {
         if (part.startsWith('```') && part.endsWith('```')) {
           let content = part.slice(3, -3).trim();
-          
-          // More aggressive cleaning: Remove common HTML artifacts baked into strings
           content = content
-            .replace(/<[^>]*>?/gm, '') // Remove any HTML tags
-            .replace(/class="[^"]*"/g, '') // Remove class attributes
-            .replace(/style="[^"]*"/g, '') // Remove style attributes
-            .replace(/font-bold/g, '') // Remove specific classes
-            .replace(/text-[a-z0-9-]+/g, '') // Remove color classes
-            .replace(/&quot;/g, '"') // Fix quotes
-            .replace(/&nbsp;/g, ' ') // Fix spaces
-            .replace(/&lt;/g, '<') // Fix less than
-            .replace(/&gt;/g, '>') // Fix greater than
-            .replace(/<.*?>/g, ''); // Catch any remaining bracketed junk
+            .replace(/<[^>]*>?/gm, '')
+            .replace(/class="[^"]*"/g, '')
+            .replace(/style="[^"]*"/g, '')
+            .replace(/font-bold/g, '')
+            .replace(/text-[a-z0-9-]+/g, '')
+            .replace(/&quot;/g, '"')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/<.*?>/g, '');
           
-          // Final trim and cleanup of double spaces/newlines
           content = content.replace(/\s{2,}/g, ' ').replace(/\n\s+/g, '\n').trim();
-          
-          // Handle the "vb" or "python" prefix if it exists followed by \n
           const lines = content.split('\n');
           let lang = 'code';
           let finalCode = content;
-
           if (lines.length > 0) {
             const firstLine = lines[0].trim().toLowerCase();
             if (['vb', 'visualbasic', 'python', 'javascript', 'js', 'html', 'css', 'csharp', 'cpp'].includes(firstLine)) {
@@ -117,7 +107,6 @@ const renderContent = (text: string) => {
               finalCode = lines.slice(1).join('\n');
             }
           }
-
           return (
             <div key={i} className="my-6 relative group">
                <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition duration-500" />
@@ -134,13 +123,11 @@ const renderContent = (text: string) => {
 export default function RevisionPresenter() {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const navigate = useNavigate();
-  
   const [theme, setTheme] = useState<ThemeType>('midnight');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number | null>>({});
   const [showAnswers, setShowAnswers] = useState<Record<number, boolean>>({});
-  
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -158,11 +145,8 @@ export default function RevisionPresenter() {
   });
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
   };
 
   useEffect(() => {
@@ -173,10 +157,7 @@ export default function RevisionPresenter() {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: { ideal: 30 } },
-        audio: true
-      });
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: 30 } }, audio: true });
       streamRef.current = stream;
       const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
       mediaRecorderRef.current = recorder;
@@ -195,9 +176,7 @@ export default function RevisionPresenter() {
       recorder.start();
       setIsRecording(true);
       toast.success('بدأ التسجيل... بالتوفيق!');
-    } catch (err) {
-      toast.error('فشل بدء التسجيل.');
-    }
+    } catch (err) { toast.error('فشل بدء التسجيل.'); }
   };
 
   const stopRecording = () => {
@@ -212,14 +191,11 @@ export default function RevisionPresenter() {
 
   return (
     <div className={`min-h-screen ${activeTheme.bg} transition-colors duration-1000 flex flex-col font-['Cairo'] overflow-hidden relative`} dir="rtl">
-      
-      {/* Animated Background Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full opacity-10 blur-[150px] bg-gradient-to-br ${activeTheme.accent}`} />
         <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full opacity-10 blur-[120px] bg-gradient-to-tl ${activeTheme.accent}`} />
       </div>
 
-      {/* Floating Toolbar */}
       <header className="fixed top-6 left-6 right-6 z-[100] no-print">
         <div className="max-w-7xl mx-auto flex items-center justify-between p-3 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
           <div className="flex items-center gap-4 px-2">
@@ -239,7 +215,6 @@ export default function RevisionPresenter() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Theme Picker */}
             <div className="hidden sm:flex items-center bg-black/20 p-1 rounded-xl mr-2 border border-white/5">
               {(Object.keys(THEMES) as ThemeType[]).map(t => (
                 <button
@@ -253,76 +228,54 @@ export default function RevisionPresenter() {
               ))}
             </div>
 
-            <button 
-              onClick={toggleFullscreen}
-              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all border border-white/5"
-            >
+            <button onClick={toggleFullscreen} className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all border border-white/5">
               {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
             </button>
 
             <button 
               onClick={isRecording ? stopRecording : startRecording}
-              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black transition-all ${isRecording ? 'bg-red-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black transition-all ${isRecording ? 'bg-red-500 text-white' : (theme === 'frost' ? 'bg-indigo-600 text-white' : 'bg-white/10 text-white hover:bg-white/20')}`}
             >
-              <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-white animate-ping' : 'bg-red-500'}`} />
+              <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-white animate-ping' : (theme === 'frost' ? 'bg-white' : 'bg-red-500')}`} />
               <span className="hidden md:inline">{isRecording ? 'إيقاف' : 'تسجيل'}</span>
             </button>
 
             <div className="h-6 w-px bg-white/10 mx-1" />
 
-            <button onClick={() => window.print()} className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 transition-all">
+            <button onClick={() => window.print()} className={`p-2.5 rounded-xl transition-all ${theme === 'frost' ? 'bg-slate-100 text-slate-600' : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'}`}>
               <Download size={18} />
             </button>
-            <button onClick={() => navigate(-1)} className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all">
+            <button onClick={() => navigate(-1)} className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all">
               <X size={18} />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto pt-28 pb-12 px-6 scrollbar-hide no-print">
         <div className="max-w-7xl mx-auto space-y-8">
-          
-          {/* Header Card */}
           <div className={`${activeTheme.card} p-8 rounded-[2.5rem] border flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden group`}>
             <div className={`absolute top-0 right-0 w-64 h-64 bg-gradient-to-br ${activeTheme.accent} opacity-5 blur-[80px]`} />
-            
             <div className="relative text-center md:text-right">
               <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
                 <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${activeTheme.bg} ${activeTheme.text} border ${activeTheme.border}`}>
                   Premium Revision 2026
                 </span>
               </div>
-              <h2 className={`text-4xl md:text-5xl font-black mb-3 ${activeTheme.text}`}>
-                {quiz.title}
-              </h2>
-              <p className={`text-lg font-bold ${activeTheme.secondaryText}`}>
-                {quiz.subject} • {quiz.grade}
-              </p>
+              <h2 className={`text-4xl md:text-5xl font-black mb-3 ${activeTheme.text}`}>{quiz.title}</h2>
+              <p className={`text-lg font-bold ${activeTheme.secondaryText}`}>{quiz.subject} • {quiz.grade}</p>
             </div>
 
             <div className="flex flex-col items-center gap-3 bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-md">
-              <div className="flex items-center gap-2 mb-2">
-                <Trophy size={20} className="text-amber-400" />
-                <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Teacher Info</span>
-              </div>
+              <div className="flex items-center gap-2 mb-2"><Trophy size={20} className="text-amber-400" /><span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Teacher Info</span></div>
               <h3 className="text-white font-black text-xl">مستر عامر تمراز</h3>
               <div className="flex gap-4 mt-2">
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl font-black text-white">{quiz.questions.length}</span>
-                  <span className="text-[8px] text-white/40 uppercase font-bold">سؤالاً</span>
-                </div>
-                <div className="w-px h-8 bg-white/10" />
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl font-black text-white">45</span>
-                  <span className="text-[8px] text-white/40 uppercase font-bold">دقيقة</span>
-                </div>
+                <div className="flex flex-col items-center"><span className="text-2xl font-black text-white">{quiz.questions.length}</span><span className="text-[8px] text-white/40 uppercase font-bold">سؤالاً</span></div>
+                <div className="w-px h-8 bg-white/10" /><div className="flex flex-col items-center"><span className="text-2xl font-black text-white">45</span><span className="text-[8px] text-white/40 uppercase font-bold">دقيقة</span></div>
               </div>
             </div>
           </div>
 
-          {/* Questions Grid */}
           <div className="grid gap-6">
             {quiz.questions.map((q, idx) => {
               const options = parseOptions(q.options);
@@ -331,43 +284,28 @@ export default function RevisionPresenter() {
               const selIdx = selectedOptions[idx];
 
               return (
-                <motion.div
-                  key={q.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className={`${activeTheme.card} p-8 rounded-[2rem] border hover:border-white/20 transition-all duration-500 shadow-xl group`}
-                >
+                <motion.div key={q.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className={`${activeTheme.card} p-8 rounded-[2rem] border hover:border-white/20 transition-all duration-500 shadow-xl group`}>
                   <div className="flex items-start gap-6">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${activeTheme.accent} flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg`}>
-                      {idx + 1}
-                    </div>
-                    
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${activeTheme.accent} flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg`}>{idx + 1}</div>
                     <div className="flex-1">
                       <div className="flex items-start justify-between gap-4">
                         <div className={`text-2xl font-black leading-relaxed flex flex-wrap items-center gap-3 ${activeTheme.text}`}>
                           {renderContent(q.text)}
-                          
-                          {/* True/False Inline Quick Icons */}
                           {q.type === 'TrueFalse' && (
-                            <div className="flex items-center gap-2 ms-auto">
+                            <div className="flex flex-col gap-2 ms-auto shrink-0">
                               {[0, 1].map(btnIdx => {
                                 const isCorrect = btnIdx === correctIdx;
                                 const isSelected = btnIdx === selIdx;
                                 const state = (isRevealed && isCorrect) ? 'correct' : (revealed[idx] && isSelected && !isCorrect) ? 'wrong' : 'idle';
-                                
                                 return (
                                   <button
                                     key={btnIdx}
-                                    onClick={() => {
-                                      setSelectedOptions(p => ({...p, [idx]: btnIdx}));
-                                      setRevealed(p => ({...p, [idx]: true}));
-                                    }}
-                                    className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all border-2 ${
-                                      state === 'correct' ? 'bg-emerald-500 border-emerald-400 text-white scale-110 shadow-lg shadow-emerald-500/40' :
-                                      state === 'wrong' ? 'bg-red-500 border-red-400 text-white scale-110 shadow-lg shadow-red-500/40' :
-                                      'bg-white/5 border-white/10 text-white/30 hover:text-white hover:border-white/30'
-                                    }`}
+                                    onClick={() => { setSelectedOptions(p => ({...p, [idx]: btnIdx})); setRevealed(p => ({...p, [idx]: true})); }}
+                                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl transition-all border-2 shadow-sm ${
+                                      state === 'correct' ? 'bg-emerald-500 border-emerald-600 text-white scale-105' :
+                                      state === 'wrong' ? 'bg-red-500 border-red-600 text-white scale-105' :
+                                      (btnIdx === 0 ? 'border-emerald-500 text-emerald-500 hover:bg-emerald-500/10' : 'border-red-500 text-red-500 hover:bg-red-500/10')
+                                    } ${theme === 'frost' && state === 'idle' ? 'bg-white' : ''}`}
                                   >
                                     {btnIdx === 0 ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
                                   </button>
@@ -376,11 +314,7 @@ export default function RevisionPresenter() {
                             </div>
                           )}
                         </div>
-                        
-                        <button 
-                          onClick={() => setShowAnswers(p => ({...p, [idx]: !p[idx]}))}
-                          className={`p-3 rounded-xl transition-all ${showAnswers[idx] ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white/5 text-white/30 hover:bg-white/10 hover:text-white'}`}
-                        >
+                        <button onClick={() => setShowAnswers(p => ({...p, [idx]: !p[idx]}))} className={`p-3 rounded-xl transition-all ${showAnswers[idx] ? 'bg-indigo-600 text-white shadow-lg' : (theme === 'frost' ? 'bg-slate-100 text-slate-400 hover:text-slate-600' : 'bg-white/5 text-white/30 hover:bg-white/10 hover:text-white')}`}>
                           {showAnswers[idx] ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
@@ -391,28 +325,13 @@ export default function RevisionPresenter() {
                             const isCorrect = optIdx === correctIdx;
                             const isSelected = optIdx === selIdx;
                             const state = (isRevealed && isCorrect) ? 'correct' : (revealed[idx] && isSelected && !isCorrect) ? 'wrong' : 'idle';
-
                             return (
                               <button
                                 key={optIdx}
-                                onClick={() => {
-                                  setSelectedOptions(p => ({...p, [idx]: optIdx}));
-                                  setRevealed(p => ({...p, [idx]: true}));
-                                }}
-                                className={`
-                                  flex-1 min-w-[200px] p-4 rounded-2xl border-2 text-right font-bold text-base flex items-center gap-3 transition-all
-                                  ${state === 'correct' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-lg shadow-emerald-500/20' :
-                                    state === 'wrong' ? 'bg-red-500/20 border-red-500 text-red-400 shadow-lg shadow-red-500/20' :
-                                    `${activeTheme.bg} border-white/10 text-white/80 hover:border-white/30 hover:text-white`}
-                                `}
+                                onClick={() => { setSelectedOptions(p => ({...p, [idx]: optIdx})); setRevealed(p => ({...p, [idx]: true})); }}
+                                className={`flex-1 min-w-[200px] p-4 rounded-2xl border-2 text-right font-bold text-base flex items-center gap-3 transition-all ${state === 'correct' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : state === 'wrong' ? 'bg-red-500/20 border-red-500 text-red-400' : (theme === 'frost' ? 'bg-white border-slate-200 text-slate-700 hover:border-indigo-400' : 'bg-white/5 border-white/5 text-white/70 hover:border-white/20')}`}
                               >
-                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-black border ${
-                                  state === 'correct' ? 'bg-emerald-500 text-white border-emerald-400' :
-                                  state === 'wrong' ? 'bg-red-500 text-white border-red-400' :
-                                  'bg-white/10 border-white/10'
-                                }`}>
-                                  {String.fromCharCode(65 + optIdx)}
-                                </span>
+                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-black border ${state === 'correct' ? 'bg-emerald-500 text-white border-emerald-600' : state === 'wrong' ? 'bg-red-500 text-white border-red-600' : 'bg-white/10 border-white/10'}`}>{String.fromCharCode(65 + optIdx)}</span>
                                 <span className="flex-1">{opt}</span>
                               </button>
                             );
@@ -421,16 +340,9 @@ export default function RevisionPresenter() {
                       )}
 
                       {isRevealed && q.explanation && (
-                        <motion.div 
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          className="mt-6 p-6 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-sm"
-                        >
-                          <div className="flex items-center gap-2 mb-2 text-indigo-400 font-black">
-                            <Sparkles size={16} />
-                            <span>توضيح الإجابة:</span>
-                          </div>
-                          <p className="text-white/60 leading-relaxed font-medium">{q.explanation}</p>
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-6 p-6 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-sm">
+                          <div className="flex items-center gap-2 mb-2 text-indigo-400 font-black"><Sparkles size={16} /><span>توضيح الإجابة:</span></div>
+                          <p className={`leading-relaxed font-medium ${theme === 'frost' ? 'text-slate-600' : 'text-white/60'}`}>{q.explanation}</p>
                         </motion.div>
                       )}
                     </div>
@@ -442,54 +354,23 @@ export default function RevisionPresenter() {
         </div>
       </main>
 
-      {/* Footer Branding */}
       <footer className="p-8 text-center relative z-10 no-print">
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">
-          Created with ❤️ for Mr. Amer Timraz Platform • 2026
-        </p>
+        <p className={`text-[10px] font-black uppercase tracking-[0.3em] ${theme === 'frost' ? 'text-slate-400' : 'text-white/20'}`}>Created with ❤️ for Mr. Amer Timraz Platform • 2026</p>
       </footer>
 
-      {/* Print View (Only visible during print) */}
       <div className="hidden print:block bg-white text-slate-900 p-8 font-['Cairo']">
-        <div className="flex items-center justify-between border-b-4 border-slate-900 pb-4 mb-8">
-           <div>
-              <h1 className="text-3xl font-black">مستر عامر تمراز</h1>
-              <p className="text-xl font-bold">مراجعة ليلة الامتحان - {quiz.title}</p>
-           </div>
-           <div className="text-right">
-              <p className="font-bold">{quiz.subject}</p>
-              <p className="text-sm font-bold">{quiz.grade}</p>
-           </div>
-        </div>
+        <div className="flex items-center justify-between border-b-4 border-slate-900 pb-4 mb-8"><div><h1 className="text-3xl font-black">مستر عامر تمراز</h1><p className="text-xl font-bold">مراجعة ليلة الامتحان - {quiz.title}</p></div><div className="text-right"><p className="font-bold">{quiz.subject}</p><p className="text-sm font-bold">{quiz.grade}</p></div></div>
         <div className="space-y-8">
            {quiz.questions.map((q, i) => (
              <div key={q.id} className="border-b border-slate-200 pb-4">
                 <p className="text-xl font-bold mb-4">{i+1}. {q.text}</p>
-                {q.type === 'MCQ' ? (
-                  <div className="grid grid-cols-2 gap-4">
-                     {parseOptions(q.options).map((opt, idx) => (
-                       <p key={idx} className="text-lg">({String.fromCharCode(65+idx)}) {opt}</p>
-                     ))}
-                  </div>
-                ) : (
-                  <div className="flex gap-8 italic font-bold">
-                     <span>( ) صح</span>
-                     <span>( ) خطأ</span>
-                  </div>
-                )}
+                {q.type === 'MCQ' ? (<div className="grid grid-cols-2 gap-4">{parseOptions(q.options).map((opt, idx) => (<p key={idx} className="text-lg">({String.fromCharCode(65+idx)}) {opt}</p>))}</div>) : (<div className="flex gap-8 italic font-bold"><span>( ) صح</span><span>( ) خطأ</span></div>)}
              </div>
            ))}
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; }
-        }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}} />
+      <style dangerouslySetInnerHTML={{ __html: `@media print { .no-print { display: none !important; } body { background: white !important; } } .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}} />
     </div>
   );
 }
