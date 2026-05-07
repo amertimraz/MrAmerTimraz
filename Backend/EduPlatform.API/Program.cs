@@ -619,7 +619,6 @@ using (var scope = app.Services.CreateScope())
         await db.SaveChangesAsync();
     }
 
-    await DbSeeder.SeedAsync(db);
     }
     else
     {
@@ -685,11 +684,20 @@ using (var scope = app.Services.CreateScope())
                 db.Database.ExecuteSqlRaw("ALTER TABLE LibraryStudentInfos ADD COLUMN EducationLevel VARCHAR(20) NOT NULL DEFAULT 'secondary';");
             }
             catch { }
+
+            // Add CourseId to TofasTests if not exists (SQLite)
+            try
+            {
+                db.Database.ExecuteSqlRaw("ALTER TABLE TofasTests ADD COLUMN CourseId INTEGER;");
+            }
+            catch { }
         }
         
         // Generate StudentCode for existing students without one
         await GenerateStudentCodesForExistingUsersAsync(db);
     }
+
+    await DbSeeder.SeedAsync(db);
 }
 
 // Generate StudentCode for existing students without one
