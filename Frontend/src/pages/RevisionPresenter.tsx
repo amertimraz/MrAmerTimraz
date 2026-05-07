@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { quizzesApi } from '../api/quizzes';
 import { 
   Video, Square, Download, X, HelpCircle, Eye, EyeOff, 
-  RotateCcw, Maximize2, Minimize2, Palette, Sparkles, Trophy,
-  CheckCircle2, XCircle, ArrowRight
+  Maximize2, Minimize2, Palette, Sparkles, Trophy,
+  CheckCircle2, XCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getMediaUrl } from '../api/client';
