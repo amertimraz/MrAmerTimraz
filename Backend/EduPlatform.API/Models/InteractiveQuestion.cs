@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EduPlatform.API.Models;
 
-public enum IQType { MCQ, TrueFalse }
+public enum IQType { MCQ, TrueFalse, Completion }
 
 public class InteractiveQuestion
 {

@@ -5,9 +5,9 @@ import { quizzesApi } from '../api/quizzes';
 import { 
   Download, X, Eye, EyeOff, 
   Maximize2, Minimize2, Palette, Sparkles, Trophy,
-  CheckCircle2, XCircle, BookOpen, Layers
+  CheckCircle2, XCircle, BookOpen, Layers, Check, AlertCircle
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { CodeBlock } from '../components/ui/CodeBlock';
 
@@ -76,11 +76,16 @@ function getCorrectIdx(q: any): number {
 
 const renderContent = (text: string) => {
   const cleanText = text.replace(/\\n/g, '\n');
-  if (!cleanText.includes('```')) return <span className="whitespace-pre-line">{cleanText}</span>;
-  const parts = cleanText.split(/(```[\s\S]*?```)/g);
+  if (!cleanText.includes('```') && !cleanText.includes('<div dir="ltr"')) return <span className="whitespace-pre-line">{cleanText}</span>;
+  
+  // Handle the injected LTR div from seeder
+  const parts = cleanText.split(/(```[\s\S]*?```|<div dir="ltr"[\s\S]*?<\/div>)/g);
   return (
     <>
       {parts.map((part, i) => {
+        if (part.startsWith('<div dir="ltr"')) {
+           return <div key={i} dangerouslySetInnerHTML={{ __html: part }} />;
+        }
         if (part.startsWith('```') && part.endsWith('```')) {
           let content = part.slice(3, -3).trim();
           content = content
@@ -126,6 +131,7 @@ export default function RevisionPresenter() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number | null>>({});
+  const [completionAnswers, setCompletionAnswers] = useState<Record<number, string>>({});
   const [showAnswers, setShowAnswers] = useState<Record<number, boolean>>({});
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -143,8 +149,9 @@ export default function RevisionPresenter() {
     enabled: !!(id || slug),
   });
 
-  const mcqQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'MCQ') || [], [quiz]);
-  const tfQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'TrueFalse') || [], [quiz]);
+  const mcqQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'MCQ' || q.type === 0) || [], [quiz]);
+  const tfQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'TrueFalse' || q.type === 1) || [], [quiz]);
+  const completionQuestions = useMemo(() => quiz?.questions.filter(q => q.type === 'Completion' || q.type === 2) || [], [quiz]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -198,16 +205,60 @@ export default function RevisionPresenter() {
       const absoluteIdx = startIdx + qIdx;
       const isRevealed = revealed[absoluteIdx] || showAnswers[absoluteIdx];
       const selIdx = selectedOptions[absoluteIdx];
+      const currentInput = completionAnswers[absoluteIdx] || '';
+      const isCorrectCompletion = currentInput.trim() === q.correctAnswer?.trim();
+
+      const questionType = (q.type === 'MCQ' || q.type === 0) ? 'MCQ' : (q.type === 'TrueFalse' || q.type === 1) ? 'TrueFalse' : 'Completion';
 
       return (
-        <motion.div key={q.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className={`${activeTheme.card} p-8 rounded-[2rem] border hover:border-white/20 transition-all duration-500 shadow-xl group`}>
-          <div className="flex items-start gap-6">
+        <motion.div key={q.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className={`${activeTheme.card} p-8 rounded-[2rem] border hover:border-white/20 transition-all duration-500 shadow-xl group relative overflow-hidden`}>
+          <div className="flex items-start gap-6 relative z-10">
             <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${activeTheme.accent} flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg`}>{absoluteIdx + 1}</div>
             <div className="flex-1">
               <div className="flex items-start justify-between gap-4">
                 <div className={`text-2xl font-black leading-relaxed flex flex-wrap items-center gap-3 ${activeTheme.text}`}>
-                  {renderContent(q.text)}
-                  {q.type === 'TrueFalse' && (
+                  {questionType === 'Completion' ? (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-4">
+                       {q.text.split('......').map((part: string, pIdx: number, arr: any[]) => (
+                         <span key={pIdx} className="flex items-center gap-3">
+                           {renderContent(part)}
+                           {pIdx < arr.length - 1 && (
+                             <div className="relative group/input inline-block">
+                               <input 
+                                 type="text"
+                                 value={currentInput}
+                                 onChange={(e) => setCompletionAnswers(p => ({...p, [absoluteIdx]: e.target.value}))}
+                                 disabled={isRevealed}
+                                 placeholder="اكتب الإجابة..."
+                                 className={`
+                                   px-4 py-2 rounded-xl border-2 transition-all font-bold text-lg min-w-[180px] text-center
+                                   ${isRevealed 
+                                      ? (isCorrectCompletion ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-red-500/20 border-red-500 text-red-400')
+                                      : `${activeTheme.bg} border-white/10 text-white focus:border-indigo-500 outline-none shadow-inner`
+                                   }
+                                 `}
+                               />
+                               {isRevealed && (
+                                 <div className="absolute -top-1 -right-1">
+                                   {isCorrectCompletion ? <Check className="text-emerald-500" size={20} /> : <AlertCircle className="text-red-500" size={20} />}
+                                 </div>
+                               )}
+                             </div>
+                           )}
+                         </span>
+                       ))}
+                       {questionType === 'Completion' && !isRevealed && (
+                         <button 
+                           onClick={() => setRevealed(p => ({...p, [absoluteIdx]: true}))}
+                           className={`ms-4 px-6 py-2 rounded-xl bg-gradient-to-r ${activeTheme.accent} text-white text-sm font-black shadow-lg hover:scale-105 transition-all`}
+                         >
+                           تحقق
+                         </button>
+                       )}
+                    </div>
+                  ) : renderContent(q.text)}
+                  
+                  {questionType === 'TrueFalse' && (
                     <div className="flex flex-col gap-2 ms-auto shrink-0">
                       {[0, 1].map(btnIdx => {
                         const isCorrect = btnIdx === correctIdx;
@@ -235,7 +286,7 @@ export default function RevisionPresenter() {
                 </button>
               </div>
 
-              {q.type === 'MCQ' && (
+              {questionType === 'MCQ' && (
                 <div className="flex flex-wrap gap-3 mt-8">
                   {options.map((opt, optIdx) => {
                     const isCorrect = optIdx === correctIdx;
@@ -255,10 +306,11 @@ export default function RevisionPresenter() {
                 </div>
               )}
 
-              {isRevealed && q.explanation && (
+              {isRevealed && (questionType === 'Completion' || q.explanation) && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-6 p-6 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-sm">
-                  <div className="flex items-center gap-2 mb-2 text-indigo-400 font-black"><Sparkles size={16} /><span>توضيح الإجابة:</span></div>
-                  <p className={`leading-relaxed font-medium ${theme === 'frost' ? 'text-slate-600' : 'text-white/60'}`}>{q.explanation}</p>
+                  <div className="flex items-center gap-2 mb-2 text-indigo-400 font-black"><Sparkles size={16} /><span>{questionType === 'Completion' ? 'الإجابة الصحيحة:' : 'توضيح الإجابة:'}</span></div>
+                  <p className={`leading-relaxed font-black text-xl ${theme === 'frost' ? 'text-indigo-900' : 'text-white'}`}>{q.correctAnswer}</p>
+                  {q.explanation && <p className={`mt-2 leading-relaxed font-medium ${theme === 'frost' ? 'text-slate-600' : 'text-white/60'}`}>{q.explanation}</p>}
                 </motion.div>
               )}
             </div>
@@ -352,34 +404,50 @@ export default function RevisionPresenter() {
             </div>
           </div>
 
-          {/* MCQ Section */}
-          {mcqQuestions.length > 0 && (
+          {/* 1. True/False Section (First) */}
+          {tfQuestions.length > 0 && (
             <section className="space-y-6">
               <div className="flex items-center gap-4 mb-8">
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
                  <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl`}>
-                    أولاً: أسئلة الاختيار من متعدد (MCQ)
+                    أولاً: أسئلة الصواب والخطأ (True / False)
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(mcqQuestions, 0)}
+                {renderQuestionList(tfQuestions, 0)}
               </div>
             </section>
           )}
 
-          {/* True/False Section */}
-          {tfQuestions.length > 0 && (
+          {/* 2. MCQ Section */}
+          {mcqQuestions.length > 0 && (
             <section className="space-y-6 mt-16">
               <div className="flex items-center gap-4 mb-8">
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
                  <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl`}>
-                    ثانياً: أسئلة الصواب والخطأ (True / False)
+                    ثانياً: أسئلة الاختيار من متعدد (MCQ)
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(tfQuestions, mcqQuestions.length)}
+                {renderQuestionList(mcqQuestions, tfQuestions.length)}
+              </div>
+            </section>
+          )}
+
+          {/* 3. Completion Section */}
+          {completionQuestions.length > 0 && (
+            <section className="space-y-6 mt-16">
+              <div className="flex items-center gap-4 mb-8">
+                 <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
+                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl`}>
+                    ثالثاً: أسئلة الإكمال (Complete)
+                 </h3>
+                 <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
+              </div>
+              <div className="grid gap-6">
+                {renderQuestionList(completionQuestions, tfQuestions.length + mcqQuestions.length)}
               </div>
             </section>
           )}
@@ -389,20 +457,6 @@ export default function RevisionPresenter() {
       <footer className="p-8 text-center relative z-10 no-print">
         <p className={`text-[10px] font-black uppercase tracking-[0.3em] ${theme === 'frost' ? 'text-slate-400' : 'text-white/20'}`}>Created with ❤️ for Mr. Amer Timraz Platform • 2026</p>
       </footer>
-
-      <div className="hidden print:block bg-white text-slate-900 p-8 font-['Cairo']">
-        <div className="flex items-center justify-between border-b-4 border-slate-900 pb-4 mb-8"><div><h1 className="text-3xl font-black">مستر عامر تمراز</h1><p className="text-xl font-bold">مراجعة ليلة الامتحان - {quiz.title}</p></div><div className="text-right"><p className="font-bold">{quiz.subject}</p><p className="text-sm font-bold">{quiz.grade}</p></div></div>
-        <div className="space-y-8">
-           {quiz.questions.map((q, i) => (
-             <div key={q.id} className="border-b border-slate-200 pb-4">
-                <p className="text-xl font-bold mb-4">{i+1}. {q.text}</p>
-                {q.type === 'MCQ' ? (<div className="grid grid-cols-2 gap-4">{parseOptions(q.options).map((opt, idx) => (<p key={idx} className="text-lg">({String.fromCharCode(65+idx)}) {opt}</p>))}</div>) : (<div className="flex gap-8 italic font-bold"><span>( ) صح</span><span>( ) خطأ</span></div>)}
-             </div>
-           ))}
-        </div>
-      </div>
-
-      <style dangerouslySetInnerHTML={{ __html: `@media print { .no-print { display: none !important; } body { background: white !important; } } .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}} />
     </div>
   );
 }
