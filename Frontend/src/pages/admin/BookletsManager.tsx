@@ -22,10 +22,21 @@ export default function BookletsManager() {
     },
   });
 
+  const togglePublishMutation = useMutation({
+    mutationFn: (id: number) => bookletsApi.update(id, { isPublished: !booklets?.find(b => b.id === id)?.isPublished }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-booklets'] });
+    },
+  });
+
   const handleDelete = (id: number) => {
     if (window.confirm('هل أنت متأكد من حذف هذه الملزمة؟')) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const handleTogglePublish = (id: number) => {
+    togglePublishMutation.mutate(id);
   };
 
   const openForm = (booklet?: Booklet) => {
@@ -98,6 +109,13 @@ export default function BookletsManager() {
                          <a href={booklet.pdfUrl} target="_blank" rel="noreferrer" className="p-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded-lg transition" title="عرض الـ PDF">
                            <LinkIcon size={18} />
                          </a>
+                        <button
+                          onClick={() => handleTogglePublish(booklet.id)}
+                          className={`p-2 rounded-lg transition ${booklet.isPublished ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-gray-500/10 text-gray-400 hover:bg-gray-500/20'}`}
+                          title={booklet.isPublished ? 'إخفاء من المكتبة' : 'إظهار في المكتبة'}
+                        >
+                          {booklet.isPublished ? <Eye size={18} /> : <EyeOff size={18} />}
+                        </button>
                         <button
                           onClick={() => openForm(booklet)}
                           className="p-2 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 rounded-lg transition"
