@@ -149,16 +149,18 @@ export default function RevisionPresenter() {
   });
 
   // Filter questions by type and position
-  const goldenQuestions = useMemo(() => quiz?.questions.slice(0, 8) || [], [quiz]);
-  const tfQuestions = useMemo(() => quiz?.questions.slice(8).filter(q => String(q.type) === 'TrueFalse' || Number(q.type) === 1) || [], [quiz]);
+  const goldenQuestions = useMemo(() => quiz?.questions.slice(0, 25) || [], [quiz]);
+  const generalPool = useMemo(() => quiz?.questions.slice(25) || [], [quiz]);
+
+  const tfQuestions = useMemo(() => generalPool.filter(q => String(q.type) === 'TrueFalse' || Number(q.type) === 1), [generalPool]);
   
-  const allOtherQuestions = useMemo(() => quiz?.questions.slice(8).filter(q => String(q.type) !== 'TrueFalse' && Number(q.type) !== 1) || [], [quiz]);
+  const scientificTerms = useMemo(() => generalPool.filter(q => (String(q.type) === 'Completion' || Number(q.type) === 2) && q.text.includes('المصطلح العلمي')), [generalPool]);
+
+  const completionQuestions = useMemo(() => generalPool.filter(q => (String(q.type) === 'Completion' || Number(q.type) === 2) && !q.text.includes('المصطلح العلمي')), [generalPool]);
   
-  const mcqQuestions = useMemo(() => allOtherQuestions.filter(q => (String(q.type) === 'MCQ' || Number(q.type) === 0) && !q.text.includes('```')), [allOtherQuestions]);
+  const mcqQuestions = useMemo(() => generalPool.filter(q => (String(q.type) === 'MCQ' || Number(q.type) === 0) && !q.text.includes('```')), [generalPool]);
   
-  const codeQuestions = useMemo(() => allOtherQuestions.filter(q => (String(q.type) === 'MCQ' || Number(q.type) === 0) && q.text.includes('```')), [allOtherQuestions]);
-  
-  const completionQuestions = useMemo(() => allOtherQuestions.filter(q => String(q.type) === 'Completion' || Number(q.type) === 2), [allOtherQuestions]);
+  const codeQuestions = useMemo(() => generalPool.filter(q => (String(q.type) === 'MCQ' || Number(q.type) === 0) && q.text.includes('```')), [generalPool]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -433,16 +435,36 @@ export default function RevisionPresenter() {
           {/* 1. True/False Section */}
           {tfQuestions.length > 0 && (
             <section className="space-y-6 mt-16">
+              <div className="flex items-center gap-4 mb-8 text-indigo-400 font-black text-3xl justify-center">
+                 <span>بنك الأسئلة العام (امتحانات المحافظات)</span>
+              </div>
               <div className="flex items-center gap-4 mb-8">
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
                  <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
                     <CheckCircle2 className="text-emerald-500" size={24} />
-                    أولاً: أسئلة الصواب والخطأ (True / False)
+                    أولاً: أسئلة الصواب والخطأ (إضافي)
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
                 {renderQuestionList(tfQuestions, goldenQuestions.length)}
+              </div>
+            </section>
+          )}
+
+          {/* 1.1 Scientific Terms Section */}
+          {scientificTerms.length > 0 && (
+            <section className="space-y-6 mt-16">
+              <div className="flex items-center gap-4 mb-8">
+                 <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
+                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
+                    <BookOpen className="text-blue-500" size={24} />
+                    ثانياً: المصطلح العلمي (اكتب المفهوم)
+                 </h3>
+                 <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
+              </div>
+              <div className="grid gap-6">
+                {renderQuestionList(scientificTerms, goldenQuestions.length + tfQuestions.length)}
               </div>
             </section>
           )}
@@ -454,12 +476,12 @@ export default function RevisionPresenter() {
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
                  <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
                     <Layers className="text-blue-500" size={24} />
-                    ثانياً: أسئلة الاختيار من متعدد (MCQ)
+                    ثالثاً: أسئلة الاختيار من متعدد
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(mcqQuestions, goldenQuestions.length + tfQuestions.length)}
+                {renderQuestionList(mcqQuestions, goldenQuestions.length + tfQuestions.length + scientificTerms.length)}
               </div>
             </section>
           )}
@@ -471,12 +493,12 @@ export default function RevisionPresenter() {
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
                  <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
                     <Code className="text-purple-500" size={24} />
-                    ثالثاً: أسئلة قراءة الأكواد وفهمها
+                    رابعاً: أسئلة قراءة الأكواد وفهمها
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(codeQuestions, goldenQuestions.length + tfQuestions.length + mcqQuestions.length)}
+                {renderQuestionList(codeQuestions, goldenQuestions.length + tfQuestions.length + scientificTerms.length + mcqQuestions.length)}
               </div>
             </section>
           )}
@@ -488,12 +510,12 @@ export default function RevisionPresenter() {
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
                  <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
                     <Sparkles className="text-amber-500" size={24} />
-                    رابعاً: أسئلة الإكمال التفاعلية
+                    خامساً: أسئلة الإكمال التفاعلية
                  </h3>
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(completionQuestions, goldenQuestions.length + tfQuestions.length + mcqQuestions.length + codeQuestions.length)}
+                {renderQuestionList(completionQuestions, goldenQuestions.length + tfQuestions.length + scientificTerms.length + mcqQuestions.length + codeQuestions.length)}
               </div>
             </section>
           )}
