@@ -1121,7 +1121,7 @@ namespace EduPlatform.API.Data
                 quiz.Questions.Add(new InteractiveQuestion
                 {
                     Text = q.T,
-                    Type = q.Type,
+                    Type = q.Type == "TrueFalse" ? IQType.TrueFalse : IQType.MCQ,
                     Options = q.Opts,
                     CorrectAnswer = q.Ans,
                     Explanation = q.Exp,

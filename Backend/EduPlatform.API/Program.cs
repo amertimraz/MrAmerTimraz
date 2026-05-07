@@ -354,6 +354,7 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"YoutubeUrl\" TEXT",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"FacebookUrl\" TEXT",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"ShowSupportButton\" BOOLEAN NOT NULL DEFAULT TRUE",
+            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"IsPublic\" BOOLEAN NOT NULL DEFAULT TRUE",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"StageCount\" INTEGER NOT NULL DEFAULT 3",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"QuestionsPerStage\" INTEGER NOT NULL DEFAULT 0",
             "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"McqPerStage\" INTEGER NOT NULL DEFAULT 0",

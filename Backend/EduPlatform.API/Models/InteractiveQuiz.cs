@@ -40,6 +40,7 @@ public class InteractiveQuiz
     public int ViewCount { get; set; } = 0;
     public string? Theme { get; set; } = "Default";
 
+    public bool IsPublic { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<InteractiveQuestion> Questions { get; set; } = new List<InteractiveQuestion>();
