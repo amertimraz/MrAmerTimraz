@@ -672,6 +672,37 @@ using (var scope = app.Services.CreateScope())
                 db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryStudentInfos\" ADD COLUMN IF NOT EXISTS \"EducationLevel\" VARCHAR(20) NOT NULL DEFAULT 'secondary';");
             }
             catch { }
+
+            // CRITICAL: Ensure InteractiveQuizzes has the new columns for the revision system
+            try
+            {
+                var quizAlters = new[] {
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Slug\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Theme\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"IsPublic\" BOOLEAN NOT NULL DEFAULT TRUE",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Subject\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Grade\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherName\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherImage\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"WhatsappUrl\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherWhatsappNumber\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"YoutubeUrl\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"FacebookUrl\" TEXT",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"ShowSupportButton\" BOOLEAN NOT NULL DEFAULT TRUE",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"AllowSkipWithoutRegistration\" BOOLEAN NOT NULL DEFAULT FALSE",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"StageCount\" INTEGER NOT NULL DEFAULT 3",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"QuestionsPerStage\" INTEGER NOT NULL DEFAULT 0",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"McqPerStage\" INTEGER NOT NULL DEFAULT 0",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TfPerStage\" INTEGER NOT NULL DEFAULT 0",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"GoldenEvery\" INTEGER NOT NULL DEFAULT 10",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerEnabled\" BOOLEAN NOT NULL DEFAULT FALSE",
+                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerDuration\" INTEGER NOT NULL DEFAULT 30"
+                };
+                foreach(var sql in quizAlters) {
+                    db.Database.ExecuteSqlRaw(sql);
+                }
+            }
+            catch { }
         }
         else // SQLite
         {
