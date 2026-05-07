@@ -69,6 +69,7 @@ export default function RevisionPresenter() {
   });
 
   const questions = quiz?.questions || [];
+  const isCyberTech = quiz?.theme === 'CyberTech';
 
   /* --- Recording Logic --- */
   const startRecording = async () => {
@@ -128,7 +129,7 @@ export default function RevisionPresenter() {
   if (error || !quiz) return <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white"><p>حدث خطأ في تحميل الاختبار</p><button onClick={() => navigate(-1)} className="mt-4 px-6 py-2 bg-indigo-600 rounded-xl">العودة</button></div>;
 
   return (
-    <div className={`min-h-screen ${viewMode === 'paper' ? 'bg-slate-200 dark:bg-slate-900' : 'bg-[#0f172a]'} text-white flex flex-col font-sans`} dir="rtl">
+    <div className={`min-h-screen ${viewMode === 'paper' ? (isCyberTech ? 'bg-slate-950' : 'bg-slate-200 dark:bg-slate-900') : 'bg-[#0f172a]'} text-white flex flex-col font-sans`} dir="rtl">
       {/* Header (ToolBar) */}
       <header className="sticky top-0 z-50 p-4 flex items-center justify-between border-b border-white/5 bg-slate-900/90 backdrop-blur-md shadow-xl no-print">
         <div className="flex items-center gap-4">
@@ -180,33 +181,33 @@ export default function RevisionPresenter() {
         {viewMode === 'paper' ? (
           /* --- PAPER MODE (Booklet Style) --- */
           <div className="flex-1 py-12 px-4 flex justify-center">
-             <div className="w-full max-w-4xl bg-white dark:bg-white text-slate-900 rounded-sm shadow-2xl relative min-h-[1400px] flex flex-col border-[12px] border-double border-slate-200">
+             <div className={`w-full max-w-4xl rounded-sm shadow-2xl relative min-h-[1400px] flex flex-col border-[12px] border-double ${isCyberTech ? 'bg-slate-950 border-indigo-500/50 shadow-indigo-500/20 text-white' : 'bg-white border-slate-200 text-slate-900'}`}>
                 {/* Decorative Frame inside */}
-                <div className="absolute inset-0 border-2 border-slate-300 m-2 pointer-events-none" />
+                <div className={`absolute inset-0 border-2 m-2 pointer-events-none ${isCyberTech ? 'border-indigo-500/30' : 'border-slate-300'}`} />
                 
                 {/* Branding Header */}
-                <div className="p-8 border-b-4 border-double border-slate-900 flex items-center justify-between relative z-10">
+                <div className={`p-8 border-b-4 border-double flex items-center justify-between relative z-10 ${isCyberTech ? 'border-indigo-500/50 bg-slate-900/50' : 'border-slate-900 bg-white'}`}>
                    <div className="text-right">
-                      <h2 className="text-3xl font-black text-slate-900 mb-1">مستر عامر تمراز</h2>
-                      <p className="text-xl font-bold text-indigo-700">خبير البرمجة والذكاء الاصطناعي</p>
+                      <h2 className={`text-3xl font-black mb-1 ${isCyberTech ? 'text-indigo-400' : 'text-slate-900'}`}>مستر عامر تمراز</h2>
+                      <p className={`text-xl font-bold ${isCyberTech ? 'text-emerald-400' : 'text-indigo-700'}`}>خبير البرمجة والذكاء الاصطناعي</p>
                       <div className="mt-4 flex flex-col gap-1">
-                         <span className="text-sm font-black bg-slate-900 text-white px-3 py-1 rounded-md w-fit">المادة: {quiz.subject || 'تكنولوجيا المعلومات'}</span>
-                         <span className="text-sm font-black border-2 border-slate-900 px-3 py-0.5 rounded-md w-fit">الصف: {quiz.grade || 'الأول الثانوي'}</span>
+                         <span className={`text-sm font-black px-3 py-1 rounded-md w-fit ${isCyberTech ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-900 text-white'}`}>المادة: {quiz.subject || 'تكنولوجيا المعلومات'}</span>
+                         <span className={`text-sm font-black px-3 py-0.5 rounded-md w-fit border-2 ${isCyberTech ? 'border-emerald-500/30 text-emerald-300' : 'border-slate-900 text-slate-900'}`}>الصف: {quiz.grade || 'الأول الثانوي'}</span>
                       </div>
                    </div>
                    <div className="text-center">
-                      <div className="w-24 h-24 rounded-full border-4 border-slate-900 p-1 overflow-hidden bg-slate-50 mb-2 mx-auto">
+                      <div className={`w-24 h-24 rounded-full border-4 p-1 overflow-hidden mb-2 mx-auto ${isCyberTech ? 'border-indigo-500 shadow-lg shadow-indigo-500/40' : 'border-slate-900 bg-slate-50'}`}>
                          {quiz.teacherImage ? (
                            <img src={getMediaUrl(quiz.teacherImage)} alt="Teacher" className="w-full h-full object-cover rounded-full" />
                          ) : (
                            <div className="w-full h-full flex items-center justify-center text-slate-300"><HelpCircle size={40} /></div>
                          )}
                       </div>
-                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">Official Revision</p>
+                      <p className={`text-xs font-black uppercase tracking-widest ${isCyberTech ? 'text-indigo-400' : 'text-slate-400'}`}>Official Revision</p>
                    </div>
                    <div className="text-left">
-                      <h3 className="text-4xl font-black text-slate-900 opacity-20">2026</h3>
-                      <p className="text-sm font-bold text-slate-500">ترم ثاني - مراجعة ليلة الامتحان</p>
+                      <h3 className={`text-4xl font-black opacity-20 ${isCyberTech ? 'text-indigo-500' : 'text-slate-900'}`}>2026</h3>
+                      <p className={`text-sm font-bold ${isCyberTech ? 'text-slate-400' : 'text-slate-500'}`}>ترم ثاني - مراجعة ليلة الامتحان</p>
                    </div>
                 </div>
 
@@ -214,7 +215,7 @@ export default function RevisionPresenter() {
                 <div className="flex-1 p-10 relative">
                    {/* Watermark */}
                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none">
-                      <span className="text-[120px] font-black text-slate-100 -rotate-45 uppercase whitespace-nowrap">AMER TIMRAZ</span>
+                      <span className={`text-[120px] font-black -rotate-45 uppercase whitespace-nowrap opacity-[0.03] ${isCyberTech ? 'text-indigo-500' : 'text-slate-900'}`}>AMER TIMRAZ</span>
                    </div>
 
                    <div className="relative z-10 space-y-12">
@@ -234,18 +235,18 @@ export default function RevisionPresenter() {
                         return (
                           <div key={q.id} className="group relative">
                              <div className="flex items-start gap-4 mb-4">
-                                <div className="w-10 h-10 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0 font-black text-xl shadow-lg">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 font-black text-xl shadow-lg ${isCyberTech ? 'bg-indigo-500 text-white shadow-indigo-500/50' : 'bg-slate-900 text-white'}`}>
                                    {qIdx + 1}
                                 </div>
                                 <div className="flex-1 pt-1">
-                                   <div className="text-2xl font-bold text-slate-900 leading-relaxed">
+                                   <div className={`text-2xl font-bold leading-relaxed ${isCyberTech ? 'text-white' : 'text-slate-900'}`}>
                                       {renderContent(q.text)}
                                    </div>
                                 </div>
                                 <div className="flex gap-1 no-print">
                                    <button 
                                      onClick={() => toggleShowAnswer(qIdx)}
-                                     className={`p-2 rounded-lg transition-colors ${isShowingAns ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                                     className={`p-2 rounded-lg transition-colors ${isShowingAns ? 'bg-indigo-600 text-white' : isCyberTech ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
                                    >
                                      <Eye size={18} />
                                    </button>
@@ -266,12 +267,12 @@ export default function RevisionPresenter() {
                                        onClick={() => handleSelect(qIdx, optIdx)}
                                        className={`
                                          p-4 rounded-xl border-2 text-lg font-bold flex items-center gap-3 transition-all text-right
-                                         ${status === 'correct' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 
-                                           status === 'wrong' ? 'bg-red-50 border-red-500 text-red-700' : 
-                                           'bg-slate-50 border-slate-200 hover:border-slate-400 text-slate-600'}
+                                         ${status === 'correct' ? (isCyberTech ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-emerald-50 border-emerald-500 text-emerald-700') : 
+                                           status === 'wrong' ? (isCyberTech ? 'bg-red-500/20 border-red-500 text-red-400 shadow-lg shadow-red-500/20' : 'bg-red-50 border-red-500 text-red-700') : 
+                                           (isCyberTech ? 'bg-slate-900/50 border-indigo-500/20 hover:border-indigo-500/50 text-slate-300 hover:text-white' : 'bg-slate-50 border-slate-200 hover:border-slate-400 text-slate-600')}
                                        `}
                                      >
-                                       <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-black text-sm border ${status === 'correct' ? 'bg-emerald-500 text-white border-emerald-600' : status === 'wrong' ? 'bg-red-500 text-white border-red-600' : 'bg-white border-slate-300'}`}>
+                                       <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-black text-sm border ${status === 'correct' ? 'bg-emerald-500 text-white border-emerald-600' : status === 'wrong' ? 'bg-red-500 text-white border-red-600' : (isCyberTech ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' : 'bg-white border-slate-300')}`}>
                                           {q.type === 'TrueFalse' ? (optIdx === 0 ? '✔️' : '❌') : String.fromCharCode(65 + optIdx)}
                                        </span>
                                        <span className="flex-1">{opt}</span>
@@ -286,7 +287,7 @@ export default function RevisionPresenter() {
                 </div>
 
                 {/* Footer Branding */}
-                <div className="p-8 bg-slate-50 border-t-2 border-slate-200 flex items-center justify-between text-slate-400 font-black text-xs uppercase tracking-widest mt-auto">
+                <div className={`p-8 border-t-2 flex items-center justify-between font-black text-xs uppercase tracking-widest mt-auto ${isCyberTech ? 'bg-slate-900 border-indigo-500/30 text-indigo-400' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
                    <span>© 2026 MR AMER TIMRAZ</span>
                    <span>ممنوع التداول أو النسخ دون إذن المؤلف</span>
                    <span>WWW.AMERTIMRAZ.COM</span>
