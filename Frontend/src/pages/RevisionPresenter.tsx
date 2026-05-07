@@ -76,20 +76,44 @@ function getCorrectIdx(q: any): number {
 }
 
 const renderContent = (text: string) => {
-  if (!text.includes('```')) return <>{text}</>;
-  const parts = text.split(/(```[\s\S]*?```)/g);
+  // Clean literal \n strings and replace with actual newlines
+  const cleanText = text.replace(/\\n/g, '\n');
+  
+  if (!cleanText.includes('```')) {
+    return <span className="whitespace-pre-line">{cleanText}</span>;
+  }
+
+  const parts = cleanText.split(/(```[\s\S]*?```)/g);
   return (
     <>
       {parts.map((part, i) => {
         if (part.startsWith('```') && part.endsWith('```')) {
-          const content = part.slice(3, -3).trim();
-          const firstLine = content.split('\n')[0].trim();
-          const hasLang = /^[a-z]+$/i.test(firstLine);
-          const lang = hasLang ? firstLine : 'code';
-          const code = hasLang ? content.slice(firstLine.length).trim() : content;
-          return <CodeBlock key={i} code={code} language={lang} className="my-4" />;
+          let content = part.slice(3, -3).trim();
+          
+          // Remove any accidental HTML injected (like the emerald-400 class seen in screenshot)
+          content = content.replace(/<[^>]*>?/gm, '');
+          
+          // Handle the "vb" or "python" prefix if it exists followed by \n
+          const lines = content.split('\n');
+          let lang = 'code';
+          let finalCode = content;
+
+          if (lines.length > 0) {
+            const firstLine = lines[0].trim().toLowerCase();
+            if (['vb', 'visualbasic', 'python', 'javascript', 'js', 'html', 'css', 'csharp', 'cpp'].includes(firstLine)) {
+              lang = firstLine;
+              finalCode = lines.slice(1).join('\n');
+            }
+          }
+
+          return (
+            <div key={i} className="my-6 relative group">
+               <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition duration-500" />
+               <CodeBlock code={finalCode} language={lang} className="relative z-10 shadow-2xl border border-white/10" />
+            </div>
+          );
         }
-        return <span key={i}>{part}</span>;
+        return <span key={i} className="whitespace-pre-line">{part}</span>;
       })}
     </>
   );
