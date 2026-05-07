@@ -27,9 +27,9 @@ namespace EduPlatform.API.Data
 
             var quiz = new InteractiveQuiz
             {
-                Title = "مراجعة الحاسب الآلي - الصف الثالث الإعدادي",
+                Title = "مراجعة الحاسب الآلي الشاملة - الصف الثالث الإعدادي",
                 Slug = "3rd-prep-cs-final-revision",
-                Description = "مراجعة شاملة ليلة الامتحان تغطي كافة أجزاء المنهج (Visual Basic.NET & Cyber Safety)",
+                Description = "مراجعة ليلة الامتحان المستوحاة من امتحانات المحافظات (الفائز) - تغطي كافة أجزاء المنهج",
                 Subject = "حاسب آلي",
                 Grade = "الصف الثالث الإعدادي",
                 Theme = "CyberTech",
@@ -40,53 +40,48 @@ namespace EduPlatform.API.Data
 
             var rawQuestions = new[]
             {
-                new { T = "الخطأ الذي يظهر أثناء تشغيل أو تنفيذ برنامج VB.NET يُطلق عليه Syntax Error.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "الخطأ أثناء التشغيل يسمى Runtime Error." },
-                new { T = "الأمر Rem يستخدم لكتابة ملاحظات داخل الكود ولا يتم ترجمتها.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "جملة التكرار For...Next تستخدم لتكرار كود عدد محدد من المرات.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "الأمر Const يستخدم للإعلان عن الثوابت في VB.NET.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "إذا كانت قيمة المتغير أو الثابت تاريخ أو وقت توضع بين علامتي ##.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "Me يُعبّر عن نافذة النموذج الحالية (Form).", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "المتغيرات في لغة VB.NET مخازن بذاكرة الكمبيوتر لها اسم ونوع وقيمتها تتغير أثناء سير البرنامج.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
+                // --- Section 1: True/False (Cairo & Alexandria Exams) ---
+                new { T = "مدى القيم لنوع البيانات (Byte) يبدأ بـ 0 وينتهي بـ 255.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "Byte: 0 to 255" },
+                new { T = "في لغة VB.NET للتعبير عن التفرع برمجياً نستخدم جملة If...Then فقط.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "يوجد أيضاً Select Case." },
+                new { T = "من قواعد الاستخدام الآمن للإنترنت وضع كلمة مرور سهلة لبريدك الإلكتروني حتى تستطيع تذكرها.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "يجب أن تكون كلمة المرور قوية ومعقدة." },
                 new { T = "المضايقة الإلكترونية عبارة عن رسائل عدائية موجهة ضد شخص أو أكثر.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "التهديد الإلكتروني عبارة عن إرسال رسائل إلكترونية تحمل تهديد أو وعيد لشخص أو أكثر.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "Select Case تستخدم عندما يكون التفرع معتمداً على قيمة متغير واحد وهناك شروط كثيرة.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "التخفي الإلكتروني هو استخدام أسماء مستعارة لإخفاء هوية المتعدي الإلكتروني.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
-                new { T = "جميع أنواع البيانات التي يتم حفظها في الذاكرة تشغل نفس المساحة التخزينية.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "كل نوع بيان له مساحة تخزينية مختلفة." },
-                new { T = "55City يعتبر اسم متغير صحيح في VB.NET.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "لا يجب أن يبدأ برقم." },
-                new { T = "الإعلان عن دالة (Function) يبدأ بـ (Sub) وينتهي بـ (End Sub).", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "الدالة تبدأ بـ Function." },
+                new { T = "تعتبر جملة الإعلان التالية جملة صحيحة: Dim single as integer", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "Single كلمة محجوزة (Reserved Word)." },
+                new { T = "المعامل المنطقي <> يعبر عن أكبر من أو يساوي.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "<> تعني 'لا يساوي'." },
+                new { T = "جملة التخصيص عبارة عن طرفين بينهما علامة (+).", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "بينهما علامة يساوي (=)." },
+                new { T = "الدالة Mod تعود بباقي القسمة.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
+                new { T = "Name** هو اسم متغير صحيح في VB.NET.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "لا يجب أن يحتوي اسم المتغير على رموز خاصة." },
+                new { T = "الأخطاء اللغوية (Syntax Errors) هي أخطاء في الصيغة العامة لأوامر اللغة.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
+                new { T = "الخطأ الذي يظهر أثناء تشغيل أو تنفيذ البرنامج يسمى Logical Error.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "false", Exp = "يسمى Runtime Error." },
+                new { T = "الإجراء Procedure هو مجموعة من الأوامر تحت اسم معين يتم استدعاؤه لتنفيذها.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
+                new { T = "يستخدم الرمز & للربط بين النصوص في لغة VB.NET.", Type = "TrueFalse", Opts = "[\"صح\", \"خطأ\"]", Ans = "true", Exp = "" },
 
-                new { T = "الصيغة الصحيحة للإعلان عن متغير اسمه City يخزن اسم المدينة:", Type = "MCQ", Opts = "[\"Dim City As Integer\", \"Dim City As String\", \"Dim City As Byte\"]", Ans = "1", Exp = "String للنصوص." },
-                new { T = "الكلمة المحجوزة التي تُستخدم لإنشاء سطر جديد في VB.NET:", Type = "MCQ", Opts = "[\"Me\", \"Rem\", \"vbCrLf\"]", Ans = "2", Exp = "" },
-                new { T = "نوع البيان الذي له الحد الأدنى (0) والحد الأقصى (255):", Type = "MCQ", Opts = "[\"Integer\", \"Byte\", \"Long\"]", Ans = "1", Exp = "" },
-                new { T = "الأمر الذي يُستخدم للإعلان عن المتغيرات في لغة VB.NET:", Type = "MCQ", Opts = "[\"Const\", \"Dim\", \"Rem\"]", Ans = "1", Exp = "" },
-                new { T = "يتم تشغيل برنامج VB.NET بالضغط على مفتاح:", Type = "MCQ", Opts = "[\"F4\", \"F5\", \"F7\"]", Ans = "1", Exp = "" },
-                new { T = "الخطأ الذي يظهر بسبب صياغة تعبيرات حسابية أو منطقية بصورة خاطئة يسمى:", Type = "MCQ", Opts = "[\"Syntax Error\", \"Logical Error\", \"Runtime Error\"]", Ans = "1", Exp = "" },
-                new { T = "عند تنفيذ الكود:\\n<div dir=\"ltr\" class=\"bg-black/20 p-2 rounded-lg my-2\">If X=50 Then MsgBox(\"ناجح\")</div>\\nوكانت قيمة X=50 فإن:", Type = "MCQ", Opts = "[\"يظهر صندوق رسالة ناجح\", \"يظهر صندوق رسالة راسب\", \"يتوقف البرنامج\"]", Ans = "0", Exp = "" },
-                new { T = "أحد أشكال التعدي الإلكتروني هو:", Type = "MCQ", Opts = "[\"الاستثناء الإلكتروني\", \"التشهير الإلكتروني\", \"التخفي الإلكتروني\"]", Ans = "2", Exp = "" },
-                new { T = "الناتج النهائي للمعادلة:\\nY = 12-(2+4)/2", Type = "MCQ", Opts = "[\"Y = 3\", \"Y = 7\", \"Y = 9\"]", Ans = "2", Exp = "9" },
-                new { T = "معامل المقارنة الذي يعبر عن \"أقل من أو يساوي\":", Type = "MCQ", Opts = "[\"<>\", \">=\", \"<=\"]", Ans = "2", Exp = "" },
-                new { T = "جملة التكرار المناسبة لتكرار كود لعدد محدد من المرات:", Type = "MCQ", Opts = "[\"For...Next\", \"Do While...Loop\", \"If...Then\"]", Ans = "0", Exp = "" },
-                new { T = "قيمة أسماء المواد الدراسية تُصنّف كـ:", Type = "MCQ", Opts = "[\"رقمية صحيحة\", \"رقمية غير صحيحة\", \"متنوعة (String)\"]", Ans = "2", Exp = "" },
+                // --- Section 2: MCQ (Cairo & Alexandria & Beheira) ---
+                new { T = "الجملة (Const x As Single) بها خطأ لأنها:", Type = "MCQ", Opts = "[\"لم يتم تخصيص قيمة\", \"اسم المتغير خطأ\", \"نوع البيان غير صحيح\"]", Ans = "0", Exp = "الثابت Const يجب تخصيص قيمة له عند الإعلان." },
+                new { T = "معدل الزيادة في For...Next يجب أن يكون سالباً إذا كانت:", Type = "MCQ", Opts = "[\"البداية أكبر من النهاية\", \"البداية أصغر من النهاية\", \"البداية تساوي النهاية\"]", Ans = "0", Exp = "للعد التنازلي." },
+                new { T = "يستخدم الكود (Me.Textbox1.Text=\"\") في:", Type = "MCQ", Opts = "[\"نسخ المحتوى\", \"طباعة المحتوى\", \"مسح المحتوى\"]", Ans = "2", Exp = "" },
+                new { T = "أحد أشكال التعدي الإلكتروني هو استخدام أسماء مستعارة لإخفاء الهوية ويسمى:", Type = "MCQ", Opts = "[\"التشهير الإلكتروني\", \"التخفي الإلكتروني\", \"المضايقة الإلكترونية\"]", Ans = "1", Exp = "" },
+                new { T = "معامل المقارنة الذي يعبر عن 'لا يساوي' هو:", Type = "MCQ", Opts = "[\"<>\", \"<=\", \">=\"]", Ans = "0", Exp = "" },
+                new { T = "الكلمة المستخدمة لإنهاء جملة If هي:", Type = "MCQ", Opts = "[\"End If\", \"End Sub\", \"Next\"]", Ans = "0", Exp = "" },
+                new { T = "الأمر المستخدم للإعلان عن الثوابت هو:", Type = "MCQ", Opts = "[\"Dim\", \"Const\", \"Sub\"]", Ans = "1", Exp = "" },
+                new { T = "أول عملية يتم تنفيذها في التعبيرات الحسابية هي:", Type = "MCQ", Opts = "[\"الضرب\", \"الأسس\", \"ما بداخل الأقواس\"]", Ans = "2", Exp = "الأقواس أولاً." },
+                new { T = "نوع البيان المناسب لتخزين (اسم الطالب) هو:", Type = "MCQ", Opts = "[\"Integer\", \"String\", \"Boolean\"]", Ans = "1", Exp = "" },
+                new { T = "عند تنفيذ (For i = 1 to 10 Step 2) فإن قيم i تكون:", Type = "MCQ", Opts = "[\"1,3,5,7,9\", \"2,4,6,8,10\", \"1,2,3,4,5\"]", Ans = "0", Exp = "البدء بـ 1 وزيادة 2." },
 
-                new { T = "...... أماكن محجوزة في ذاكرة الكمبيوتر لها اسم ونوع وقيمتها تتغير أثناء البرنامج.", Type = "Completion", Opts = "[]", Ans = "المتغيرات", Exp = "" },
-                new { T = "يُستخدم الأمر ...... للإعلان عن الثوابت في لغة VB.NET.", Type = "Completion", Opts = "[]", Ans = "Const", Exp = "" },
-                new { T = "جملة ...... تستخدم لتكرار كود معين لعدد محدد من المرات.", Type = "Completion", Opts = "[]", Ans = "For...Next", Exp = "" },
-                new { T = "الثوابت في VB.NET مخازن في ذاكرة الكمبيوتر لها اسم وقيمة ثابتة ...... أثناء سير البرنامج.", Type = "Completion", Opts = "[]", Ans = "لا تتغير", Exp = "" },
-                new { T = "...... عبارة عن سلوك عدواني متعمد من شخص لآخر عبر وسائل الاتصال الإلكترونية.", Type = "Completion", Opts = "[]", Ans = "التعدي الإلكتروني", Exp = "" },
-                new { T = "عبارة عن نشر كلمات عدائية ومبتذلة من شخص معين عبر وسائل الاتصال الإلكترونية ......", Type = "Completion", Opts = "[]", Ans = "السب الإلكتروني", Exp = "" },
-                new { T = "جملة التخصيص (Assignment) هي جملة تضع قيمة في متغير أو ثابت وبينهما علامة ......", Type = "Completion", Opts = "[]", Ans = "=", Exp = "" },
-                new { T = "...... يستخدمه المبرمج لكتابة ملاحظات داخل الكود ولا يتم ترجمتها.", Type = "Completion", Opts = "[]", Ans = "Rem", Exp = "" },
-                new { T = "الكلمة المحجوزة ...... تستخدم في إنشاء سطر جديد داخل صندوق النص.", Type = "Completion", Opts = "[]", Ans = "vbCrLf", Exp = "" },
-                new { T = "...... يُعبّر عن نافذة النموذج الحالية في VB.NET.", Type = "Completion", Opts = "[]", Ans = "Me", Exp = "" },
-                new { T = "إذا كانت قيمة الثابت تاريخاً أو وقتاً فإنها توضع بين علامتي ......", Type = "Completion", Opts = "[]", Ans = "# #", Exp = "" },
-                new { T = "...... جملة تستخدم لتكرار كود معين لعدد من المرات غير معروف نهايته مسبقاً بناءً على شرط معين.", Type = "Completion", Opts = "[]", Ans = "Do While...Loop", Exp = "" },
+                // --- Section 3: Code Comprehension (Analysis) ---
+                new { T = "اقرأ الكود التالي:\\n```vb\\nDim i As Single\\nIf i >= 50 Then\\n   MsgBox(\"ناجح\")\\nElse\\n   MsgBox(\"راسب\")\\nEnd If\\n```\\nإذا كانت قيمة i = 30، ماذا سيظهر؟", Type = "MCQ", Opts = "[\"ناجح\", \"راسب\", \"خطأ برمجى\"]", Ans = "1", Exp = "30 أقل من 50." },
+                new { T = "اقرأ الكود التالي:\\n```vb\\nFor x = 4 To 12 Step 2\\n    MsgBox(x)\\nNext\\n```\\nما هي قيمة x عند أول تكرار؟", Type = "MCQ", Opts = "[\"2\", \"4\", \"12\"]", Ans = "1", Exp = "تبدأ من 4." },
+                new { T = "في الكود السابق (For x = 4 To 12 Step 2)، كم مرة سيظهر صندوق الرسائل؟", Type = "MCQ", Opts = "[\"4 مرات\", \"5 مرات\", \"9 مرات\"]", Ans = "1", Exp = "4, 6, 8, 10, 12 (5 مرات)" },
+                new { T = "اقرأ الكود التالي:\\n```vb\\nIf X Mod 2 = 0 Then\\n   MsgBox(\"زوجي\")\\nEnd If\\n```\\nماذا تعني كلمة Mod؟", Type = "MCQ", Opts = "[\"ناتج القسمة\", \"باقي القسمة\", \"تقريب الرقم\"]", Ans = "1", Exp = "" },
 
-                new { T = "اقرأ الكود التالي:\\n```vb\\nFor i = 1 To 5\\n    MsgBox(i)\\nNext\\n```\\nاسم المتغير المستخدم في الحلقة التكرارية هو:", Type = "MCQ", Opts = "[\"i\", \"MsgBox\", \"Next\"]", Ans = "0", Exp = "" },
-                new { T = "اقرأ الكود التالي:\\n```vb\\nFor i = 1 To 5\\n    MsgBox(i)\\nNext\\n```\\nعدد مرات تكرار الكود هي:", Type = "MCQ", Opts = "[\"1\", \"4\", \"5\"]", Ans = "2", Exp = "5" },
-                new { T = "اقرأ الكود التالي:\\n```vb\\nFor M = 1 To 3\\n    MsgBox(M)\\nNext\\n```\\nالكود الذي يتم تكراره هو:", Type = "MCQ", Opts = "[\"For M = 1\", \"MsgBox(M)\", \"Next\"]", Ans = "1", Exp = "" },
-                new { T = "اقرأ الكود التالي:\\n```vb\\nIf X >= 50 Then\\n    MsgBox(\"ناجح\")\\nElse\\n    MsgBox(\"راسب\")\\nEnd If\\n```\\nالتعبير الشرطي في جملة If هو:", Type = "MCQ", Opts = "[\"If X >= 50\", \"X >= 50\", \"MsgBox\"]", Ans = "1", Exp = "" },
-                new { T = "اقرأ الكود التالي:\\n```vb\\nFor X = 4 To 12 Step 2\\n    MsgBox(X)\\nNext\\n```\\nقيمة الزيادة (Step) في الحلقة هي:", Type = "MCQ", Opts = "[\"4\", \"12\", \"2\"]", Ans = "2", Exp = "" },
-                new { T = "اقرأ الكود التالي:\\n```vb\\nIf N Mod 2 = 0 Then\\n    MsgBox(\"الرقم زوجي\")\\nElse\\n    MsgBox(\"الرقم فردي\")\\nEnd If\\n```\\nما وظيفة المعامل Mod في الكود؟", Type = "MCQ", Opts = "[\"القسمة\", \"باقي القسمة\", \"الضرب\"]", Ans = "1", Exp = "" }
+                // --- Section 4: Completion (Interactive Input) ---
+                new { T = "يُستخدم الأمر ...... للإعلان عن المتغيرات في لغة VB.NET.", Type = "Completion", Opts = "[]", Ans = "Dim", Exp = "" },
+                new { T = "...... تعبر عن نافذة النموذج الحالية (Current Form).", Type = "Completion", Opts = "[]", Ans = "Me", Exp = "" },
+                new { T = "الثوابت هي أماكن محجوزة في الذاكرة قيمتها ...... أثناء تشغيل البرنامج.", Type = "Completion", Opts = "[]", Ans = "ثابتة", Exp = "أو 'لا تتغير'" },
+                new { T = "باقي قسمة 10 على 3 هو ...... باستخدام المعامل Mod.", Type = "Completion", Opts = "[]", Ans = "1", Exp = "10 / 3 = 3 وباقي 1." },
+                new { T = "الكلمة المحجوزة ...... تستخدم لإنشاء سطر جديد.", Type = "Completion", Opts = "[]", Ans = "vbCrLf", Exp = "" },
+                new { T = "إذا كانت قيمة البداية 1 والنهاية 5 والزيادة 1، فإن الحلقة تنتهي عندما تصبح قيمة العداد ......", Type = "Completion", Opts = "[]", Ans = "6", Exp = "تخرج الحلقة عندما يتعدى العداد القيمة النهائية." },
+                new { T = "...... هو استخدام وسائط إلكترونية للتحرش أو التهديد.", Type = "Completion", Opts = "[]", Ans = "التعدي الإلكتروني", Exp = "" },
+                new { T = "توضع القيم النصية بين علامتي ...... عند تخصيصها للمتغيرات.", Type = "Completion", Opts = "[]", Ans = "\" \"", Exp = "Double Quotes" }
             };
 
             int index = 0;
