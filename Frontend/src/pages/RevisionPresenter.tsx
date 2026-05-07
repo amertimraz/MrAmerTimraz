@@ -148,9 +148,11 @@ export default function RevisionPresenter() {
     enabled: !!(id || slug),
   });
 
-  const tfQuestions = useMemo(() => quiz?.questions.filter(q => String(q.type) === 'TrueFalse' || Number(q.type) === 1) || [], [quiz]);
+  // Filter questions by type and position
+  const goldenQuestions = useMemo(() => quiz?.questions.slice(0, 8) || [], [quiz]);
+  const tfQuestions = useMemo(() => quiz?.questions.slice(8).filter(q => String(q.type) === 'TrueFalse' || Number(q.type) === 1) || [], [quiz]);
   
-  const allOtherQuestions = useMemo(() => quiz?.questions.filter(q => String(q.type) !== 'TrueFalse' && Number(q.type) !== 1) || [], [quiz]);
+  const allOtherQuestions = useMemo(() => quiz?.questions.slice(8).filter(q => String(q.type) !== 'TrueFalse' && Number(q.type) !== 1) || [], [quiz]);
   
   const mcqQuestions = useMemo(() => allOtherQuestions.filter(q => (String(q.type) === 'MCQ' || Number(q.type) === 0) && !q.text.includes('```')), [allOtherQuestions]);
   
@@ -410,9 +412,27 @@ export default function RevisionPresenter() {
             </div>
           </div>
 
+          {/* 0. Golden Questions Section */}
+          {goldenQuestions.length > 0 && (
+            <section className="space-y-6 relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/10 to-transparent blur-3xl -z-10" />
+              <div className="flex items-center gap-4 mb-8">
+                 <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-amber-500/30`} />
+                 <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)] flex items-center gap-3 animate-pulse`}>
+                    <Sparkles className="text-amber-400" size={24} />
+                    الأسئلة الأكثر تكراراً (الأسئلة الذهبية)
+                 </h3>
+                 <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-amber-500/30`} />
+              </div>
+              <div className="grid gap-6">
+                {renderQuestionList(goldenQuestions, 0)}
+              </div>
+            </section>
+          )}
+
           {/* 1. True/False Section */}
           {tfQuestions.length > 0 && (
-            <section className="space-y-6">
+            <section className="space-y-6 mt-16">
               <div className="flex items-center gap-4 mb-8">
                  <div className={`h-px flex-1 bg-gradient-to-l from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
                  <h3 className={`text-2xl font-black px-6 py-2 rounded-2xl border-2 ${activeTheme.card} ${activeTheme.text} ${activeTheme.border} shadow-xl flex items-center gap-3`}>
@@ -422,7 +442,7 @@ export default function RevisionPresenter() {
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(tfQuestions, 0)}
+                {renderQuestionList(tfQuestions, goldenQuestions.length)}
               </div>
             </section>
           )}
@@ -439,7 +459,7 @@ export default function RevisionPresenter() {
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(mcqQuestions, tfQuestions.length)}
+                {renderQuestionList(mcqQuestions, goldenQuestions.length + tfQuestions.length)}
               </div>
             </section>
           )}
@@ -456,7 +476,7 @@ export default function RevisionPresenter() {
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(codeQuestions, tfQuestions.length + mcqQuestions.length)}
+                {renderQuestionList(codeQuestions, goldenQuestions.length + tfQuestions.length + mcqQuestions.length)}
               </div>
             </section>
           )}
@@ -473,7 +493,7 @@ export default function RevisionPresenter() {
                  <div className={`h-px flex-1 bg-gradient-to-r from-transparent to-${theme === 'frost' ? 'indigo-200' : 'indigo-500/30'}`} />
               </div>
               <div className="grid gap-6">
-                {renderQuestionList(completionQuestions, tfQuestions.length + mcqQuestions.length + codeQuestions.length)}
+                {renderQuestionList(completionQuestions, goldenQuestions.length + tfQuestions.length + mcqQuestions.length + codeQuestions.length)}
               </div>
             </section>
           )}
