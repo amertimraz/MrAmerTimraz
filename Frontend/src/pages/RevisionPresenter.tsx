@@ -89,8 +89,21 @@ const renderContent = (text: string) => {
         if (part.startsWith('```') && part.endsWith('```')) {
           let content = part.slice(3, -3).trim();
           
-          // Remove any accidental HTML injected (like the emerald-400 class seen in screenshot)
-          content = content.replace(/<[^>]*>?/gm, '');
+          // More aggressive cleaning: Remove common HTML artifacts baked into strings
+          content = content
+            .replace(/<[^>]*>?/gm, '') // Remove any HTML tags
+            .replace(/class="[^"]*"/g, '') // Remove class attributes
+            .replace(/style="[^"]*"/g, '') // Remove style attributes
+            .replace(/font-bold/g, '') // Remove specific classes
+            .replace(/text-[a-z0-9-]+/g, '') // Remove color classes
+            .replace(/&quot;/g, '"') // Fix quotes
+            .replace(/&nbsp;/g, ' ') // Fix spaces
+            .replace(/&lt;/g, '<') // Fix less than
+            .replace(/&gt;/g, '>') // Fix greater than
+            .replace(/<.*?>/g, ''); // Catch any remaining bracketed junk
+          
+          // Final trim and cleanup of double spaces/newlines
+          content = content.replace(/\s{2,}/g, ' ').replace(/\n\s+/g, '\n').trim();
           
           // Handle the "vb" or "python" prefix if it exists followed by \n
           const lines = content.split('\n');
