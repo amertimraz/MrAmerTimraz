@@ -630,6 +630,58 @@ using (var scope = app.Services.CreateScope())
         await db.SaveChangesAsync();
     }
 
+    // Seed TOFAS Test 2 with 50 challenges from images
+    var tofasTest2 = await db.TofasTests.Include(t => t.Questions)
+                                      .FirstOrDefaultAsync(t => t.Slug == "tofas-test-2");
+    if (tofasTest2 == null || tofasTest2.Questions.Count < 50)
+    {
+        if (tofasTest2 != null)
+        {
+            db.TofasTests.Remove(tofasTest2);
+            await db.SaveChangesAsync();
+        }
+
+        var newTest2 = new TofasTest
+        {
+            Title = "TOFAS Test 2 - Advanced Programming Challenges",
+            Slug = "tofas-test-2",
+            Description = "50 advanced programming challenges covering logic traps, syntax analysis, and code comprehension",
+            Price = 0,
+            IsVisible = true,
+            TimeLimitMinutes = 20,
+            CreatedAt = DateTime.UtcNow,
+            Questions = new List<Challenge>()
+        };
+
+        // Add 50 challenges based on the images
+        for (int i = 1; i <= 50; i++)
+        {
+            var challenge = new Challenge
+            {
+                Title = $"Challenge {i}",
+                Slug = $"challenge-{i}",
+                Description = $"Advanced programming challenge #{i} - Analyze the code and determine the correct output",
+                TargetOutput = GetChallengeTargetOutput(i),
+                OrderIndex = i,
+                CreatedAt = DateTime.UtcNow,
+                Snippets = new List<ChallengeSnippet>
+                {
+                    new ChallengeSnippet
+                    {
+                        Code = GetChallengeCode(i),
+                        AnalysisType = i % 3 == 0 ? "Logic" : "Syntax",
+                        AnalysisMessage = $"Analysis for challenge {i}",
+                        OrderIndex = 0
+                    }
+                }
+            };
+            newTest2.Questions.Add(challenge);
+        }
+
+        db.TofasTests.Add(newTest2);
+        await db.SaveChangesAsync();
+    }
+
     }
     else
     {
