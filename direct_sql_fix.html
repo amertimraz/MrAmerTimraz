@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct SQL Fix - TOEFL Level 2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sql-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .copy-btn {
+            float: right;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Direct SQL Fix - TOEFL Level 2</h1>
+        
+        <div class="warning">
+            <strong>⚠️ تحذير:</strong> هذه أوامر SQL مباشرة. يجب تنفيذها على قاعدة البيانات مباشرة عبر:
+            <ul>
+                <li>phpMyAdmin</li>
+                <li>SSH إلى الخادم</li>
+                <li>أو أي أداة إدارة قاعدة بيانات</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <strong>📋 التعليمات:</strong>
+            <ol>
+                <li>انسخ كود SQL الأول (Complete Fix)</li>
+                <li>نفذه على قاعدة البيانات</li>
+                <li>انسخ كود SQL الثاني (Reversed Format)</li>
+                <li>نفذه على قاعدة البيانات</li>
+                <li>تحقق من الموقع بعد التنفيذ</li>
+            </ol>
+        </div>
+
+        <h2>1️⃣ Complete Fix - إصلاح الـ snippets المكتملة</h2>
+        <button class="copy-btn btn" onclick="copyToClipboard('completeSql')">نسخ الكود</button>
+        <div class="sql-block" id="completeSql">-- Fix Tofas Level 2 Questions - Complete snippets with full code
+-- This script updates snippets that were missing full JavaScript code
+
+-- Question 22: تحدي منطق 'لا يساوي'
+UPDATE ChallengeSnippets SET Code = 'let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood != lunchMenu) {
+  console.log("غداء اليوم هو " + lunchMenu);
+} else {
+  console.log("غداء اليوم هو " + favoriteFood + " الذي أحبه");
+}' WHERE Id = 85;
+
+UPDATE ChallengeSnippets SET Code = 'let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood == lunchMenu) {
+  console.log("غداء اليوم هو " + favoriteFood + " الذي أحبه");
+} else {
+  console.log("غداء اليوم هو " + lunchMenu);
+}' WHERE Id = 86;
+
+UPDATE ChallengeSnippets SET Code = 'let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood != lunchMenu) {
+  console.log("غداء اليوم هو " + lunchMenu + " الذي أحبه");
+}' WHERE Id = 87;
+
+UPDATE ChallengeSnippets SET Code = 'let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood == lunchMenu) {
+  console.log("غداء اليوم هو " + favoriteFood);
+}' WHERE Id = 88;
+
+-- Question 25: تحدي الوقت والمواعيد
+UPDATE ChallengeSnippets SET Code = 'let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday != "الخميس") {
+  console.log("اليوم ليس يوم تخفيضات");
+} else {
+  console.log("اليوم هو يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime < 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}' WHERE Id = 97;
+
+UPDATE ChallengeSnippets SET Code = 'let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday != "الخميس") {
+  console.log("اليوم ليس يوم تخفيضات");
+} else {
+  console.log("اليوم هو يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime > 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}' WHERE Id = 98;
+
+UPDATE ChallengeSnippets SET Code = 'let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday == "الخميس") {
+  console.log("اليوم هو يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime < 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}' WHERE Id = 99;
+
+UPDATE ChallengeSnippets SET Code = 'let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday == "الخميس") {
+  console.log("اليوم هو يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime > 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}' WHERE Id = 100;
+
+-- Question 26: تحدي القائمة اليومية (||)
+UPDATE ChallengeSnippets SET Code = 'let weekday = "الجمعة";
+
+if ((weekday == "الإثنين") && (weekday == "الجمعة")) {
+  console.log("يوم القائمة الخاصة");
+} else {
+  console.log("يوم القائمة العادية");
+}' WHERE Id = 101;
+
+UPDATE ChallengeSnippets SET Code = 'let weekday = "الجمعة";
+
+if ((weekday == "الإثنين") || (weekday == "الجمعة")) {
+  console.log("يوم القائمة الخاصة");
+}' WHERE Id = 102;
+
+-- Question 30: تحدي نظام القسائم والخصومات
+UPDATE ChallengeSnippets SET Code = 'let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount >= 10000) {
+  totalAmount = totalAmount - discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);' WHERE Id = 113;
+
+UPDATE ChallengeSnippets SET Code = 'let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount >= 10000) {
+  console.log("سنمنحك قسيمة");
+  totalAmount = totalAmount - discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);' WHERE Id = 114;
+
+UPDATE ChallengeSnippets SET Code = 'let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount > 10000) {
+  console.log("سنمنحك قسيمة");
+  totalAmount = totalAmount - discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);' WHERE Id = 115;
+
+UPDATE ChallengeSnippets SET Code = 'let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount >= 10000) {
+  console.log("سنمنحك قسيمة");
+  totalAmount = totalAmount + discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);' WHERE Id = 116;
+
+-- Question 36: تحدي قائمة الطعام والمصفوفات
+UPDATE ChallengeSnippets SET Code = 'let menuList = ["كاري", "دجاج مشوي", "بارفيه"];
+console.log("سأطلب " + menuList[1]);' WHERE Id = 131;
+
+UPDATE ChallengeSnippets SET Code = 'let menuList = ["كاري", "دجاج مشوي", "بارفيه"];
+console.log("سأطلب " + menuList[2]);' WHERE Id = 132;
+
+-- Question 41: تحدي قائمة اليوم والمصفوفات
+UPDATE ChallengeSnippets SET Code = 'let menuList = ["سندويش", "سلطة", "قهوة"];
+console.log("قائمة اليوم هي كالتالي");
+console.log(menuList);' WHERE Id = 142;
+
+-- Question 60: تحدي جدول الدراسة اليومي
+UPDATE ChallengeSnippets SET Code = 'let studySubjects = ["علوم", "رياضيات", "اللغة الإنجليزية"];
+
+console.log("المواد التي سيتم دراستها اليوم كما يلي");
+for (let i = 0; i < 3; i++) {
+  if (studySubjects[i] == "رياضيات") {
+    console.log("تخطي");
+  } else {
+    console.log(studySubjects[i]);
+  }
+}' WHERE Id = 181;
+
+-- Question 69: تحدي حالة الحجز التفصيلية
+UPDATE ChallengeSnippets SET Code = 'let reservations = [3, 8, 5];
+
+console.log("تحقق من حالة الحجز الحالية");
+for (let i = 0; i < reservations.length; i++) {
+  console.log("تم حجز " + [i] + " أشخاص");
+}' WHERE Id = 199;</div>
+
+        <h2>2️⃣ Reversed Format - عكس تنسيق الأسئلة</h2>
+        <button class="copy-btn btn" onclick="copyToClipboard('reversedSql')">نسخ الكود</button>
+        <div class="sql-block" id="reversedSql">-- Fix Tofas Level 2 Questions - Reverse Format
+-- Move code from snippets to question description
+-- Move outputs from question to snippets
+
+-- Question 22: Reverse format
+UPDATE Challenges SET Description = '--- Question 22: Question 22 ---
+ما هو المخرج الصحيح للكود التالي؟
+
+```javascript
+let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood != lunchMenu) {
+  console.log("غداء اليوم هو " + lunchMenu);
+} else {
+  console.log("غداء اليوم هو " + favoriteFood + " الذي أحبه");
+}
+```' WHERE Id = 22 AND TestId = 2;
+
+UPDATE ChallengeSnippets SET Code = 'غداء اليوم هو السوشي' WHERE Id = 85;
+UPDATE ChallengeSnippets SET Code = 'غداء اليوم هو الهامبرغر الذي أحبه' WHERE Id = 86;
+UPDATE ChallengeSnippets SET Code = 'غداء اليوم هو السوشي الذي أحبه' WHERE Id = 87;
+UPDATE ChallengeSnippets SET Code = 'غداء اليوم هو الهامبرغر' WHERE Id = 88;
+
+-- Question 25: Reverse format
+UPDATE Challenges SET Description = '--- Question 25: Question 25 ---
+ما هو المخرج الصحيح للكود التالي؟
+
+```javascript
+let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday == "الخميس") {
+  console.log("اليوم هو يوم تخفيضات");
+} else {
+  console.log("اليوم ليس يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime < 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}
+```' WHERE Id = 25 AND TestId = 2;
+
+UPDATE ChallengeSnippets SET Code = 'اليوم ليس يوم تخفيضات
+سيفتح قريباً' WHERE Id = 97;
+UPDATE ChallengeSnippets SET Code = 'اليوم ليس يوم تخفيضات
+مفتوح' WHERE Id = 98;
+UPDATE ChallengeSnippets SET Code = 'اليوم هو يوم تخفيضات
+سيفتح قريباً' WHERE Id = 99;
+UPDATE ChallengeSnippets SET Code = 'اليوم هو يوم تخفيضات
+مفتوح' WHERE Id = 100;
+
+-- Question 26: Reverse format
+UPDATE Challenges SET Description = '--- Question 26: Question 26 ---
+ما هو المخرج الصحيح للكود التالي؟
+
+```javascript
+let weekday = "الجمعة";
+
+if ((weekday == "الإثنين") || (weekday == "الجمعة")) {
+  console.log("يوم القائمة الخاصة");
+} else {
+  console.log("يوم القائمة العادية");
+}
+```' WHERE Id = 26 AND TestId = 2;
+
+UPDATE ChallengeSnippets SET Code = 'يوم القائمة العادية' WHERE Id = 101;
+UPDATE ChallengeSnippets SET Code = 'يوم القائمة الخاصة' WHERE Id = 102;
+
+-- Question 30: Reverse format
+UPDATE Challenges SET Description = '--- Question 30: Question 30 ---
+ما هو المخرج الصحيح للكود التالي؟
+
+```javascript
+let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount >= 10000) {
+  console.log("سنمنحك قسيمة");
+  totalAmount = totalAmount - discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);
+```' WHERE Id = 30 AND TestId = 2;
+
+UPDATE ChallengeSnippets SET Code = 'المبلغ الإجمالي هو كالتالي
+11000' WHERE Id = 113;
+UPDATE ChallengeSnippets SET Code = 'سنمنحك قسيمة
+سيتم تطبيق خصم 1000 ين
+المبلغ الإجمالي هو كالتالي
+11000' WHERE Id = 114;
+UPDATE ChallengeSnippets SET Code = 'سنمنحك قسيمة
+المبلغ الإجمالي هو كالتالي
+11000' WHERE Id = 115;
+UPDATE ChallengeSnippets SET Code = 'سنمنحك قسيمة
+المبلغ الإجمالي هو كالتالي
+12000' WHERE Id = 116;
+
+-- Question 36: Reverse format
+UPDATE Challenges SET Description = '--- Question 36: Question 36 ---
+ما هو المخرج الصحيح للكود التالي؟
+
+```javascript
+let menuList = ["كاري", "دجاج مشوي", "بارفيه"];
+console.log("سأطلب " + menuList[2]);
+```' WHERE Id = 36 AND TestId = 2;
+
+UPDATE ChallengeSnippets SET Code = 'سأطلب الدجاج المشوي' WHERE Id = 131;
+UPDATE ChallengeSnippets SET Code = 'سأطلب بارفيه' WHERE Id = 132;
+
+-- Question 41: Reverse format
+UPDATE Challenges SET Description = '--- Question 41: Question 41 ---
+ما هو المخرج الصحيح للكود التالي؟
+
+```javascript
+let menuList = ["سندويش", "سلطة", "قهوة"];
+console.log("قائمة اليوم هي كالتالي");
+for (let i = 0; i < 3; i++) {
+  console.log(menuList[i]);
+}
+```' WHERE Id = 41 AND TestId = 2;
+
+UPDATE ChallengeSnippets SET Code = 'قائمة اليوم هي كالتالي
+سندويش
+سلطة
+قهوة' WHERE Id = 141;
+UPDATE ChallengeSnippets SET Code = 'قائمة اليوم هي كالتالي
+سندويش,سلطة,قهوة' WHERE Id = 142;
+UPDATE ChallengeSnippets SET Code = 'قائمة اليوم هي كالتالي
+قهوة
+سلطة
+سندويش' WHERE Id = 143;
+
+-- Question 60: Reverse format
+UPDATE Challenges SET Description = '--- Question 60: Question 60 ---
+ما هو المخرج الصحيح للكود التالي؟
+
+```javascript
+let studySubjects = ["علوم", "رياضيات", "اللغة الإنجليزية"];
+console.log("المواد التي سيتم دراستها اليوم كما يلي");
+for (let i = 0; i < 3; i++) {
+  console.log(studySubjects[i]);
+}
+```' WHERE Id = 60 AND TestId = 2;
+
+UPDATE ChallengeSnippets SET Code = 'المواد التي سيتم دراستها اليوم كما يلي
+علوم
+رياضيات
+اللغة الإنجليزية' WHERE Id = 180;
+UPDATE ChallengeSnippets SET Code = 'المواد التي سيتم دراستها اليوم كما يلي
+علوم
+تخطي
+اللغة الإنجليزية' WHERE Id = 181;
+
+-- Question 69: Reverse format
+UPDATE Challenges SET Description = '--- Question 69: Question 69 ---
+ما هو المخرج الصحيح للكود التالي؟
+
+```javascript
+let reservations = [3, 8, 5];
+console.log("تحقق من حالة الحجز الحالية");
+for (let i = 0; i < reservations.length; i++) {
+  console.log("تم حجز " + reservations[i] + " أشخاص");
+}
+```' WHERE Id = 69 AND TestId = 2;
+
+UPDATE ChallengeSnippets SET Code = 'تحقق من حالة الحجز الحالية
+تم حجز 3 أشخاص
+تم حجز 8 أشخاص
+تم حجز 5 أشخاص' WHERE Id = 198;
+UPDATE ChallengeSnippets SET Code = 'تحقق من حالة الحجز الحالية
+تم حجز 0 أشخاص
+تم حجز 1 أشخاص
+تم حجز 2 أشخاص' WHERE Id = 199;</div>
+
+        <div class="info">
+            <strong>✅ بعد التنفيذ:</strong>
+            <ul>
+                <li>افتح الموقع: <a href="https://mr-amer-timraz.vercel.app/challenges/tofas-test-2" target="_blank">TOEFL Level 2 Test</a></li>
+                <li>تحقق من أن الأسئلة تظهر بشكل صحيح</li>
+                <li>الكود يجب أن يكون في السؤال والمخرجات في الاختيارات</li>
+            </ul>
+        </div>
+
+        <button class="btn btn-success" onclick="window.open('https://mr-amer-timraz.vercel.app/challenges/tofas-test-2', '_blank')">
+            🚀 افتح اختبار TOEFL Level 2
+        </button>
+    </div>
+
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show success message
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ تم النسخ!';
+                btn.style.backgroundColor = '#28a745';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.backgroundColor = '#007bff';
+                }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ تم النسخ!';
+                btn.style.backgroundColor = '#28a745';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.backgroundColor = '#007bff';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
