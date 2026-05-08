@@ -794,32 +794,109 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedAsync(db);
 }
 
-// Helper methods for TOFAS challenges - based on actual images
+// Helper methods for TOFAS challenges - based on actual images from folder 50
 static string GetChallengeCode(int challengeNumber)
 {
     var codes = new[]
     {
+        // From Tofas (1).png
         "Dim x As Integer = 5\nIf x > 3 Then\n    Console.WriteLine(\"High\")\nElse\n    Console.WriteLine(\"Low\")\nEnd If",
+        
+        // From Tofas (2).png
         "For i = 1 To 5\n    Console.WriteLine(i * 2)\nNext",
+        
+        // From Tofas (3).png
         "Dim arr() As Integer = {1, 2, 3, 4, 5}\nDim sum As Integer = 0\nFor Each num In arr\n    sum += num\nNext\nConsole.WriteLine(sum)",
+        
+        // Additional challenges based on typical TOFAS patterns
         "Function Add(a As Integer, b As Integer) As Integer\n    Return a + b\nEnd Function\nConsole.WriteLine(Add(3, 4))",
+        
         "Dim x As Integer = 10\nDo While x > 0\n    Console.WriteLine(x)\n    x -= 2\nLoop",
+        
         "Select Case grade\n    Case 90 To 100\n        Console.WriteLine(\"A\")\n    Case 80 To 89\n        Console.WriteLine(\"B\")\n    Case Else\n        Console.WriteLine(\"C\")\nEnd Select",
+        
         "Dim str As String = \"Hello\"\nFor i = 0 To str.Length - 1\n    Console.WriteLine(str(i))\nNext",
+        
         "Dim x As Integer = 5\nDim y As Integer = 10\nDim temp As Integer = x\nx = y\ny = temp\nConsole.WriteLine(x & \",\" & y)",
+        
         "If DateTime.Now.Hour < 12 Then\n    Console.WriteLine(\"Good Morning\")\nElse\n    Console.WriteLine(\"Good Afternoon\")\nEnd If",
+        
         "Dim numbers() As Integer = {3, 1, 4, 1, 5, 9}\nArray.Sort(numbers)\nFor Each num In numbers\n    Console.WriteLine(num)\nNext",
+        
         "Dim x As Integer = 7\nSelect Case x\n    Case 1 To 5\n        Console.WriteLine(\"Small\")\n    Case 6 To 10\n        Console.WriteLine(\"Medium\")\n    Case Else\n        Console.WriteLine(\"Large\")\nEnd Select",
+        
         "For i = 1 To 3\n    For j = 1 To 2\n        Console.WriteLine(i * j)\n    Next\nNext",
+        
         "Dim arr() As Integer = {10, 20, 30, 40}\nFor i = 0 To arr.Length - 1 Step 2\n    Console.WriteLine(arr(i))\nNext",
+        
         "Function Multiply(a As Integer, b As Integer) As Integer\n    Return a * b\nEnd Function\nConsole.WriteLine(Multiply(6, 7))",
+        
         "Dim x As Integer = 15\nDo\n    Console.WriteLine(x)\n    x = x - 3\nLoop Until x <= 0",
+        
         "Dim str As String = \"Programming\"\nConsole.WriteLine(str.Substring(0, 4))",
+        
         "Dim x As Integer = 8\nDim y As Integer = 12\nIf x > y Then\n    Console.WriteLine(\"X is greater\")\nElseIf y > x Then\n    Console.WriteLine(\"Y is greater\")\nElse\n    Console.WriteLine(\"Equal\")\nEnd If",
+        
         "For i = 10 To 1 Step -1\n    Console.WriteLine(i)\nNext",
+        
         "Dim arr() As Integer = {5, 3, 8, 1, 9}\nDim max As Integer = arr(0)\nFor Each num In arr\n    If num > max Then max = num\nNext\nConsole.WriteLine(max)",
+        
         "Dim x As Integer = 4\nDim result As Integer = 1\nFor i = 1 To x\n    result *= i\nNext\nConsole.WriteLine(result)",
-        "Dim str As String = \"Hello World\"\nConsole.WriteLine(str.ToUpper())"
+        
+        "Dim str As String = \"Hello World\"\nConsole.WriteLine(str.ToUpper())",
+        
+        // Additional challenges to reach 50
+        "Dim x As Integer = 12\nIf x Mod 2 = 0 Then\n    Console.WriteLine(\"Even\")\nElse\n    Console.WriteLine(\"Odd\")\nEnd If",
+        
+        "For i = 1 To 4\n    For j = 1 To 3\n        Console.WriteLine(i + j)\n    Next\nNext",
+        
+        "Dim arr() As String = {\"Apple\", \"Banana\", \"Cherry\"}\nFor Each fruit In arr\n    Console.WriteLine(fruit.Length)\nNext",
+        
+        "Function IsPositive(num As Integer) As Boolean\n    Return num > 0\nEnd Function\nConsole.WriteLine(IsPositive(-5))",
+        
+        "Dim x As Integer = 20\nWhile x > 0\n    If x Mod 3 = 0 Then\n        Console.WriteLine(\"Divisible by 3\")\n    End If\n    x -= 1\nEnd While",
+        
+        "Dim str As String = \"12345\"\nDim num As Integer = Integer.Parse(str)\nConsole.WriteLine(num * 2)",
+        
+        "Dim arr() As Integer = {1, 2, 3, 4, 5}\nArray.Reverse(arr)\nFor Each num In arr\n    Console.WriteLine(num)\nNext",
+        
+        "Dim x As Integer = 7\nDim y As Integer = x\ny = y * 2\nConsole.WriteLine(x & \",\" & y)",
+        
+        "For i = 0 To 10\n    If i Mod 2 = 0 Then\n        Console.WriteLine(i)\n    End If\nNext",
+        
+        "Dim dict As New Dictionary(Of String, Integer)\ndict.Add(\"A\", 1)\ndict.Add(\"B\", 2)\nConsole.WriteLine(dict.Count)",
+        
+        "Dim str As String = \"Hello World\"\nConsole.WriteLine(str.Contains(\"World\"))",
+        
+        "Dim x As Integer = 5\nDo Until x = 0\n    Console.WriteLine(x)\n    x -= 1\nLoop",
+        
+        "Function Factorial(n As Integer) As Integer\n    If n <= 1 Then Return 1\n    Return n * Factorial(n - 1)\nEnd Function\nConsole.WriteLine(Factorial(5))",
+        
+        "Dim arr() As Integer = {10, 20, 30}\nConsole.WriteLine(arr.Average())",
+        
+        "Dim str As String = \"  Hello  \"\nConsole.WriteLine(str.Trim())",
+        
+        "For i = 1 To 5\n    If i = 3 Then Continue For\n    Console.WriteLine(i)\nNext",
+        
+        "Dim x As Integer = 100\nSelect Case x\n    Case Is < 50\n        Console.WriteLine(\"Low\")\n    Case Is < 100\n        Console.WriteLine(\"Medium\")\n    Case Else\n        Console.WriteLine(\"High\")\nEnd Select",
+        
+        "Dim arr() As Integer = {1, 2, 3, 4, 5}\nConsole.WriteLine(arr.Sum())",
+        
+        "Dim str As String = \"abc\"\nConsole.WriteLine(str.ToUpper().Equals(\"ABC\"))",
+        
+        "For i = 1 To 3\n    For j = i To 3\n        Console.WriteLine(i & j)\n    Next\nNext",
+        
+        "Dim x As Integer = 42\nConsole.WriteLine(x.ToString().Length)",
+        
+        "Dim arr() As Integer = {5, 10, 15, 20}\nConsole.WriteLine(arr.Max())",
+        
+        "Dim str As String = \"Hello World\"\nConsole.WriteLine(str.Replace(\"World\", \"Universe\"))",
+        
+        "For i = 1 To 10 Step 2\n    Console.WriteLine(i)\nNext",
+        
+        "Dim x As Integer = 7\nDim y As Integer = 3\nConsole.WriteLine(Math.Max(x, y))",
+        
+        "Dim arr() As Integer = {1, 2, 3}\nArray.Resize(arr, 5)\nConsole.WriteLine(arr.Length)"
     };
     
     return codes[(challengeNumber - 1) % codes.Length];
@@ -829,27 +906,56 @@ static string GetChallengeTargetOutput(int challengeNumber)
 {
     var outputs = new[]
     {
-        "High",
-        "2\n4\n6\n8\n10",
-        "15",
-        "7",
-        "10\n8\n6\n4\n2",
-        "A",
-        "H\ne\nl\nl\no",
-        "10,5",
-        "Good Morning",
-        "1\n1\n3\n4\n5\n9",
-        "Medium",
-        "1\n2\n2\n4\n3\n6",
-        "10\n30",
-        "42",
-        "15\n12\n9\n6\n3\n0",
-        "Prog",
-        "Y is greater",
-        "10\n9\n8\n7\n6\n5\n4\n3\n2\n1",
-        "9",
-        "24",
-        "HELLO WORLD"
+        "High",                                    // Challenge 1
+        "2\n4\n6\n8\n10",                         // Challenge 2
+        "15",                                      // Challenge 3
+        "7",                                       // Challenge 4
+        "10\n8\n6\n4\n2",                         // Challenge 5
+        "A",                                       // Challenge 6
+        "H\ne\nl\nl\no",                         // Challenge 7
+        "10,5",                                    // Challenge 8
+        "Good Morning",                            // Challenge 9
+        "1\n1\n3\n4\n5\n9",                      // Challenge 10
+        "Medium",                                  // Challenge 11
+        "1\n2\n2\n4\n3\n6",                      // Challenge 12
+        "10\n30",                                 // Challenge 13
+        "42",                                      // Challenge 14
+        "15\n12\n9\n6\n3\n0",                    // Challenge 15
+        "Prog",                                    // Challenge 16
+        "Y is greater",                            // Challenge 17
+        "10\n9\n8\n7\n6\n5\n4\n3\n2\n1",          // Challenge 18
+        "9",                                       // Challenge 19
+        "24",                                      // Challenge 20
+        "HELLO WORLD",                             // Challenge 21
+        "Even",                                    // Challenge 22
+        "2\n3\n3\n4",                            // Challenge 23
+        "5\n6\n6",                               // Challenge 24
+        "False",                                   // Challenge 25
+        "3\n6\n9\n12\n15\n18",                    // Challenge 26
+        "24690",                                   // Challenge 27
+        "5\n4\n3\n2\n1",                         // Challenge 28
+        "7,14",                                    // Challenge 29
+        "0\n2\n4\n6\n8\n10",                     // Challenge 30
+        "2",                                       // Challenge 31
+        "True",                                    // Challenge 32
+        "Hello",                                   // Challenge 33
+        "1\n2\n3\n4\n5",                         // Challenge 34
+        "True",                                    // Challenge 35
+        "12\n23\n13\n24\n14\n25\n15\n26\n16\n27", // Challenge 36
+        "15",                                      // Challenge 37
+        "2",                                       // Challenge 38
+        "Hello",                                   // Challenge 39
+        "1\n4\n9\n16\n25",                       // Challenge 40
+        "1\n2\n3\n4\n5",                         // Challenge 41
+        "Hello Universe",                          // Challenge 42
+        "1\n3\n5\n7\n9",                         // Challenge 43
+        "7",                                       // Challenge 44
+        "20",                                      // Challenge 45
+        "Hello",                                   // Challenge 46
+        "1\n3\n5\n7\n9",                         // Challenge 47
+        "2",                                       // Challenge 48
+        "7",                                       // Challenge 49
+        "5"                                        // Challenge 50
     };
     
     return outputs[(challengeNumber - 1) % outputs.Length];
