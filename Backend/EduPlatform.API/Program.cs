@@ -661,14 +661,14 @@ using (var scope = app.Services.CreateScope())
                 Title = $"Challenge {i}",
                 Slug = $"challenge-{i}",
                 Description = $"Advanced programming challenge #{i} - Analyze the code and determine the correct output",
-                TargetOutput = GetChallengeTargetOutput(i),
+                TargetOutput = $"Output for challenge {i}",
                 OrderIndex = i,
                 CreatedAt = DateTime.UtcNow,
                 Snippets = new List<ChallengeSnippet>
                 {
                     new ChallengeSnippet
                     {
-                        Code = GetChallengeCode(i),
+                        Code = $"// Code for challenge {i}\nlet result = 'Sample output';\nconsole.log(result);",
                         AnalysisType = i % 3 == 0 ? "Logic" : "Syntax",
                         AnalysisMessage = $"Analysis for challenge {i}",
                         OrderIndex = 0
