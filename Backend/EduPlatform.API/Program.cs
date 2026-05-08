@@ -794,6 +794,67 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedAsync(db);
 }
 
+// Helper methods for TOFAS challenges - based on actual images
+static string GetChallengeCode(int challengeNumber)
+{
+    var codes = new[]
+    {
+        "Dim x As Integer = 5\nIf x > 3 Then\n    Console.WriteLine(\"High\")\nElse\n    Console.WriteLine(\"Low\")\nEnd If",
+        "For i = 1 To 5\n    Console.WriteLine(i * 2)\nNext",
+        "Dim arr() As Integer = {1, 2, 3, 4, 5}\nDim sum As Integer = 0\nFor Each num In arr\n    sum += num\nNext\nConsole.WriteLine(sum)",
+        "Function Add(a As Integer, b As Integer) As Integer\n    Return a + b\nEnd Function\nConsole.WriteLine(Add(3, 4))",
+        "Dim x As Integer = 10\nDo While x > 0\n    Console.WriteLine(x)\n    x -= 2\nLoop",
+        "Select Case grade\n    Case 90 To 100\n        Console.WriteLine(\"A\")\n    Case 80 To 89\n        Console.WriteLine(\"B\")\n    Case Else\n        Console.WriteLine(\"C\")\nEnd Select",
+        "Dim str As String = \"Hello\"\nFor i = 0 To str.Length - 1\n    Console.WriteLine(str(i))\nNext",
+        "Dim x As Integer = 5\nDim y As Integer = 10\nDim temp As Integer = x\nx = y\ny = temp\nConsole.WriteLine(x & \",\" & y)",
+        "If DateTime.Now.Hour < 12 Then\n    Console.WriteLine(\"Good Morning\")\nElse\n    Console.WriteLine(\"Good Afternoon\")\nEnd If",
+        "Dim numbers() As Integer = {3, 1, 4, 1, 5, 9}\nArray.Sort(numbers)\nFor Each num In numbers\n    Console.WriteLine(num)\nNext",
+        "Dim x As Integer = 7\nSelect Case x\n    Case 1 To 5\n        Console.WriteLine(\"Small\")\n    Case 6 To 10\n        Console.WriteLine(\"Medium\")\n    Case Else\n        Console.WriteLine(\"Large\")\nEnd Select",
+        "For i = 1 To 3\n    For j = 1 To 2\n        Console.WriteLine(i * j)\n    Next\nNext",
+        "Dim arr() As Integer = {10, 20, 30, 40}\nFor i = 0 To arr.Length - 1 Step 2\n    Console.WriteLine(arr(i))\nNext",
+        "Function Multiply(a As Integer, b As Integer) As Integer\n    Return a * b\nEnd Function\nConsole.WriteLine(Multiply(6, 7))",
+        "Dim x As Integer = 15\nDo\n    Console.WriteLine(x)\n    x = x - 3\nLoop Until x <= 0",
+        "Dim str As String = \"Programming\"\nConsole.WriteLine(str.Substring(0, 4))",
+        "Dim x As Integer = 8\nDim y As Integer = 12\nIf x > y Then\n    Console.WriteLine(\"X is greater\")\nElseIf y > x Then\n    Console.WriteLine(\"Y is greater\")\nElse\n    Console.WriteLine(\"Equal\")\nEnd If",
+        "For i = 10 To 1 Step -1\n    Console.WriteLine(i)\nNext",
+        "Dim arr() As Integer = {5, 3, 8, 1, 9}\nDim max As Integer = arr(0)\nFor Each num In arr\n    If num > max Then max = num\nNext\nConsole.WriteLine(max)",
+        "Dim x As Integer = 4\nDim result As Integer = 1\nFor i = 1 To x\n    result *= i\nNext\nConsole.WriteLine(result)",
+        "Dim str As String = \"Hello World\"\nConsole.WriteLine(str.ToUpper())"
+    };
+    
+    return codes[(challengeNumber - 1) % codes.Length];
+}
+
+static string GetChallengeTargetOutput(int challengeNumber)
+{
+    var outputs = new[]
+    {
+        "High",
+        "2\n4\n6\n8\n10",
+        "15",
+        "7",
+        "10\n8\n6\n4\n2",
+        "A",
+        "H\ne\nl\nl\no",
+        "10,5",
+        "Good Morning",
+        "1\n1\n3\n4\n5\n9",
+        "Medium",
+        "1\n2\n2\n4\n3\n6",
+        "10\n30",
+        "42",
+        "15\n12\n9\n6\n3\n0",
+        "Prog",
+        "Y is greater",
+        "10\n9\n8\n7\n6\n5\n4\n3\n2\n1",
+        "9",
+        "24",
+        "HELLO WORLD"
+    };
+    
+    return outputs[(challengeNumber - 1) % outputs.Length];
+}
+
 // Generate StudentCode for existing students without one
 static async Task GenerateStudentCodesForExistingUsersAsync(AppDbContext db)
 {
