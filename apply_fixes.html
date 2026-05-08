@@ -141,7 +141,7 @@
     </div>
 
     <script>
-        const API_BASE = window.location.origin + '/api/database-fix';
+        const API_BASE = 'https://mr-amer-timraz.vercel.app/api/database-fix';
         
         async function checkStatus() {
             const loading = document.getElementById('statusLoading');
@@ -285,7 +285,31 @@
         function getAuthToken() {
             // في التطبيق الحقيقي، يجب الحصول على التوكن من localStorage أو مكان آخر
             // هذا مجرد مثال
-            return localStorage.getItem('authToken') || 'your-token-here';
+            return localStorage.getItem('authToken') || '';
+        }
+        
+        async function testConnection() {
+            try {
+                const response = await fetch(API_BASE + '/check-tofas-status', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.status === 401) {
+                    return { success: false, message: 'Authentication required - need admin token' };
+                } else if (response.status === 404) {
+                    return { success: false, message: 'API endpoint not found - check deployment' };
+                } else if (response.ok) {
+                    const data = await response.json();
+                    return { success: true, message: 'API is working', data };
+                } else {
+                    return { success: false, message: `HTTP ${response.status}: ${response.statusText}` };
+                }
+            } catch (error) {
+                return { success: false, message: `Connection error: ${error.message}` };
+            }
         }
         
         // فحص الحالة تلقائياً عند تحميل الصفحة
