@@ -27,7 +27,7 @@ namespace EduPlatform.API.Controllers
         {
             try
             {
-                var result = new { success = true, message = "", fixesApplied = 0 };
+                var fixesApplied = 0;
 
                 // Apply complete fixes
                 var completeFixPath = Path.Combine(_sqlFixesPath, "fix_tofas_level2_complete.sql");
@@ -35,7 +35,7 @@ namespace EduPlatform.API.Controllers
                 {
                     var completeSql = await System.IO.File.ReadAllTextAsync(completeFixPath);
                     await _context.Database.ExecuteSqlRawAsync(completeSql);
-                    result.fixesApplied++;
+                    fixesApplied++;
                 }
 
                 // Apply reversed format fixes
@@ -44,10 +44,10 @@ namespace EduPlatform.API.Controllers
                 {
                     var reversedSql = await System.IO.File.ReadAllTextAsync(reversedFixPath);
                     await _context.Database.ExecuteSqlRawAsync(reversedSql);
-                    result.fixesApplied++;
+                    fixesApplied++;
                 }
 
-                result.message = $"Successfully applied {result.fixesApplied} fix files";
+                var result = new { success = true, message = $"Successfully applied {fixesApplied} fix files", fixesApplied };
                 return Ok(result);
             }
             catch (Exception ex)
