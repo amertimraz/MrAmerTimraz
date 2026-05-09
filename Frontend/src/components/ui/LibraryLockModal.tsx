@@ -50,10 +50,20 @@ export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalPr
               {/* Body */}
               <div className="p-6 space-y-4">
                 <div className="text-center space-y-4">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                    <p className="text-blue-800 dark:text-blue-300 font-semibold text-lg mb-2">
-                      📌 الآن يمكنك الحصول على أي مذكرة (PDF + بالإجابات) بسعر رمزي فقط: 10 جنيه لأي ملف
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-6 shadow-lg">
+                    <div className="flex items-center justify-center mb-3">
+                      <div className="bg-green-500 text-white rounded-full px-4 py-2 text-sm font-bold">
+                        🎯 عرض خاص
+                      </div>
+                    </div>
+                    <p className="text-green-800 dark:text-green-300 font-bold text-xl mb-2 text-center">
+                      📌 الآن يمكنك الحصول على أي مذكرة (PDF + بالإجابات)
                     </p>
+                    <div className="text-center">
+                      <span className="text-3xl font-black text-green-600 dark:text-green-400">10</span>
+                      <span className="text-xl font-bold text-green-700 dark:text-green-500 mr-1">جنيه</span>
+                      <span className="text-sm text-green-600 dark:text-green-400 block mt-1">لأي ملف</span>
+                    </div>
                   </div>
                   
                   <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
