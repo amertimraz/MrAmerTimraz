@@ -85,16 +85,7 @@ export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalPr
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-                <button
-                  onClick={onClose}
-                  className="w-full py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium transition-colors"
-                >
-                  إغلاق
-                </button>
-              </div>
-            </div>
+                          </div>
           </motion.div>
         </>
       )}
