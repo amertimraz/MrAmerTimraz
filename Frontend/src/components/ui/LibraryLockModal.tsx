@@ -43,20 +43,29 @@ export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalPr
                 >
                   <Lock size={32} className="text-white" />
                 </motion.div>
-                <h2 className="text-2xl font-bold mb-2">المكتبة مغلقة مؤقتاً</h2>
-                <p className="text-white/90 text-sm">تم إيقاف نشر المذكرات بشكل عام بسبب انتهاكات حقوق النشر المتكررة</p>
+                <h2 className="text-2xl font-bold mb-2">المكتبة متوقفة مؤقتاً عن الإتاحة المجانية</h2>
+                <p className="text-white/90 text-sm">نظراً لزيادة تكاليف الاستضافة وإدارة الملفات، تم إيقاف إتاحة المذكرات بشكل مجاني</p>
               </div>
 
               {/* Body */}
               <div className="p-6 space-y-4">
-                <div className="text-center space-y-3">
+                <div className="text-center space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <p className="text-blue-800 dark:text-blue-300 font-semibold text-lg mb-2">
+                      📌 الآن يمكنك الحصول على أي مذكرة (PDF + بالإجابات) بسعر رمزي فقط: 10 جنيه لأي ملف
+                    </p>
+                  </div>
+                  
                   <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                    لطلب أي مذكرة، الرجاء التواصل مباشرة مع مستر عامر من خلال الضغط على زر الواتساب أدناه.
+                    📲 لطلب أي مذكرة، تواصل مباشرة مع مستر عامر عبر واتساب
                   </p>
                   
-                  <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
-                    <p className="text-orange-800 dark:text-orange-300 text-sm font-medium">
-                      سنكون سعداء بخدمتكم وتوفير جميع المذكرات المطلوبة
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      نحن نحرص دائماً على توفير المحتوى بأفضل جودة وبسعر مناسب للجميع.
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
+                      شكراً لدعمكم 🤍
                     </p>
                   </div>
                 </div>

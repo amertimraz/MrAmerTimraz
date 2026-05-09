@@ -90,7 +90,7 @@ export default function AdminSettings() {
 
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            عند تفعيل قفل المكتبة، سيتم إظهار رسالة للمستخدمين بأن نشر المذكرات تم إيقافه بشكل عام بسبب انتهاكات حقوق النشر المتكررة مع زر التواصل المباشر عبر الواتساب.
+            عند تفعيل قفل المكتبة، سيتم إظهار رسالة للمستخدمين بأن المكتبة متوقفة عن الإتاحة المجانية بسبب تكاليف الاستضافة مع معلومات الأسعار وزر التواصل المباشر عبر الواتساب.
           </p>
 
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
