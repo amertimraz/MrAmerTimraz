@@ -207,11 +207,48 @@ public class LibraryController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok(new { require = dto.Require });
     }
+
+    // Check if library is locked
+    [HttpGet("lock-status")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetLockStatus()
+    {
+        var setting = await _db.AppSettings
+            .FirstOrDefaultAsync(s => s.Key == "Library_IsLocked");
+        var isLocked = setting?.Value == "true";
+        return Ok(new { isLocked });
+    }
+
+    // Toggle library lock (Admin only)
+    [HttpPost("lock-status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> SetLockStatus([FromBody] LockStatusDto dto)
+    {
+        var setting = await _db.AppSettings
+            .FirstOrDefaultAsync(s => s.Key == "Library_IsLocked");
+        if (setting == null)
+        {
+            setting = new AppSetting { Key = "Library_IsLocked", Value = dto.IsLocked ? "true" : "false" };
+            _db.AppSettings.Add(setting);
+        }
+        else
+        {
+            setting.Value = dto.IsLocked ? "true" : "false";
+            setting.UpdatedAt = DateTime.UtcNow;
+        }
+        await _db.SaveChangesAsync();
+        return Ok(new { isLocked = dto.IsLocked });
+    }
 }
 
 public class RequireInfoDto
 {
     public bool Require { get; set; }
+}
+
+public class LockStatusDto
+{
+    public bool IsLocked { get; set; }
 }
 
 public class LibraryItemDto

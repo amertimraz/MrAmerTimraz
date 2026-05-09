@@ -48,4 +48,10 @@ export const libraryApi = {
 
   setRequireInfo: (require: boolean) =>
     client.post('/library/require-info', { require }).then(r => r.data),
+
+  getLockStatus: () =>
+    client.get<{ isLocked: boolean }>('/library/lock-status').then(r => r.data),
+
+  setLockStatus: (isLocked: boolean) =>
+    client.post('/library/lock-status', { isLocked }).then(r => r.data),
 };

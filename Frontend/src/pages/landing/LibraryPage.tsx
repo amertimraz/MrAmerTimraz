@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore';
 import PdfThumbnail from '../../components/ui/PdfThumbnail';
 import PdfViewerModal from '../../components/ui/PdfViewerModal';
 import StudentInfoModal, { type StudentInfo } from '../../components/ui/StudentInfoModal';
+import LibraryLockModal from '../../components/ui/LibraryLockModal';
 import { getMediaUrl } from '../../utils/media';
 import type { LibraryItem } from '../../types';
 
@@ -27,6 +28,11 @@ export default function LibraryPage() {
     item: LibraryItem | null;
     action: 'view' | 'download';
   }>({ isOpen: false, item: null, action: 'view' });
+
+  const { data: lockStatus } = useQuery({
+    queryKey: ['library-lock-status'],
+    queryFn: () => libraryApi.getLockStatus(),
+  });
 
   const { data: items, isLoading } = useQuery({
     queryKey: ['library-public', filterCat],
@@ -65,6 +71,13 @@ export default function LibraryPage() {
         <meta name="twitter:description" content="مذكرات وملفات تعليمية مجانية — حمّلها وادرس بكل سهولة" />
         <meta name="twitter:image" content="https://www.amertimraz.com/teacher.png" />
       </Helmet>
+      
+      {/* Library Lock Modal */}
+      <LibraryLockModal
+        isOpen={lockStatus?.isLocked || false}
+        onClose={() => {}}
+      />
+      
       <div className="max-w-5xl mx-auto px-4 py-12 space-y-10" dir="rtl">
 
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3">
