@@ -44,7 +44,7 @@ export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalPr
                   <Lock size={32} className="text-white" />
                 </motion.div>
                 <h2 className="text-2xl font-bold mb-2">المكتبة مغلقة مؤقتاً</h2>
-                <p className="text-white/90 text-sm">تم إغلاق المكتبة بسبب عدد التحميلات الكبير</p>
+                <p className="text-white/90 text-sm">تم إيقاف نشر المذكرات بشكل عام بسبب انتهاكات حقوق النشر المتكررة</p>
               </div>
 
               {/* Body */}

@@ -2,10 +2,8 @@ import { Shield, Database, Layers, ExternalLink, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { libraryApi } from '../../api/library';
-import { useAuthStore } from '../../store/authStore';
 
 export default function AdminSettings() {
-  const { isDark } = useAuthStore();
   const queryClient = useQueryClient();
 
   const { data: lockStatus } = useQuery({
@@ -92,7 +90,7 @@ export default function AdminSettings() {
 
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            عند تفعيل قفل المكتبة، سيتم إظهار رسالة للمستخدمين بأن المكتبة مغلقة بسبب عدد التحميلات الكبير مع زر التواصل المباشر عبر الواتساب.
+            عند تفعيل قفل المكتبة، سيتم إظهار رسالة للمستخدمين بأن نشر المذكرات تم إيقافه بشكل عام بسبب انتهاكات حقوق النشر المتكررة مع زر التواصل المباشر عبر الواتساب.
           </p>
 
           <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
