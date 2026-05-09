@@ -48,56 +48,40 @@ export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalPr
               </div>
 
               {/* Body */}
-              <div className="p-6 space-y-4">
-                <div className="text-center space-y-4">
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-6 shadow-lg">
-                    <div className="flex items-center justify-center mb-3">
-                      <div className="bg-green-500 text-white rounded-full px-4 py-2 text-sm font-bold">
+              <div className="p-4 space-y-4">
+                <div className="text-center space-y-3">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-4 shadow-lg">
+                    <div className="flex items-center justify-center mb-2">
+                      <div className="bg-green-500 text-white rounded-full px-3 py-1 text-xs font-bold">
                         🎯 عرض خاص
                       </div>
                     </div>
-                    <p className="text-green-800 dark:text-green-300 font-bold text-xl mb-2 text-center">
-                      📌 الآن يمكنك الحصول على أي مذكرة (PDF + بالإجابات)
+                    <p className="text-green-800 dark:text-green-300 font-bold text-lg mb-1 text-center">
+                      أي مذكرة (PDF + بالإجابات)
                     </p>
                     <div className="text-center">
-                      <span className="text-3xl font-black text-green-600 dark:text-green-400">10</span>
-                      <span className="text-xl font-bold text-green-700 dark:text-green-500 mr-1">جنيه</span>
-                      <span className="text-sm text-green-600 dark:text-green-400 block mt-1">لأي ملف</span>
+                      <span className="text-2xl font-black text-green-600 dark:text-green-400">10</span>
+                      <span className="text-lg font-bold text-green-700 dark:text-green-500 mr-1">جنيه</span>
                     </div>
                   </div>
-                  
-                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                    📲 لطلب أي مذكرة، تواصل مباشرة مع مستر عامر عبر واتساب
+
+                  {/* WhatsApp Button */}
+                  <motion.a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-green-500/25"
+                  >
+                    <MessageCircle size={20} />
+                    <span>تواصل عبر الواتساب</span>
+                    <Phone size={16} />
+                  </motion.a>
+
+                  <p className="text-gray-500 dark:text-gray-400 text-xs">
+                    📞 {whatsappNumber} | شكراً لدعمكم 🤍
                   </p>
-                  
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      نحن نحرص دائماً على توفير المحتوى بأفضل جودة وبسعر مناسب للجميع.
-                    </p>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
-                      شكراً لدعمكم 🤍
-                    </p>
-                  </div>
-                </div>
-
-                {/* WhatsApp Button */}
-                <motion.a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-green-500/25"
-                >
-                  <MessageCircle size={24} />
-                  <span className="text-lg">تواصل معنا عبر الواتساب</span>
-                  <Phone size={20} />
-                </motion.a>
-
-                {/* Phone Number Display */}
-                <div className="text-center">
-                  <p className="text-gray-500 dark:text-gray-400 text-xs mb-2">أو اتصل مباشرة على الرقم:</p>
-                  <p className="text-lg font-bold text-gray-800 dark:text-gray-200">{whatsappNumber}</p>
                 </div>
               </div>
 
