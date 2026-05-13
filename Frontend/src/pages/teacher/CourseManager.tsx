@@ -5,7 +5,7 @@ import { coursesApi } from '../../api/courses';
 import { videosApi } from '../../api/videos';
 import { testsApi } from '../../api/tests';
 import { uploadsApi } from '../../api/uploads';
-import { quizzesApi } from '../../api/quizzes';
+
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Modal from '../../components/ui/Modal';
 import toast from 'react-hot-toast';
@@ -29,10 +29,10 @@ export default function CourseManager() {
 
   const [videoModal, setVideoModal] = useState(false);
   const [testModal, setTestModal]   = useState(false);
-  const [importModal, setImportModal] = useState(false);
+
   const [videoForm, setVideoForm]   = useState({ ...emptyVideoForm });
   const [testForm, setTestForm]     = useState({ ...emptyTestForm });
-  const [importForm, setImportForm] = useState({ quizId: 0, durationMinutes: 30, passingScore: 60 });
+
   const [isUploading, setIsUploading] = useState(false);
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
 
@@ -50,10 +50,7 @@ export default function CourseManager() {
     queryKey: ['tests', id],
     queryFn: () => testsApi.getByCourse(courseId),
   });
-  const { data: quizzes = [] } = useQuery({
-    queryKey: ['interactive-quizzes'],
-    queryFn: () => quizzesApi.getAll(),
-  });
+
 
   const addLesson = useMutation({
     mutationFn: (data: object) => videosApi.create(data),
@@ -95,16 +92,7 @@ export default function CourseManager() {
     onError: () => toast.error('فشل في إنشاء الاختبار'),
   });
 
-  const importQuiz = useMutation({
-    mutationFn: (data: { courseId: number; quizId: number; durationMinutes: number; passingScore: number }) => testsApi.importQuiz(data),
-    onSuccess: () => {
-      toast.success('✅ تم استيراد الاختبار التفاعلي بنجاح!');
-      qc.invalidateQueries({ queryKey: ['tests', id] });
-      setImportModal(false);
-      setImportForm({ quizId: 0, durationMinutes: 30, passingScore: 60 });
-    },
-    onError: () => toast.error('فشل في استيراد الاختبار'),
-  });
+
 
   const deleteTest = useMutation({
     mutationFn: (tid: number) => testsApi.deleteTest(tid),
@@ -352,9 +340,6 @@ export default function CourseManager() {
               </button>
               <button onClick={() => setTestModal(true)} className="btn-secondary text-sm flex items-center gap-1 py-2 px-3">
                 ⚡ سريع
-              </button>
-              <button onClick={() => setImportModal(true)} className="btn-secondary text-blue-600 dark:text-blue-400 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-sm flex items-center gap-1 py-2 px-3 border-none">
-                📥 إستيراد من التفاعلية
               </button>
             </div>
           </div>
@@ -670,64 +655,7 @@ export default function CourseManager() {
         </form>
       </Modal>
 
-      {/* ═══════════════ MODAL: Import Interactive Quiz ═══════════════ */}
-      <Modal isOpen={importModal} onClose={() => setImportModal(false)} title="📥 استيراد اختبار تفاعلي">
-        <form
-          onSubmit={e => { e.preventDefault(); importQuiz.mutate({ ...importForm, courseId }); }}
-          className="space-y-4"
-        >
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              اختر الاختبار التفاعلي *
-            </label>
-            <select
-              value={importForm.quizId}
-              onChange={e => setImportForm(p => ({ ...p, quizId: Number(e.target.value) }))}
-              className="input-field"
-              required
-            >
-              <option value={0} disabled>اختر اختباراً من المكتبة...</option>
-              {quizzes.map(q => (
-                <option key={q.id} value={q.id}>{q.title}</option>
-              ))}
-            </select>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                المدة (دقيقة)
-              </label>
-              <input
-                type="number"
-                value={importForm.durationMinutes}
-                onChange={e => setImportForm(p => ({ ...p, durationMinutes: Number(e.target.value) }))}
-                className="input-field" min={1} required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                نسبة النجاح (%)
-              </label>
-              <input
-                type="number"
-                value={importForm.passingScore}
-                onChange={e => setImportForm(p => ({ ...p, passingScore: Number(e.target.value) }))}
-                className="input-field" min={1} max={100} required
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button type="submit" className="btn-primary flex-1 bg-blue-600 hover:bg-blue-700" disabled={importQuiz.isPending || importForm.quizId === 0}>
-              {importQuiz.isPending ? 'جارٍ الاستيراد...' : '📥 استيراد الاختبار بأسئلته'}
-            </button>
-            <button type="button" onClick={() => setImportModal(false)} className="btn-secondary">
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </Modal>
 
     </div>
   );

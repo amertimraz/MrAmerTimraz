@@ -14,7 +14,6 @@ const studentLinks: NavItem[] = [
   { to: '/student/courses', icon: <BookOpen size={20} />, label: 'دروسي' },
   { to: '/student/live-sessions', icon: <Video size={20} />, label: 'الحصص المباشرة' },
   { to: '/student/tests', icon: <FileText size={20} />, label: 'الاختبارات' },
-  { to: '/student/levels', icon: <Trophy size={20} />, label: 'اختبارات المستويات' },
   { to: '/student/results', icon: <Trophy size={20} />, label: 'نتائجي' },
   { to: '/challenges', icon: <Layers size={20} />, label: 'إختبارات Tofas' },
   { to: '/booklets', icon: <BookOpen size={20} />, label: 'الملازم' },
@@ -47,7 +46,6 @@ const adminLinks: NavItem[] = [
   { to: '/admin/library',       icon: <FolderOpen size={20} />, label: 'المكتبة التعليمية' },
   { to: '/admin/library-stats', icon: <Users size={20} />, label: 'بيانات تحميل المذكرات' },
 
-  { to: '/admin/levels',        icon: <BookOpen size={20} />,    label: 'مستويات JavaScript' },
   { to: '/admin/challenges',    icon: <Database size={20} />,   label: 'إختبارات Tofas' },
   { to: '/admin/booklets',      icon: <BookOpen size={20} />,   label: 'الملازم الدراسية' },
   { to: '/admin/booklet-stats', icon: <CreditCard size={20} />, label: 'إحصائيات الملازم' },

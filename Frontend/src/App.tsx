@@ -25,12 +25,11 @@ const PrivacyPolicyPage = lazy(() => import('./pages/landing/PrivacyPolicyPage')
 const TermsPage = lazy(() => import('./pages/landing/TermsPage'));
 const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
 const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
-const PublicLevelsPage = lazy(() => import('./pages/PublicLevelsPage'));
+
 const InteractiveTheoryPage = lazy(() => import('./pages/landing/InteractiveTheoryPage'));
 const TofasExamPage = lazy(() => import('./pages/TofasExamPage'));
 
-const PublicQuizPage = lazy(() => import('./pages/PublicQuizPage'));
-const PublicCertificatePage = lazy(() => import('./pages/PublicCertificatePage'));
+
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 
@@ -49,9 +48,7 @@ const MyBookletsPage = lazy(() => import('./pages/student/MyBookletsPage'));
 const ChallengesList = lazy(() => import('./pages/student/ChallengesList'));
 const ChallengePage = lazy(() => import('./pages/student/ChallengePage'));
 const ProfilePage = lazy(() => import('./pages/student/ProfilePage'));
-const LevelAssessmentsPage = lazy(() => import('./pages/student/LevelAssessmentsPage'));
-const LevelCertificatePage = lazy(() => import('./pages/student/LevelCertificatePage'));
-const LevelCodeExamPage = lazy(() => import('./pages/student/LevelCodeExamPage'));
+
 
 const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'));
 const TeacherCourses = lazy(() => import('./pages/teacher/TeacherCourses'));
@@ -75,7 +72,7 @@ const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
 const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'));
 const AdminLibrary = lazy(() => import('./pages/admin/AdminLibrary'));
 const AdminLibraryStudentStats = lazy(() => import('./pages/admin/AdminLibraryStudentStats'));
-const AdminQuizzes = lazy(() => import('./pages/admin/AdminQuizzes'));
+
 const AdminChallenges = lazy(() => import('./pages/admin/AdminChallenges'));
 const AdminLiveSessions = lazy(() => import('./pages/admin/AdminLiveSessions'));
 const AdminBookletStats = lazy(() => import('./pages/admin/AdminBookletStats'));
@@ -83,8 +80,7 @@ const AdminPaymentSettings = lazy(() => import('./pages/admin/AdminPaymentSettin
 const AdminAllResults = lazy(() => import('./pages/admin/AdminAllResults'));
 const FileManagerPage = lazy(() => import('./pages/admin/FileManagerPage'));
 const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
-const AdminLevelAssessments = lazy(() => import('./pages/admin/AdminLevelAssessments'));
-const QuizPresenter = lazy(() => import('./pages/QuizPresenter'));
+
 
 
 const queryClient = new QueryClient({
@@ -126,7 +122,7 @@ export default function App() {
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/library"  element={<LibraryPage />} />
               <Route path="/masarat"  element={<PathsGuidePage />} />
-              <Route path="/public-levels" element={<PublicLevelsPage />} />
+
               <Route path="/interactive-theory" element={<InteractiveTheoryPage />} />
             </Route>
 
@@ -135,8 +131,7 @@ export default function App() {
 
             <Route path="/login"    element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/public-quiz/:quizId" element={<PublicQuizPage />} />
-            <Route path="/public-certificate/:quizId" element={<PublicCertificatePage />} />
+
 
             {/* Student Routes */}
             <Route path="/student" element={<RequireAuth roles={['Student']}><DashboardLayout /></RequireAuth>}>
@@ -151,9 +146,7 @@ export default function App() {
               <Route path="my-booklets"     element={<MyBookletsPage />} />
               <Route path="notifications"   element={<NotificationsPage />} />
               <Route path="profile"         element={<ProfilePage />} />
-              <Route path="levels"          element={<LevelAssessmentsPage />} />
-              <Route path="levels/take/:id" element={<LevelCodeExamPage />} />
-              <Route path="levels/certificate/:quizId" element={<LevelCertificatePage />} />
+
             </Route>
 
             {/* Common Authenticated Routes (Booklets, etc.) */}
@@ -196,20 +189,18 @@ export default function App() {
               <Route path="categories"      element={<AdminCategories />} />
               <Route path="library"         element={<AdminLibrary />} />
               <Route path="library-stats"   element={<AdminLibraryStudentStats />} />
-              <Route path="quizzes"         element={<AdminQuizzes />} />
+
               <Route path="challenges"      element={<AdminChallenges />} />
               <Route path="all-results"     element={<AdminAllResults />} />
               <Route path="booklets"        element={<BookletsManager />} />
               <Route path="booklet-stats"    element={<AdminBookletStats />} />
               <Route path="payment-settings" element={<AdminPaymentSettings />} />
-              <Route path="levels"          element={<AdminLevelAssessments />} />
+
               <Route path="live-sessions"   element={<AdminLiveSessions />} />
               <Route path="files"           element={<FileManagerPage />} />
             </Route>
 
-            <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
 
-            <Route path="/quiz/:id" element={<QuizPresenter />} />
 
             <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />
 
