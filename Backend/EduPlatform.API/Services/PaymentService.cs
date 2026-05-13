@@ -22,7 +22,7 @@ public class PaymentService : IPaymentService
 
     public PaymentService(AppDbContext db) => _db = db;
 
-    public async Task<(PaymentRequestDto? Result, string? Error)> CreateRequestAsync(CreatePaymentRequestDto dto, int studentId, string? receiptUrl)
+    public async Task<(PaymentRequestDto? Result, string? Error)> CreateRequestAsync(CreatePaymentRequestDto dto, int? studentId, string? receiptUrl)
     {
         if (dto.CourseId.HasValue)
         {
@@ -132,18 +132,18 @@ public class PaymentService : IPaymentService
             if (request.CourseId.HasValue && request.StudentId.HasValue)
             {
                 var alreadyEnrolled = await _db.Enrollments
-                    .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == request.StudentId);
+                    .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == request.StudentId.Value);
 
                 if (!alreadyEnrolled)
-                    _db.Enrollments.Add(new Enrollment { CourseId = request.CourseId.Value, StudentId = request.StudentId });
+                    _db.Enrollments.Add(new Enrollment { CourseId = request.CourseId.Value, StudentId = request.StudentId.Value });
             }
-            else if (request.LiveSessionId.HasValue)
+            else if (request.LiveSessionId.HasValue && request.StudentId.HasValue)
             {
                 var alreadyEnrolled = await _db.LiveSessionEnrollments
-                    .AnyAsync(e => e.LiveSessionId == request.LiveSessionId && e.StudentId == request.StudentId);
+                    .AnyAsync(e => e.LiveSessionId == request.LiveSessionId && e.StudentId == request.StudentId.Value);
 
                 if (!alreadyEnrolled)
-                    _db.LiveSessionEnrollments.Add(new LiveSessionEnrollment { LiveSessionId = request.LiveSessionId.Value, StudentId = request.StudentId });
+                    _db.LiveSessionEnrollments.Add(new LiveSessionEnrollment { LiveSessionId = request.LiveSessionId.Value, StudentId = request.StudentId.Value });
             }
         }
 
@@ -258,7 +258,7 @@ public class PaymentService : IPaymentService
     {
         Id = p.Id,
         StudentId = p.StudentId,
-        StudentName = p.Student?.Name ?? "",
+        StudentName = p.Student?.Name ?? p.GuestName ?? "Guest",
         StudentUsername = p.Student?.Username ?? "",
         StudentPhone = p.Student?.PhoneNumber ?? "",
         CourseId = p.CourseId,
@@ -277,6 +277,7 @@ public class PaymentService : IPaymentService
         AdminNote = p.AdminNote,
         GuestName = p.GuestName,
         GuestPhone = p.GuestPhone,
+        DownloadToken = p.DownloadToken,
         CreatedAt = p.CreatedAt,
         ReviewedAt = p.ReviewedAt
     };

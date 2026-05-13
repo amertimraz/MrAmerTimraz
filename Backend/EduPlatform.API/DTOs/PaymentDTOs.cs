@@ -32,7 +32,7 @@ public class ReviewPaymentDto
 public class PaymentRequestDto
 {
     public int Id { get; set; }
-    public int StudentId { get; set; }
+    public int? StudentId { get; set; }
     public string StudentName { get; set; } = string.Empty;
     public string StudentUsername { get; set; } = string.Empty;
     public string StudentPhone { get; set; } = string.Empty;
@@ -56,6 +56,7 @@ public class PaymentRequestDto
     public string? AdminNote { get; set; }
     public string? GuestName { get; set; }
     public string? GuestPhone { get; set; }
+    public string? DownloadToken { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ReviewedAt { get; set; }
 }
