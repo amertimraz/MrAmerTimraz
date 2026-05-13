@@ -225,12 +225,12 @@ using (var scope = app.Services.CreateScope())
         var knownMigrations = new[]
         {
             ("20260315084036_AddQuizUrlToLibraryItem",   "9.0.1"),
-            ("20260322131337_AddInteractiveQuizResults",  "9.0.1"),
+
             ("20260322132816_AddLessonEnhancements",      "9.0.1"),
             ("20260322135422_FixModelMismatch",           "9.0.1"),
             ("20260322184828_AddNotificationImages",      "9.0.1"),
             ("20260323113205_AddLiveSessions",            "9.0.1"),
-            ("20260323122140_AddQuizTheme",               "9.0.1"),
+
             ("20260324115540_AddBooklets",                "9.0.1"),
             ("20260325091256_AddAppSettings",             "9.0.1"),
             ("20260325211614_AddChallenges",              "9.0.1"),
@@ -342,41 +342,9 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"LibraryItems\" ADD COLUMN IF NOT EXISTS \"DownloadCount\" INTEGER NOT NULL DEFAULT 0",
             "ALTER TABLE \"LibraryItems\" ADD COLUMN IF NOT EXISTS \"ViewCount\" INTEGER NOT NULL DEFAULT 0",
             "ALTER TABLE \"LibraryStudentInfos\" ADD COLUMN IF NOT EXISTS \"EducationLevel\" VARCHAR(20) NOT NULL DEFAULT 'secondary'",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"AllowSkipWithoutRegistration\" BOOLEAN NOT NULL DEFAULT FALSE",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Theme\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Slug\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Subject\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Grade\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherName\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherImage\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"WhatsappUrl\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherWhatsappNumber\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"YoutubeUrl\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"FacebookUrl\" TEXT",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"ShowSupportButton\" BOOLEAN NOT NULL DEFAULT TRUE",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"IsPublic\" BOOLEAN NOT NULL DEFAULT TRUE",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"StageCount\" INTEGER NOT NULL DEFAULT 3",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"QuestionsPerStage\" INTEGER NOT NULL DEFAULT 0",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"McqPerStage\" INTEGER NOT NULL DEFAULT 0",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TfPerStage\" INTEGER NOT NULL DEFAULT 0",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"GoldenEvery\" INTEGER NOT NULL DEFAULT 10",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerEnabled\" BOOLEAN NOT NULL DEFAULT FALSE",
-            "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerDuration\" INTEGER NOT NULL DEFAULT 30",
+            "ALTER TABLE \"LibraryStudentInfos\" ADD COLUMN IF NOT EXISTS \"EducationLevel\" VARCHAR(20) NOT NULL DEFAULT 'secondary'",
             "ALTER TABLE \"TofasTests\" ADD COLUMN IF NOT EXISTS \"CourseId\" INTEGER NULL REFERENCES \"Courses\"(\"Id\")",
-            """
-            CREATE TABLE IF NOT EXISTS "InteractiveQuizResults" (
-                "Id" SERIAL PRIMARY KEY,
-                "QuizId" INTEGER NOT NULL REFERENCES "InteractiveQuizzes"("Id") ON DELETE CASCADE,
-                "SessionId" VARCHAR(100) NOT NULL,
-                "PlayerName" VARCHAR(100) NOT NULL,
-                "Score" INTEGER NOT NULL,
-                "CorrectCount" INTEGER NOT NULL,
-                "TotalCount" INTEGER NOT NULL,
-                "Percentage" DOUBLE PRECISION NOT NULL,
-                "CompletedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL
-            )
-            """,
-            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_InteractiveQuizResults_QuizId_SessionId\" ON \"InteractiveQuizResults\"(\"QuizId\", \"SessionId\")",
+
             """
             CREATE TABLE IF NOT EXISTS "TofasTestResults" (
                 "Id" SERIAL PRIMARY KEY,
@@ -409,8 +377,7 @@ using (var scope = app.Services.CreateScope())
             // Fix boolean types if they were created as integers by SQLite-based migrations
             "ALTER TABLE \"Booklets\" ALTER COLUMN \"IsPublished\" TYPE boolean USING (\"IsPublished\"::integer::boolean)",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"IsActive\" TYPE boolean USING (\"IsActive\"::integer::boolean)",
-            "ALTER TABLE \"InteractiveQuizzes\" ALTER COLUMN \"AllowSkipWithoutRegistration\" TYPE boolean USING (\"AllowSkipWithoutRegistration\"::integer::boolean)",
-            "ALTER TABLE \"InteractiveQuizzes\" ALTER COLUMN \"ShowSupportButton\" TYPE boolean USING (\"ShowSupportButton\"::integer::boolean)",
+
 
             // Fix Id columns that might have been created as plain integers by SQLite-based migrations
             "CREATE SEQUENCE IF NOT EXISTS \"Booklets_Id_seq\"",
@@ -424,8 +391,7 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",
             "ALTER TABLE \"LiveSessionEnrollments\" ALTER COLUMN \"EnrolledAt\" TYPE timestamp without time zone USING \"EnrolledAt\"::timestamp without time zone",
-            "ALTER TABLE \"InteractiveQuizzes\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
-            "ALTER TABLE \"InteractiveQuizResults\" ALTER COLUMN \"CompletedAt\" TYPE timestamp without time zone USING \"CompletedAt\"::timestamp without time zone",
+
             "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"AmountPaid\" TYPE numeric USING \"AmountPaid\"::numeric",
             "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"PaymentRequests\" ALTER COLUMN \"ReviewedAt\" TYPE timestamp without time zone USING \"ReviewedAt\"::timestamp without time zone",
@@ -593,7 +559,7 @@ using (var scope = app.Services.CreateScope())
         var seqTables = new[] {
             "Users", "Courses", "Videos", "Tests", "Questions", "Results",
             "Enrollments", "Notifications", "PaymentRequests", "LibraryItems",
-            "InteractiveQuizzes", "InteractiveQuestions", "InteractiveQuizResults",
+
             "VideoComments", "CommentReactions", "LiveSessions", "LiveSessionEnrollments", "Booklets", "AppSettings", "TofasTests", "Challenges", "ChallengeSnippets"
         };
         foreach (var t in seqTables)
@@ -685,113 +651,51 @@ using (var scope = app.Services.CreateScope())
     }
     else
     {
-        Console.WriteLine("[STARTUP] Skipping heavy seeding/manual patches (Database already exists). Use FORCE_SEED=true to override.");
-        
-        // Lightweight check: only run Migrate() to ensure standard EF migrations are in sync.
-        // This is much faster than the 300+ manual SQL alters above.
+        // Lightweight startup: only run Migrate() for standard EF migrations
         try { db.Database.Migrate(); } catch { }
         
-        // Ensure critical User columns for activity tracking exist (minimal check)
+        // Batch all ALTER TABLE statements into a single SQL call (PostgreSQL)
         if (isPostgres)
         {
             try
             {
-                var sql = "ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastLoginAt\" TIMESTAMP WITHOUT TIME ZONE; ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"LastActivity\" TEXT;";
-                db.Database.ExecuteSqlRaw(sql);
-            }
-            catch { }
-            
-            // Add StudentCode column if not exists
-            try
-            {
-                db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"StudentCode\" VARCHAR(20);");
-                db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Users_StudentCode\" ON \"Users\"(\"StudentCode\") WHERE \"StudentCode\" IS NOT NULL;");
-            }
-            catch { }
-            
-            // Add Profile completion fields
-            try
-            {
-                db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"Grade\" VARCHAR(50);");
-                db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"School\" VARCHAR(100);");
-                db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN IF NOT EXISTS \"DateOfBirth\" TIMESTAMP WITHOUT TIME ZONE;");
-            }
-            catch { }
-            
-            // Add EducationLevel to LibraryStudentInfos if not exists
-            try
-            {
-                db.Database.ExecuteSqlRaw("ALTER TABLE \"LibraryStudentInfos\" ADD COLUMN IF NOT EXISTS \"EducationLevel\" VARCHAR(20) NOT NULL DEFAULT 'secondary';");
-            }
-            catch { }
-
-            // CRITICAL: Ensure InteractiveQuizzes has the new columns for the revision system
-            try
-            {
-                var quizAlters = new[] {
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Slug\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Theme\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"IsPublic\" BOOLEAN NOT NULL DEFAULT TRUE",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Subject\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"Grade\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherName\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherImage\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"WhatsappUrl\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TeacherWhatsappNumber\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"YoutubeUrl\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"FacebookUrl\" TEXT",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"ShowSupportButton\" BOOLEAN NOT NULL DEFAULT TRUE",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"AllowSkipWithoutRegistration\" BOOLEAN NOT NULL DEFAULT FALSE",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"StageCount\" INTEGER NOT NULL DEFAULT 3",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"QuestionsPerStage\" INTEGER NOT NULL DEFAULT 0",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"McqPerStage\" INTEGER NOT NULL DEFAULT 0",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TfPerStage\" INTEGER NOT NULL DEFAULT 0",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"GoldenEvery\" INTEGER NOT NULL DEFAULT 10",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerEnabled\" BOOLEAN NOT NULL DEFAULT FALSE",
-                    "ALTER TABLE \"InteractiveQuizzes\" ADD COLUMN IF NOT EXISTS \"TimerDuration\" INTEGER NOT NULL DEFAULT 30"
-                };
-                foreach(var sql in quizAlters) {
-                    db.Database.ExecuteSqlRaw(sql);
-                }
+                var batchSql = """
+                    ALTER TABLE "Users" ADD COLUMN IF NOT EXISTS "LastLoginAt" TIMESTAMP WITHOUT TIME ZONE;
+                    ALTER TABLE "Users" ADD COLUMN IF NOT EXISTS "LastActivity" TEXT;
+                    ALTER TABLE "Users" ADD COLUMN IF NOT EXISTS "StudentCode" VARCHAR(20);
+                    ALTER TABLE "Users" ADD COLUMN IF NOT EXISTS "Grade" VARCHAR(50);
+                    ALTER TABLE "Users" ADD COLUMN IF NOT EXISTS "School" VARCHAR(100);
+                    ALTER TABLE "Users" ADD COLUMN IF NOT EXISTS "DateOfBirth" TIMESTAMP WITHOUT TIME ZONE;
+                    CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_StudentCode" ON "Users"("StudentCode") WHERE "StudentCode" IS NOT NULL;
+                    ALTER TABLE "LibraryStudentInfos" ADD COLUMN IF NOT EXISTS "EducationLevel" VARCHAR(20) NOT NULL DEFAULT 'secondary';
+                    ALTER TABLE "LibraryStudentInfos" ADD COLUMN IF NOT EXISTS "EducationLevel" VARCHAR(20) NOT NULL DEFAULT 'secondary';
+                    """;
+#pragma warning disable EF1002
+                db.Database.ExecuteSqlRaw(batchSql);
+#pragma warning restore EF1002
             }
             catch { }
         }
         else // SQLite
         {
-            try
+            var sqliteAlters = new[] {
+                "ALTER TABLE Users ADD COLUMN StudentCode VARCHAR(20)",
+                "ALTER TABLE Users ADD COLUMN Grade VARCHAR(50)",
+                "ALTER TABLE Users ADD COLUMN School VARCHAR(100)",
+                "ALTER TABLE Users ADD COLUMN DateOfBirth DATETIME",
+                "ALTER TABLE LibraryStudentInfos ADD COLUMN EducationLevel VARCHAR(20) NOT NULL DEFAULT 'secondary'",
+                "ALTER TABLE TofasTests ADD COLUMN CourseId INTEGER"
+            };
+            foreach (var sql in sqliteAlters)
             {
-                db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN StudentCode VARCHAR(20);");
+                try { db.Database.ExecuteSqlRaw(sql); } catch { }
             }
-            catch { } // Column might already exist
-            
-            try
-            {
-                db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN Grade VARCHAR(50);");
-                db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN School VARCHAR(100);");
-                db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN DateOfBirth DATETIME;");
-            }
-            catch { }
-            
-            // Add EducationLevel to LibraryStudentInfos if not exists (SQLite)
-            try
-            {
-                db.Database.ExecuteSqlRaw("ALTER TABLE LibraryStudentInfos ADD COLUMN EducationLevel VARCHAR(20) NOT NULL DEFAULT 'secondary';");
-            }
-            catch { }
-
-            // Add CourseId to TofasTests if not exists (SQLite)
-            try
-            {
-                db.Database.ExecuteSqlRaw("ALTER TABLE TofasTests ADD COLUMN CourseId INTEGER;");
-            }
-            catch { }
         }
         
-        // Generate StudentCode for existing students without one
+        // Generate StudentCode only if there are students without one
         await GenerateStudentCodesForExistingUsersAsync(db);
     }
 
-    await DbSeeder.SeedAsync(db);
 }
 
 // Helper methods for TOFAS challenges - based on actual images from folder 50
@@ -1110,20 +1014,6 @@ if (File.Exists(spaIndex))
     app.MapFallbackToFile("index.html");
 }
 
-// Seed the database
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<AppDbContext>();
-        await DbSeeder.SeedAsync(context);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
-    }
-}
+
 
 app.Run();

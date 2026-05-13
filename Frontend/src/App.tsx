@@ -85,8 +85,7 @@ const FileManagerPage = lazy(() => import('./pages/admin/FileManagerPage'));
 const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
 const AdminLevelAssessments = lazy(() => import('./pages/admin/AdminLevelAssessments'));
 const QuizPresenter = lazy(() => import('./pages/QuizPresenter'));
-const RevisionPresenter = lazy(() => import('./pages/RevisionPresenter'));
-const RevisionHub = lazy(() => import('./pages/RevisionHub'));
+
 
 const queryClient = new QueryClient({
   defaultOptions: { 
@@ -209,9 +208,7 @@ export default function App() {
             </Route>
 
             <Route path="/quiz-presenter/:id" element={<RequireAuth roles={['Admin', 'Teacher']}><QuizPresenter /></RequireAuth>} />
-            <Route path="/interactive-revision" element={<RevisionHub />} />
-            <Route path="/interactive-revision/:id" element={<RevisionPresenter />} />
-            <Route path="/interactive-revision/slug/:slug" element={<RevisionPresenter />} />
+
             <Route path="/quiz/:id" element={<QuizPresenter />} />
 
             <Route path="/lessons/:slug" element={<RequireAuth><LessonPage /></RequireAuth>} />

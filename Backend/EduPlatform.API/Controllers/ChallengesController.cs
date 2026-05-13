@@ -28,11 +28,13 @@ namespace EduPlatform.API.Controllers
         {
             var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
             var userEnrollments = await _context.Enrollments
+                .AsNoTracking()
                 .Where(e => e.StudentId == userId)
                 .Select(e => e.CourseId)
                 .ToListAsync();
 
             var tests = await _context.TofasTests
+                .AsNoTracking()
                 .Where(t => t.IsVisible)
                 .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new { Test = t, Dto = MapTestToDTO(t, false) })
@@ -50,6 +52,7 @@ namespace EduPlatform.API.Controllers
         public async Task<ActionResult<TofasTestDTO>> GetBySlug(string slug)
         {
             var test = await _context.TofasTests
+                .AsNoTracking()
                 .Include(t => t.Questions)
                     .ThenInclude(q => q.Snippets)
                 .FirstOrDefaultAsync(t => t.Slug.ToLower() == slug.ToLower());
@@ -77,6 +80,7 @@ namespace EduPlatform.API.Controllers
         public async Task<ActionResult<IEnumerable<TofasTestDTO>>> GetAllTests()
         {
             var tests = await _context.TofasTests
+                .AsNoTracking()
                 .Include(t => t.Questions)
                     .ThenInclude(q => q.Snippets)
                 .OrderByDescending(t => t.CreatedAt)
@@ -253,6 +257,7 @@ namespace EduPlatform.API.Controllers
         public async Task<ActionResult<IEnumerable<TofasTestResultDTO>>> GetResults(int testId)
         {
             var results = await _context.TofasTestResults
+                .AsNoTracking()
                 .Include(r => r.Student)
                 .Where(r => r.TestId == testId)
                 .OrderByDescending(r => r.Score)

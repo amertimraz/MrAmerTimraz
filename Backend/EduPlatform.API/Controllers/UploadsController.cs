@@ -59,19 +59,16 @@ public class UploadsController : ControllerBase
             root = possiblePaths.FirstOrDefault(p => !string.IsNullOrEmpty(p)) ?? possiblePaths[4];
             var filePath = Path.Combine(root, "uploads", folder, fileName);
 
-            Console.WriteLine($"Attempting to delete: {filePath}");
 
             if (!System.IO.File.Exists(filePath))
                 return NotFound("الملف غير موجود");
 
             System.IO.File.Delete(filePath);
-            Console.WriteLine($"File deleted: {fileName}");
 
             return Ok(new { message = "تم حذف الملف بنجاح" });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error deleting file: {ex.Message}");
             return StatusCode(500, $"فشل في حذف الملف: {ex.Message}");
         }
     }
@@ -109,13 +106,9 @@ public class UploadsController : ControllerBase
                         {
                             System.IO.File.Delete(file);
                             deletedCount++;
-                            Console.WriteLine($"Deleted incomplete/old file: {info.Name}");
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error checking file {file}: {ex.Message}");
-                    }
+                    catch { }
                 }
             }
 
@@ -123,7 +116,6 @@ public class UploadsController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Cleanup error: {ex.Message}");
             return StatusCode(500, $"فشل في التنظيف: {ex.Message}");
         }
     }
@@ -169,10 +161,7 @@ public class UploadsController : ControllerBase
                         });
                         totalSize += info.Length;
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error reading file {file}: {ex.Message}");
-                    }
+                    catch { }
                 }
             }
 
@@ -185,7 +174,6 @@ public class UploadsController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"GetAllFiles error: {ex.Message}");
             return StatusCode(500, $"فشل في جلب الملفات: {ex.Message}");
         }
     }
@@ -229,7 +217,6 @@ public class UploadsController : ControllerBase
             
             root = possiblePaths.FirstOrDefault(p => !string.IsNullOrEmpty(p)) ?? possiblePaths[4];
             
-            Console.WriteLine($"Using storage root: {root}");
             
             var dir = Path.Combine(root, "uploads", folder);
             
@@ -239,7 +226,6 @@ public class UploadsController : ControllerBase
                 if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);
-                    Console.WriteLine($"Created directory: {dir}");
                 }
             }
             catch (Exception dirEx)
@@ -248,26 +234,21 @@ public class UploadsController : ControllerBase
                 // Fallback to temp directory
                 dir = Path.Combine(Path.GetTempPath(), "uploads", folder);
                 Directory.CreateDirectory(dir);
-                Console.WriteLine($"Using fallback directory: {dir}");
             }
 
             var fileName = $"{Guid.NewGuid()}{ext}";
             var path = Path.Combine(dir, fileName);
 
-            Console.WriteLine($"Saving file to: {path}");
             
             await using var stream = System.IO.File.Create(path);
             await file.CopyToAsync(stream);
             
-            Console.WriteLine($"File saved successfully: {fileName} ({file.Length} bytes)");
 
             var url = $"/uploads/{folder}/{fileName}";
             return Ok(new { url });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving file: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
             return StatusCode(500, $"فشل في حفظ الملف: {ex.Message}");
         }
     }

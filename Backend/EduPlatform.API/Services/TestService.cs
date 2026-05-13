@@ -12,7 +12,7 @@ public interface ITestService
     Task<List<TestDto>> GetByTeacherAsync(int teacherId);
     Task<TestDto?> GetByIdAsync(int id, bool includeAnswers = false);
     Task<TestDto> CreateAsync(CreateTestDto dto);
-    Task<TestDto?> ImportQuizAsync(ImportQuizDto dto);
+
     Task<bool> AddQuestionAsync(int testId, CreateQuestionDto dto);
     Task<bool> DeleteQuestionAsync(int questionId);
     Task<bool> PublishAsync(int testId);
@@ -79,69 +79,7 @@ public class TestService : ITestService
         return await GetByIdAsync(test.Id) ?? MapToDto(test, false);
     }
 
-    public async Task<TestDto?> ImportQuizAsync(ImportQuizDto dto)
-    {
-        var quiz = await _db.InteractiveQuizzes
-            .Include(q => q.Questions)
-            .FirstOrDefaultAsync(q => q.Id == dto.QuizId);
 
-        if (quiz == null) return null;
-
-        var test = new Test
-        {
-            Title = quiz.Title,
-            Description = quiz.Description,
-            CourseId = dto.CourseId,
-            DurationMinutes = dto.DurationMinutes,
-            PassingScore = dto.PassingScore,
-            IsPublished = false
-        };
-
-        _db.Tests.Add(test);
-        await _db.SaveChangesAsync();
-
-        var testQuestions = quiz.Questions.Select((q, index) => {
-            string? correctText = q.CorrectAnswer;
-            try
-            {
-                if (!string.IsNullOrEmpty(q.Options))
-                {
-                    var optionsList = JsonSerializer.Deserialize<List<string>>(q.Options);
-                    if (optionsList != null && optionsList.Any())
-                    {
-                        if (q.Type == IQType.TrueFalse)
-                        {
-                            int idx = (q.CorrectAnswer?.ToLower() == "true") ? 0 : 1;
-                            if (idx < optionsList.Count) correctText = optionsList[idx];
-                        }
-                        else if (int.TryParse(q.CorrectAnswer, out int optIndex))
-                        {
-                            if (optIndex >= 0 && optIndex < optionsList.Count)
-                                correctText = optionsList[optIndex];
-                        }
-                    }
-                }
-            }
-            catch { }
-
-            return new Question
-            {
-                TestId = test.Id,
-                QuestionText = q.Text,
-                QuestionType = q.Type == IQType.TrueFalse ? QuestionType.TrueFalse : QuestionType.MultipleChoice,
-                Options = q.Options,
-                CorrectAnswer = correctText,
-                Points = 1,
-                OrderIndex = index,
-                ImageUrl = null
-            };
-        }).ToList();
-
-        _db.Questions.AddRange(testQuestions);
-        await _db.SaveChangesAsync();
-
-        return await GetByIdAsync(test.Id) ?? MapToDto(test, false);
-    }
 
     public async Task<bool> AddQuestionAsync(int testId, CreateQuestionDto dto)
     {

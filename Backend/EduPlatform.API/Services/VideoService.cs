@@ -96,10 +96,6 @@ public class VideoService : IVideoService
         catch (DbUpdateException ex) when (ex.InnerException?.Message?.Contains("column") == true && 
                                              ex.InnerException?.Message?.Contains("does not exist") == true)
         {
-            // Fallback: try without PdfFilename and ThumbnailUrl if columns don't exist
-            Console.WriteLine("Database column not found, trying without new fields...");
-            Console.WriteLine($"Error: {ex.InnerException?.Message}");
-            
             // Clear the failed entry from tracking
             var entries = _db.ChangeTracker.Entries().ToList();
             foreach (var entry in entries)
@@ -112,9 +108,7 @@ public class VideoService : IVideoService
             {
                 await _db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"PdfFilename\" TEXT");
                 await _db.Database.ExecuteSqlRawAsync("ALTER TABLE \"Videos\" ADD COLUMN IF NOT EXISTS \"ThumbnailUrl\" TEXT");
-                Console.WriteLine("Columns added successfully, retrying...");
                 
-                // Now retry with original data (columns should exist now)
                 var videoRetry = new Video
                 {
                     CourseId = dto.CourseId,
@@ -134,10 +128,8 @@ public class VideoService : IVideoService
                 await _db.SaveChangesAsync();
                 return videoRetry;
             }
-            catch (Exception alterEx)
+            catch
             {
-                Console.WriteLine($"Failed to add columns, trying without new fields: {alterEx.Message}");
-                
                 // Final fallback: create video without new fields
                 var video = new Video
                 {
@@ -159,8 +151,6 @@ public class VideoService : IVideoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error in CreateAsync: {ex.Message}");
-            Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
             throw;
         }
     }

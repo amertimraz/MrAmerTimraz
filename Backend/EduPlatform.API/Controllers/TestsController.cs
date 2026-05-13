@@ -40,12 +40,7 @@ public class TestsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = test.Id }, test);
     }
 
-    [HttpPost("import-quiz"), Authorize(Roles = "Teacher,Admin")]
-    public async Task<IActionResult> ImportQuiz([FromBody] ImportQuizDto dto)
-    {
-        var test = await _tests.ImportQuizAsync(dto);
-        return test == null ? NotFound("Interactive Quiz not found.") : Ok(test);
-    }
+
 
     [HttpPost("{testId}/questions"), Authorize(Roles = "Teacher,Admin")]
     public async Task<IActionResult> AddQuestion(int testId, [FromBody] CreateQuestionDto dto)

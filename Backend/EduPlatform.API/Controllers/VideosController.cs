@@ -88,7 +88,6 @@ public class VideosController : ControllerBase
     {
         try
         {
-            // Validate required fields
             if (string.IsNullOrWhiteSpace(dto.Title))
                 return BadRequest(new { message = "عنوان الدرس مطلوب" });
             
@@ -98,37 +97,24 @@ public class VideosController : ControllerBase
             if (dto.CourseId <= 0)
                 return BadRequest(new { message = "معرف الكورس غير صالح" });
             
-            Console.WriteLine($"Creating video: Title={dto.Title}, CourseId={dto.CourseId}, Source={dto.Source}, Url={dto.Url}, Slug={dto.Slug}");
-            
             // If source is Mux and URL is not already a Mux stream URL, upload it
             if (dto.Source == VideoSource.Mux && !string.IsNullOrEmpty(dto.Url))
             {
-                // Check if URL is already a Mux stream URL (skip upload if it is)
                 if (!dto.Url.StartsWith("https://stream.mux.com/"))
                 {
-                    Console.WriteLine("Uploading to Mux...");
                     var playbackId = await _mux.UploadVideoAsync(dto.Url, dto.Title, dto.ThumbnailUrl);
                     if (!string.IsNullOrEmpty(playbackId))
                     {
-                        // Store Mux playback URL
                         dto.Url = $"https://stream.mux.com/{playbackId}.m3u8";
-                        Console.WriteLine($"Mux upload complete. New URL: {dto.Url}");
                     }
-                }
-                else
-                {
-                    Console.WriteLine("URL is already a Mux stream URL, skipping upload");
                 }
             }
 
             var video = await _videos.CreateAsync(dto);
-            Console.WriteLine($"Video created successfully with ID: {video.Id}");
             return CreatedAtAction(nameof(GetById), new { id = video.Id }, video);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error creating video: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
             return StatusCode(500, new { message = "فشل في إنشاء الدرس", error = ex.Message });
         }
     }
@@ -149,7 +135,7 @@ public class VideosController : ControllerBase
         // Poll Mux API to get playback ID
         try
         {
-            var maxAttempts = 30; // 30 attempts with 2 second delay = 60 seconds max
+            var maxAttempts = 10; // 10 attempts with 2 second delay = 20 seconds max
             for (var i = 0; i < maxAttempts; i++)
             {
                 var response = await _mux.GetPlaybackIdAsync(assetId);

@@ -23,9 +23,7 @@ public class AppDbContext : DbContext
     public DbSet<PaymentRequest> PaymentRequests => Set<PaymentRequest>();
     public DbSet<LibraryItem> LibraryItems => Set<LibraryItem>();
     public DbSet<LibraryStudentInfo> LibraryStudentInfos => Set<LibraryStudentInfo>();
-    public DbSet<InteractiveQuiz> InteractiveQuizzes => Set<InteractiveQuiz>();
-    public DbSet<InteractiveQuestion> InteractiveQuestions => Set<InteractiveQuestion>();
-    public DbSet<InteractiveQuizResult> InteractiveQuizResults => Set<InteractiveQuizResult>();
+
     public DbSet<VideoComment> VideoComments => Set<VideoComment>();
     public DbSet<CommentReaction> CommentReactions => Set<CommentReaction>();
     public DbSet<LiveSession> LiveSessions => Set<LiveSession>();
@@ -136,24 +134,7 @@ public class AppDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<InteractiveQuestion>(entity =>
-        {
-            entity.HasOne(q => q.Quiz)
-                  .WithMany(qz => qz.Questions)
-                  .HasForeignKey(q => q.QuizId)
-                  .OnDelete(DeleteBehavior.Cascade);
-             entity.Property(q => q.Type).HasConversion<string>();
-        });
- 
-        modelBuilder.Entity<InteractiveQuizResult>(entity =>
-        {
-            entity.HasOne(r => r.Quiz)
-                  .WithMany()
-                  .HasForeignKey(r => r.QuizId)
-                  .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasIndex(r => new { r.QuizId, r.SessionId }).IsUnique();
-        });
 
         modelBuilder.Entity<Video>(entity =>
         {

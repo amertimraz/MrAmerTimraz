@@ -1,0 +1,80 @@
+Short snippets (missing full code):
+=====================================
+
+1. Question 22: تحدي منطق 'لا يساوي'
+   Snippet 85 [Correct] (20 chars)
+   Code: غداء اليوم هو السوشي
+---
+2. Question 22: تحدي منطق 'لا يساوي'
+   Snippet 86 [Logic] (33 chars)
+   Code: غداء اليوم هو الهامبرغر الذي أحبه
+---
+3. Question 22: تحدي منطق 'لا يساوي'
+   Snippet 87 [Logic] (30 chars)
+   Code: غداء اليوم هو السوشي الذي أحبه
+---
+4. Question 22: تحدي منطق 'لا يساوي'
+   Snippet 88 [Logic] (23 chars)
+   Code: غداء اليوم هو الهامبرغر
+---
+5. Question 25: تحدي الوقت والمواعيد
+   Snippet 97 [Logic] (34 chars)
+   Code: اليوم ليس يوم تخفيضات
+سيفتح قريباً
+---
+6. Question 25: تحدي الوقت والمواعيد
+   Snippet 98 [Logic] (27 chars)
+   Code: اليوم ليس يوم تخفيضات
+مفتوح
+---
+7. Question 25: تحدي الوقت والمواعيد
+   Snippet 99 [Correct] (33 chars)
+   Code: اليوم هو يوم تخفيضات
+سيفتح قريباً
+---
+8. Question 25: تحدي الوقت والمواعيد
+   Snippet 100 [Logic] (26 chars)
+   Code: اليوم هو يوم تخفيضات
+مفتوح
+---
+9. Question 26: تحدي القائمة اليومية (||)
+   Snippet 101 [Logic] (19 chars)
+   Code: يوم القائمة العادية
+---
+10. Question 26: تحدي القائمة اليومية (||)
+   Snippet 102 [Correct] (18 chars)
+   Code: يوم القائمة الخاصة
+---
+11. Question 30: تحدي نظام القسائم والخصومات
+   Snippet 115 [Logic] (32 chars)
+   Code: المبلغ الإجمالي هو كالتالي
+12000
+---
+12. Question 30: تحدي نظام القسائم والخصومات
+   Snippet 116 [Logic] (45 chars)
+   Code: سنمنحك قسيمة
+المبلغ الإجمالي هو كالتالي
+12000
+---
+13. Question 36: تحدي قائمة الطعام والمصفوفات
+   Snippet 131 [Logic] (19 chars)
+   Code: سأطلب الدجاج المشوي
+---
+14. Question 36: تحدي قائمة الطعام والمصفوفات
+   Snippet 132 [Correct] (12 chars)
+   Code: سأطلب بارفيه
+---
+15. Question 41: تحدي قائمة اليوم والمصفوفات
+   Snippet 142 [Logic] (22 chars)
+   Code: console.log(menuList);
+---
+16. Question 60: تحدي جدول الدراسة اليومي
+   Snippet 181 [Syntax] (39 chars)
+   Code: else { console.log(studySubjects[i]); }
+---
+17. Question 69: تحدي حالة الحجز التفصيلية
+   Snippet 199 [Syntax] (40 chars)
+   Code: console.log("تم حجز " + [i] + " أشخاص");
+---
+
+Total short snippets: 17

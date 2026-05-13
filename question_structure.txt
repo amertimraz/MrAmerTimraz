@@ -1,0 +1,1172 @@
+Full Question Structure:
+========================
+
+
+--- Question 21: تحدي دمج النصوص ---
+Description: حلل الكود التالي واختر البرنامج الذي يعطي المخرج المطلوب بدقة.
+TargetOutput: آخر يوم في يونيو هو 30
+
+  Snippet 81 [Correct]:
+  Code: let month = "يونيو";
+let lastDay = "30";
+console.log("آخر يوم في " + month + " هو " + lastDay);
+
+  Snippet 82 [Syntax]:
+  Code: let month = "يونيو";
+let lastDay = "30";
+console.log("آخر يوم في " month " هو " lastDay);
+
+  Snippet 83 [Syntax]:
+  Code: let month = "يونيو";
+let lastDay = "30";
+console.log("آخر يوم في " + month + هو + lastDay);
+
+  Snippet 84 [Logic]:
+  Code: let month = "يونيو";
+let lastDay = "30";
+console.log("آخر يوم في " * month * " هو " * lastDay);
+
+--- Question 22: تحدي منطق 'لا يساوي' ---
+Description: حدد المخرج الصحيح للكود التالي بناءً على قيم المتغيرات.
+TargetOutput: غداء اليوم هو السوشي
+
+  Snippet 85 [Correct]:
+  Code: let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood != lunchMenu) {
+  console.log("غداء اليوم هو " + lunchMenu);
+} else {
+  console.log("غداء اليوم هو " + favoriteFood + " الذي أحبه");
+}
+
+  Snippet 86 [Logic]:
+  Code: let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood == lunchMenu) {
+  console.log("غداء اليوم هو " + favoriteFood + " الذي أحبه");
+} else {
+  console.log("غداء اليوم هو " + lunchMenu);
+}
+
+  Snippet 87 [Logic]:
+  Code: let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood != lunchMenu) {
+  console.log("غداء اليوم هو " + lunchMenu + " الذي أحبه");
+}
+
+  Snippet 88 [Logic]:
+  Code: let favoriteFood = "الهامبرغر";
+let lunchMenu = "السوشي";
+
+if (favoriteFood == lunchMenu) {
+  console.log("غداء اليوم هو " + favoriteFood);
+}
+
+--- Question 23: تحدي توقعات الطقس ---
+Description: حدد البرنامج الذي سيقوم بطباعة النصين المطلوبين معاً.
+TargetOutput: الطقس اليوم مشمس
+لا حاجة إلى مظلة
+
+  Snippet 89 [Logic]:
+  Code: let weatherForecast = "مشمس";
+console.log("الطقس اليوم " + weatherForecast);
+if (weatherForecast == "ممطر") {
+  console.log("لا حاجة إلى مظلة");
+}
+
+  Snippet 90 [Correct]:
+  Code: let weatherForecast = "مشمس";
+console.log("الطقس اليوم " + weatherForecast);
+if (weatherForecast != "ممطر") {
+  console.log("لا حاجة إلى مظلة");
+}
+
+  Snippet 91 [Syntax]:
+  Code: let weatherForecast = "مشمس";
+console.log("الطقس اليوم " weatherForecast);
+if (weatherForecast != "ممطر") {
+  console.log("لا حاجة إلى مظلة");
+}
+
+  Snippet 92 [Logic]:
+  Code: let weatherForecast = "مشمس";
+console.log("الطقس اليوم " + weatherForecast);
+if (weatherForecast == "ممطر") {
+  console.log("لا حاجة إلى مظلة");
+}
+
+--- Question 24: تحدي بوابات المنطق (&&) ---
+Description: حدد البرنامج الذي سيعطي النتيجة 'لا يمكنك ركوب اللعبة' بناءً على المدخلات.
+TargetOutput: لا يمكنك ركوب اللعبة
+
+  Snippet 93 [Correct]:
+  Code: let height = 130;
+let weight = 50;
+if ((height >= 140) && (weight >= 40)) {
+  console.log("يمكنك ركوب اللعبة");
+} else {
+  console.log("لا يمكنك ركوب اللعبة");
+}
+
+  Snippet 94 [Logic]:
+  Code: let height = 130;
+let weight = 50;
+if ((height >= 140) || (weight >= 40)) {
+  console.log("يمكنك ركوب اللعبة");
+} else {
+  console.log("لا يمكنك ركوب اللعبة");
+}
+
+  Snippet 95 [Logic]:
+  Code: let height = 130;
+let weight = 50;
+if ((height >= 120) && (weight >= 40)) {
+  console.log("يمكنك ركوب اللعبة");
+} else {
+  console.log("لا يمكنك ركوب اللعبة");
+}
+
+  Snippet 96 [Logic]:
+  Code: let height = 130;
+let weight = 50;
+if ((height <= 140) && (weight <= 40)) {
+  console.log("يمكنك ركوب اللعبة");
+} else {
+  console.log("لا يمكنك ركوب اللعبة");
+}
+
+--- Question 25: تحدي الوقت والمواعيد ---
+Description: ما هي النتيجة النهائية لتنفيذ هذا البرنامج؟
+TargetOutput: اليوم هو يوم تخفيضات
+سيفتح قريباً
+
+  Snippet 97 [Logic]:
+  Code: let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday != "الخميس") {
+  console.log("اليوم ليس يوم تخفيضات");
+} else {
+  console.log("اليوم هو يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime < 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}
+
+  Snippet 98 [Logic]:
+  Code: let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday != "الخميس") {
+  console.log("اليوم ليس يوم تخفيضات");
+} else {
+  console.log("اليوم هو يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime > 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}
+
+  Snippet 99 [Correct]:
+  Code: let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday == "الخميس") {
+  console.log("اليوم هو يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime < 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}
+
+  Snippet 100 [Logic]:
+  Code: let weekday = "الخميس";
+let currentTime = 8;
+
+if (weekday == "الخميس") {
+  console.log("اليوم هو يوم تخفيضات");
+}
+
+if ((currentTime > 10) && (currentTime > 22)) {
+  console.log("مفتوح");
+} else {
+  console.log("سيفتح قريباً");
+}
+
+--- Question 26: تحدي القائمة اليومية (||) ---
+Description: حدد المخرج الصحيح لهذا البرنامج بناءً على قيمة المتغير weekday.
+TargetOutput: يوم القائمة الخاصة
+
+  Snippet 101 [Logic]:
+  Code: let weekday = "الجمعة";
+
+if ((weekday == "الإثنين") && (weekday == "الجمعة")) {
+  console.log("يوم القائمة الخاصة");
+} else {
+  console.log("يوم القائمة العادية");
+}
+
+  Snippet 102 [Correct]:
+  Code: let weekday = "الجمعة";
+
+if ((weekday == "الإثنين") || (weekday == "الجمعة")) {
+  console.log("يوم القائمة الخاصة");
+}
+
+--- Question 27: تحدي نفي الشرط (!) ---
+Description: أي من البرامج التالية سيخرج 'يمكن شراء التذاكر'؟
+TargetOutput: يمكن شراء التذاكر
+
+  Snippet 103 [Logic]:
+  Code: let possessionMoney = 10000;
+let ticketPrice = 8000;
+if (possessionMoney < ticketPrice) {
+  console.log("يمكن شراء التذاكر");
+}
+
+  Snippet 104 [Correct]:
+  Code: let possessionMoney = 10000;
+let ticketPrice = 8000;
+if (!(possessionMoney < ticketPrice)) {
+  console.log("يمكن شراء التذاكر");
+}
+
+--- Question 28: تحدي حصة الرياضة ---
+Description: حدد البرنامج الذي سيقوم بطباعة النصين المطلوبين معاً بناءً على حالة الطقس واليوم.
+TargetOutput: هناك حصة رياضة اليوم
+ستقام في الداخل
+
+  Snippet 105 [Correct]:
+  Code: let weekday = "الجمعة";
+let weather = "ممطر";
+if ((weekday == "الإثنين") || (weekday == "الجمعة")) {
+  console.log("هناك حصة رياضة اليوم");
+}
+if (weather != "مشمس") {
+  console.log("ستقام في الداخل");
+}
+
+  Snippet 106 [Logic]:
+  Code: let weekday = "الجمعة";
+let weather = "ممطر";
+if ((weekday == "الإثنين") || (weekday == "الجمعة")) {
+  console.log("هناك حصة رياضة اليوم");
+}
+if (weather == "مشمس") {
+  console.log("ستقام في الداخل");
+}
+
+  Snippet 107 [Logic]:
+  Code: let weekday = "الجمعة";
+let weather = "ممطر";
+if ((weekday == "الإثنين") && (weekday == "الجمعة")) {
+  console.log("هناك حصة رياضة اليوم");
+}
+
+  Snippet 108 [Logic]:
+  Code: let weekday = "الجمعة";
+let weather = "ممطر";
+if (weather == "مشمس") {
+  console.log("ستقام في الداخل");
+}
+
+--- Question 29: تحدي درجة النجاح ---
+Description: أي برنامج سيخرج النتيجة 'ريو نجح' بناءً على درجاته؟
+TargetOutput: ريو نجح
+
+  Snippet 109 [Logic]:
+  Code: let name = "ريو";
+let scienceScore = 60;
+let mathScore = 90;
+let borderScore = 80;
+if ((scienceScore <= borderScore) && (mathScore <= borderScore)) {
+  console.log(name + " نجح");
+}
+
+  Snippet 110 [Syntax]:
+  Code: let name = "ريو";
+let scienceScore = 60;
+let mathScore = 90;
+let borderScore = 60;
+if (!(scienceScore <= borderScore) && (mathScore <= borderScore)) {
+  console.log(name - " نجح");
+}
+
+  Snippet 111 [Syntax]:
+  Code: let name = "ريو";
+let scienceScore = 60;
+let mathScore = 90;
+let borderScore = 50;
+if ((scienceScore >= borderScore) && (mathScore >= borderScore)) {
+  console.log(name - " نجح");
+}
+
+  Snippet 112 [Correct]:
+  Code: let name = "ريو";
+let scienceScore = 60;
+let mathScore = 90;
+let borderScore = 60;
+if (!(scienceScore < borderScore) && (mathScore >= borderScore)) {
+  console.log(name + " نجح");
+}
+
+--- Question 30: تحدي نظام القسائم والخصومات ---
+Description: ما هي المخرجات الكاملة لهذا البرنامج مع الحساب النهائي للسعر؟
+TargetOutput: سنمنحك قسيمة
+سيتم تطبيق خصم 1000 ين
+المبلغ الإجمالي هو كالتالي
+11000
+
+  Snippet 113 [Logic]:
+  Code: let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount >= 10000) {
+  totalAmount = totalAmount - discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);
+
+  Snippet 114 [Correct]:
+  Code: let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount >= 10000) {
+  console.log("سنمنحك قسيمة");
+  totalAmount = totalAmount - discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);
+
+  Snippet 115 [Logic]:
+  Code: let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount > 10000) {
+  console.log("سنمنحك قسيمة");
+  totalAmount = totalAmount - discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);
+
+  Snippet 116 [Logic]:
+  Code: let totalAmount = 12000;
+let discount = 1000;
+
+if (totalAmount >= 10000) {
+  console.log("سنمنحك قسيمة");
+  totalAmount = totalAmount + discount;
+}
+console.log("المبلغ الإجمالي هو كالتالي");
+console.log(totalAmount);
+
+--- Question 31: تحدي أيام الأسبوع والمصفوفات ---
+Description: حدد البرنامج الذي سيخرج رسالة إغلاق المكتبة يوم الإثنين بدقة.
+TargetOutput: المكتبة مغلقة يوم الإثنين
+
+  Snippet 117 [Syntax]:
+  Code: if (let i = 0; i < 5; i++) {
+  if (i == 0) {
+    console.log("المكتبة مغلقة يوم " + weekdays[i]);
+  }
+}
+
+  Snippet 118 [Logic]:
+  Code: for (let i = 5; i < 0; i++) {
+  if (i == 0) {
+    console.log("المكتبة مغلقة يوم " + weekdays[i]);
+  }
+}
+
+  Snippet 119 [Correct]:
+  Code: for (let i = 0; i < 5; i++) {
+  if (i == 0) {
+    console.log("المكتبة مغلقة يوم " + weekdays[i]);
+  }
+}
+
+--- Question 32: تحدي الوصول لعناصر المصفوفة ---
+Description: أي برنامج سيقوم بطباعة 'هواياتي هي كرة القدم والطبخ'؟
+TargetOutput: هواياتي هي كرة القدم والطبخ
+
+  Snippet 120 [Logic]:
+  Code: let activities = ["كرة القدم", "المطالعة", "السفر"];
+console.log("هواياتي هي " + activities[0] + " و " + activities[2]);
+
+  Snippet 121 [Correct]:
+  Code: let activities = ["كرة القدم", "المطالعة", "الطبخ", "السفر"];
+console.log("هواياتي هي " + activities[0] + " و " + activities[2]);
+
+--- Question 33: تحدي تكرار الأرقام كنصوص ---
+Description: حدد البرنامج الذي سينتج تتابع الأرقام المطلوب (3، 30، 300).
+TargetOutput: عرض قيمة ضرب 3 في 10
+30
+عرض قيمة ضرب 30 في 10
+300
+عرض قيمة ضرب 300 في 10
+3000
+
+  Snippet 122 [Syntax]:
+  Code: for (let i = 0; i < 3; i++) {
+  console.log(numbers[i]);
+}
+
+  Snippet 123 [Logic]:
+  Code: for (let i = 0; i < 3; i++) {
+  console.log("عرض قيمة ضرب " + num + " 10 في");
+  num = num + "0";
+  console.log(num);
+}
+
+  Snippet 124 [Correct]:
+  Code: for (let i = 0; i < 3; i++) {
+  console.log("عرض قيمة ضرب " + num + " في 10");
+  num = num + "0";
+  console.log(num);
+}
+
+--- Question 34: تحدي فرز المواد الدراسية ---
+Description: أي برنامج سيعطي تقريراً صحيحاً عن وجود الوظائف للمواد المذكورة؟
+TargetOutput: عندك وظيفة لغة يابانية
+ليس عندك وظيفة رياضيات
+ليس عندك وظيفة لغة إنجليزية
+عندك وظيفة علوم
+عندك وظيفة اجتماعيات
+
+  Snippet 125 [Logic]:
+  Code: if ((subjects[i] == "لغة يابانية") || (subjects[i] == "علوم")) {
+  console.log("عندك وظيفة لغة يابانية");
+  console.log("ليس عندك وظيفة رياضيات");
+  console.log("ليس عندك وظيفة لغة إنجليزية");
+  console.log("عندك وظيفة علوم");
+  console.log("عندك وظيفة اجتماعيات");
+}
+
+  Snippet 126 [Logic]:
+  Code: if ((subjects[i] != "رياضيات") || (subjects[i] != "لغة إنجليزية")) {
+  console.log("عندك وظيفة لغة يابانية");
+  console.log("ليس عندك وظيفة رياضيات");
+  console.log("ليس عندك وظيفة لغة إنجليزية");
+  console.log("عندك وظيفة علوم");
+  console.log("عندك وظيفة اجتماعيات");
+}
+
+  Snippet 127 [Correct]:
+  Code: if ((subjects[i] == "لغة يابانية") || (subjects[i] == "علوم") || (subjects[i] == "اجتماعيات")) {
+  console.log("عندك وظيفة لغة يابانية");
+  console.log("ليس عندك وظيفة رياضيات");
+  console.log("ليس عندك وظيفة لغة إنجليزية");
+  console.log("عندك وظيفة علوم");
+  console.log("عندك وظيفة اجتماعيات");
+}
+
+--- Question 35: تحدي أماكن ممارسة الرياضة ---
+Description: حدد البرنامج الذي يحدد مكان اللعب (الملعب أو الصالة) بشكل صحيح لكل رياضة.
+TargetOutput: يتم لعب البيسبول في الملعب
+يتم لعب كرة السلة في الصالة الرياضية
+يتم لعب كرة القدم في الملعب
+يتم لعب الكرة الطائرة في الصالة الرياضية
+
+  Snippet 128 [Correct]:
+  Code: for (let i = 0; i < 4; i++) {
+  if (!((sports[i] == outdoorSports[0]) || (sports[i] == outdoorSports[1]))) {
+    place = "الصالة الرياضية";
+  }
+  console.log("يتم لعب " + sports[i] + " في " + place);
+  place = "الملعب";
+}
+
+  Snippet 129 [Logic]:
+  Code: for (let i = 0; i < 4; i++) {
+  if (!((sports[i] == outdoorSports[0]) || (sports[i] == outdoorSports[1]))) {
+    place = "الصالة الرياضية";
+  }
+  console.log("يتم لعب " + sports[i] + " في " + place);
+}
+place = "الملعب";
+
+  Snippet 130 [Syntax]:
+  Code: for (let i = 0; i < 4; i++) {
+  console.log(sports[i]);
+}
+
+--- Question 36: تحدي قائمة الطعام والمصفوفات ---
+Description: ما هو المخرج الصحيح عند محاولة طلب الصنف الثالث من القائمة؟
+TargetOutput: سأطلب بارفيه
+
+  Snippet 131 [Logic]:
+  Code: let menuList = ["كاري", "دجاج مشوي", "بارفيه"];
+console.log("سأطلب " + menuList[1]);
+
+  Snippet 132 [Correct]:
+  Code: let menuList = ["كاري", "دجاج مشوي", "بارفيه"];
+console.log("سأطلب " + menuList[2]);
+
+--- Question 37: تحدي رحلات العمل والعمليات الحسابية للفهرس ---
+Description: حدد البرنامج الذي سينتج خطة السفر المطلوبة (أمريكا في أبريل، فرنسا في نوفمبر).
+TargetOutput: سأسافر في رحلة عمل إلى أمريكا في أبريل
+سأسافر في رحلة عمل إلى فرنسا في نوفمبر
+
+  Snippet 133 [Logic]:
+  Code: for (let i = 0; i < destinations.length; i++) {
+  console.log("سأسافر إلى " + destinations[i] + " في " + months[i]);
+}
+
+  Snippet 134 [Correct]:
+  Code: for (let i = 0; i < destinations.length; i++) {
+  if (destinations[i] == "اليابان") continue;
+  console.log("سأسافر إلى " + destinations[2-i] + " في " + months[i]);
+}
+
+--- Question 38: تحدي مواعيد وصول الزوار ---
+Description: أي برنامج سيقوم بتخصيص مواعيد الوصول الصحيحة لكل زائر؟
+TargetOutput: موعد وصول كينتا: 6:00 مساءً
+موعد وصول ريوبا: 6:30 مساءً
+موعد وصول هاناكو: 6:00 مساءً
+موعد وصول آيا: 7:00 مساءً
+
+  Snippet 135 [Logic]:
+  Code: if ((visiters[i] == "كينتا") || (visiters[i] == "هاناكو")) {
+  console.log("موعد وصول كينتا: 6:00 مساءً");
+  console.log("موعد وصول ريوبا: 6:30 مساءً");
+  console.log("موعد وصول هاناكو: 6:00 مساءً");
+  console.log("موعد وصول آيا: 7:00 مساءً");
+}
+
+  Snippet 136 [Correct]:
+  Code: if ((visiters[i] == "كينتا") || (visiters[i] == "هاناكو")) {
+  arrivalTime = "6:00 مساءً";
+} else if (visiters[i] == "ريوبا") {
+  arrivalTime = "6:30 مساءً";
+} else {
+  arrivalTime = "7:00 مساءً";
+}
+
+--- Question 39: تحدي خصومات العمر ---
+Description: حدد البرنامج الذي يطبق الخصم للأطفال (أقل من 10) وكبار السن (أكبر من 60).
+TargetOutput: سيتم تطبيق خصم للأطفال أو كبار السن
+السعر العادي
+سيتم تطبيق خصم للأطفال أو كبار السن
+
+  Snippet 137 [Logic]:
+  Code: if ((ages[i] < 10) && (ages[i] > 60)) {
+  console.log("سيتم تطبيق خصم للأطفال أو كبار السن");
+  console.log("السعر العادي");
+  console.log("سيتم تطبيق خصم للأطفال أو كبار السن");
+}
+
+  Snippet 138 [Correct]:
+  Code: if ((ages[i] < 10) || (ages[i] > 60)) {
+  console.log("سيتم تطبيق خصم للأطفال أو كبار السن");
+} else {
+  console.log("السعر العادي");
+}
+
+--- Question 40: تحدي مواعيد المباريات والطقس ---
+Description: أي برنامج سيختار تواريخ المباريات بناءً على عدم وجود مطر وعدد اللاعبين الكافي (22 فأكثر)؟
+TargetOutput: التواريخ المقترحة لمباريات كرة القدم الودية هي كالتالي
+5
+7
+
+  Snippet 139 [Logic]:
+  Code: if ((weatherForecasts[i] != "ممطر") || (participantsNumbers[i] >= 22)) {
+  console.log("التواريخ المقترحة لمباريات كرة القدم الودية هي كالتالي");
+  console.log("5");
+  console.log("7");
+}
+
+  Snippet 140 [Correct]:
+  Code: if ((weatherForecasts[i] != "ممطر") && (participantsNumbers[i] >= 22)) {
+  console.log(dates[i]);
+}
+
+--- Question 41: تحدي قائمة اليوم والمصفوفات ---
+Description: حدد البرنامج الذي سيقوم بطباعة قائمة الطعام بالترتيب الصحيح (سندويش، سلطة، قهوة).
+TargetOutput: قائمة اليوم هي كالتالي
+سندويش
+سلطة
+قهوة
+
+  Snippet 141 [Correct]:
+  Code: let menuList = ["سندويش", "سلطة", "قهوة"];
+console.log("قائمة اليوم هي كالتالي");
+for (let i = 0; i < 3; i++) {
+  console.log(menuList[i]);
+}
+
+  Snippet 142 [Logic]:
+  Code: let menuList = ["سندويش", "سلطة", "قهوة"];
+console.log("قائمة اليوم هي كالتالي");
+console.log(menuList);
+
+  Snippet 143 [Logic]:
+  Code: let menuList = ["قهوة", "سلطة", "سندويش"];
+for (let i = 0; i < 3; i++) {
+  console.log(menuList[i]);
+}
+
+--- Question 42: تحدي أدوار أعضاء المجموعة ---
+Description: أي برنامج سيحدد دور 'يوتا' كمسكرتير و'شون' كقائد للمجموعة؟
+TargetOutput: يوتا هو السكرتير
+شون هو قائد المجموعة
+
+  Snippet 144 [Correct]:
+  Code: if (memberList[i] == leader) {
+  console.log(memberList[i] + " هو قائد المجموعة");
+} else if (memberList[i] == secretary) {
+  console.log(memberList[i] + " هو السكرتير");
+}
+
+  Snippet 145 [Logic]:
+  Code: if (memberList[i] == leader) {
+  console.log(memberList[i] + " هو السكرتير");
+}
+
+--- Question 43: تحدي سلة التسوق والشحن ---
+Description: حدد البرنامج الذي يطبق عرض النقاط الثلاثي والشحن المجاني معاً.
+TargetOutput: في يوم 3 تحصل على 3 أضعاف النقاط
+الشحن مجاني
+
+  Snippet 146 [Correct]:
+  Code: if (date == "3") {
+  console.log("في يوم 3 تحصل على 3 أضعاف النقاط");
+  console.log("الشحن مجاني");
+}
+if (shoppingBasket.length > 3) {
+  console.log("في يوم 3 تحصل على 3 أضعاف النقاط");
+  console.log("الشحن مجاني");
+}
+
+  Snippet 147 [Logic]:
+  Code: if (shoppingBasket.length > 3) {
+  console.log("في يوم 3 تحصل على 3 أضعاف النقاط");
+  console.log("الشحن مجاني");
+}
+
+--- Question 44: تحدي قائمة المهام المنجزة ---
+Description: أي برنامج سيقوم بطباعة 'تم الانتهاء من' لجميع المهام في القائمة؟
+TargetOutput: تم الانتهاء من تنظيف الحمام
+تم الانتهاء من تنظيف الغرفة
+تم الانتهاء من غسل الملابس
+تم الانتهاء من الوظائف
+
+  Snippet 148 [Correct]:
+  Code: for (let i = 0; i < taskList.length; i++) {
+  console.log("تم الانتهاء من " + taskList[i]);
+}
+
+  Snippet 149 [Logic]:
+  Code: for (let i = 0; i < taskList.length; i++) {
+  console.log("تم الانتهاء من تنظيف الحمام");
+  console.log("تم الانتهاء من تنظيف الغرفة");
+  console.log("تم الانتهاء من غسل الملابس");
+  console.log("تم الانتهاء من الوظائف");
+}
+
+--- Question 45: تحدي فلترة الملابس ---
+Description: حدد البرنامج الذي سيختار شراء كل الملابس ما عدا 'التنورة'.
+TargetOutput: سأقوم بشراء قميص
+سأقوم بشراء بنطال
+
+  Snippet 150 [Correct]:
+  Code: if (!(clothesList[i] == "تنورة")) {
+  console.log("سأقوم بشراء " + clothesList[i]);
+}
+
+  Snippet 151 [Logic]:
+  Code: if (clothesList[i] == "تنورة") {
+  console.log("سأقوم بشراء قميص");
+  console.log("سأقوم بشراء بنطال");
+}
+
+--- Question 46: تحدي مستوى البطارية ---
+Description: حدد البرنامج الذي سينبه المستخدم عندما لا تكون البطارية مشحونة بالكامل (اللون ليس أزرق).
+TargetOutput: وصل مستوى البطارية إلى 10%
+يرجى شحن الجهاز
+
+  Snippet 152 [Correct]:
+  Code: if (currentBatteryColor != fullyChargedBatteryColor) {
+  console.log("وصل مستوى البطارية إلى " + lowBatteryLevel);
+  console.log("يرجى شحن الجهاز");
+} else {
+  console.log("مستوى البطارية كافٍ");
+}
+
+  Snippet 153 [Logic]:
+  Code: if (currentBatteryColor == fullyChargedBatteryColor) {
+  console.log("وصل مستوى البطارية إلى 10%");
+  console.log("يرجى شحن الجهاز");
+}
+
+--- Question 47: تحدي مسار القطار ---
+Description: أي برنامج سيطبع وجهة القطار فقط دون طباعة رسالة التوقف (لأن شروط التوقف لم تتحقق)؟
+TargetOutput: هذا القطار متجه إلى المحطة B
+
+  Snippet 154 [Correct]:
+  Code: console.log("هذا القطار متجه إلى " + destination);
+if ((destination == "المحطة B") && (trainCode == "B456")) {
+  console.log("A هذا القطار لا يتوقف في المحطة");
+}
+
+  Snippet 155 [Logic]:
+  Code: if ((destination == "المحطة B") && (trainCode == "B456")) {
+  console.log("هذا القطار متجه إلى المحطة B");
+}
+
+--- Question 48: تحدي حجز الغرف والطوابق ---
+Description: حدد البرنامج الذي سيكتشف الخطأ في رقم الغرفة ويحدد الطابق الصحيح (25 يقع في الطابق 2).
+TargetOutput: رقم الغرفة غير صحيح
+غرفتك المحجوزة في الطابق رقم 2
+
+  Snippet 156 [Correct]:
+  Code: if (reservedRoomNum != roomNum) {
+  console.log("رقم الغرفة غير صحيح");
+}
+if (reservedRoomNum <= 20) {
+  floorNum = "1";
+} else if ((reservedRoomNum > 20) && (reservedRoomNum <= 40)) {
+  floorNum = "2";
+}
+console.log("غرفتك المحجوزة في الطابق رقم " + floorNum);
+
+  Snippet 157 [Logic]:
+  Code: if (reservedRoomNum == roomNum) {
+  console.log("رقم الغرفة غير صحيح");
+  console.log("غرفتك المحجوزة في الطابق رقم 2");
+}
+
+--- Question 49: تحدي مداخل المسرح ---
+Description: أي برنامج سيوجه أصحاب التذاكر A و B إلى المدخل رقم 1؟
+TargetOutput: الضيوف الحاملون لتذاكر مقاعد A، يرجى الدخول عبر المدخل 1
+
+  Snippet 158 [Correct]:
+  Code: if ((ticketType == "A") || (ticketType == "B")) {
+  entrance = "1";
+} else {
+  entrance = "2";
+}
+
+  Snippet 159 [Logic]:
+  Code: if ((ticketType == "A") || (ticketType == "B")) {
+  console.log("الضيوف الحاملون لتذاكر مقاعد A، يرجى الدخول عبر المدخل 1");
+}
+
+--- Question 50: تحدي ساعات العمل وكمية الطلب ---
+Description: حدد البرنامج الذي سيعتذر عن الكمية المطلوبة (55) فقط إذا كان الوقت ضمن ساعات العمل (9-12).
+TargetOutput: ضمن ساعات العمل
+لا يمكننا تلبية الكمية المطلوبة
+
+  Snippet 160 [Correct]:
+  Code: if ((requiredQuantity < 10) || (requiredQuantity > 50)) {
+  response = "لا يمكننا تلبية الكمية المطلوبة";
+}
+if ((currentTime >= 9) && (currentTime <= 12)) {
+  console.log("ضمن ساعات العمل");
+  console.log(response);
+}
+
+  Snippet 161 [Logic]:
+  Code: if ((requiredQuantity < 10) || (requiredQuantity > 50)) {
+  console.log("ضمن ساعات العمل");
+  console.log("لا يمكننا تلبية الكمية المطلوبة");
+}
+
+--- Question 51: تحدي حالة المبيعات اليومية ---
+Description: حدد البرنامج الذي سيغير حالة العمل إلى 'يوم عمل' إذا لم يكن اليوم هو يوم الإغلاق.
+TargetOutput: حالة العمل: يوم عمل
+
+  Snippet 162 [Correct]:
+  Code: if (!(today == closedDay)) {
+  salesStatus = "يوم عمل";
+}
+console.log("حالة العمل: " + salesStatus);
+
+  Snippet 163 [Logic]:
+  Code: if (today == closedDay) {
+  console.log("حالة العمل: يوم عمل");
+}
+
+--- Question 52: تحدي توجيه الضيوف والخصومات ---
+Description: أي برنامج سيوجه مجموعة من 14 شخصاً للقاعة الكبيرة ويخبرهم بخصم المشروبات (لأنه ليس يوم عطلة)؟
+TargetOutput: سيتم إرشادك إلى الغرفة الكبيرة
+اليوم يوجد خصم على المشروبات
+
+  Snippet 164 [Correct]:
+  Code: if ((guestCount >= 8) && (guestCount <= 16)) {
+  console.log("سيتم إرشادك إلى الغرفة الكبيرة");
+}
+if (!(visitDay == "عطلة")) {
+  console.log("اليوم يوجد خصم على المشروبات");
+}
+
+  Snippet 165 [Logic]:
+  Code: if ((guestCount >= 8) && (guestCount <= 16)) {
+  console.log("سيتم إرشادك إلى الغرفة الكبيرة");
+  console.log("اليوم يوجد خصم على المشروبات");
+}
+
+--- Question 53: تحدي تنفيذ الأنشطة ---
+Description: حدد البرنامج الذي سيطبع رسالة التنفيذ لجميع الأنشطة في القائمة.
+TargetOutput: كرة قدم الصالات سيتم تنفيذها
+أنشطة تطوعية سيتم تنفيذها
+وجبة سيتم تنفيذها
+
+  Snippet 166 [Correct]:
+  Code: for (let i = 0; i < activityList.length; i++) {
+  console.log(activityList[i] + " سيتم تنفيذها");
+}
+
+  Snippet 167 [Syntax]:
+  Code: for (let i = 0; i < activityList.length; i++) {
+  console.log(activityList[i] + " سيتم تنفيذها");
+}
+
+--- Question 54: تحدي مواقف الحافلات النشطة ---
+Description: أي برنامج سيستبعد الموقف المتوقف (أمام موقع الفعالية) ويطبع بقية المواقف؟
+TargetOutput: مواقف الحافلات كما يلي
+أمام المحطة
+أمام مبنى البلدية
+مستودع الحافلات
+
+  Snippet 168 [Correct]:
+  Code: console.log("مواقف الحافلات كما يلي");
+for (let i = 0; i < busStopList.length; i++) {
+  if (busStopList[i] != suspendedBusStop) {
+    console.log(busStopList[i]);
+  }
+}
+
+  Snippet 169 [Logic]:
+  Code: if (busStopList[i] == suspendedBusStop) {
+  console.log("مواقف الحافلات كما يلي");
+  console.log("أمام المحطة");
+  console.log("أمام مبنى البلدية");
+  console.log("مستودع الحافلات");
+}
+
+--- Question 55: تحدي فرز الخضروات ---
+Description: حدد البرنامج الذي سيطبع 'تخطي' للبصل والبطاطس، و'استلمت' للبقية.
+TargetOutput: استلمت ملفوف
+تخطي
+تخطي
+استلمت جزر
+
+  Snippet 170 [Correct]:
+  Code: for (let i = 0; i < pipelineFoodItems.length; i++) {
+  if ((pipelineFoodItems[i] == nonVegetable) || (pipelineFoodItems[i] == enoughFood)) {
+    console.log("تخطي");
+  } else {
+    console.log("استلمت " + pipelineFoodItems[i]);
+  }
+}
+
+  Snippet 171 [Logic]:
+  Code: if ((pipelineFoodItems[i] != nonVegetable) && (pipelineFoodItems[i] != enoughFood)) {
+  console.log("استلمت ملفوف");
+  console.log("تخطي");
+  console.log("تخطي");
+  console.log("استلمت جزر");
+}
+
+--- Question 56: تحدي المكونات المتوفرة ---
+Description: حدد البرنامج الذي سيستبعد المكون غير المتوفر (طماطم) ويطبع بقية المكونات.
+TargetOutput: طماطم غير متوفرة
+المكونات المتوفرة في المتجر كما يلي
+ملفوف
+بروكلي
+كرفس
+
+  Snippet 172 [Correct]:
+  Code: console.log(soldOutIngredient + " غير متوفرة");
+console.log("المكونات المتوفرة في المتجر كما يلي");
+for (let i = 0; i < 4; i++) {
+  if (!(ingredients[i] == soldOutIngredient)) {
+    console.log(ingredients[i]);
+  }
+}
+
+  Snippet 173 [Logic]:
+  Code: if (ingredients[i] == soldOutIngredient) {
+  console.log("طماطم غير متوفرة");
+  console.log("المكونات المتوفرة في المتجر كما يلي");
+  console.log("ملفوف");
+  console.log("بروكلي");
+  console.log("كرفس");
+}
+
+--- Question 57: تحدي قائمة المستخدمين المسموحين ---
+Description: أي برنامج سيقوم بطباعة أسماء المستخدمين ما عدا المستخدم الممنوع (userC)؟
+TargetOutput: المستخدمون المسموح لهم بالدخول كما يلي
+userA
+userB
+userD
+
+  Snippet 174 [Correct]:
+  Code: console.log("المستخدمون المسموح لهم بالدخول كما يلي");
+for (let i = 0; i < 4; i++) {
+  if (userList[i] != deniedUser) {
+    console.log(userList[i]);
+  }
+}
+
+  Snippet 175 [Logic]:
+  Code: if (userList[i] == deniedUser) {
+  console.log("المستخدمون المسموح لهم بالدخول كما يلي");
+  console.log("userA");
+  console.log("userB");
+  console.log("userD");
+}
+
+--- Question 58: تحدي فرز درجات اللاعبين ---
+Description: حدد البرنامج الذي سيحسب الدرجات العالية (بين 800 و 1000) وينبه للدرجات غير الصالحة (أكبر من 1000).
+TargetOutput: تم اكتشاف درجة غير صالحة
+عدد مرات تحقيق درجة عالية كما يلي
+2
+
+  Snippet 176 [Correct]:
+  Code: for (let i = 0; i < 5; i++) {
+  if ((playerScores[i] >= lowerLimitHighScore) && (playerScores[i] <= upperLimitHighScore)) {
+    highScoreCount = highScoreCount + 1;
+  } else if (playerScores[i] > upperLimitHighScore) {
+    console.log("تم اكتشاف درجة غير صالحة");
+  }
+}
+
+  Snippet 177 [Logic]:
+  Code: if ((playerScores[i] >= 800) || (playerScores[i] <= 1000)) {
+  console.log("تم اكتشاف درجة غير صالحة");
+  console.log("عدد مرات تحقيق درجة عالية كما يلي");
+  console.log("2");
+}
+
+--- Question 59: تحدي سعة زجاجة الماء ---
+Description: أي برنامج سيقوم بطباعة سعة الزجاجة فقط إذا لم تكن فارغة (لا تساوي 0)؟
+TargetOutput: اعرض سعة زجاجة الماء
+300
+
+  Snippet 178 [Correct]:
+  Code: for (let i = 0; i < volumes.length; i++) {
+  if (!(volumes[i] == 0)) {
+    console.log("اعرض سعة زجاجة الماء");
+    console.log(volumes[i]);
+  }
+}
+
+  Snippet 179 [Logic]:
+  Code: if (volumes[i] == 0) {
+  console.log("اعرض سعة زجاجة الماء");
+  console.log("300");
+}
+
+--- Question 60: تحدي جدول الدراسة اليومي ---
+Description: حدد البرنامج الذي سيقوم بطباعة قائمة المواد الدراسية بالترتيب المذكور.
+TargetOutput: المواد التي سيتم دراستها اليوم كما يلي
+علوم
+رياضيات
+اللغة الإنجليزية
+
+  Snippet 180 [Correct]:
+  Code: console.log("المواد التي سيتم دراستها اليوم كما يلي");
+for (let i = 0; i < 3; i++) {
+  console.log(studySubjects[i]);
+}
+
+  Snippet 181 [Syntax]:
+  Code: let studySubjects = ["علوم", "رياضيات", "اللغة الإنجليزية"];
+
+console.log("المواد التي سيتم دراستها اليوم كما يلي");
+for (let i = 0; i < 3; i++) {
+  if (studySubjects[i] == "رياضيات") {
+    console.log("تخطي");
+  } else {
+    console.log(studySubjects[i]);
+  }
+}
+
+--- Question 61: تحدي حضور الطلاب ---
+Description: أي برنامج سيقوم بطباعة أسماء الطلاب الحاضرين فقط (باستثناء 'مي')؟
+TargetOutput: ريسا حاضرة
+ميكا حاضرة
+
+  Snippet 182 [Correct]:
+  Code: for (let i = 0; i < 3; i++) {
+  if (students[i] != absentStudent) {
+    console.log(students[i] + " حاضرة");
+  }
+}
+
+  Snippet 183 [Syntax]:
+  Code: for (let i = 0; i < students.length; i++) {
+  if (students[i] != absentStudent) {
+    console.log(students[i] + " حاضرة");
+  }
+}
+
+--- Question 62: تحدي الكتب المستعارة ---
+Description: حدد البرنامج الذي سيكتشف أن الكتاب C مستعار بناءً على قائمة الكتب المستعارة.
+TargetOutput: الكتاب C مُستعار حالياً
+
+  Snippet 184 [Correct]:
+  Code: for (let i = 0; i < bookList.length; i++) {
+  if ((bookList[i] == checkedOutBooks[0]) || (bookList[i] == checkedOutBooks[1])) {
+    console.log("الكتاب " + bookList[i] + " مُستعار حالياً");
+  }
+}
+
+  Snippet 185 [Logic]:
+  Code: if ((bookList[i] != checkedOutBooks[0]) && (bookList[i] != checkedOutBooks[1])) {
+  console.log("الكتاب C مُستعار حالياً");
+}
+
+--- Question 63: تحدي قائمة التسوق ---
+Description: أي برنامج سيقوم بطباعة عبارة 'سأشتري' متبوعة بكل صنف في القائمة؟
+TargetOutput: سأشتري حليباً
+سأشتري خبزاً
+سأشتري بيضاً
+
+  Snippet 186 [Correct]:
+  Code: for (let i = 0; i < 3; i++) {
+  console.log("سأشتري " + shoppingList[i]);
+}
+
+  Snippet 187 [Syntax]:
+  Code: for (let i = 0; i < 3; i++) {
+  console.log(numbers[i]);
+}
+
+--- Question 64: تحدي المواعيد المؤجلة ---
+Description: حدد البرنامج الذي سيطبع المواعيد التي لم يتم تأجيلها (استبعاد 'اجتماع').
+TargetOutput: جدول اليوم: طبيب الأسنان
+
+  Snippet 188 [Correct]:
+  Code: for (let i = 0; i < 2; i++) {
+  if (!(todaySchedules[i] == rescheduledItem)) {
+    console.log("جدول اليوم: " + todaySchedules[i]);
+  }
+}
+
+  Snippet 189 [Logic]:
+  Code: if (todaySchedules == rescheduledItem) {
+  console.log("جدول اليوم: طبيب الأسنان");
+}
+
+--- Question 65: تحدي درجة الحرارة العظمى ---
+Description: أي برنامج سيجد ويطبع أعلى درجة حرارة من القائمة؟
+TargetOutput: درجات الحرارة العظمى خلال الأيام 3 الماضية كما يلي
+40
+
+  Snippet 190 [Correct]:
+  Code: for (let i = 0; i < 3; i++) {
+  if (maxTemperature < temperatureList[i]) {
+    maxTemperature = temperatureList[i];
+  }
+}
+console.log("درجات الحرارة العظمى خلال الأيام 3 الماضية كما يلي");
+console.log(maxTemperature);
+
+  Snippet 191 [Logic]:
+  Code: if (maxTemperature > temperatureList[i]) {
+  console.log("درجات الحرارة العظمى خلال الأيام 3 الماضية كما يلي");
+  console.log("40");
+}
+
+--- Question 66: تحدي أنواع الكتب المفضلة ---
+Description: حدد البرنامج الذي سيطبع 'النوع المفضل من الكتب' لكل نوع في القائمة.
+TargetOutput: النوع المفضل من الكتب: رواية
+النوع المفضل من الكتب: كتاب أعمال
+النوع المفضل من الكتب: كتاب أطفال
+
+  Snippet 192 [Correct]:
+  Code: for (let i = 0; i < bookGenres.length; i++) {
+  console.log("النوع المفضل من الكتب: " + bookGenres[i]);
+}
+
+  Snippet 193 [Logic]:
+  Code: for (let i = 0; i < 3; i++) {
+  console.log("النوع المفضل من الكتب: رواية");
+  console.log("النوع المفضل من الكتب: كتاب أعمال");
+  console.log("النوع المفضل من الكتب: كتاب أطفال");
+}
+
+--- Question 67: تحدي حالة تنفيذ المهمة ---
+Description: أي برنامج سيقوم بتنفيذ المهمة فقط إذا كانت القائمة تحتوي على 3 عناصر على الأقل وكان أولها 'متوفر في المخزون'؟
+TargetOutput: سنقوم بتنفيذ المهمة
+
+  Snippet 194 [Correct]:
+  Code: if ((statusList.length >= 3) && (statusList[0] == "متوفر في المخزون")) {
+  console.log("سنقوم بتنفيذ المهمة");
+}
+
+  Snippet 195 [Syntax]:
+  Code: if ((statusList.length >= 3) && (statusList[0] == "متوفر في المخزون")) {
+  console.log("سنقوم بتنفيذ المهمة");
+}
+
+--- Question 68: تحدي دخول المتجر ---
+Description: حدد البرنامج الذي يسمح بالدخول إذا كان عدد الضيوف 2 أو أقل، أو إذا كانت الحالة 'محجوز'.
+TargetOutput: يمكنك دخول المتجر
+
+  Snippet 196 [Correct]:
+  Code: if ((guests.length <= 2) || (reservationStatus == "محجوز")) {
+  console.log("يمكنك دخول المتجر");
+}
+
+  Snippet 197 [Logic]:
+  Code: if ((guests.length <= 2) && (reservationStatus == "محجوز")) {
+  console.log("يمكنك دخول المتجر");
+}
+
+--- Question 69: تحدي حالة الحجز التفصيلية ---
+Description: أي برنامج سيقوم بطباعة عدد الأشخاص المحجوزين لكل حجز في القائمة؟
+TargetOutput: تحقق من حالة الحجز الحالية
+تم حجز 3 أشخاص
+تم حجز 8 أشخاص
+تم حجز 5 أشخاص
+
+  Snippet 198 [Correct]:
+  Code: console.log("تحقق من حالة الحجز الحالية");
+for (let i = 0; i < reservations.length; i++) {
+  console.log("تم حجز " + reservations[i] + " أشخاص");
+}
+
+  Snippet 199 [Syntax]:
+  Code: let reservations = [3, 8, 5];
+
+console.log("تحقق من حالة الحجز الحالية");
+for (let i = 0; i < reservations.length; i++) {
+  console.log("تم حجز " + [i] + " أشخاص");
+}
+
+--- Question 70: تحدي ارتداء الملابس ---
+Description: حدد البرنامج الذي سيعرض جميع الملابس ما عدا 'قبعة'.
+TargetOutput: اعرض الملابس التي يتم ارتداؤها
+سترة
+بنطال
+جوارب
+
+  Snippet 200 [Correct]:
+  Code: console.log("اعرض الملابس التي يتم ارتداؤها");
+for (let i = 0; i < clothesItems.length; i++) {
+  if (!(clothesItems[i] == "قبعة")) {
+    console.log(clothesItems[i]);
+  }
+}
+
+  Snippet 201 [Logic]:
+  Code: if (clothesItems[1] == "قبعة") {
+  console.log("اعرض الملابس التي يتم ارتداؤها");
+  console.log("سترة");
+  console.log("بنطال");
+  console.log("جوارب");
+}
