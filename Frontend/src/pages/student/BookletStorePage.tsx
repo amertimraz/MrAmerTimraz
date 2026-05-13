@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { bookletsApi } from '../../api/booklets';
 import { paymentsApi } from '../../api/payments';
-import { ShoppingCart, Download, CreditCard, CheckCircle, Lock, User as UserIcon, Phone } from 'lucide-react';
+import { Download, CreditCard, CheckCircle, User as UserIcon, Phone } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';

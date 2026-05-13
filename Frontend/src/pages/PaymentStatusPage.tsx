@@ -4,7 +4,6 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 export function PaymentSuccessPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const orderId = searchParams.get('orderId');
   const token = searchParams.get('token');
 
   // We need to know which booklet this order was for to redirect back.
