@@ -4,10 +4,9 @@ import { paymentsApi } from '../../api/payments';
 import { ShoppingCart, Download, CreditCard, CheckCircle, Lock } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
-import { useAuthStore } from '../../store/authStore';
+
 
 export default function BookletStorePage() {
-  const { user } = useAuthStore();
   const { data: booklets = [], isLoading } = useQuery({
     queryKey: ['booklets-store'],
     queryFn: () => bookletsApi.getAll(),

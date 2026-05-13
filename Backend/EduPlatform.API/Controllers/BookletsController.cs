@@ -1,6 +1,8 @@
 using EduPlatform.API.Data;
 using EduPlatform.API.DTOs;
 using EduPlatform.API.Models;
+using EduPlatform.API.Services;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

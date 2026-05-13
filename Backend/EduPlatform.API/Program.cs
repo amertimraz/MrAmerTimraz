@@ -69,7 +69,6 @@ builder.Services.AddScoped<ITestService, TestService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IKashierService, KashierService>();
-builder.Services.AddScoped<IAIService, AIService>();
 builder.Services.AddScoped<IMuxService, MuxService>();
 builder.Services.AddHttpClient();
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
