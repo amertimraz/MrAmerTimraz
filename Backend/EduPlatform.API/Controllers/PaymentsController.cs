@@ -85,11 +85,14 @@ public class PaymentsController : ControllerBase
     public async Task<IActionResult> GetBookletStats()
         => Ok(await _payments.GetBookletPurchaseStatsAsync());
 
-    [HttpPost("kashier/initiate")]
+    [HttpPost("kashier/initiate"), AllowAnonymous]
     public async Task<IActionResult> InitiateKashier([FromBody] CreatePaymentRequestDto dto)
     {
-        var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var studentName = User.FindFirstValue(ClaimTypes.Name) ?? "Student";
+        int? studentId = null;
+        var studentIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (studentIdClaim != null) studentId = int.Parse(studentIdClaim);
+
+        var studentName = User.FindFirstValue(ClaimTypes.Name) ?? dto.GuestName ?? "Guest";
 
         var (result, error) = await _payments.CreateRequestAsync(dto, studentId, null);
         if (error != null) return BadRequest(new { message = error });
@@ -104,12 +107,12 @@ public class PaymentsController : ControllerBase
     public async Task<IActionResult> KashierCallback([FromQuery] string paymentStatus, [FromQuery] string orderId)
     {
         // orderId here is our PaymentRequest.Id
+        var id = int.Parse(orderId);
         if (paymentStatus == "SUCCESS")
         {
-            var id = int.Parse(orderId);
-            await _payments.ReviewRequestAsync(id, new ReviewPaymentDto { Approve = true, AdminNote = "Paid via Kashier" });
-            return Redirect("/payment/success");
+            var result = await _payments.ReviewRequestAsync(id, new ReviewPaymentDto { Approve = true, AdminNote = "Paid via Kashier" });
+            return Redirect($"/payment/success?orderId={id}&token={result?.DownloadToken}");
         }
-        return Redirect("/payment/failed");
+        return Redirect($"/payment/failed?orderId={id}");
     }
 }

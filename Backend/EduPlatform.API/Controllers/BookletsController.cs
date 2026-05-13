@@ -124,10 +124,11 @@ public class BookletsController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("{id}/download"), Authorize]
-    public async Task<IActionResult> Download(int id)
+    [HttpGet("{id}/download"), AllowAnonymous]
+    public async Task<IActionResult> Download(int id, [FromQuery] string? token)
     {
-        var studentId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)!);
+        var studentIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        int? studentId = studentIdClaim != null ? int.Parse(studentIdClaim) : null;
         var isAdmin = User.IsInRole("Admin");
 
         var booklet = await _db.Booklets.FindAsync(id);
@@ -135,9 +136,23 @@ public class BookletsController : ControllerBase
 
         if (!isAdmin)
         {
-            var hasPaid = await _payments.HasApprovedOnlyAsync(null, null, id, studentId);
-            if (!hasPaid && booklet.Price > 0)
-                return Forbid("يجب شراء الملزمة أولاً للتمكن من تحميلها.");
+            if (booklet.Price > 0)
+            {
+                bool hasAccess = false;
+                if (studentId.HasValue)
+                {
+                    hasAccess = await _payments.HasApprovedOnlyAsync(null, null, id, studentId.Value);
+                }
+
+                if (!hasAccess && !string.IsNullOrEmpty(token))
+                {
+                    hasAccess = await _db.PaymentRequests.AnyAsync(p => 
+                        p.BookletId == id && p.DownloadToken == token && p.Status == PaymentStatus.Approved);
+                }
+
+                if (!hasAccess)
+                    return Forbid("يجب شراء الملزمة أولاً للتمكن من تحميلها.");
+            }
         }
 
         // If PdfUrl is a full external URL, redirect

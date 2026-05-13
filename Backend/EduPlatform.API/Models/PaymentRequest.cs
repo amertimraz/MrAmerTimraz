@@ -8,8 +8,8 @@ public class PaymentRequest
 {
     public int Id { get; set; }
 
-    public int StudentId { get; set; }
-    public User Student { get; set; } = null!;
+    public int? StudentId { get; set; }
+    public User? Student { get; set; }
 
     public int? CourseId { get; set; }
     public Course? Course { get; set; }
@@ -23,6 +23,9 @@ public class PaymentRequest
     public string? ReceiptImageUrl { get; set; }
     public string? ExternalTransactionId { get; set; }
     public string? PaymentGateway { get; set; } = "Manual";
+    public string? GuestName { get; set; }
+    public string? GuestPhone { get; set; }
+    public string? DownloadToken { get; set; }
 
     [Column(TypeName = "numeric")]
     public decimal AmountPaid { get; set; }

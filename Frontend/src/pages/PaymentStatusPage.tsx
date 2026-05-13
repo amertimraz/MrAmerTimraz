@@ -1,8 +1,16 @@
 import { CheckCircle, XCircle, ArrowLeft, Download } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 
 export function PaymentSuccessPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get('orderId');
+  const token = searchParams.get('token');
+
+  // We need to know which booklet this order was for to redirect back.
+  // For now, let's just go back to the store with the token.
+  const downloadLink = token ? `/booklet-store?token=${token}` : "/booklet-store";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0f172a] px-4" dir="rtl">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-xl text-center border border-green-100 dark:border-green-900/30">
@@ -15,7 +23,7 @@ export function PaymentSuccessPage() {
         </p>
         <div className="space-y-3">
           <Link 
-            to="/booklet-store" 
+            to={downloadLink} 
             className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2"
           >
             <Download size={20} />

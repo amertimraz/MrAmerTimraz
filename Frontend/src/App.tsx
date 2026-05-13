@@ -126,6 +126,7 @@ export default function App() {
               <Route path="/masarat"  element={<PathsGuidePage />} />
 
               <Route path="/interactive-theory" element={<InteractiveTheoryPage />} />
+              <Route path="/booklet-store"   element={<BookletStorePage />} />
             </Route>
 
             <Route path="/tofas-exam" element={<TofasExamPage />} />
@@ -157,7 +158,6 @@ export default function App() {
             <Route element={<RequireAuth><DashboardLayout /></RequireAuth>}>
               <Route path="/booklets"        element={<BookletsPage />} />
               <Route path="/booklets/:id"    element={<BookletDetailsPage />} />
-              <Route path="/booklet-store"   element={<BookletStorePage />} />
               <Route path="/challenges"      element={<ChallengesList />} />
             </Route>
 

@@ -7,6 +7,8 @@ public class CreatePaymentRequestDto
     public int? BookletId { get; set; }
     public decimal AmountPaid { get; set; }
     public string? Notes { get; set; }
+    public string? GuestName { get; set; }
+    public string? GuestPhone { get; set; }
 }
 
 public class BookletDto
@@ -52,6 +54,8 @@ public class PaymentRequestDto
     public string? Notes { get; set; }
     public string Status { get; set; } = string.Empty;
     public string? AdminNote { get; set; }
+    public string? GuestName { get; set; }
+    public string? GuestPhone { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ReviewedAt { get; set; }
 }

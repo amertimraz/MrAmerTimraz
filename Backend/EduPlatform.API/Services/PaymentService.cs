@@ -7,7 +7,7 @@ namespace EduPlatform.API.Services;
 
 public interface IPaymentService
 {
-    Task<(PaymentRequestDto? Result, string? Error)> CreateRequestAsync(CreatePaymentRequestDto dto, int studentId, string? receiptUrl);
+    Task<(PaymentRequestDto? Result, string? Error)> CreateRequestAsync(CreatePaymentRequestDto dto, int? studentId, string? receiptUrl);
     Task<List<PaymentRequestDto>> GetAllRequestsAsync();
     Task<List<PaymentRequestDto>> GetStudentRequestsAsync(int studentId);
     Task<PaymentRequestDto?> ReviewRequestAsync(int id, ReviewPaymentDto dto);
@@ -32,7 +32,7 @@ public class PaymentService : IPaymentService
             if (await _db.Enrollments.AnyAsync(e => e.CourseId == dto.CourseId && e.StudentId == studentId))
                 return (null, "أنت مسجل في هذا الكورس بالفعل.");
 
-            if (await _db.PaymentRequests.AnyAsync(p =>
+            if (studentId.HasValue && await _db.PaymentRequests.AnyAsync(p =>
                 p.CourseId == dto.CourseId && p.StudentId == studentId &&
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
                 return (null, "لديك طلب اشتراك قيد المراجعة أو مقبول لهذا الكورس.");
@@ -45,7 +45,7 @@ public class PaymentService : IPaymentService
             if (await _db.LiveSessionEnrollments.AnyAsync(e => e.LiveSessionId == dto.LiveSessionId && e.StudentId == studentId))
                 return (null, "أنت مسجل في هذه الحصة بالفعل.");
 
-            if (await _db.PaymentRequests.AnyAsync(p =>
+            if (studentId.HasValue && await _db.PaymentRequests.AnyAsync(p =>
                 p.LiveSessionId == dto.LiveSessionId && p.StudentId == studentId &&
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
                 return (null, "لديك طلب اشتراك قيد المراجعة أو مقبول لهذه الحصة.");
@@ -55,7 +55,7 @@ public class PaymentService : IPaymentService
             var booklet = await _db.Booklets.FindAsync(dto.BookletId);
             if (booklet == null) return (null, "الملزمة غير موجودة.");
 
-            if (await _db.PaymentRequests.AnyAsync(p =>
+            if (studentId.HasValue && await _db.PaymentRequests.AnyAsync(p =>
                 p.BookletId == dto.BookletId && p.StudentId == studentId &&
                 (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Approved)))
                 return (null, "لديك طلب شراء لهذه الملزمة بالفعل.");
@@ -73,7 +73,9 @@ public class PaymentService : IPaymentService
             BookletId = dto.BookletId,
             AmountPaid = dto.AmountPaid,
             Notes = dto.Notes,
-            ReceiptImageUrl = receiptUrl
+            ReceiptImageUrl = receiptUrl,
+            GuestName = dto.GuestName,
+            GuestPhone = dto.GuestPhone
         };
 
         _db.PaymentRequests.Add(request);
@@ -126,7 +128,8 @@ public class PaymentService : IPaymentService
 
         if (dto.Approve)
         {
-            if (request.CourseId.HasValue)
+            request.DownloadToken = Guid.NewGuid().ToString("N");
+            if (request.CourseId.HasValue && request.StudentId.HasValue)
             {
                 var alreadyEnrolled = await _db.Enrollments
                     .AnyAsync(e => e.CourseId == request.CourseId && e.StudentId == request.StudentId);
@@ -272,6 +275,8 @@ public class PaymentService : IPaymentService
         Notes = p.Notes,
         Status = p.Status.ToString(),
         AdminNote = p.AdminNote,
+        GuestName = p.GuestName,
+        GuestPhone = p.GuestPhone,
         CreatedAt = p.CreatedAt,
         ReviewedAt = p.ReviewedAt
     };
