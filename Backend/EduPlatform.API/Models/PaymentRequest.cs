@@ -21,6 +21,8 @@ public class PaymentRequest
     public Booklet? Booklet { get; set; }
 
     public string? ReceiptImageUrl { get; set; }
+    public string? ExternalTransactionId { get; set; }
+    public string? PaymentGateway { get; set; } = "Manual";
 
     [Column(TypeName = "numeric")]
     public decimal AmountPaid { get; set; }

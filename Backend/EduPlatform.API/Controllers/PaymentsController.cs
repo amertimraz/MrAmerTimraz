@@ -14,11 +14,13 @@ namespace EduPlatform.API.Controllers;
 public class PaymentsController : ControllerBase
 {
     private readonly IPaymentService _payments;
+    private readonly IKashierService _kashier;
     private readonly IWebHostEnvironment _env;
 
-    public PaymentsController(IPaymentService payments, IWebHostEnvironment env)
+    public PaymentsController(IPaymentService payments, IKashierService kashier, IWebHostEnvironment env)
     {
         _payments = payments;
+        _kashier = kashier;
         _env = env;
     }
 
@@ -82,4 +84,32 @@ public class PaymentsController : ControllerBase
     [HttpGet("booklet-stats"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetBookletStats()
         => Ok(await _payments.GetBookletPurchaseStatsAsync());
+
+    [HttpPost("kashier/initiate")]
+    public async Task<IActionResult> InitiateKashier([FromBody] CreatePaymentRequestDto dto)
+    {
+        var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var studentName = User.FindFirstValue(ClaimTypes.Name) ?? "Student";
+
+        var (result, error) = await _payments.CreateRequestAsync(dto, studentId, null);
+        if (error != null) return BadRequest(new { message = error });
+
+        // Generate Kashier URL
+        var paymentUrl = _kashier.GeneratePaymentUrl(result!.Id, dto.AmountPaid, studentName);
+        
+        return Ok(new { paymentUrl });
+    }
+
+    [HttpGet("kashier/callback"), AllowAnonymous]
+    public async Task<IActionResult> KashierCallback([FromQuery] string paymentStatus, [FromQuery] string orderId)
+    {
+        // orderId here is our PaymentRequest.Id
+        if (paymentStatus == "SUCCESS")
+        {
+            var id = int.Parse(orderId);
+            await _payments.ReviewRequestAsync(id, new ReviewPaymentDto { Approve = true, AdminNote = "Paid via Kashier" });
+            return Redirect("/payment/success");
+        }
+        return Redirect("/payment/failed");
+    }
 }

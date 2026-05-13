@@ -12,8 +12,13 @@ namespace EduPlatform.API.Controllers;
 public class BookletsController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly IPaymentService _payments;
 
-    public BookletsController(AppDbContext db) => _db = db;
+    public BookletsController(AppDbContext db, IPaymentService payments)
+    {
+        _db = db;
+        _payments = payments;
+    }
 
     [HttpGet]
     [AllowAnonymous]
@@ -115,5 +120,33 @@ public class BookletsController : ControllerBase
         _db.Booklets.Remove(booklet);
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+
+    [HttpGet("{id}/download"), Authorize]
+    public async Task<IActionResult> Download(int id)
+    {
+        var studentId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)!);
+        var isAdmin = User.IsInRole("Admin");
+
+        var booklet = await _db.Booklets.FindAsync(id);
+        if (booklet == null) return NotFound("الملزمة غير موجودة");
+
+        if (!isAdmin)
+        {
+            var hasPaid = await _payments.HasApprovedOnlyAsync(null, null, id, studentId);
+            if (!hasPaid && booklet.Price > 0)
+                return Forbid("يجب شراء الملزمة أولاً للتمكن من تحميلها.");
+        }
+
+        // If PdfUrl is a full external URL, redirect
+        if (booklet.PdfUrl.StartsWith("http"))
+            return Redirect(booklet.PdfUrl);
+
+        // If PdfUrl is local, serve it
+        // Assuming PdfUrl is like /uploads/booklets/abc.pdf
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", booklet.PdfUrl.TrimStart('/'));
+        if (!System.IO.File.Exists(filePath)) return NotFound("ملف المذكرة غير موجود على السيرفر.");
+
+        return PhysicalFile(filePath, "application/pdf", $"{booklet.Title}.pdf");
     }
 }

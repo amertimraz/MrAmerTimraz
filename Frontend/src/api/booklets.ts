@@ -16,4 +16,7 @@ export const bookletsApi = {
 
   delete: (id: number) => 
     client.delete(`/booklets/${id}`).then(res => res.data),
+
+  getDownloadUrl: (id: number) => 
+    `${import.meta.env.VITE_API_URL || ''}/api/booklets/${id}/download`,
 };

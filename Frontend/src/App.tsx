@@ -28,7 +28,9 @@ const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 
 const InteractiveTheoryPage = lazy(() => import('./pages/landing/InteractiveTheoryPage'));
 const TofasExamPage = lazy(() => import('./pages/TofasExamPage'));
-
+const BookletStorePage = lazy(() => import('./pages/student/BookletStorePage'));
+const PaymentSuccessPage = lazy(() => import('./pages/PaymentStatusPage').then(m => ({ default: m.PaymentSuccessPage })));
+const PaymentFailedPage = lazy(() => import('./pages/PaymentStatusPage').then(m => ({ default: m.PaymentFailedPage })));
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -131,6 +133,8 @@ export default function App() {
 
             <Route path="/login"    element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
+            <Route path="/payment/failed"  element={<PaymentFailedPage />} />
 
 
             {/* Student Routes */}
@@ -153,6 +157,7 @@ export default function App() {
             <Route element={<RequireAuth><DashboardLayout /></RequireAuth>}>
               <Route path="/booklets"        element={<BookletsPage />} />
               <Route path="/booklets/:id"    element={<BookletDetailsPage />} />
+              <Route path="/booklet-store"   element={<BookletStorePage />} />
               <Route path="/challenges"      element={<ChallengesList />} />
             </Route>
 

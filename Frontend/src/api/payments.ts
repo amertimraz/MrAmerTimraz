@@ -40,4 +40,7 @@ export const paymentsApi = {
   },
 
   getBookletStats: () => client.get<BookletPurchaseStats>('/payments/booklet-stats').then(r => r.data),
+
+  initiateKashier: (data: { courseId?: number; liveSessionId?: number; bookletId?: number; amountPaid: number; notes?: string }) =>
+    client.post<{ paymentUrl: string }>('/payments/kashier/initiate', data).then(r => r.data),
 };

@@ -17,6 +17,7 @@ const studentLinks: NavItem[] = [
   { to: '/student/results', icon: <Trophy size={20} />, label: 'نتائجي' },
   { to: '/challenges', icon: <Layers size={20} />, label: 'إختبارات Tofas' },
   { to: '/booklets', icon: <BookOpen size={20} />, label: 'الملازم' },
+  { to: '/booklet-store', icon: <CreditCard size={20} />, label: 'متجر المذكرات' },
   { to: '/student/my-booklets', icon: <FileText size={20} />, label: 'ملازمي' },
   { to: '/student/games', icon: <div className="relative"><Gamepad2 size={20} /><span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span></div>, label: 'الألعاب التعليمية (قريباً)' },
   { to: '/student/notifications', icon: <Bell size={20} />, label: 'الإشعارات' },
