@@ -107,27 +107,58 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                       )}
                     </div>
 
-                    {/* Paid Version Info */}
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/50 rounded-2xl p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-bold text-green-700 dark:text-green-400">النسخة الكاملة (بالإجابات)</span>
-                        <span className="bg-green-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Premium</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black text-green-600 dark:text-green-400">25</span>
-                          <span className="text-sm font-bold text-green-700 dark:text-green-500">جنيه فقط</span>
+                    {/* Premium Full Version Card */}
+                    <div className="relative group overflow-hidden">
+                      {/* Glow Effect */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-green-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                      
+                      <div className="relative bg-white dark:bg-gray-800 border border-green-100 dark:border-green-900/50 rounded-2xl p-5 shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
+                              <CheckCircle2 size={18} />
+                            </div>
+                            <span className="font-bold text-gray-900 dark:text-white">النسخة الكاملة (بالإجابات)</span>
+                          </div>
+                          <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[9px] font-black px-2 py-1 rounded-md uppercase shadow-sm">
+                            الأكثر طلباً 🔥
+                          </div>
                         </div>
-                        <motion.a
-                          href={whatsappUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          whileHover={{ x: -5 }}
-                          className="flex items-center gap-1.5 text-green-600 dark:text-green-400 text-sm font-bold"
-                        >
-                          <span>اطلبها الآن</span>
-                          <MessageCircle size={16} />
-                        </motion.a>
+
+                        <div className="grid grid-cols-2 gap-4 items-end">
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">سعر النسخة الكاملة</p>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-3xl font-black text-green-600 dark:text-green-400">25</span>
+                              <span className="text-sm font-bold text-green-700 dark:text-green-500">ج.م</span>
+                            </div>
+                          </div>
+
+                          <motion.a
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-green-500/30 text-sm"
+                          >
+                            <MessageCircle size={18} />
+                            <span>اطلبها الآن</span>
+                          </motion.a>
+                        </div>
+
+                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-center gap-4">
+                          {[
+                            { icon: <CheckCircle2 size={12} />, text: 'شامل الإجابات' },
+                            { icon: <CheckCircle2 size={12} />, text: 'تنسيق ممتاز' },
+                            { icon: <CheckCircle2 size={12} />, text: 'جاهز للطباعة' },
+                          ].map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-1 text-[9px] font-bold text-gray-500 dark:text-gray-400">
+                              <span className="text-green-500">{item.icon}</span>
+                              <span>{item.text}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
