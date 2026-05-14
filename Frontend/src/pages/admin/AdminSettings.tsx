@@ -14,7 +14,7 @@ export default function AdminSettings() {
   });
 
   const lockMutation = useMutation({
-    mutationFn: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string }) => 
+    mutationFn: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string; lockThumbnailUrl?: string }) => 
       libraryApi.setLockStatus(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['library-lock-status'] });
