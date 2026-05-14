@@ -222,8 +222,9 @@ public class LibraryController : ControllerBase
         var freeDownloadLink = settings.FirstOrDefault(s => s.Key == "Library_FreeDownloadLink")?.Value ?? string.Empty;
         var lockThumbnailUrl = settings.FirstOrDefault(s => s.Key == "Library_LockThumbnailUrl")?.Value ?? string.Empty;
         var lockMemoTitle = settings.FirstOrDefault(s => s.Key == "Library_LockMemoTitle")?.Value ?? string.Empty;
+        var freeDownloadCount = int.TryParse(settings.FirstOrDefault(s => s.Key == "Library_FreeDownloadCount")?.Value, out var c) ? c : 0;
 
-        return Ok(new { isLocked, modalType, freeDownloadLink, lockThumbnailUrl, lockMemoTitle });
+        return Ok(new { isLocked, modalType, freeDownloadLink, lockThumbnailUrl, lockMemoTitle, freeDownloadCount });
     }
 
     // Toggle library lock (Admin only)
@@ -258,6 +259,31 @@ public class LibraryController : ControllerBase
 
         await _db.SaveChangesAsync();
         return Ok(new { isLocked = dto.IsLocked, modalType = dto.ModalType, freeDownloadLink = dto.FreeDownloadLink, lockThumbnailUrl = dto.LockThumbnailUrl, lockMemoTitle = dto.LockMemoTitle });
+    }
+
+    [HttpPost("increment-free-download")]
+    [AllowAnonymous]
+    public async Task<IActionResult> IncrementFreeDownload()
+    {
+        var setting = await _db.AppSettings
+            .FirstOrDefaultAsync(s => s.Key == "Library_FreeDownloadCount");
+        
+        int count = 0;
+        if (setting == null)
+        {
+            setting = new AppSetting { Key = "Library_FreeDownloadCount", Value = "1" };
+            _db.AppSettings.Add(setting);
+            count = 1;
+        }
+        else
+        {
+            count = (int.TryParse(setting.Value, out var c) ? c : 0) + 1;
+            setting.Value = count.ToString();
+            setting.UpdatedAt = DateTime.UtcNow;
+        }
+        
+        await _db.SaveChangesAsync();
+        return Ok(new { count });
     }
 }
 

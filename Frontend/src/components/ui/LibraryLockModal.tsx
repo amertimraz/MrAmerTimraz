@@ -1,6 +1,7 @@
 import { Lock, MessageCircle, Phone, Download, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getMediaUrl } from '../../utils/media';
+import { libraryApi } from '../../api/library';
 
 interface LibraryLockModalProps {
   isOpen: boolean;
@@ -9,12 +10,17 @@ interface LibraryLockModalProps {
   freeDownloadLink?: string;
   lockThumbnailUrl?: string;
   lockMemoTitle?: string;
+  freeDownloadCount?: number;
 }
 
-export default function LibraryLockModal({ isOpen, onClose, modalType = 'default', freeDownloadLink, lockThumbnailUrl, lockMemoTitle }: LibraryLockModalProps) {
+export default function LibraryLockModal({ isOpen, onClose, modalType = 'default', freeDownloadLink, lockThumbnailUrl, lockMemoTitle, freeDownloadCount }: LibraryLockModalProps) {
   const whatsappNumber = "01096066818";
   const whatsappUrl = `https://wa.me/20${whatsappNumber.replace(/^0+/, '')}`;
   const isPromo = modalType === 'promo';
+
+  const handleDownload = () => {
+    libraryApi.incrementFreeDownload().catch(() => {});
+  };
 
   return (
     <AnimatePresence>
@@ -82,6 +88,7 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                           href={getMediaUrl(freeDownloadLink)}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={handleDownload}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg"
@@ -91,6 +98,12 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                         </motion.a>
                       ) : (
                         <div className="text-gray-400 text-sm py-2">سيتم إضافة الرابط قريباً</div>
+                      )}
+
+                      {isPromo && freeDownloadLink && (
+                        <p className="text-[10px] text-blue-500/70 dark:text-blue-400/50 mt-2 font-medium">
+                          تم التحميل {freeDownloadCount?.toLocaleString('ar-EG') || 0} مرة حتى الآن
+                        </p>
                       )}
                     </div>
 
