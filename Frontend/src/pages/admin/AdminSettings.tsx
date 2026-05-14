@@ -1,4 +1,4 @@
-import { Shield, Database, Layers, ExternalLink, Lock, FileUp, Loader2 } from 'lucide-react';
+import { Shield, Database, Layers, ExternalLink, Lock, FileUp, Loader2, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { libraryApi } from '../../api/library';
@@ -26,9 +26,20 @@ export default function AdminSettings() {
     mutationFn: (file: File) => uploadsApi.pdf(file),
     onSuccess: (url) => {
       lockMutation.mutate({
+        ...lockStatus,
         isLocked: lockStatus?.isLocked || false,
-        modalType: lockStatus?.modalType || 'default',
         freeDownloadLink: url
+      });
+    }
+  });
+
+  const thumbnailUploadMutation = useMutation({
+    mutationFn: (file: File) => uploadsApi.image(file),
+    onSuccess: (url) => {
+      lockMutation.mutate({
+        ...lockStatus,
+        isLocked: lockStatus?.isLocked || false,
+        lockThumbnailUrl: url
       });
     }
   });
@@ -36,6 +47,11 @@ export default function AdminSettings() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) uploadMutation.mutate(file);
+  };
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) thumbnailUploadMutation.mutate(file);
   };
 
   return (
@@ -173,24 +189,46 @@ export default function AdminSettings() {
                 </div>
 
                 {lockStatus?.modalType === 'promo' && (
-                  <div className="space-y-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
-                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">رابط المذكرة المجانية (بدون إجابات)</label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type="text"
-                          value={lockStatus?.freeDownloadLink || ''}
-                          readOnly
-                          placeholder="لم يتم رفع ملف بعد..."
-                          className="w-full px-4 py-2 rounded-lg border dark:bg-gray-900 dark:border-gray-700 text-sm outline-none"
-                        />
+                  <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700 dark:text-gray-300">رابط المذكرة المجانية (بدون إجابات)</label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type="text"
+                            value={lockStatus?.freeDownloadLink || ''}
+                            readOnly
+                            placeholder="لم يتم رفع ملف بعد..."
+                            className="w-full px-4 py-2 rounded-lg border dark:bg-gray-900 dark:border-gray-700 text-sm outline-none"
+                          />
+                        </div>
+                        <label className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-primary-600 text-white hover:bg-primary-500 transition-colors">
+                          {uploadMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <FileUp size={18} />}
+                          <input type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
+                        </label>
                       </div>
-                      <label className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-primary-600 text-white hover:bg-primary-500 transition-colors">
-                        {uploadMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <FileUp size={18} />}
-                        <input type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
-                      </label>
                     </div>
-                    <p className="text-[10px] text-gray-500">سيتم استبدال الرابط تلقائياً عند رفع ملف جديد</p>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700 dark:text-gray-300">صورة مصغرة للمذكرة</label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-20 h-28 bg-white dark:bg-gray-900 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden">
+                          {lockStatus?.lockThumbnailUrl ? (
+                            <img src={lockStatus.lockThumbnailUrl} alt="thumbnail" className="w-full h-full object-cover" />
+                          ) : (
+                            <ImageIcon size={24} className="text-gray-300" />
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors">
+                            {thumbnailUploadMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />}
+                            <span>{lockStatus?.lockThumbnailUrl ? 'تغيير الصورة' : 'رفع صورة'}</span>
+                            <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailChange} />
+                          </label>
+                          <p className="text-[10px] text-gray-500">سيتم عرض هذه الصورة فوق زر التحميل في الموديل</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

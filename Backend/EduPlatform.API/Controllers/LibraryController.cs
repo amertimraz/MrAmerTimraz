@@ -220,8 +220,9 @@ public class LibraryController : ControllerBase
         var isLocked = settings.FirstOrDefault(s => s.Key == "Library_IsLocked")?.Value == "true";
         var modalType = settings.FirstOrDefault(s => s.Key == "Library_LockModalType")?.Value ?? "default";
         var freeDownloadLink = settings.FirstOrDefault(s => s.Key == "Library_FreeDownloadLink")?.Value ?? string.Empty;
+        var lockThumbnailUrl = settings.FirstOrDefault(s => s.Key == "Library_LockThumbnailUrl")?.Value ?? string.Empty;
 
-        return Ok(new { isLocked, modalType, freeDownloadLink });
+        return Ok(new { isLocked, modalType, freeDownloadLink, lockThumbnailUrl });
     }
 
     // Toggle library lock (Admin only)
@@ -229,7 +230,7 @@ public class LibraryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SetLockStatus([FromBody] LockStatusDto dto)
     {
-        var keys = new[] { "Library_IsLocked", "Library_LockModalType", "Library_FreeDownloadLink" };
+        var keys = new[] { "Library_IsLocked", "Library_LockModalType", "Library_FreeDownloadLink", "Library_LockThumbnailUrl" };
         var settings = await _db.AppSettings
             .Where(s => keys.Contains(s.Key))
             .ToListAsync();
@@ -251,9 +252,10 @@ public class LibraryController : ControllerBase
         SetSetting("Library_IsLocked", dto.IsLocked ? "true" : "false");
         SetSetting("Library_LockModalType", dto.ModalType ?? "default");
         SetSetting("Library_FreeDownloadLink", dto.FreeDownloadLink ?? string.Empty);
+        SetSetting("Library_LockThumbnailUrl", dto.LockThumbnailUrl ?? string.Empty);
 
         await _db.SaveChangesAsync();
-        return Ok(new { isLocked = dto.IsLocked, modalType = dto.ModalType, freeDownloadLink = dto.FreeDownloadLink });
+        return Ok(new { isLocked = dto.IsLocked, modalType = dto.ModalType, freeDownloadLink = dto.FreeDownloadLink, lockThumbnailUrl = dto.LockThumbnailUrl });
     }
 }
 
@@ -267,6 +269,7 @@ public class LockStatusDto
     public bool IsLocked { get; set; }
     public string? ModalType { get; set; }
     public string? FreeDownloadLink { get; set; }
+    public string? LockThumbnailUrl { get; set; }
 }
 
 public class LibraryItemDto

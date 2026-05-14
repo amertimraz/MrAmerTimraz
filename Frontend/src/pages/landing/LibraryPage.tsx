@@ -78,6 +78,7 @@ export default function LibraryPage() {
         onClose={() => {}}
         modalType={lockStatus?.modalType}
         freeDownloadLink={lockStatus?.freeDownloadLink}
+        lockThumbnailUrl={lockStatus?.lockThumbnailUrl}
       />
       
       <div className="max-w-5xl mx-auto px-4 py-12 space-y-10" dir="rtl">

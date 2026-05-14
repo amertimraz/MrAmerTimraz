@@ -50,8 +50,8 @@ export const libraryApi = {
     client.post('/library/require-info', { require }).then(r => r.data),
 
   getLockStatus: () =>
-    client.get<{ isLocked: boolean; modalType: string; freeDownloadLink: string }>('/library/lock-status').then(r => r.data),
+    client.get<{ isLocked: boolean; modalType: string; freeDownloadLink: string; lockThumbnailUrl: string }>('/library/lock-status').then(r => r.data),
 
-  setLockStatus: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string }) =>
+  setLockStatus: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string; lockThumbnailUrl?: string }) =>
     client.post('/library/lock-status', data).then(r => r.data),
 };

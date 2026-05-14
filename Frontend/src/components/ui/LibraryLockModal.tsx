@@ -7,9 +7,10 @@ interface LibraryLockModalProps {
   onClose: () => void;
   modalType?: string;
   freeDownloadLink?: string;
+  lockThumbnailUrl?: string;
 }
 
-export default function LibraryLockModal({ isOpen, onClose, modalType = 'default', freeDownloadLink }: LibraryLockModalProps) {
+export default function LibraryLockModal({ isOpen, onClose, modalType = 'default', freeDownloadLink, lockThumbnailUrl }: LibraryLockModalProps) {
   const whatsappNumber = "01096066818";
   const whatsappUrl = `https://wa.me/20${whatsappNumber.replace(/^0+/, '')}`;
   const isPromo = modalType === 'promo';
@@ -64,6 +65,12 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                   <div className="space-y-4">
                     {/* Free Download Button */}
                     <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-100 dark:border-blue-800 rounded-2xl p-4 text-center">
+                      {lockThumbnailUrl && (
+                        <div className="w-32 h-44 mx-auto mb-4 rounded-lg overflow-hidden shadow-md border-2 border-white dark:border-gray-800">
+                          <img src={getMediaUrl(lockThumbnailUrl)} alt="memo thumbnail" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      
                       <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold mb-3">
                         <CheckCircle2 size={18} />
                         <span>نسخة بدون إجابات (مجاناً)</span>
