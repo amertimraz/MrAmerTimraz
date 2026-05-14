@@ -79,6 +79,7 @@ export default function LibraryPage() {
         modalType={lockStatus?.modalType}
         freeDownloadLink={lockStatus?.freeDownloadLink}
         lockThumbnailUrl={lockStatus?.lockThumbnailUrl}
+        lockMemoTitle={lockStatus?.lockMemoTitle}
       />
       
       <div className="max-w-5xl mx-auto px-4 py-12 space-y-10" dir="rtl">

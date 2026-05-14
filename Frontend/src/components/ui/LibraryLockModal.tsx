@@ -8,9 +8,10 @@ interface LibraryLockModalProps {
   modalType?: string;
   freeDownloadLink?: string;
   lockThumbnailUrl?: string;
+  lockMemoTitle?: string;
 }
 
-export default function LibraryLockModal({ isOpen, onClose, modalType = 'default', freeDownloadLink, lockThumbnailUrl }: LibraryLockModalProps) {
+export default function LibraryLockModal({ isOpen, onClose, modalType = 'default', freeDownloadLink, lockThumbnailUrl, lockMemoTitle }: LibraryLockModalProps) {
   const whatsappNumber = "01096066818";
   const whatsappUrl = `https://wa.me/20${whatsappNumber.replace(/^0+/, '')}`;
   const isPromo = modalType === 'promo';
@@ -50,7 +51,7 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                   <Lock size={32} className="text-white" />
                 </motion.div>
                 <h2 className="text-2xl font-bold mb-2">
-                  {isPromo ? 'تحميل المذكرة متاح الآن' : 'المكتبة متوقفة مؤقتاً'}
+                  {isPromo ? (lockMemoTitle || 'تحميل المذكرة متاح الآن') : 'المكتبة متوقفة مؤقتاً'}
                 </h2>
                 <p className="text-white/90 text-sm">
                   {isPromo 
@@ -73,7 +74,7 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                       
                       <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold mb-3">
                         <CheckCircle2 size={18} />
-                        <span>نسخة بدون إجابات (مجاناً)</span>
+                        <span>{lockMemoTitle ? `تحميل ${lockMemoTitle}` : 'نسخة بدون إجابات (مجاناً)'}</span>
                       </div>
                       
                       {freeDownloadLink ? (

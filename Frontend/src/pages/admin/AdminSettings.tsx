@@ -14,7 +14,7 @@ export default function AdminSettings() {
   });
 
   const lockMutation = useMutation({
-    mutationFn: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string; lockThumbnailUrl?: string }) => 
+    mutationFn: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string; lockThumbnailUrl?: string; lockMemoTitle?: string }) => 
       libraryApi.setLockStatus(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['library-lock-status'] });
@@ -190,6 +190,17 @@ export default function AdminSettings() {
 
                 {lockStatus?.modalType === 'promo' && (
                   <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700 dark:text-gray-300">اسم المذكرة (يظهر في الموديل)</label>
+                      <input
+                        type="text"
+                        value={lockStatus?.lockMemoTitle || ''}
+                        onChange={(e) => lockMutation.mutate({ ...lockStatus, lockMemoTitle: e.target.value })}
+                        placeholder="مثال: مذكرة كمبيوتر 3 إعدادي..."
+                        className="w-full px-4 py-2 rounded-lg border dark:bg-gray-900 dark:border-gray-700 text-sm outline-none focus:border-primary-500"
+                      />
+                    </div>
+
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700 dark:text-gray-300">رابط المذكرة المجانية (بدون إجابات)</label>
                       <div className="flex gap-2">
