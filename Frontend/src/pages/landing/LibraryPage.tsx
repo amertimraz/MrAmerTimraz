@@ -76,6 +76,8 @@ export default function LibraryPage() {
       <LibraryLockModal
         isOpen={lockStatus?.isLocked || false}
         onClose={() => {}}
+        modalType={lockStatus?.modalType}
+        freeDownloadLink={lockStatus?.freeDownloadLink}
       />
       
       <div className="max-w-5xl mx-auto px-4 py-12 space-y-10" dir="rtl">

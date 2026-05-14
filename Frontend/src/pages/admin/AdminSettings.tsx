@@ -1,7 +1,9 @@
-import { Shield, Database, Layers, ExternalLink, Lock } from 'lucide-react';
+import { Shield, Database, Layers, ExternalLink, Lock, FileUp, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { libraryApi } from '../../api/library';
+import { uploadsApi } from '../../api/uploads';
+import { toast } from 'react-hot-toast';
 
 export default function AdminSettings() {
   const queryClient = useQueryClient();
@@ -12,11 +14,29 @@ export default function AdminSettings() {
   });
 
   const lockMutation = useMutation({
-    mutationFn: (isLocked: boolean) => libraryApi.setLockStatus(isLocked),
+    mutationFn: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string }) => 
+      libraryApi.setLockStatus(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['library-lock-status'] });
+      toast.success('تم تحديث إعدادات المكتبة');
     },
   });
+
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => uploadsApi.pdf(file),
+    onSuccess: (url) => {
+      lockMutation.mutate({
+        isLocked: lockStatus?.isLocked || false,
+        modalType: lockStatus?.modalType || 'default',
+        freeDownloadLink: url
+      });
+    }
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadMutation.mutate(file);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
@@ -101,7 +121,10 @@ export default function AdminSettings() {
               </p>
             </div>
             <button
-              onClick={() => lockMutation.mutate(!lockStatus?.isLocked)}
+              onClick={() => lockMutation.mutate({
+                ...lockStatus,
+                isLocked: !lockStatus?.isLocked
+              })}
               disabled={lockMutation.isPending}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 lockStatus?.isLocked
@@ -118,11 +141,60 @@ export default function AdminSettings() {
           </div>
 
           {lockStatus?.isLocked && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
-              <p className="text-red-800 dark:text-red-300 text-sm">
-                ⚠️ المكتبة مقفولة حالياً. يمكن للمستخدمين طلب المذكرات عبر الواتساب مباشرة.
-              </p>
-            </div>
+            <>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                <p className="text-red-800 dark:text-red-300 text-sm">
+                  ⚠️ المكتبة مقفولة حالياً. يمكن للمستخدمين طلب المذكرات عبر الواتساب مباشرة.
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700 dark:text-gray-300">نوع الموديل الذي يظهر للطلاب</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'default', label: 'الافتراضي (سعر 10ج)', desc: 'عرض السعر وتواصل واتساب' },
+                      { id: 'promo', label: 'ترويجي (تحميل مجاني)', desc: 'رابط للمذكرة + سعر النسخة الكاملة' }
+                    ].map(type => (
+                      <button
+                        key={type.id}
+                        onClick={() => lockMutation.mutate({ ...lockStatus, modalType: type.id })}
+                        className={`p-3 rounded-xl border-2 text-right transition-all ${
+                          (lockStatus?.modalType || 'default') === type.id
+                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10 ring-2 ring-primary-500/20'
+                            : 'border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700'
+                        }`}
+                      >
+                        <p className={`font-bold text-sm ${(lockStatus?.modalType || 'default') === type.id ? 'text-primary-600' : ''}`}>{type.label}</p>
+                        <p className="text-xs text-gray-500">{type.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {lockStatus?.modalType === 'promo' && (
+                  <div className="space-y-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">رابط المذكرة المجانية (بدون إجابات)</label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          value={lockStatus?.freeDownloadLink || ''}
+                          readOnly
+                          placeholder="لم يتم رفع ملف بعد..."
+                          className="w-full px-4 py-2 rounded-lg border dark:bg-gray-900 dark:border-gray-700 text-sm outline-none"
+                        />
+                      </div>
+                      <label className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-primary-600 text-white hover:bg-primary-500 transition-colors">
+                        {uploadMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <FileUp size={18} />}
+                        <input type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
+                      </label>
+                    </div>
+                    <p className="text-[10px] text-gray-500">سيتم استبدال الرابط تلقائياً عند رفع ملف جديد</p>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

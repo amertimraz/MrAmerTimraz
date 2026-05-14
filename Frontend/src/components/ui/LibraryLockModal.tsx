@@ -1,14 +1,18 @@
-import { Lock, MessageCircle, Phone } from 'lucide-react';
+import { Lock, MessageCircle, Phone, Download, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getMediaUrl } from '../../utils/media';
 
 interface LibraryLockModalProps {
   isOpen: boolean;
   onClose: () => void;
+  modalType?: string;
+  freeDownloadLink?: string;
 }
 
-export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalProps) {
+export default function LibraryLockModal({ isOpen, onClose, modalType = 'default', freeDownloadLink }: LibraryLockModalProps) {
   const whatsappNumber = "01096066818";
   const whatsappUrl = `https://wa.me/20${whatsappNumber.replace(/^0+/, '')}`;
+  const isPromo = modalType === 'promo';
 
   return (
     <AnimatePresence>
@@ -31,10 +35,11 @@ export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalPr
             transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
+            dir="rtl"
           >
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-orange-500 to-red-500 p-6 text-white text-center">
+              <div className={`p-6 text-white text-center ${isPromo ? 'bg-gradient-to-r from-blue-600 to-indigo-700' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}>
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -43,29 +48,89 @@ export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalPr
                 >
                   <Lock size={32} className="text-white" />
                 </motion.div>
-                <h2 className="text-2xl font-bold mb-2">المكتبة متوقفة مؤقتاً عن الإتاحة المجانية</h2>
-                <p className="text-white/90 text-sm">نظراً لزيادة تكاليف الاستضافة وإدارة الملفات، تم إيقاف إتاحة المذكرات بشكل مجاني</p>
+                <h2 className="text-2xl font-bold mb-2">
+                  {isPromo ? 'تحميل المذكرة متاح الآن' : 'المكتبة متوقفة مؤقتاً'}
+                </h2>
+                <p className="text-white/90 text-sm">
+                  {isPromo 
+                    ? 'يمكنك الآن تحميل نسخة المذكرة (بدون إجابات) مجاناً' 
+                    : 'نظراً لزيادة تكاليف الاستضافة وإدارة الملفات، تم إيقاف إتاحة المذكرات بشكل مجاني'}
+                </p>
               </div>
 
               {/* Body */}
-              <div className="p-4 space-y-4">
-                <div className="text-center space-y-3">
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-4 shadow-lg">
-                    <div className="flex items-center justify-center mb-2">
-                      <div className="bg-green-500 text-white rounded-full px-3 py-1 text-xs font-bold">
-                        🎯 عرض خاص
+              <div className="p-5 space-y-4">
+                {isPromo ? (
+                  <div className="space-y-4">
+                    {/* Free Download Button */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-100 dark:border-blue-800 rounded-2xl p-4 text-center">
+                      <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold mb-3">
+                        <CheckCircle2 size={18} />
+                        <span>نسخة بدون إجابات (مجاناً)</span>
+                      </div>
+                      
+                      {freeDownloadLink ? (
+                        <motion.a
+                          href={getMediaUrl(freeDownloadLink)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg"
+                        >
+                          <Download size={20} />
+                          <span>تحميل المذكرة مجاناً</span>
+                        </motion.a>
+                      ) : (
+                        <div className="text-gray-400 text-sm py-2">سيتم إضافة الرابط قريباً</div>
+                      )}
+                    </div>
+
+                    {/* Paid Version Info */}
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/50 rounded-2xl p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-bold text-green-700 dark:text-green-400">النسخة الكاملة (بالإجابات)</span>
+                        <span className="bg-green-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Premium</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-2xl font-black text-green-600 dark:text-green-400">25</span>
+                          <span className="text-sm font-bold text-green-700 dark:text-green-500">جنيه فقط</span>
+                        </div>
+                        <motion.a
+                          href={whatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ x: -5 }}
+                          className="flex items-center gap-1.5 text-green-600 dark:text-green-400 text-sm font-bold"
+                        >
+                          <span>اطلبها الآن</span>
+                          <MessageCircle size={16} />
+                        </motion.a>
                       </div>
                     </div>
-                    <p className="text-green-800 dark:text-green-300 font-bold text-lg mb-1 text-center">
-                      أي مذكرة (PDF + بالإجابات)
-                    </p>
-                    <div className="text-center">
-                      <span className="text-2xl font-black text-green-600 dark:text-green-400">10</span>
-                      <span className="text-lg font-bold text-green-700 dark:text-green-500 mr-1">جنيه</span>
+                  </div>
+                ) : (
+                  <div className="text-center space-y-3">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-4 shadow-lg">
+                      <div className="flex items-center justify-center mb-2">
+                        <div className="bg-green-500 text-white rounded-full px-3 py-1 text-xs font-bold">
+                          🎯 عرض خاص
+                        </div>
+                      </div>
+                      <p className="text-green-800 dark:text-green-300 font-bold text-lg mb-1 text-center">
+                        أي مذكرة (PDF + بالإجابات)
+                      </p>
+                      <div className="text-center">
+                        <span className="text-2xl font-black text-green-600 dark:text-green-400">10</span>
+                        <span className="text-lg font-bold text-green-700 dark:text-green-500 mr-1">جنيه</span>
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  {/* WhatsApp Button */}
+                {/* Main WhatsApp Button (Always visible or primary for default) */}
+                {!isPromo && (
                   <motion.a
                     href={whatsappUrl}
                     target="_blank"
@@ -78,14 +143,13 @@ export default function LibraryLockModal({ isOpen, onClose }: LibraryLockModalPr
                     <span>تواصل عبر الواتساب</span>
                     <Phone size={16} />
                   </motion.a>
+                )}
 
-                  <p className="text-gray-500 dark:text-gray-400 text-xs">
-                    📞 {whatsappNumber} | شكراً لدعمكم 🤍
-                  </p>
-                </div>
+                <p className="text-gray-400 dark:text-gray-500 text-[10px] text-center pt-2">
+                  📞 {whatsappNumber} | شكراً لدعمكم المستمر 🤍
+                </p>
               </div>
-
-                          </div>
+            </div>
           </motion.div>
         </>
       )}

@@ -213,10 +213,15 @@ public class LibraryController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetLockStatus()
     {
-        var setting = await _db.AppSettings
-            .FirstOrDefaultAsync(s => s.Key == "Library_IsLocked");
-        var isLocked = setting?.Value == "true";
-        return Ok(new { isLocked });
+        var settings = await _db.AppSettings
+            .Where(s => s.Key.StartsWith("Library_"))
+            .ToListAsync();
+
+        var isLocked = settings.FirstOrDefault(s => s.Key == "Library_IsLocked")?.Value == "true";
+        var modalType = settings.FirstOrDefault(s => s.Key == "Library_LockModalType")?.Value ?? "default";
+        var freeDownloadLink = settings.FirstOrDefault(s => s.Key == "Library_FreeDownloadLink")?.Value ?? string.Empty;
+
+        return Ok(new { isLocked, modalType, freeDownloadLink });
     }
 
     // Toggle library lock (Admin only)
@@ -224,20 +229,31 @@ public class LibraryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SetLockStatus([FromBody] LockStatusDto dto)
     {
-        var setting = await _db.AppSettings
-            .FirstOrDefaultAsync(s => s.Key == "Library_IsLocked");
-        if (setting == null)
+        var keys = new[] { "Library_IsLocked", "Library_LockModalType", "Library_FreeDownloadLink" };
+        var settings = await _db.AppSettings
+            .Where(s => keys.Contains(s.Key))
+            .ToListAsync();
+
+        void SetSetting(string key, string value)
         {
-            setting = new AppSetting { Key = "Library_IsLocked", Value = dto.IsLocked ? "true" : "false" };
-            _db.AppSettings.Add(setting);
+            var s = settings.FirstOrDefault(x => x.Key == key);
+            if (s == null)
+            {
+                _db.AppSettings.Add(new AppSetting { Key = key, Value = value });
+            }
+            else
+            {
+                s.Value = value;
+                s.UpdatedAt = DateTime.UtcNow;
+            }
         }
-        else
-        {
-            setting.Value = dto.IsLocked ? "true" : "false";
-            setting.UpdatedAt = DateTime.UtcNow;
-        }
+
+        SetSetting("Library_IsLocked", dto.IsLocked ? "true" : "false");
+        SetSetting("Library_LockModalType", dto.ModalType ?? "default");
+        SetSetting("Library_FreeDownloadLink", dto.FreeDownloadLink ?? string.Empty);
+
         await _db.SaveChangesAsync();
-        return Ok(new { isLocked = dto.IsLocked });
+        return Ok(new { isLocked = dto.IsLocked, modalType = dto.ModalType, freeDownloadLink = dto.FreeDownloadLink });
     }
 }
 
@@ -249,6 +265,8 @@ public class RequireInfoDto
 public class LockStatusDto
 {
     public bool IsLocked { get; set; }
+    public string? ModalType { get; set; }
+    public string? FreeDownloadLink { get; set; }
 }
 
 public class LibraryItemDto
