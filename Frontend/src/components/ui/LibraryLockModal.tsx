@@ -71,94 +71,88 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
               <div className="p-5 space-y-4">
                 {isPromo ? (
                   <div className="space-y-4">
-                    {/* Free Download Button */}
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-100 dark:border-blue-800 rounded-2xl p-4 text-center">
-                      {showLockThumbnail && lockThumbnailUrl && (
-                        <div className="w-28 h-36 mx-auto mb-4 rounded-lg overflow-hidden shadow-md border-2 border-white dark:border-gray-800">
-                          <img src={getMediaUrl(lockThumbnailUrl)} alt="memo thumbnail" className="w-full h-full object-cover" />
-                        </div>
-                      )}
-                      
-                      <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold mb-3">
-                        <CheckCircle2 size={18} />
-                        <span>{lockMemoTitle ? `تحميل ${lockMemoTitle}` : 'نسخة بدون إجابات (مجاناً)'}</span>
-                      </div>
-                      
-                      {freeDownloadLink ? (
-                        <motion.a
-                          href={getMediaUrl(freeDownloadLink)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={handleDownload}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg"
-                        >
-                          <Download size={20} />
-                          <span>تحميل المذكرة مجاناً</span>
-                        </motion.a>
-                      ) : (
-                        <div className="text-gray-400 text-sm py-2">سيتم إضافة الرابط قريباً</div>
-                      )}
-
-                      {isPromo && freeDownloadLink && (
-                        <p className="text-[10px] text-blue-500/70 dark:text-blue-400/50 mt-2 font-medium">
-                          تم التحميل {freeDownloadCount?.toLocaleString('ar-EG') || 0} مرة حتى الآن
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Premium Full Version Card */}
+                    {/* 3rd Prep Memo Unified Container */}
                     <div className="relative group overflow-hidden">
                       {/* Glow Effect */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-green-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                       
-                      <div className="relative bg-white dark:bg-gray-800 border border-green-100 dark:border-green-900/50 rounded-2xl p-5 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
-                              <CheckCircle2 size={18} />
+                      <div className="relative bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900/50 rounded-2xl overflow-hidden shadow-sm">
+                        {/* Free Version Part */}
+                        <div className="p-5 text-center bg-blue-50/50 dark:bg-blue-900/10">
+                          {showLockThumbnail && lockThumbnailUrl && (
+                            <div className="w-24 h-32 mx-auto mb-4 rounded-lg overflow-hidden shadow-md border-2 border-white dark:border-gray-800">
+                              <img src={getMediaUrl(lockThumbnailUrl)} alt="memo thumbnail" className="w-full h-full object-cover" />
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-white">النسخة الكاملة (بالإجابات)</span>
+                          )}
+                          
+                          <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold mb-3 text-sm">
+                            <CheckCircle2 size={16} />
+                            <span>{lockMemoTitle ? `تحميل ${lockMemoTitle}` : 'نسخة بدون إجابات (مجاناً)'}</span>
                           </div>
-                          <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[9px] font-black px-2 py-1 rounded-md uppercase shadow-sm">
-                            الأكثر طلباً 🔥
-                          </div>
+                          
+                          {freeDownloadLink ? (
+                            <motion.a
+                              href={getMediaUrl(freeDownloadLink)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={handleDownload}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-md text-sm"
+                            >
+                              <Download size={18} />
+                              <span>تحميل المذكرة مجاناً</span>
+                            </motion.a>
+                          ) : (
+                            <div className="text-gray-400 text-xs py-2">سيتم إضافة الرابط قريباً</div>
+                          )}
+
+                          {freeDownloadLink && (
+                            <p className="text-[9px] text-blue-500/70 dark:text-blue-400/50 mt-2 font-medium">
+                              تم التحميل {freeDownloadCount?.toLocaleString('ar-EG') || 0} مرة حتى الآن
+                            </p>
+                          )}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 items-end">
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">سعر النسخة الكاملة</p>
+                        {/* Divider */}
+                        <div className="flex items-center px-10">
+                          <div className="flex-1 border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                          <span className="px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">أو</span>
+                          <div className="flex-1 border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                        </div>
+
+                        {/* Premium Version Part */}
+                        <div className="p-5">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
+                                <CheckCircle2 size={14} />
+                              </div>
+                              <span className="text-sm font-bold text-gray-900 dark:text-white">النسخة الكاملة (بالإجابات)</span>
+                            </div>
+                            <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">
+                              Premium
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-4">
                             <div className="flex items-baseline gap-1">
-                              <span className="text-3xl font-black text-green-600 dark:text-green-400">25</span>
-                              <span className="text-sm font-bold text-green-700 dark:text-green-500">ج.م</span>
+                              <span className="text-2xl font-black text-green-600 dark:text-green-400">25</span>
+                              <span className="text-[10px] font-bold text-green-700 dark:text-green-500">ج.م فقط</span>
                             </div>
+
+                            <motion.a
+                              href={whatsappUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition-all shadow-md text-xs"
+                            >
+                              <MessageCircle size={16} />
+                              <span>اطلبها بالكامل</span>
+                            </motion.a>
                           </div>
-
-                          <motion.a
-                            href={whatsappUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-green-500/30 text-sm"
-                          >
-                            <MessageCircle size={18} />
-                            <span>اطلبها الآن</span>
-                          </motion.a>
-                        </div>
-
-                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-center gap-4">
-                          {[
-                            { icon: <CheckCircle2 size={12} />, text: 'شامل الإجابات' },
-                            { icon: <CheckCircle2 size={12} />, text: 'تنسيق ممتاز' },
-                            { icon: <CheckCircle2 size={12} />, text: 'جاهز للطباعة' },
-                          ].map((item, idx) => (
-                            <div key={idx} className="flex items-center gap-1 text-[9px] font-bold text-gray-500 dark:text-gray-400">
-                              <span className="text-green-500">{item.icon}</span>
-                              <span>{item.text}</span>
-                            </div>
-                          ))}
                         </div>
                       </div>
                     </div>
