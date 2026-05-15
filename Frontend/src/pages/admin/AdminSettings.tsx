@@ -14,7 +14,7 @@ export default function AdminSettings() {
   });
 
   const lockMutation = useMutation({
-    mutationFn: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string; lockThumbnailUrl?: string; lockMemoTitle?: string }) => 
+    mutationFn: (data: { isLocked: boolean; modalType?: string; freeDownloadLink?: string; lockThumbnailUrl?: string; lockMemoTitle?: string; showLockThumbnail?: boolean }) => 
       libraryApi.setLockStatus(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['library-lock-status'] });
@@ -221,7 +221,22 @@ export default function AdminSettings() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700 dark:text-gray-300">صورة مصغرة للمذكرة</label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">صورة مصغرة للمذكرة</label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-gray-500">إظهار الصورة</span>
+                          <button
+                            onClick={() => lockMutation.mutate({ ...lockStatus, showLockThumbnail: !lockStatus?.showLockThumbnail })}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                              lockStatus?.showLockThumbnail !== false ? 'bg-primary-600' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                              lockStatus?.showLockThumbnail !== false ? 'translate-x-5' : 'translate-x-1'
+                            }`} />
+                          </button>
+                        </div>
+                      </div>
                       <div className="flex gap-4 items-center">
                         <div className="w-20 h-28 bg-white dark:bg-gray-900 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden">
                           {lockStatus?.lockThumbnailUrl ? (

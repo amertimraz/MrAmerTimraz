@@ -223,8 +223,9 @@ public class LibraryController : ControllerBase
         var lockThumbnailUrl = settings.FirstOrDefault(s => s.Key == "Library_LockThumbnailUrl")?.Value ?? string.Empty;
         var lockMemoTitle = settings.FirstOrDefault(s => s.Key == "Library_LockMemoTitle")?.Value ?? string.Empty;
         var freeDownloadCount = int.TryParse(settings.FirstOrDefault(s => s.Key == "Library_FreeDownloadCount")?.Value, out var c) ? c : 0;
+        var showLockThumbnail = settings.FirstOrDefault(s => s.Key == "Library_ShowLockThumbnail")?.Value != "false"; // default true
 
-        return Ok(new { isLocked, modalType, freeDownloadLink, lockThumbnailUrl, lockMemoTitle, freeDownloadCount });
+        return Ok(new { isLocked, modalType, freeDownloadLink, lockThumbnailUrl, lockMemoTitle, freeDownloadCount, showLockThumbnail });
     }
 
     // Toggle library lock (Admin only)
@@ -232,7 +233,7 @@ public class LibraryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SetLockStatus([FromBody] LockStatusDto dto)
     {
-        var keys = new[] { "Library_IsLocked", "Library_LockModalType", "Library_FreeDownloadLink", "Library_LockThumbnailUrl", "Library_LockMemoTitle" };
+        var keys = new[] { "Library_IsLocked", "Library_LockModalType", "Library_FreeDownloadLink", "Library_LockThumbnailUrl", "Library_LockMemoTitle", "Library_ShowLockThumbnail" };
         var settings = await _db.AppSettings
             .Where(s => keys.Contains(s.Key))
             .ToListAsync();
@@ -256,9 +257,10 @@ public class LibraryController : ControllerBase
         SetSetting("Library_FreeDownloadLink", dto.FreeDownloadLink ?? string.Empty);
         SetSetting("Library_LockThumbnailUrl", dto.LockThumbnailUrl ?? string.Empty);
         SetSetting("Library_LockMemoTitle", dto.LockMemoTitle ?? string.Empty);
+        SetSetting("Library_ShowLockThumbnail", dto.ShowLockThumbnail ? "true" : "false");
 
         await _db.SaveChangesAsync();
-        return Ok(new { isLocked = dto.IsLocked, modalType = dto.ModalType, freeDownloadLink = dto.FreeDownloadLink, lockThumbnailUrl = dto.LockThumbnailUrl, lockMemoTitle = dto.LockMemoTitle });
+        return Ok(new { isLocked = dto.IsLocked, modalType = dto.ModalType, freeDownloadLink = dto.FreeDownloadLink, lockThumbnailUrl = dto.LockThumbnailUrl, lockMemoTitle = dto.LockMemoTitle, showLockThumbnail = dto.ShowLockThumbnail });
     }
 
     [HttpPost("increment-free-download")]
@@ -299,6 +301,7 @@ public class LockStatusDto
     public string? FreeDownloadLink { get; set; }
     public string? LockThumbnailUrl { get; set; }
     public string? LockMemoTitle { get; set; }
+    public bool ShowLockThumbnail { get; set; }
 }
 
 public class LibraryItemDto

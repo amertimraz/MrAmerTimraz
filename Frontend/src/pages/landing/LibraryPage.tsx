@@ -81,6 +81,7 @@ export default function LibraryPage() {
         lockThumbnailUrl={lockStatus?.lockThumbnailUrl}
         lockMemoTitle={lockStatus?.lockMemoTitle}
         freeDownloadCount={lockStatus?.freeDownloadCount}
+        showLockThumbnail={lockStatus?.showLockThumbnail}
       />
       
       <div className="max-w-5xl mx-auto px-4 py-12 space-y-10" dir="rtl">
