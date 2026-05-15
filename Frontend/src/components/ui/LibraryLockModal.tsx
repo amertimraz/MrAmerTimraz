@@ -161,6 +161,44 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                         </div>
                       </div>
                     </div>
+
+                    {/* Primary & Lower Prep Grades Section */}
+                    <div className="bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-2xl p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-7 h-7 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400">
+                          <CheckCircle2 size={16} />
+                        </div>
+                        <span className="text-sm font-bold text-gray-800 dark:text-gray-200">باقي المراحل الدراسية</span>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {['الابتدائي (٤، ٥، ٦)', 'الإعدادي (١، ٢)'].map((grade) => (
+                            <span key={grade} className="text-[10px] font-bold px-2 py-1 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-md text-gray-600 dark:text-gray-400">
+                              {grade}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-xl font-black text-gray-900 dark:text-white">10</span>
+                            <span className="text-[10px] font-bold text-gray-500">ج.م للمذكرة</span>
+                          </div>
+
+                          <motion.a
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={{ x: -3 }}
+                            className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-xs font-bold"
+                          >
+                            <span>اطلبها الآن</span>
+                            <MessageCircle size={14} />
+                          </motion.a>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center space-y-3">
