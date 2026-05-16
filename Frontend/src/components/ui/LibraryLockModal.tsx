@@ -158,38 +158,48 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                     </div>
 
                     {/* Primary & Lower Prep Grades Section */}
-                    <div className="bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-2xl p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-7 h-7 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400">
-                          <CheckCircle2 size={16} />
+                    <div className="bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 border border-indigo-100 dark:border-indigo-800 rounded-2xl p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
+                          <Layers size={18} />
                         </div>
-                        <span className="text-sm font-bold text-gray-800 dark:text-gray-200">باقي المراحل الدراسية</span>
+                        <div>
+                          <h3 className="text-sm font-bold text-indigo-900 dark:text-indigo-300">مذكرات باقي المراحل الدراسية</h3>
+                          <p className="text-[10px] text-indigo-500 font-medium">متاحة الآن للطلب المباشر</p>
+                        </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <div className="flex flex-wrap gap-1.5">
-                          {['الابتدائي (٤، ٥، ٦)', 'الإعدادي (١، ٢)'].map((grade) => (
-                            <span key={grade} className="text-[10px] font-bold px-2 py-1 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-md text-gray-600 dark:text-gray-400">
-                              {grade}
-                            </span>
-                          ))}
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="p-2 bg-white dark:bg-gray-900 rounded-xl border border-indigo-50 dark:border-indigo-900/50 text-center">
+                            <p className="text-[9px] text-gray-400 mb-1">المرحلة الابتدائية</p>
+                            <p className="text-xs font-black text-indigo-600 dark:text-indigo-400">٤ ، ٥ ، ٦</p>
+                          </div>
+                          <div className="p-2 bg-white dark:bg-gray-900 rounded-xl border border-indigo-50 dark:border-indigo-900/50 text-center">
+                            <p className="text-[9px] text-gray-400 mb-1">المرحلة الإعدادية</p>
+                            <p className="text-xs font-black text-indigo-600 dark:text-indigo-400">١ ، ٢</p>
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-xl font-black text-gray-900 dark:text-white">10</span>
-                            <span className="text-[10px] font-bold text-gray-500">ج.م للمذكرة</span>
+                        <div className="flex items-center justify-between bg-white/50 dark:bg-gray-900/50 p-3 rounded-xl border border-indigo-50/50 dark:border-indigo-900/30">
+                          <div className="flex flex-col">
+                            <span className="text-[9px] font-bold text-gray-400">سعر المذكرة</span>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">10</span>
+                              <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-500">ج.م فقط</span>
+                            </div>
                           </div>
 
                           <motion.a
                             href={whatsappUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            whileHover={{ x: -3 }}
-                            className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-xs font-bold"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-md text-xs flex items-center gap-2"
                           >
-                            <span>اطلبها الآن</span>
-                            <MessageCircle size={14} />
+                            <MessageCircle size={16} />
+                            <span>طلب الآن</span>
                           </motion.a>
                         </div>
                       </div>
