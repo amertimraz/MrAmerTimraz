@@ -1,4 +1,4 @@
-import { Lock, MessageCircle, Phone, Download, CheckCircle2 } from 'lucide-react';
+import { Lock, MessageCircle, Phone, Download, CheckCircle2, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getMediaUrl } from '../../utils/media';
 import { libraryApi } from '../../api/library';
