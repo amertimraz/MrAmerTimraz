@@ -68,77 +68,124 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
               </div>
 
               {/* Body */}
-              <div className="p-5 space-y-4">
-                {isPromo ? (
-                  <div className="space-y-4">
-                    {/* 3rd Prep Memo Unified Container */}
-                    <div className="relative group overflow-hidden">
-                      {/* Glow Effect */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                      
-                      <div className="relative bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900/50 rounded-2xl overflow-hidden shadow-sm">
-                        {/* Free Version Part */}
-                        <div className="p-5 text-center bg-blue-50/50 dark:bg-blue-900/10">
-                          {showLockThumbnail && lockThumbnailUrl && (
-                            <div className="w-24 h-32 mx-auto mb-4 rounded-lg overflow-hidden shadow-md border-2 border-white dark:border-gray-800">
-                              <img src={getMediaUrl(lockThumbnailUrl)} alt="memo thumbnail" className="w-full h-full object-cover" />
-                            </div>
-                          )}
-                          
-                          <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold mb-3 text-sm">
-                            <CheckCircle2 size={16} />
-                            <span>{lockMemoTitle ? `تحميل ${lockMemoTitle}` : 'نسخة بدون إجابات (مجاناً)'}</span>
-                          </div>
-                          
-                          {freeDownloadLink ? (
-                            <motion.a
-                              href={getMediaUrl(freeDownloadLink)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={handleDownload}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-md text-sm"
-                            >
-                              <Download size={18} />
-                              <span>تحميل المذكرة مجاناً</span>
-                            </motion.a>
-                          ) : (
-                            <div className="text-gray-400 text-xs py-2">سيتم إضافة الرابط قريباً</div>
-                          )}
-
-                          {freeDownloadLink && (
-                            <p className="text-[9px] text-blue-500/70 dark:text-blue-400/50 mt-2 font-medium">
-                              تم التحميل {freeDownloadCount?.toLocaleString('ar-EG') || 0} مرة حتى الآن
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Divider */}
-                        <div className="flex items-center px-10">
-                          <div className="flex-1 border-t border-dashed border-gray-200 dark:border-gray-700"></div>
-                          <span className="px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">أو</span>
-                          <div className="flex-1 border-t border-dashed border-gray-200 dark:border-gray-700"></div>
-                        </div>
-
-                        {/* Premium Version Part */}
-                        <div className="p-5">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
-                                <CheckCircle2 size={14} />
+              <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="p-4 space-y-3">
+                  {isPromo ? (
+                    <div className="space-y-3">
+                      {/* 3rd Prep Memo Unified Container */}
+                      <div className="relative group overflow-hidden">
+                        {/* Glow Effect */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                        
+                        <div className="relative bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900/50 rounded-2xl overflow-hidden shadow-sm">
+                          {/* Free Version Part */}
+                          <div className="p-4 text-center bg-blue-50/50 dark:bg-blue-900/10">
+                            {showLockThumbnail && lockThumbnailUrl && (
+                              <div className="w-20 h-28 mx-auto mb-3 rounded-lg overflow-hidden shadow-md border-2 border-white dark:border-gray-800">
+                                <img src={getMediaUrl(lockThumbnailUrl)} alt="memo thumbnail" className="w-full h-full object-cover" />
                               </div>
-                              <span className="text-sm font-bold text-gray-900 dark:text-white">النسخة الكاملة (بالإجابات)</span>
+                            )}
+                            
+                            <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold mb-2 text-xs">
+                              <CheckCircle2 size={14} />
+                              <span>{lockMemoTitle ? `تحميل ${lockMemoTitle}` : 'نسخة بدون إجابات (مجاناً)'}</span>
                             </div>
-                            <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">
-                              Premium
+                            
+                            {freeDownloadLink ? (
+                              <motion.a
+                                href={getMediaUrl(freeDownloadLink)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={handleDownload}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-all shadow-md text-xs"
+                              >
+                                <Download size={16} />
+                                <span>تحميل المذكرة مجاناً</span>
+                              </motion.a>
+                            ) : (
+                              <div className="text-gray-400 text-[10px] py-1">سيتم إضافة الرابط قريباً</div>
+                            )}
+
+                            {freeDownloadLink && (
+                              <p className="text-[8px] text-blue-500/70 dark:text-blue-400/50 mt-1.5 font-medium">
+                                تم التحميل {freeDownloadCount?.toLocaleString('ar-EG') || 0} مرة حتى الآن
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Divider */}
+                          <div className="flex items-center px-8">
+                            <div className="flex-1 border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                            <span className="px-2 text-[8px] font-black text-gray-400 uppercase tracking-widest">أو</span>
+                            <div className="flex-1 border-t border-dashed border-gray-200 dark:border-gray-700"></div>
+                          </div>
+
+                          {/* Premium Version Part */}
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
+                                  <CheckCircle2 size={12} />
+                                </div>
+                                <span className="text-xs font-bold text-gray-900 dark:text-white">النسخة الكاملة (بالإجابات)</span>
+                              </div>
+                              <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[7px] font-black px-1 py-0.5 rounded uppercase">
+                                Premium
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-baseline gap-0.5">
+                                <span className="text-xl font-black text-green-600 dark:text-green-400">25</span>
+                                <span className="text-[9px] font-bold text-green-700 dark:text-green-500">ج.م فقط</span>
+                              </div>
+
+                              <motion.a
+                                href={whatsappUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg transition-all shadow-md text-[10px]"
+                              >
+                                <MessageCircle size={14} />
+                                <span>اطلبها بالكامل</span>
+                              </motion.a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Primary & Lower Prep Grades Section */}
+                      <div className="bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 border border-indigo-100 dark:border-indigo-800 rounded-2xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
+                            <Layers size={14} />
+                          </div>
+                          <div>
+                            <h3 className="text-xs font-bold text-indigo-900 dark:text-indigo-300">مذكرات باقي المراحل الدراسية</h3>
+                            <p className="text-[8px] text-indigo-500 font-medium italic">متاحة للطلب الآن</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="p-1.5 bg-white dark:bg-gray-900 rounded-lg border border-indigo-50 dark:border-indigo-900/50 text-center">
+                              <p className="text-[8px] text-gray-400 mb-0.5">الابتدائي</p>
+                              <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400">٤ ، ٥ ، ٦</p>
+                            </div>
+                            <div className="p-1.5 bg-white dark:bg-gray-900 rounded-lg border border-indigo-50 dark:border-indigo-900/50 text-center">
+                              <p className="text-[8px] text-gray-400 mb-0.5">الإعدادي</p>
+                              <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400">١ ، ٢</p>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-2xl font-black text-green-600 dark:text-green-400">25</span>
-                              <span className="text-[10px] font-bold text-green-700 dark:text-green-500">ج.م فقط</span>
+                          <div className="flex items-center justify-between bg-white/50 dark:bg-gray-900/50 p-2.5 rounded-xl border border-indigo-50/50 dark:border-indigo-900/30">
+                            <div className="flex items-baseline gap-0.5">
+                              <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">10</span>
+                              <span className="text-[8px] font-bold text-indigo-700 dark:text-indigo-500">ج.م للمذكرة</span>
                             </div>
 
                             <motion.a
@@ -147,102 +194,47 @@ export default function LibraryLockModal({ isOpen, onClose, modalType = 'default
                               rel="noopener noreferrer"
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition-all shadow-md text-xs"
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-4 rounded-lg transition-all shadow-md text-[10px] flex items-center gap-1.5"
                             >
-                              <MessageCircle size={16} />
-                              <span>اطلبها بالكامل</span>
+                              <MessageCircle size={14} />
+                              <span>طلب الآن</span>
                             </motion.a>
                           </div>
                         </div>
                       </div>
                     </div>
-
-                    {/* Primary & Lower Prep Grades Section */}
-                    <div className="bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 border border-indigo-100 dark:border-indigo-800 rounded-2xl p-5">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
-                          <Layers size={18} />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-indigo-900 dark:text-indigo-300">مذكرات باقي المراحل الدراسية</h3>
-                          <p className="text-[10px] text-indigo-500 font-medium">متاحة الآن للطلب المباشر</p>
-                        </div>
+                  ) : (
+                    <div className="text-center space-y-3 py-4">
+                      <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-2">
+                        <Lock size={32} className="text-white" />
                       </div>
-
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="p-2 bg-white dark:bg-gray-900 rounded-xl border border-indigo-50 dark:border-indigo-900/50 text-center">
-                            <p className="text-[9px] text-gray-400 mb-1">المرحلة الابتدائية</p>
-                            <p className="text-xs font-black text-indigo-600 dark:text-indigo-400">٤ ، ٥ ، ٦</p>
-                          </div>
-                          <div className="p-2 bg-white dark:bg-gray-900 rounded-xl border border-indigo-50 dark:border-indigo-900/50 text-center">
-                            <p className="text-[9px] text-gray-400 mb-1">المرحلة الإعدادية</p>
-                            <p className="text-xs font-black text-indigo-600 dark:text-indigo-400">١ ، ٢</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between bg-white/50 dark:bg-gray-900/50 p-3 rounded-xl border border-indigo-50/50 dark:border-indigo-900/30">
-                          <div className="flex flex-col">
-                            <span className="text-[9px] font-bold text-gray-400">سعر المذكرة</span>
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">10</span>
-                              <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-500">ج.م فقط</span>
-                            </div>
-                          </div>
-
-                          <motion.a
-                            href={whatsappUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-md text-xs flex items-center gap-2"
-                          >
-                            <MessageCircle size={16} />
-                            <span>طلب الآن</span>
-                          </motion.a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center space-y-3">
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-4 shadow-lg">
-                      <div className="flex items-center justify-center mb-2">
-                        <div className="bg-green-500 text-white rounded-full px-3 py-1 text-xs font-bold">
-                          🎯 عرض خاص
-                        </div>
-                      </div>
-                      <p className="text-green-800 dark:text-green-300 font-bold text-lg mb-1 text-center">
-                        أي مذكرة (PDF + بالإجابات)
+                      <h2 className="text-xl font-bold mb-1">المكتبة متوقفة مؤقتاً</h2>
+                      <p className="text-white/90 text-xs">
+                        نعتذر عن الإزعاج، المكتبة غير متاحة حالياً.
                       </p>
-                      <div className="text-center">
-                        <span className="text-2xl font-black text-green-600 dark:text-green-400">10</span>
-                        <span className="text-lg font-bold text-green-700 dark:text-green-500 mr-1">جنيه</span>
-                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Main WhatsApp Button (Always visible or primary for default) */}
-                {!isPromo && (
-                  <motion.a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-green-500/25"
-                  >
-                    <MessageCircle size={20} />
-                    <span>تواصل عبر الواتساب</span>
-                    <Phone size={16} />
-                  </motion.a>
-                )}
+                  {/* Main WhatsApp Button (Always visible or primary for default) */}
+                  {!isPromo && (
+                    <motion.a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-green-500/25"
+                    >
+                      <MessageCircle size={20} />
+                      <span>تواصل عبر الواتساب</span>
+                      <Phone size={16} />
+                    </motion.a>
+                  )}
 
-                <p className="text-gray-400 dark:text-gray-500 text-[10px] text-center pt-2">
-                  📞 {whatsappNumber} | شكراً لدعمكم المستمر 🤍
-                </p>
+                  <p className="text-gray-400 dark:text-gray-500 text-[9px] text-center pt-1 border-t dark:border-gray-800 mt-2">
+                    📞 {whatsappNumber} | شكراً لدعمكم المستمر 🤍
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>
