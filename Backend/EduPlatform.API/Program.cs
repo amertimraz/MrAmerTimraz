@@ -197,7 +197,15 @@ using (var scope = app.Services.CreateScope())
     // PERFORMANCE: Skip heavy seeding/migration check if data already exists or skip-flag is set.
     // Every restart on Railway consumes CPU/RAM for this block.
     var forceSeed = Environment.GetEnvironmentVariable("FORCE_SEED") == "true";
-    var hasUsers = await db.Users.AnyAsync();
+    var hasUsers = false;
+    try
+    {
+        hasUsers = await db.Users.AnyAsync();
+    }
+    catch
+    {
+        // Users table may not exist yet on a fresh database deployment
+    }
 
     // Only run expensive manual patches if explicitly requested or if it's a fresh database.
     // This saves about 2-5 seconds of high-CPU usage on every Railway restart.
