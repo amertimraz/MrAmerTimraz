@@ -277,6 +277,7 @@ export interface Booklet {
   price: number;
   teacherPrice?: number;
   isPublished: boolean;
+  pageCount?: number;
   createdAt: string;
 }
 

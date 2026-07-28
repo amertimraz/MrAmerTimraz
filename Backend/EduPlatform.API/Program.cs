@@ -397,6 +397,7 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Booklets\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"Booklets\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",
             "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"TeacherPrice\" numeric",
+            "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"PageCount\" integer",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"ScheduledAt\" TYPE timestamp without time zone USING \"ScheduledAt\"::timestamp without time zone",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",

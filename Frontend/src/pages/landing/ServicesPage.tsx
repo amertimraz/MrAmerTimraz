@@ -303,6 +303,11 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
             {booklet.gradeLevel}
           </span>
         )}
+        {!!booklet.pageCount && (
+          <span className="absolute top-3 left-3 bg-black/60 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur flex items-center gap-1">
+            <BookOpen size={11} /> {booklet.pageCount} صفحة
+          </span>
+        )}
         {booklet.pdfUrl && (
           <button
             onClick={() => setPreviewOpen(true)}

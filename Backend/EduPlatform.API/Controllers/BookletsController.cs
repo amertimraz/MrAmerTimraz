@@ -44,6 +44,33 @@ public class BookletsController : ControllerBase
         return url;
     }
 
+    // Best-effort page count so booklet cards can show it without the client
+    // having to download the whole file. Returns null on any failure — this
+    // is a nice-to-have and must never block saving a booklet.
+    private async Task<int?> ComputePageCountAsync(string pdfUrl)
+    {
+        try
+        {
+            if (!pdfUrl.StartsWith("http"))
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", pdfUrl.TrimStart('/'));
+                if (!System.IO.File.Exists(filePath)) return null;
+                using var localDoc = UglyToad.PdfPig.PdfDocument.Open(filePath);
+                return localDoc.NumberOfPages;
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(20);
+            var bytes = await client.GetByteArrayAsync(ResolveDirectFileUrl(pdfUrl));
+            using var doc = UglyToad.PdfPig.PdfDocument.Open(bytes);
+            return doc.NumberOfPages;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll(bool all = false)
@@ -96,6 +123,8 @@ public class BookletsController : ControllerBase
                 CreatedAt = DateTime.UtcNow
             };
 
+            booklet.PageCount = await ComputePageCountAsync(booklet.PdfUrl);
+
             _db.Booklets.Add(booklet);
             await _db.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = booklet.Id }, booklet);
@@ -115,6 +144,9 @@ public class BookletsController : ControllerBase
         {
             var booklet = await _db.Booklets.FindAsync(id);
             if (booklet == null) return NotFound("الملزمة غير موجودة");
+
+            if (dto.PdfUrl != booklet.PdfUrl)
+                booklet.PageCount = await ComputePageCountAsync(dto.PdfUrl);
 
             booklet.Title = dto.Title;
             booklet.Description = dto.Description;

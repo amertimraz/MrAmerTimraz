@@ -32,6 +32,8 @@ public class Booklet
     [Column(TypeName = "boolean")]
     public bool IsPublished { get; set; } = false;
 
+    public int? PageCount { get; set; }
+
     [Column(TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
