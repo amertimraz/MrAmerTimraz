@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { bookletsApi } from '../../api/booklets';
 import { uploadsApi } from '../../api/uploads';
-import { BookOpen, Plus, FileEdit, Trash2, Link as LinkIcon, AlertCircle, Eye, EyeOff, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { BookOpen, Plus, FileEdit, Trash2, Link as LinkIcon, AlertCircle, Eye, EyeOff, Image as ImageIcon, Loader2, Upload } from 'lucide-react';
 import type { Booklet } from '../../types';
 
 export default function BookletsManager() {
@@ -159,6 +159,8 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
   const isEditing = !!booklet;
   const [isUploading, setIsUploading] = useState(false);
   const [coverUrl, setCoverUrl] = useState(booklet?.coverImageUrl || '');
+  const [pdfUrl, setPdfUrl] = useState(booklet?.pdfUrl || '');
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
 
   const mutation = useMutation({
     mutationFn: (data: Partial<Booklet>) =>
@@ -184,13 +186,28 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
     }
   };
 
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingPdf(true);
+      const url = await uploadsApi.pdf(file);
+      setPdfUrl(url);
+    } catch {
+      alert('فشل رفع الملف، يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsUploadingPdf(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
-      pdfUrl: formData.get('pdfUrl') as string,
+      pdfUrl,
       coverImageUrl: coverUrl,
       subject: formData.get('subject') as string,
       gradeLevel: formData.get('gradeLevel') as string,
@@ -233,15 +250,34 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
               </div>
 
               <div className="col-span-2">
-                <label className="block text-sm text-gray-400 mb-1.5 font-medium">رابط ملف הـ PDF</label>
-                <input
-                  name="pdfUrl"
-                  defaultValue={booklet?.pdfUrl}
-                  type="url"
-                  required
-                  placeholder="https://..."
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-green-500 transition-colors"
-                />
+                <label className="block text-sm text-gray-400 mb-1.5 font-medium">ملف الـ PDF</label>
+                <div className="flex gap-2">
+                  <input
+                    name="pdfUrl"
+                    value={pdfUrl}
+                    onChange={e => setPdfUrl(e.target.value)}
+                    type="url"
+                    required
+                    placeholder="https://... أو ارفع ملف"
+                    className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-green-500 transition-colors"
+                  />
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handlePdfUpload}
+                    className="hidden"
+                    id="pdf-upload"
+                    disabled={isUploadingPdf}
+                  />
+                  <label
+                    htmlFor="pdf-upload"
+                    className={`shrink-0 flex items-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl border border-gray-700 cursor-pointer transition ${isUploadingPdf ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {isUploadingPdf ? <Loader2 size={18} className="animate-spin text-green-500" /> : <Upload size={18} />}
+                    <span className="text-sm">ارفع ملف</span>
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-1.5">الحد الأقصى: 50 ميجا</p>
               </div>
 
               <div>
