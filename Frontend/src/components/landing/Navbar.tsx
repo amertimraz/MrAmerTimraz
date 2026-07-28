@@ -31,6 +31,7 @@ const navLinks = [
   { to: '/',        label: 'الرئيسية'   },
   { to: '/courses', label: 'الدروس'     },
   { to: '/library', label: 'المكتبة'    },
+  { to: '/services', label: 'خدماتي'    },
   { to: '/interactive-theory', label: 'شرح تفاعلي ✨' },
   { to: '/masarat', label: 'دليل المسارات' },
   { to: '/about',   label: 'عن مستر' },

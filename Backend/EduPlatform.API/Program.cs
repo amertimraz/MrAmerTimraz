@@ -396,6 +396,7 @@ using (var scope = app.Services.CreateScope())
             // Fix Column Types that might have been created as TEXT/INTEGER by SQLite-based migrations
             "ALTER TABLE \"Booklets\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"Booklets\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",
+            "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"TeacherPrice\" numeric",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"ScheduledAt\" TYPE timestamp without time zone USING \"ScheduledAt\"::timestamp without time zone",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",

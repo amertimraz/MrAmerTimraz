@@ -26,6 +26,9 @@ public class Booklet
     [Column(TypeName = "numeric")]
     public decimal Price { get; set; } = 0;
 
+    [Column(TypeName = "numeric")]
+    public decimal? TeacherPrice { get; set; }
+
     [Column(TypeName = "boolean")]
     public bool IsPublished { get; set; } = false;
 

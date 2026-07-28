@@ -21,13 +21,14 @@ export default function BookletStorePage() {
 
   const [selectedBooklet, setSelectedBooklet] = useState<any>(null);
   const [guestInfo, setGuestInfo] = useState({ name: '', phone: '' });
+  const [pendingPurchase, setPendingPurchase] = useState<{ booklet: any; version: 'Student' | 'Teacher'; amount: number } | null>(null);
 
   const initiatePayment = useMutation({
-    mutationFn: (booklet: any) => {
+    mutationFn: (purchase: { booklet: any; version: 'Student' | 'Teacher'; amount: number }) => {
       return paymentsApi.initiateKashier({
-        bookletId: booklet.id,
-        amountPaid: booklet.price,
-        notes: `Purchase of booklet: ${booklet.title}`,
+        bookletId: purchase.booklet.id,
+        amountPaid: purchase.amount,
+        notes: `Purchase of booklet: ${purchase.booklet.title} (${purchase.version === 'Teacher' ? 'نسخة معلم' : 'نسخة طالب'})`,
         guestName: !user ? guestInfo.name : undefined,
         guestPhone: !user ? guestInfo.phone : undefined
       });
@@ -38,11 +39,14 @@ export default function BookletStorePage() {
     onError: () => toast.error('فشل في بدء عملية الدفع')
   });
 
-  const handleBuyClick = (booklet: any) => {
+  const startPurchase = (booklet: any, version: 'Student' | 'Teacher') => {
+    const amount = version === 'Teacher' ? booklet.teacherPrice : booklet.price;
+    const purchase = { booklet, version, amount };
     if (!user) {
+      setPendingPurchase(purchase);
       setSelectedBooklet(booklet);
     } else {
-      initiatePayment.mutate(booklet);
+      initiatePayment.mutate(purchase);
     }
   };
 
@@ -63,11 +67,11 @@ export default function BookletStorePage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {storeItems.map((booklet) => (
-          <BookletCard 
-            key={booklet.id} 
-            booklet={booklet} 
-            onBuy={() => handleBuyClick(booklet)}
-            isPending={initiatePayment.isPending && initiatePayment.variables?.id === booklet.id}
+          <BookletCard
+            key={booklet.id}
+            booklet={booklet}
+            onBuy={(version: 'Student' | 'Teacher') => startPurchase(booklet, version)}
+            isPending={initiatePayment.isPending && initiatePayment.variables?.booklet.id === booklet.id}
             guestToken={Number(guestBookletId) === booklet.id ? guestToken : null}
           />
         ))}
@@ -77,10 +81,15 @@ export default function BookletStorePage() {
       {selectedBooklet && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full shadow-2xl">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-2">
+            <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
               <CreditCard className="text-blue-600" />
               بيانات المشتري
             </h2>
+            {pendingPurchase && (
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                {pendingPurchase.booklet.title} — {pendingPurchase.version === 'Teacher' ? 'نسخة المعلم' : 'نسخة الطالب'} ({pendingPurchase.amount} ج.م)
+              </p>
+            )}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">الاسم بالكامل</label>
@@ -110,15 +119,15 @@ export default function BookletStorePage() {
               </div>
             </div>
             <div className="mt-8 flex gap-3">
-              <button 
-                onClick={() => initiatePayment.mutate(selectedBooklet)}
+              <button
+                onClick={() => pendingPurchase && initiatePayment.mutate(pendingPurchase)}
                 disabled={!guestInfo.name || !guestInfo.phone || initiatePayment.isPending}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-4 rounded-2xl transition-all"
               >
                 {initiatePayment.isPending ? 'جاري التحويل...' : 'تأكيد ودفع'}
               </button>
-              <button 
-                onClick={() => setSelectedBooklet(null)}
+              <button
+                onClick={() => { setSelectedBooklet(null); setPendingPurchase(null); }}
                 className="flex-1 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 font-bold py-4 rounded-2xl"
               >
                 إلغاء
@@ -159,10 +168,15 @@ function BookletCard({ booklet, onBuy, isPending, guestToken }: any) {
           </div>
         )}
         
-        <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur px-4 py-2 rounded-2xl shadow-lg border border-white/20">
-          <span className="text-lg font-black text-blue-600 dark:text-blue-400">
+        <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur px-4 py-2 rounded-2xl shadow-lg border border-white/20 text-center">
+          <span className="text-lg font-black text-blue-600 dark:text-blue-400 block">
             {booklet.price > 0 ? `${booklet.price} ج.م` : 'مجانية'}
           </span>
+          {!!booklet.teacherPrice && (
+            <span className="text-[11px] text-gray-500 dark:text-gray-400 block leading-tight">
+              للمعلم: {booklet.teacherPrice} ج.م
+            </span>
+          )}
         </div>
 
         {hasAccess && (
@@ -195,9 +209,26 @@ function BookletCard({ booklet, onBuy, isPending, guestToken }: any) {
               <Download size={20} />
               تحميل المذكرة الآن
             </a>
+          ) : booklet.teacherPrice ? (
+            <div className="flex gap-2">
+              <button
+                onClick={() => onBuy('Student')}
+                disabled={isPending}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-1.5 text-sm transition-all shadow-lg shadow-blue-500/20"
+              >
+                <CreditCard size={17} /> نسخة الطالب
+              </button>
+              <button
+                onClick={() => onBuy('Teacher')}
+                disabled={isPending}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center gap-1.5 text-sm transition-all shadow-lg shadow-indigo-500/20"
+              >
+                <CreditCard size={17} /> نسخة المعلم
+              </button>
+            </div>
           ) : (
-            <button 
-              onClick={onBuy}
+            <button
+              onClick={() => onBuy('Student')}
               disabled={isPending}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-500/20"
             >

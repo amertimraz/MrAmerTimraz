@@ -24,6 +24,7 @@ const ContactPage = lazy(() => import('./pages/landing/ContactPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/landing/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('./pages/landing/TermsPage'));
 const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
+const ServicesPage = lazy(() => import('./pages/landing/ServicesPage'));
 const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 
 const InteractiveTheoryPage = lazy(() => import('./pages/landing/InteractiveTheoryPage'));
@@ -123,6 +124,7 @@ export default function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/library"  element={<LibraryPage />} />
+              <Route path="/services" element={<ServicesPage />} />
               <Route path="/masarat"  element={<PathsGuidePage />} />
 
               <Route path="/interactive-theory" element={<InteractiveTheoryPage />} />

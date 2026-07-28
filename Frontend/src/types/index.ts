@@ -275,6 +275,7 @@ export interface Booklet {
   subject?: string;
   gradeLevel?: string;
   price: number;
+  teacherPrice?: number;
   isPublished: boolean;
   createdAt: string;
 }

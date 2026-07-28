@@ -74,6 +74,9 @@ namespace EduPlatform.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal?>("TeacherPrice")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)

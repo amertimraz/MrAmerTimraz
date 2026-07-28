@@ -20,6 +20,7 @@ public class BookletDto
     public string? Subject { get; set; }
     public string? GradeLevel { get; set; }
     public decimal Price { get; set; }
+    public decimal? TeacherPrice { get; set; }
     public bool IsPublished { get; set; }
 }
 

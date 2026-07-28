@@ -72,7 +72,8 @@ export default function BookletsManager() {
               <tr className="border-b border-gray-800 bg-gray-800/50">
                 <th className="p-4 text-gray-400 font-medium">الملزمة</th>
                 <th className="p-4 text-gray-400 font-medium">السنة/المادة</th>
-                <th className="p-4 text-gray-400 font-medium text-center">السعر</th>
+                <th className="p-4 text-gray-400 font-medium text-center">سعر الطالب</th>
+                <th className="p-4 text-gray-400 font-medium text-center">سعر المعلم</th>
                 <th className="p-4 text-gray-400 font-medium text-center">الحالة</th>
                 <th className="p-4 text-gray-400 font-medium">إجراءات</th>
               </tr>
@@ -80,7 +81,7 @@ export default function BookletsManager() {
             <tbody>
               {booklets?.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-400">
+                  <td colSpan={6} className="p-8 text-center text-gray-400">
                     لا توجد ملازم مضافة حتى الآن.
                   </td>
                 </tr>
@@ -97,6 +98,9 @@ export default function BookletsManager() {
                     </td>
                     <td className="p-4 text-center font-bold text-emerald-400">
                       {booklet.price > 0 ? `${booklet.price} ج.م` : 'مجاني'}
+                    </td>
+                    <td className="p-4 text-center font-bold text-sky-400">
+                      {booklet.teacherPrice ? `${booklet.teacherPrice} ج.م` : '-'}
                     </td>
                     <td className="p-4 text-center">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${booklet.isPublished ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}`}>
@@ -191,6 +195,7 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
       subject: formData.get('subject') as string,
       gradeLevel: formData.get('gradeLevel') as string,
       price: Number(formData.get('price')),
+      teacherPrice: formData.get('teacherPrice') ? Number(formData.get('teacherPrice')) : undefined,
       isPublished: formData.get('isPublished') === 'on',
     };
     mutation.mutate(data);
@@ -260,13 +265,25 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5 font-medium">السعر (ج.م)</label>
+                <label className="block text-sm text-gray-400 mb-1.5 font-medium">سعر نسخة الطالب (ج.م)</label>
                 <input
                   name="price"
                   type="number"
                   min="0"
                   defaultValue={booklet?.price ?? 0}
                   required
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-green-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-400 mb-1.5 font-medium">سعر نسخة المعلم (ج.م)</label>
+                <input
+                  name="teacherPrice"
+                  type="number"
+                  min="0"
+                  defaultValue={booklet?.teacherPrice ?? ''}
+                  placeholder="اتركه فارغاً إن لم توجد نسخة للمعلم"
                   className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-green-500 transition-colors"
                 />
               </div>

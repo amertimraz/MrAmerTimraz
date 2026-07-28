@@ -69,6 +69,7 @@ public class BookletsController : ControllerBase
                 Subject = dto.Subject,
                 GradeLevel = dto.GradeLevel,
                 Price = dto.Price,
+                TeacherPrice = dto.TeacherPrice,
                 IsPublished = dto.IsPublished,
                 CreatedAt = DateTime.UtcNow
             };
@@ -100,6 +101,7 @@ public class BookletsController : ControllerBase
             booklet.Subject = dto.Subject;
             booklet.GradeLevel = dto.GradeLevel;
             booklet.Price = dto.Price;
+            booklet.TeacherPrice = dto.TeacherPrice;
             booklet.IsPublished = dto.IsPublished;
 
             await _db.SaveChangesAsync();
