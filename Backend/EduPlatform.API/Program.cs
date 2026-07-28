@@ -994,9 +994,16 @@ app.UseStaticFiles(new StaticFileOptions
         }
 
         var path = ctx.Context.Request.Path.Value ?? "";
-        
+
+        // The SPA shell must always be revalidated so a new deploy's hashed
+        // asset filenames are picked up immediately instead of being stuck
+        // behind a stale cached index.html.
+        if (path.EndsWith("index.html", StringComparison.OrdinalIgnoreCase) || path == "/")
+        {
+            ctx.Context.Response.Headers["Cache-Control"] = "no-cache";
+        }
         // Performance: Cache hashed assets for 1 year (Immutable)
-        if (path.Contains("/assets/") || path.Contains("/static/"))
+        else if (path.Contains("/assets/") || path.Contains("/static/"))
         {
             ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=31536000,immutable");
         }
@@ -1021,7 +1028,13 @@ app.MapControllers();
 var spaIndex = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "index.html");
 if (File.Exists(spaIndex))
 {
-    app.MapFallbackToFile("index.html");
+    app.MapFallbackToFile("index.html", new StaticFileOptions
+    {
+        OnPrepareResponse = ctx =>
+        {
+            ctx.Context.Response.Headers["Cache-Control"] = "no-cache";
+        }
+    });
 }
 
 
