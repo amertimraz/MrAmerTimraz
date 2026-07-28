@@ -124,7 +124,6 @@ export default function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/library"  element={<LibraryPage />} />
-              <Route path="/services" element={<ServicesPage />} />
               <Route path="/masarat"  element={<PathsGuidePage />} />
 
               <Route path="/interactive-theory" element={<InteractiveTheoryPage />} />
@@ -132,6 +131,7 @@ export default function App() {
             </Route>
 
             <Route path="/tofas-exam" element={<TofasExamPage />} />
+            <Route path="/services" element={<ServicesPage />} />
 
 
             <Route path="/login"    element={<LoginPage />} />

@@ -4,13 +4,18 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, type Variants } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import {
-  BookOpen, GraduationCap, ShoppingBag, MessageCircle,
-  Presentation, Users, ListChecks, Trophy, Gamepad2, Sparkles,
+  BookOpen, GraduationCap, MessageCircle, ArrowRight,
+  Presentation, Users, ListChecks, Trophy, Gamepad2, Sparkles, Sun, Moon,
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
 import { useAuthStore } from '../../store/authStore';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import type { Booklet } from '../../types';
+
+const WHATSAPP_NUMBER = '201096066818';
+function waLink(message: string) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
 
 const appFeatures = [
   { icon: Presentation, label: 'سبورة تفاعلية' },
@@ -20,8 +25,44 @@ const appFeatures = [
   { icon: Gamepad2, label: 'ألعاب تعليمية' },
 ];
 
+function TopBar({ isDark, toggleDark }: { isDark: boolean; toggleDark: () => void }) {
+  return (
+    <header dir="rtl" className={`sticky top-0 z-40 backdrop-blur-md ${isDark ? 'bg-[#0d1117]/80 border-b border-white/5' : 'bg-white/80 border-b border-gray-200/60'}`}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className={`w-9 h-9 rounded-xl overflow-hidden shadow-md border-2 ${isDark ? 'border-green-500/40' : 'border-green-500/50'}`}>
+            <img src="/teacher2.png" alt="عامر تمراز" className="w-full h-full object-cover object-top"
+              onError={(e) => {
+                const p = e.currentTarget.parentElement!;
+                p.className = 'w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black text-white';
+                p.style.background = 'linear-gradient(135deg,#22c55e,#15803d)';
+                e.currentTarget.replaceWith(document.createTextNode('عا'));
+              }}
+            />
+          </div>
+          <span className={`font-bold text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>مستر عامر تمراز</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleDark}
+            className={`p-2 rounded-lg transition-colors ${isDark ? 'text-gray-400 hover:bg-white/10' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <Link
+            to="/"
+            className={`flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-lg transition-colors ${isDark ? 'text-gray-300 hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'}`}
+          >
+            الرئيسية <ArrowRight size={15} />
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 export default function ServicesPage() {
-  const { isDark } = useAuthStore();
+  const { isDark, toggleDark } = useAuthStore();
   const [gradeFilter, setGradeFilter] = useState<string>('الكل');
   const { ref: notesRef, isInView: notesInView } = useScrollReveal();
   const { ref: appRef, isInView: appInView } = useScrollReveal();
@@ -43,15 +84,26 @@ export default function ServicesPage() {
   const subtext = isDark ? 'text-gray-400' : 'text-gray-600';
 
   return (
-    <div dir="rtl" className="min-h-screen">
+    <div
+      dir="rtl"
+      className="min-h-screen flex flex-col"
+      style={{
+        background: isDark
+          ? 'linear-gradient(160deg, #0d1117 0%, #111827 60%, #0d1117 100%)'
+          : 'linear-gradient(160deg, #f8fafc 0%, #f1f5f9 60%, #f8fafc 100%)',
+        fontFamily: "'Cairo', sans-serif",
+      }}
+    >
       <Helmet>
         <title>خدماتي | منصة الأستاذ عامر تمراز</title>
         <meta name="description" content="كل خدمات الأستاذ عامر تمراز في مكان واحد — مذكرات لكل المراحل الدراسية وتطبيق Active Class لإدارة الحصة." />
       </Helmet>
 
-      {/* Header */}
-      <div className="pt-28 pb-14 text-center relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
+      <TopBar isDark={isDark} toggleDark={toggleDark} />
+
+      {/* Hero */}
+      <div className="pt-16 pb-14 text-center relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(34,197,94,0.12) 0%, transparent 70%)' }} />
         <div className="relative z-10 max-w-3xl mx-auto px-4">
           <motion.span
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
@@ -61,43 +113,44 @@ export default function ServicesPage() {
             <Sparkles size={13} className="inline ml-1 -mt-0.5" /> خدماتي
           </motion.span>
           <motion.h1
-            className={`text-4xl sm:text-5xl font-black mb-4 ${text}`}
+            className={`text-4xl sm:text-6xl font-black mb-5 leading-tight ${text}`}
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           >
-            كل خدماتي في مكان واحد
+            كل خدماتي في <span style={{ color: '#22c55e' }}>مكان واحد</span>
           </motion.h1>
           <motion.p
-            className={`text-base leading-relaxed ${subtext}`}
+            className={`text-base sm:text-lg leading-relaxed mb-8 ${subtext}`}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
           >
-            مذكرات دراسية لمختلف المراحل، وتطبيق متخصص لمساعدة المدرسين على إدارة حصصهم بكفاءة.
+            مذكرات دراسية لمختلف المراحل بنسخة للطالب ونسخة للمعلم، وتطبيق متخصص لمساعدة المدرسين على إدارة حصصهم بكفاءة.
           </motion.p>
+          <motion.a
+            href={waLink('مرحبًا، عندي استفسار عن خدمات المنصة')}
+            target="_blank" rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-white text-sm shadow-lg shadow-green-500/25"
+            style={{ background: '#22c55e' }}
+          >
+            <MessageCircle size={18} /> تواصل معي واتساب
+          </motion.a>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 flex-1 w-full">
 
         {/* Booklets / Notes */}
         <div ref={notesRef} className="mb-20">
-          <motion.div className="flex flex-wrap items-center justify-between gap-4 mb-8"
+          <motion.div className="mb-8"
             initial={{ opacity: 0, y: 20 }} animate={notesInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-            <div>
-              <span
-                className={`inline-block text-xs font-bold px-3 py-1.5 rounded-full mb-3 ${isDark ? 'text-purple-400' : 'text-purple-600'}`}
-                style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)' }}
-              >
-                <BookOpen size={13} className="inline ml-1 -mt-0.5" /> المذكرات الدراسية
-              </span>
-              <h2 className={`text-2xl sm:text-3xl font-black ${text}`}>مذكرات لكل المراحل الدراسية</h2>
-              <p className={`text-sm mt-1.5 ${subtext}`}>لكل مذكرة نسخة للطالب ونسخة للمعلم بسعر خاص</p>
-            </div>
-            <Link
-              to="/booklet-store"
-              className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg shadow-green-500/20"
-              style={{ background: '#22c55e' }}
+            <span
+              className={`inline-block text-xs font-bold px-3 py-1.5 rounded-full mb-3 ${isDark ? 'text-purple-400' : 'text-purple-600'}`}
+              style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)' }}
             >
-              <ShoppingBag size={16} /> متجر المذكرات
-            </Link>
+              <BookOpen size={13} className="inline ml-1 -mt-0.5" /> المذكرات الدراسية
+            </span>
+            <h2 className={`text-2xl sm:text-3xl font-black ${text}`}>مذكرات لكل المراحل الدراسية</h2>
+            <p className={`text-sm mt-1.5 ${subtext}`}>لكل مذكرة نسخة للطالب ونسخة للمعلم — اطلب مباشرة على واتساب</p>
           </motion.div>
 
           {grades.length > 2 && (
@@ -120,7 +173,7 @@ export default function ServicesPage() {
 
           {isLoading ? (
             <div className="grid md:grid-cols-3 gap-5">
-              {[1, 2, 3].map(i => <div key={i} className="h-64 rounded-2xl animate-pulse" style={card} />)}
+              {[1, 2, 3].map(i => <div key={i} className="h-80 rounded-2xl animate-pulse" style={card} />)}
             </div>
           ) : visible.length === 0 ? (
             <div className="rounded-2xl p-10 text-center" style={card}>
@@ -185,24 +238,49 @@ export default function ServicesPage() {
                 ))}
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <Link
-                  to="/contact"
+                <a
+                  href={waLink('مرحبًا، عايز أعرف تفاصيل أكتر عن تطبيق Active Class لإدارة الحصة الدراسية')}
+                  target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-blue-500/20"
                   style={{ background: '#3b82f6' }}
                 >
                   <MessageCircle size={16} /> تواصل معي لمعرفة التفاصيل
-                </Link>
+                </a>
                 <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>قريباً — تواصل معي للحصول على أولوية التجربة</span>
               </div>
             </div>
           </motion.div>
         </div>
       </div>
+
+      {/* Minimal footer */}
+      <footer dir="rtl" className={`py-8 text-center text-xs border-t ${isDark ? 'border-white/5 text-gray-600' : 'border-gray-200 text-gray-500'}`}>
+        <p>© {new Date().getFullYear()} مستر عامر تمراز — جميع الحقوق محفوظة</p>
+      </footer>
+
+      {/* Floating WhatsApp button */}
+      <motion.a
+        href={waLink('مرحبًا، عندي استفسار عن خدمات المنصة')}
+        target="_blank" rel="noopener noreferrer"
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ delay: 0.5, type: 'spring' }}
+        className="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-green-500/30"
+        style={{ background: '#25D366' }}
+        aria-label="تواصل عبر واتساب"
+      >
+        <MessageCircle size={26} className="text-white" fill="white" />
+      </motion.a>
     </div>
   );
 }
 
 function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card: React.CSSProperties; isDark: boolean }) {
+  const studentMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة الطالب${booklet.price > 0 ? ` - ${booklet.price} ج.م` : ''}`);
+  const teacherMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة المعلم${booklet.teacherPrice ? ` - ${booklet.teacherPrice} ج.م` : ''}`);
+
   return (
     <motion.div
       className="rounded-2xl overflow-hidden flex flex-col"
@@ -234,16 +312,27 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
         {booklet.description && (
           <p className={`text-xs leading-relaxed line-clamp-2 mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{booklet.description}</p>
         )}
-        <div className="mt-auto flex items-center justify-between pt-3 border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}>
-          <div className="text-xs">
-            <p className={isDark ? 'text-gray-500' : 'text-gray-500'}>سعر الطالب</p>
-            <p className="font-black text-green-500">{booklet.price > 0 ? `${booklet.price} ج.م` : 'مجاني'}</p>
-          </div>
+
+        <div className="mt-auto space-y-2 pt-3 border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}>
+          <a
+            href={studentMsg}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-white text-xs font-bold transition-transform hover:scale-[1.02]"
+            style={{ background: '#22c55e' }}
+          >
+            <span className="flex items-center gap-1.5"><MessageCircle size={14} /> نسخة الطالب</span>
+            <span>{booklet.price > 0 ? `${booklet.price} ج.م` : 'مجاني'}</span>
+          </a>
           {!!booklet.teacherPrice && (
-            <div className="text-xs text-left">
-              <p className={isDark ? 'text-gray-500' : 'text-gray-500'}>سعر المعلم</p>
-              <p className="font-black text-sky-500">{booklet.teacherPrice} ج.م</p>
-            </div>
+            <a
+              href={teacherMsg}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-white text-xs font-bold transition-transform hover:scale-[1.02]"
+              style={{ background: '#0ea5e9' }}
+            >
+              <span className="flex items-center gap-1.5"><MessageCircle size={14} /> نسخة المعلم</span>
+              <span>{booklet.teacherPrice} ج.م</span>
+            </a>
           )}
         </div>
       </div>
