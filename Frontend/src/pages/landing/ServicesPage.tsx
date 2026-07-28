@@ -4,10 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, type Variants } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import {
-  BookOpen, GraduationCap, MessageCircle, ArrowRight,
+  BookOpen, GraduationCap, MessageCircle, ArrowRight, Eye,
   Presentation, Users, ListChecks, Trophy, Gamepad2, Sparkles, Sun, Moon,
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
+import PdfPreviewModal from '../../components/ui/PdfPreviewModal';
 import { useAuthStore } from '../../store/authStore';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import type { Booklet } from '../../types';
@@ -278,6 +279,7 @@ export default function ServicesPage() {
 }
 
 function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card: React.CSSProperties; isDark: boolean }) {
+  const [previewOpen, setPreviewOpen] = useState(false);
   const studentMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة الطالب${booklet.price > 0 ? ` - ${booklet.price} ج.م` : ''}`);
   const teacherMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة المعلم${booklet.teacherPrice ? ` - ${booklet.teacherPrice} ج.م` : ''}`);
 
@@ -288,7 +290,7 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
       variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } } as Variants}
       whileHover={{ y: -4 }}
     >
-      <div className="relative aspect-[3/2] bg-gray-100 dark:bg-gray-900 overflow-hidden">
+      <div className="relative aspect-[3/2] bg-gray-100 dark:bg-gray-900 overflow-hidden group/cover">
         {booklet.coverImageUrl ? (
           <img src={booklet.coverImageUrl} alt={booklet.title} className="w-full h-full object-cover" />
         ) : (
@@ -301,7 +303,27 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
             {booklet.gradeLevel}
           </span>
         )}
+        {booklet.pdfUrl && (
+          <button
+            onClick={() => setPreviewOpen(true)}
+            className="absolute inset-x-0 bottom-0 py-2.5 flex items-center justify-center gap-1.5 text-white text-xs font-bold opacity-0 group-hover/cover:opacity-100 transition-opacity"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75), transparent)' }}
+          >
+            <Eye size={14} /> معاينة أول 5 صفحات
+          </button>
+        )}
       </div>
+
+      {previewOpen && (
+        <PdfPreviewModal
+          url={booklet.pdfUrl}
+          title={booklet.title}
+          maxPages={5}
+          onClose={() => setPreviewOpen(false)}
+          studentWaLink={studentMsg}
+          teacherWaLink={booklet.teacherPrice ? teacherMsg : undefined}
+        />
+      )}
       <div className="p-5 flex flex-col flex-1">
         {booklet.subject && (
           <span className="text-[11px] font-bold text-purple-500 bg-purple-50 dark:bg-purple-900/20 px-2.5 py-1 rounded-full self-start mb-2">
@@ -310,7 +332,15 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
         )}
         <h3 className={`font-bold text-base mb-1.5 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{booklet.title}</h3>
         {booklet.description && (
-          <p className={`text-xs leading-relaxed line-clamp-2 mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{booklet.description}</p>
+          <p className={`text-xs leading-relaxed line-clamp-2 mb-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{booklet.description}</p>
+        )}
+        {booklet.pdfUrl && (
+          <button
+            onClick={() => setPreviewOpen(true)}
+            className={`self-start flex items-center gap-1.5 text-xs font-bold mb-3 px-3 py-1.5 rounded-lg transition-colors ${isDark ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20' : 'text-green-700 bg-green-50 hover:bg-green-100'}`}
+          >
+            <Eye size={13} /> معاينة أول 5 صفحات
+          </button>
         )}
 
         <div className="mt-auto space-y-2 pt-3 border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}>
