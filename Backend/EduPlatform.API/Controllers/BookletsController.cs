@@ -15,11 +15,33 @@ public class BookletsController : ControllerBase
 {
     private readonly AppDbContext _db;
     private readonly IPaymentService _payments;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public BookletsController(AppDbContext db, IPaymentService payments)
+    public BookletsController(AppDbContext db, IPaymentService payments, IHttpClientFactory httpClientFactory)
     {
         _db = db;
         _payments = payments;
+        _httpClientFactory = httpClientFactory;
+    }
+
+    // Resolves a browser-shareable link (e.g. a Google Drive "view" URL) into
+    // a URL that actually returns the raw file bytes when fetched.
+    private static string ResolveDirectFileUrl(string url)
+    {
+        if (url.Contains("drive.google.com"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(url, "/d/([a-zA-Z0-9_-]+)")
+                is { Success: true } m1 ? m1
+                : System.Text.RegularExpressions.Regex.Match(url, "[?&]id=([a-zA-Z0-9_-]+)");
+
+            if (match.Success)
+            {
+                var fileId = match.Groups[1].Value;
+                return $"https://drive.usercontent.google.com/download?id={fileId}&export=download&confirm=t";
+            }
+        }
+
+        return url;
     }
 
     [HttpGet]
@@ -167,5 +189,40 @@ public class BookletsController : ControllerBase
         if (!System.IO.File.Exists(filePath)) return NotFound("ملف المذكرة غير موجود على السيرفر.");
 
         return PhysicalFile(filePath, "application/pdf", $"{booklet.Title}.pdf");
+    }
+
+    // Serves the booklet's PDF bytes from our own origin so the free, page-limited
+    // preview never depends on the source host's CORS policy (e.g. Google Drive,
+    // which blocks cross-origin fetch entirely regardless of how the link is shared).
+    [HttpGet("{id}/preview"), AllowAnonymous]
+    public async Task<IActionResult> Preview(int id)
+    {
+        var booklet = await _db.Booklets.FindAsync(id);
+        if (booklet == null || (!booklet.IsPublished && !User.IsInRole("Admin")))
+            return NotFound("الملزمة غير موجودة");
+
+        if (!booklet.PdfUrl.StartsWith("http"))
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", booklet.PdfUrl.TrimStart('/'));
+            if (!System.IO.File.Exists(filePath)) return NotFound("ملف المذكرة غير موجود على السيرفر.");
+            return PhysicalFile(filePath, "application/pdf");
+        }
+
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(20);
+            var directUrl = ResolveDirectFileUrl(booklet.PdfUrl);
+            var response = await client.GetAsync(directUrl, HttpCompletionOption.ResponseHeadersRead);
+            if (!response.IsSuccessStatusCode)
+                return StatusCode(502, "تعذّر تحميل ملف المعاينة من المصدر.");
+
+            var stream = await response.Content.ReadAsStreamAsync();
+            return File(stream, "application/pdf");
+        }
+        catch
+        {
+            return StatusCode(502, "تعذّر تحميل ملف المعاينة من المصدر.");
+        }
     }
 }

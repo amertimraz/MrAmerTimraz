@@ -316,7 +316,7 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
 
       {previewOpen && (
         <PdfPreviewModal
-          url={booklet.pdfUrl}
+          url={bookletsApi.getPreviewUrl(booklet.id)}
           title={booklet.title}
           maxPages={5}
           onClose={() => setPreviewOpen(false)}
