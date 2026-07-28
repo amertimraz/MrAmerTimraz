@@ -256,7 +256,7 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
                     name="pdfUrl"
                     value={pdfUrl}
                     onChange={e => setPdfUrl(e.target.value)}
-                    type="url"
+                    type="text"
                     required
                     placeholder="https://... أو ارفع ملف"
                     className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-green-500 transition-colors"
