@@ -5,7 +5,7 @@ import { motion, type Variants } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import {
   BookOpen, GraduationCap, MessageCircle, ArrowRight, Eye,
-  Presentation, Users, ListChecks, Trophy, Gamepad2, Sparkles, Sun, Moon,
+  Presentation, Users, ListChecks, Trophy, Gamepad2, Sparkles, Sun, Moon, Cpu,
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
 import PdfPreviewModal from '../../components/ui/PdfPreviewModal';
@@ -123,6 +123,15 @@ export default function ServicesPage() {
           >
             كل خدماتي في <span style={{ color: '#22c55e' }}>مكان واحد</span>
           </motion.h1>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}
+            style={isDark
+              ? { background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }
+              : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)' }}
+          >
+            <Cpu size={16} style={{ color: '#22c55e' }} /> تخصصي: التكنولوجيا والبرمجة والذكاء الاصطناعي
+          </motion.div>
           <motion.p
             className={`text-base sm:text-lg leading-relaxed mb-8 ${subtext}`}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
