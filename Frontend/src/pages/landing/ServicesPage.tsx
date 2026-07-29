@@ -407,7 +407,7 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
         </div>
         {!!booklet.teacherPrice && (
           <p className={`text-[11px] mt-2 leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-            * نسخة المعلم بتتعمل خصيصًا ببيانات المعلم الشخصية، عشان كده سعرها أعلى من نسخة الطالب.
+            * نسخة المعلم بتتعمل خصيصًا ببيانات المعلم الشخصية.
           </p>
         )}
       </div>
