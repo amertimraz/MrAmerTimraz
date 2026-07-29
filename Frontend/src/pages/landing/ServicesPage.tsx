@@ -81,6 +81,10 @@ export default function ServicesPage() {
     ? { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }
     : { background: 'rgba(255,255,255,0.85)', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' };
 
+  const bookletCard = isDark
+    ? { background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(34,197,94,0.35)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }
+    : { background: '#ffffff', border: '2px solid rgba(34,197,94,0.3)', boxShadow: '0 6px 24px rgba(0,0,0,0.08)' };
+
   const text = isDark ? 'text-white' : 'text-gray-900';
   const subtext = isDark ? 'text-gray-400' : 'text-gray-600';
 
@@ -188,7 +192,7 @@ export default function ServicesPage() {
               variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
             >
               {visible.map(booklet => (
-                <BookletServiceCard key={booklet.id} booklet={booklet} card={card} isDark={isDark} />
+                <BookletServiceCard key={booklet.id} booklet={booklet} card={bookletCard} isDark={isDark} />
               ))}
             </motion.div>
           )}
@@ -288,7 +292,8 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
       className="rounded-2xl overflow-hidden flex flex-col"
       style={card}
       variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } } as Variants}
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -6, borderColor: '#22c55e' }}
+      transition={{ type: 'spring', stiffness: 300 }}
     >
       <div className="relative aspect-[3/2] bg-gray-100 dark:bg-gray-900 overflow-hidden group/cover">
         {booklet.coverImageUrl ? (
