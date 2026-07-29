@@ -335,43 +335,63 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
         />
       )}
       <div className="p-5 flex flex-col flex-1">
-        {booklet.subject && (
-          <span className="text-[11px] font-bold text-purple-500 bg-purple-50 dark:bg-purple-900/20 px-2.5 py-1 rounded-full self-start mb-2">
-            {booklet.subject}
-          </span>
-        )}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          {booklet.subject ? (
+            <span className="text-[11px] font-bold text-purple-500 bg-purple-50 dark:bg-purple-900/20 px-2.5 py-1 rounded-full">
+              {booklet.subject}
+            </span>
+          ) : <span />}
+          {booklet.pdfUrl && (
+            <button
+              onClick={() => setPreviewOpen(true)}
+              className={`shrink-0 flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border transition-colors ${isDark ? 'text-green-400 border-green-500/30 hover:bg-green-500/10' : 'text-green-700 border-green-300 hover:bg-green-50'}`}
+            >
+              <Eye size={12} /> معاينة
+            </button>
+          )}
+        </div>
+
         <h3 className={`font-bold text-base mb-1.5 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{booklet.title}</h3>
         {booklet.description && (
-          <p className={`text-xs leading-relaxed line-clamp-2 mb-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{booklet.description}</p>
-        )}
-        {booklet.pdfUrl && (
-          <button
-            onClick={() => setPreviewOpen(true)}
-            className={`self-start flex items-center gap-1.5 text-xs font-bold mb-3 px-3 py-1.5 rounded-lg transition-colors ${isDark ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20' : 'text-green-700 bg-green-50 hover:bg-green-100'}`}
-          >
-            <Eye size={13} /> معاينة أول 5 صفحات
-          </button>
+          <p className={`text-xs leading-relaxed line-clamp-2 mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{booklet.description}</p>
         )}
 
-        <div className="mt-auto space-y-2 pt-3 border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}>
+        <div className={`mt-auto grid gap-2.5 pt-4 border-t ${booklet.teacherPrice ? 'grid-cols-2' : 'grid-cols-1'}`}
+          style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}>
           <a
             href={studentMsg}
             target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-white text-xs font-bold transition-transform hover:scale-[1.02]"
-            style={{ background: '#22c55e' }}
+            className="group/price flex flex-col items-center gap-1 rounded-2xl px-3 py-3.5 text-center transition-all hover:-translate-y-0.5"
+            style={isDark
+              ? { background: 'rgba(34,197,94,0.12)', border: '1.5px solid rgba(34,197,94,0.4)' }
+              : { background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.35)' }}
           >
-            <span className="flex items-center gap-1.5"><MessageCircle size={14} /> نسخة الطالب</span>
-            <span>{booklet.price > 0 ? `${booklet.price} ج.م` : 'مجاني'}</span>
+            <span className={`text-[11px] font-bold ${isDark ? 'text-green-300' : 'text-green-700'}`}>نسخة الطالب</span>
+            <span className="text-2xl font-black leading-none" style={{ color: '#16a34a' }}>
+              {booklet.price > 0 ? booklet.price : 'مجاني'}
+              {booklet.price > 0 && <span className="text-xs font-bold mr-1">ج.م</span>}
+            </span>
+            <span className={`flex items-center gap-1 text-[11px] font-bold mt-1 ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+              <MessageCircle size={12} /> اطلب الآن
+            </span>
           </a>
           {!!booklet.teacherPrice && (
             <a
               href={teacherMsg}
               target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-white text-xs font-bold transition-transform hover:scale-[1.02]"
-              style={{ background: '#0ea5e9' }}
+              className="group/price flex flex-col items-center gap-1 rounded-2xl px-3 py-3.5 text-center transition-all hover:-translate-y-0.5"
+              style={isDark
+                ? { background: 'rgba(14,165,233,0.12)', border: '1.5px solid rgba(14,165,233,0.4)' }
+                : { background: 'rgba(14,165,233,0.08)', border: '1.5px solid rgba(14,165,233,0.35)' }}
             >
-              <span className="flex items-center gap-1.5"><MessageCircle size={14} /> نسخة المعلم</span>
-              <span>{booklet.teacherPrice} ج.م</span>
+              <span className={`text-[11px] font-bold ${isDark ? 'text-sky-300' : 'text-sky-700'}`}>نسخة المعلم</span>
+              <span className="text-2xl font-black leading-none" style={{ color: '#0284c7' }}>
+                {booklet.teacherPrice}
+                <span className="text-xs font-bold mr-1">ج.م</span>
+              </span>
+              <span className={`flex items-center gap-1 text-[11px] font-bold mt-1 ${isDark ? 'text-sky-400' : 'text-sky-600'}`}>
+                <MessageCircle size={12} /> اطلب الآن
+              </span>
             </a>
           )}
         </div>
