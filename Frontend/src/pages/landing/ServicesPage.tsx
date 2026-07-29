@@ -401,9 +401,15 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
               <span className={`flex items-center gap-1 text-[11px] font-bold mt-1 ${isDark ? 'text-sky-400' : 'text-sky-600'}`}>
                 <MessageCircle size={12} /> اطلب الآن
               </span>
+              <span className={`text-[10px] mt-1 ${isDark ? 'text-sky-400/70' : 'text-sky-600/70'}`}>ببيانات المعلم الشخصية</span>
             </a>
           )}
         </div>
+        {!!booklet.teacherPrice && (
+          <p className={`text-[11px] mt-2 leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+            * نسخة المعلم بتتعمل خصيصًا ببيانات المعلم الشخصية، عشان كده سعرها أعلى من نسخة الطالب.
+          </p>
+        )}
       </div>
     </motion.div>
   );
