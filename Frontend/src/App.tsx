@@ -83,6 +83,7 @@ const AdminPaymentSettings = lazy(() => import('./pages/admin/AdminPaymentSettin
 const AdminAllResults = lazy(() => import('./pages/admin/AdminAllResults'));
 const FileManagerPage = lazy(() => import('./pages/admin/FileManagerPage'));
 const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
+const FreeResourcesManager = lazy(() => import('./pages/admin/FreeResourcesManager'));
 
 
 
@@ -200,6 +201,7 @@ export default function App() {
               <Route path="challenges"      element={<AdminChallenges />} />
               <Route path="all-results"     element={<AdminAllResults />} />
               <Route path="booklets"        element={<BookletsManager />} />
+              <Route path="free-resources"  element={<FreeResourcesManager />} />
               <Route path="booklet-stats"    element={<AdminBookletStats />} />
               <Route path="payment-settings" element={<AdminPaymentSettings />} />
 

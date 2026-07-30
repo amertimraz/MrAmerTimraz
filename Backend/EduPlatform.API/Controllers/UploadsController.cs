@@ -12,7 +12,7 @@ public class UploadsController : ControllerBase
     private readonly IWebHostEnvironment _env;
 
     private static readonly string[] AllowedImages = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"];
-    private static readonly string[] AllowedPdfs   = [".pdf"];
+    private static readonly string[] AllowedPdfs   = [".pdf", ".ppt", ".pptx"];
     private static readonly string[] AllowedVideos  = [".mp4", ".webm", ".mkv", ".avi", ".mov"];
 
     private const long MaxImageSize = 10 * 1024 * 1024;

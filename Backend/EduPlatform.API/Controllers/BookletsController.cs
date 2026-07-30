@@ -233,6 +233,9 @@ public class BookletsController : ControllerBase
         if (booklet == null || (!booklet.IsPublished && !User.IsInRole("Admin")))
             return NotFound("الملزمة غير موجودة");
 
+        booklet.ViewCount++;
+        await _db.SaveChangesAsync();
+
         if (!booklet.PdfUrl.StartsWith("http"))
         {
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", booklet.PdfUrl.TrimStart('/'));

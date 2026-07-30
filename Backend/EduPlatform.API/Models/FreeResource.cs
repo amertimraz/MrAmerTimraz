@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EduPlatform.API.Models;
 
-public class Booklet
+public class FreeResource
 {
     public int Id { get; set; }
 
@@ -13,31 +13,15 @@ public class Booklet
     public string? Description { get; set; }
 
     [Required]
-    public string PdfUrl { get; set; } = string.Empty;
+    public string FileUrl { get; set; } = string.Empty;
 
     public string? CoverImageUrl { get; set; }
-
-    [MaxLength(100)]
-    public string? Subject { get; set; }
-
-    [MaxLength(50)]
-    public string? GradeLevel { get; set; }
-
-    [Column(TypeName = "numeric")]
-    public decimal Price { get; set; } = 0;
-
-    [Column(TypeName = "numeric")]
-    public decimal? TeacherPrice { get; set; }
 
     [Column(TypeName = "boolean")]
     public bool IsPublished { get; set; } = false;
 
-    public int? PageCount { get; set; }
-
-    public int ViewCount { get; set; } = 0;
+    public int DownloadCount { get; set; } = 0;
 
     [Column(TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public ICollection<PaymentRequest> PaymentRequests { get; set; } = new List<PaymentRequest>();
 }

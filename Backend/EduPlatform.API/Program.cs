@@ -398,6 +398,19 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Booklets\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",
             "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"TeacherPrice\" numeric",
             "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"PageCount\" integer",
+            "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"ViewCount\" integer NOT NULL DEFAULT 0",
+            """
+            CREATE TABLE IF NOT EXISTS "FreeResources" (
+                "Id" SERIAL PRIMARY KEY,
+                "Title" VARCHAR(200) NOT NULL,
+                "Description" TEXT,
+                "FileUrl" TEXT NOT NULL,
+                "CoverImageUrl" TEXT,
+                "IsPublished" BOOLEAN NOT NULL DEFAULT FALSE,
+                "DownloadCount" INTEGER NOT NULL DEFAULT 0,
+                "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            )
+            """,
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"ScheduledAt\" TYPE timestamp without time zone USING \"ScheduledAt\"::timestamp without time zone",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"CreatedAt\" TYPE timestamp without time zone USING \"CreatedAt\"::timestamp without time zone",
             "ALTER TABLE \"LiveSessions\" ALTER COLUMN \"Price\" TYPE numeric USING \"Price\"::numeric",

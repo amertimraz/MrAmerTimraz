@@ -278,6 +278,18 @@ export interface Booklet {
   teacherPrice?: number;
   isPublished: boolean;
   pageCount?: number;
+  viewCount?: number;
+  createdAt: string;
+}
+
+export interface FreeResource {
+  id: number;
+  title: string;
+  description?: string;
+  fileUrl: string;
+  coverImageUrl?: string;
+  isPublished: boolean;
+  downloadCount: number;
   createdAt: string;
 }
 

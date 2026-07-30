@@ -6,12 +6,14 @@ import { Helmet } from 'react-helmet-async';
 import {
   BookOpen, GraduationCap, MessageCircle, ArrowRight, Eye,
   Presentation, Users, ListChecks, Trophy, Gamepad2, Sparkles, Sun, Moon, Cpu,
+  Gift, Download, FileText,
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
+import { freeResourcesApi } from '../../api/freeResources';
 import PdfPreviewModal from '../../components/ui/PdfPreviewModal';
 import { useAuthStore } from '../../store/authStore';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
-import type { Booklet } from '../../types';
+import type { Booklet, FreeResource } from '../../types';
 
 const WHATSAPP_NUMBER = '201096066818';
 function waLink(message: string) {
@@ -66,12 +68,19 @@ export default function ServicesPage() {
   const { isDark, toggleDark } = useAuthStore();
   const [gradeFilter, setGradeFilter] = useState<string>('الكل');
   const { ref: notesRef, isInView: notesInView } = useScrollReveal();
+  const { ref: freeRef, isInView: freeInView } = useScrollReveal();
   const { ref: appRef, isInView: appInView } = useScrollReveal();
 
   const { data: booklets = [], isLoading } = useQuery({
     queryKey: ['services-booklets'],
     queryFn: () => bookletsApi.getAll(),
   });
+
+  const { data: freeResources = [], isLoading: isLoadingFree } = useQuery({
+    queryKey: ['services-free-resources'],
+    queryFn: () => freeResourcesApi.getAll(),
+  });
+  const publishedFree = freeResources.filter(r => r.isPublished);
 
   const published = booklets.filter(b => b.isPublished);
   const grades = ['الكل', ...Array.from(new Set(published.map(b => b.gradeLevel).filter(Boolean))) as string[]];
@@ -202,6 +211,42 @@ export default function ServicesPage() {
             >
               {visible.map(booklet => (
                 <BookletServiceCard key={booklet.id} booklet={booklet} card={bookletCard} isDark={isDark} />
+              ))}
+            </motion.div>
+          )}
+        </div>
+
+        {/* Free Resources */}
+        <div ref={freeRef} className="mb-20">
+          <motion.div className="mb-8"
+            initial={{ opacity: 0, y: 20 }} animate={freeInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
+            <span
+              className={`inline-block text-xs font-bold px-3 py-1.5 rounded-full mb-3 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}
+              style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}
+            >
+              <Gift size={13} className="inline ml-1 -mt-0.5" /> خدمات مجانية
+            </span>
+            <h2 className={`text-2xl sm:text-3xl font-black ${text}`}>ملفات مجانية تقدر تحمّلها فورًا</h2>
+            <p className={`text-sm mt-1.5 ${subtext}`}>PDF أو PowerPoint — بدون أي مقابل، حمّلها بضغطة واحدة</p>
+          </motion.div>
+
+          {isLoadingFree ? (
+            <div className="grid md:grid-cols-3 gap-5">
+              {[1, 2, 3].map(i => <div key={i} className="h-56 rounded-2xl animate-pulse" style={card} />)}
+            </div>
+          ) : publishedFree.length === 0 ? (
+            <div className="rounded-2xl p-10 text-center" style={card}>
+              <p className={subtext}>لا توجد ملفات مجانية منشورة حالياً.</p>
+            </div>
+          ) : (
+            <motion.div
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+              initial="hidden"
+              animate={freeInView ? 'visible' : 'hidden'}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
+            >
+              {publishedFree.map(resource => (
+                <FreeResourceCard key={resource.id} resource={resource} card={card} isDark={isDark} />
               ))}
             </motion.div>
           )}
@@ -360,7 +405,12 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
           )}
         </div>
 
-        <h3 className={`font-bold text-base mb-1.5 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{booklet.title}</h3>
+        <h3 className={`font-bold text-base mb-1 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{booklet.title}</h3>
+        {!!booklet.viewCount && (
+          <p className={`flex items-center gap-1 text-[11px] mb-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            <Eye size={11} /> {booklet.viewCount} مشاهدة
+          </p>
+        )}
         {booklet.description && (
           <p className={`text-xs leading-relaxed line-clamp-2 mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{booklet.description}</p>
         )}
@@ -410,6 +460,51 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
             * نسخة المعلم بتتعمل خصيصًا ببيانات المعلم الشخصية.
           </p>
         )}
+      </div>
+    </motion.div>
+  );
+}
+
+function FreeResourceCard({ resource, card, isDark }: { resource: FreeResource; card: React.CSSProperties; isDark: boolean }) {
+  const ext = resource.fileUrl.split('.').pop()?.toLowerCase();
+  const isPpt = ext === 'ppt' || ext === 'pptx';
+
+  return (
+    <motion.div
+      className="rounded-2xl overflow-hidden flex flex-col"
+      style={card}
+      variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } } as Variants}
+      whileHover={{ y: -4 }}
+    >
+      <div className="relative aspect-[3/2] bg-gray-100 dark:bg-gray-900 overflow-hidden">
+        {resource.coverImageUrl ? (
+          <img src={resource.coverImageUrl} alt={resource.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-300">
+            <FileText size={40} />
+          </div>
+        )}
+        <span className={`absolute top-3 right-3 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur ${isPpt ? 'bg-orange-600/80' : 'bg-red-600/80'}`}>
+          {isPpt ? 'PowerPoint' : 'PDF'}
+        </span>
+      </div>
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className={`font-bold text-base mb-1 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{resource.title}</h3>
+        {!!resource.downloadCount && (
+          <p className={`flex items-center gap-1 text-[11px] mb-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            <Download size={11} /> {resource.downloadCount} تحميل
+          </p>
+        )}
+        {resource.description && (
+          <p className={`text-xs leading-relaxed line-clamp-2 mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{resource.description}</p>
+        )}
+        <a
+          href={freeResourcesApi.getDownloadUrl(resource.id)}
+          className="mt-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-white text-sm transition-transform hover:scale-[1.02]"
+          style={{ background: '#f59e0b' }}
+        >
+          <Download size={16} /> تحميل مجاني
+        </a>
       </div>
     </motion.div>
   );

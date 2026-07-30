@@ -12,4 +12,6 @@ export const uploadsApi = {
   image: (file: File) => upload('/uploads/image', file),
   pdf:   (file: File) => upload('/uploads/pdf',   file),
   video: (file: File) => upload('/uploads/video',  file),
+  // Same endpoint as pdf — it also accepts .ppt/.pptx now — aliased for clarity at call sites.
+  document: (file: File) => upload('/uploads/pdf', file),
 };
