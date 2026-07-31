@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet-async';
 import {
   BookOpen, GraduationCap, MessageCircle, ArrowRight, Eye,
   Presentation, Users, ListChecks, Trophy, Gamepad2, Sparkles, Sun, Moon, Cpu,
-  Gift, Download, FileText,
+  Gift, Download, FileText, ChevronLeft,
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
 import { freeResourcesApi } from '../../api/freeResources';
@@ -30,7 +30,7 @@ const appFeatures = [
 
 function TopBar({ isDark, toggleDark }: { isDark: boolean; toggleDark: () => void }) {
   return (
-    <header dir="rtl" className={`sticky top-0 z-40 backdrop-blur-md ${isDark ? 'bg-[#0d1117]/80 border-b border-white/5' : 'bg-white/80 border-b border-gray-200/60'}`}>
+    <header dir="rtl" className={`sticky top-0 z-40 backdrop-blur-md ${isDark ? 'bg-[#0b0f17]/85 border-b border-white/5' : 'bg-white/85 border-b border-gray-200/60'}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 group">
           <div className={`w-9 h-9 rounded-xl overflow-hidden shadow-md border-2 ${isDark ? 'border-green-500/40' : 'border-green-500/50'}`}>
@@ -64,6 +64,29 @@ function TopBar({ isDark, toggleDark }: { isDark: boolean; toggleDark: () => voi
   );
 }
 
+function SectionHeader({
+  icon: Icon, color, label, title, subtitle, text, subtext,
+}: {
+  icon: React.ElementType; color: string; label: string; title: string; subtitle?: string;
+  text: string; subtext: string;
+}) {
+  return (
+    <div className="flex items-start gap-4 mb-8">
+      <div
+        className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+        style={{ background: `${color}1a`, border: `1px solid ${color}33` }}
+      >
+        <Icon size={22} style={{ color }} />
+      </div>
+      <div>
+        <span className="text-xs font-bold tracking-wide" style={{ color }}>{label}</span>
+        <h2 className={`text-2xl sm:text-[28px] font-black leading-tight ${text}`}>{title}</h2>
+        {subtitle && <p className={`text-sm mt-1 ${subtext}`}>{subtitle}</p>}
+      </div>
+    </div>
+  );
+}
+
 export default function ServicesPage() {
   const { isDark, toggleDark } = useAuthStore();
   const [gradeFilter, setGradeFilter] = useState<string>('الكل');
@@ -87,24 +110,28 @@ export default function ServicesPage() {
   const visible = gradeFilter === 'الكل' ? published : published.filter(b => b.gradeLevel === gradeFilter);
 
   const card = isDark
-    ? { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }
-    : { background: 'rgba(255,255,255,0.85)', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' };
+    ? { background: '#141b26', border: '1px solid rgba(255,255,255,0.08)' }
+    : { background: '#ffffff', border: '1px solid rgba(15,23,42,0.06)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' };
 
   const bookletCard = isDark
-    ? { background: '#161e2b', border: '2px solid rgba(34,197,94,0.5)', boxShadow: '0 10px 30px rgba(0,0,0,0.45)' }
-    : { background: '#ffffff', border: '2px solid rgba(34,197,94,0.45)', boxShadow: '0 10px 28px rgba(0,0,0,0.1)' };
+    ? { background: '#141b26', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 12px 32px -8px rgba(0,0,0,0.5)' }
+    : { background: '#ffffff', border: '1px solid rgba(15,23,42,0.07)', boxShadow: '0 12px 32px -12px rgba(15,23,42,0.18)' };
 
   const text = isDark ? 'text-white' : 'text-gray-900';
-  const subtext = isDark ? 'text-gray-400' : 'text-gray-600';
+  const subtext = isDark ? 'text-gray-400' : 'text-gray-500';
+
+  const stats = [
+    { icon: BookOpen, value: `${published.length}+`, label: 'مذكرة متاحة' },
+    { icon: Gift, value: `${publishedFree.length}+`, label: 'ملف مجاني' },
+    { icon: MessageCircle, value: '100%', label: 'رد سريع واتساب' },
+  ];
 
   return (
     <div
       dir="rtl"
       className="min-h-screen flex flex-col"
       style={{
-        background: isDark
-          ? 'linear-gradient(160deg, #0d1117 0%, #111827 60%, #0d1117 100%)'
-          : 'linear-gradient(160deg, #f8fafc 0%, #f1f5f9 60%, #f8fafc 100%)',
+        background: isDark ? '#0b0f17' : '#f8fafb',
         fontFamily: "'Cairo', sans-serif",
       }}
     >
@@ -116,68 +143,116 @@ export default function ServicesPage() {
       <TopBar isDark={isDark} toggleDark={toggleDark} />
 
       {/* Hero */}
-      <div className="pt-16 pb-14 text-center relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(34,197,94,0.12) 0%, transparent 70%)' }} />
-        <div className="relative z-10 max-w-3xl mx-auto px-4">
+      <div className="relative overflow-hidden pt-16 pb-10">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: isDark
+              ? 'radial-gradient(ellipse 70% 55% at 50% -10%, rgba(34,197,94,0.16) 0%, transparent 70%)'
+              : 'radial-gradient(ellipse 70% 55% at 50% -10%, rgba(34,197,94,0.1) 0%, transparent 70%)',
+          }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.4]"
+          style={{
+            backgroundImage: `radial-gradient(${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)'} 1px, transparent 1px)`,
+            backgroundSize: '22px 22px',
+            maskImage: 'linear-gradient(to bottom, black, transparent)',
+          }}
+        />
+
+        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
           <motion.span
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className={`inline-block text-xs font-bold px-4 py-1.5 rounded-full mb-5 ${isDark ? 'text-green-400' : 'text-green-600'}`}
-            style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}
+            className={`inline-flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-full mb-6 ${isDark ? 'text-green-400' : 'text-green-700'}`}
+            style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }}
           >
-            <Sparkles size={13} className="inline ml-1 -mt-0.5" /> خدماتي
+            <Sparkles size={13} /> خدماتي
           </motion.span>
+
           <motion.h1
-            className={`text-4xl sm:text-6xl font-black mb-5 leading-tight ${text}`}
+            className={`text-[2.5rem] sm:text-6xl font-black mb-4 leading-[1.1] tracking-tight ${text}`}
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           >
             كل خدماتي في <span style={{ color: '#22c55e' }}>مكان واحد</span>
           </motion.h1>
+
           <motion.div
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}
+            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}
             style={isDark
-              ? { background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }
-              : { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)' }}
+              ? { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }
+              : { background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}
           >
-            <Cpu size={16} style={{ color: '#22c55e' }} /> تخصصي: التكنولوجيا والبرمجة والذكاء الاصطناعي
+            <Cpu size={15} style={{ color: '#22c55e' }} /> تخصصي: التكنولوجيا والبرمجة والذكاء الاصطناعي
           </motion.div>
+
           <motion.p
-            className={`text-base sm:text-lg leading-relaxed mb-8 ${subtext}`}
+            className={`text-base sm:text-lg leading-relaxed mb-8 max-w-xl mx-auto ${subtext}`}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
           >
-            مذكرات دراسية لمختلف المراحل بنسخة للطالب ونسخة للمعلم، وتطبيق متخصص لمساعدة المدرسين على إدارة حصصهم بكفاءة.
+            مذكرات دراسية لمختلف المراحل بنسخة للطالب ونسخة للمعلم، وملفات مجانية، وتطبيق متخصص لمساعدة المدرسين على إدارة حصصهم.
           </motion.p>
-          <motion.a
-            href={waLink('مرحبًا، عندي استفسار عن خدمات المنصة')}
-            target="_blank" rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-white text-sm shadow-lg shadow-green-500/25"
-            style={{ background: '#22c55e' }}
+
+          <motion.div
+            className="flex flex-wrap justify-center gap-3 mb-10"
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}
           >
-            <MessageCircle size={18} /> تواصل معي واتساب
-          </motion.a>
+            <motion.a
+              href={waLink('مرحبًا، عندي استفسار عن خدمات المنصة')}
+              target="_blank" rel="noopener noreferrer"
+              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-white text-sm shadow-lg shadow-green-500/25"
+              style={{ background: '#22c55e' }}
+            >
+              <MessageCircle size={18} /> تواصل معي واتساب
+            </motion.a>
+            <motion.a
+              href="#booklets"
+              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+              className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-sm border transition-colors ${isDark ? 'text-white border-white/15 hover:bg-white/5' : 'text-gray-800 border-gray-200 hover:bg-white'}`}
+            >
+              استعرض المذكرات <ChevronLeft size={16} />
+            </motion.a>
+          </motion.div>
+
+          <motion.div
+            className="flex items-center justify-center gap-6 sm:gap-10"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+          >
+            {stats.map((s, i) => (
+              <div key={s.label} className="flex items-center gap-6 sm:gap-10">
+                {i > 0 && <div className={`w-px h-9 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                    <s.icon size={15} className="text-green-500" />
+                    <span className={`text-xl font-black ${text}`}>{s.value}</span>
+                  </div>
+                  <p className={`text-[11px] ${subtext}`}>{s.label}</p>
+                </div>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 flex-1 w-full">
 
         {/* Booklets / Notes */}
-        <div ref={notesRef} className="mb-20">
-          <motion.div className="mb-8"
-            initial={{ opacity: 0, y: 20 }} animate={notesInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-            <span
-              className={`inline-block text-xs font-bold px-3 py-1.5 rounded-full mb-3 ${isDark ? 'text-purple-400' : 'text-purple-600'}`}
-              style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)' }}
-            >
-              <BookOpen size={13} className="inline ml-1 -mt-0.5" /> المذكرات الدراسية
-            </span>
-            <h2 className={`text-2xl sm:text-3xl font-black ${text}`}>مذكرات لكل المراحل الدراسية</h2>
-            <p className={`text-sm mt-1.5 ${subtext}`}>لكل مذكرة نسخة للطالب ونسخة للمعلم — اطلب مباشرة على واتساب</p>
+        <div id="booklets" ref={notesRef} className="mb-24 scroll-mt-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={notesInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
+          >
+            <SectionHeader
+              icon={BookOpen} color="#a855f7" label="المذكرات الدراسية"
+              title="مذكرات لكل المراحل الدراسية"
+              subtitle="لكل مذكرة نسخة للطالب ونسخة للمعلم — اطلب مباشرة على واتساب"
+              text={text} subtext={subtext}
+            />
           </motion.div>
 
           {grades.length > 2 && (
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-7">
               {grades.map(g => (
                 <button
                   key={g}
@@ -185,7 +260,7 @@ export default function ServicesPage() {
                   className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                     gradeFilter === g
                       ? 'bg-green-500 text-white'
-                      : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                   }`}
                 >
                   {g}
@@ -195,8 +270,8 @@ export default function ServicesPage() {
           )}
 
           {isLoading ? (
-            <div className="grid md:grid-cols-3 gap-5">
-              {[1, 2, 3].map(i => <div key={i} className="h-80 rounded-2xl animate-pulse" style={card} />)}
+            <div className="grid md:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-3xl animate-pulse" style={card} />)}
             </div>
           ) : visible.length === 0 ? (
             <div className="rounded-2xl p-10 text-center" style={card}>
@@ -204,7 +279,7 @@ export default function ServicesPage() {
             </div>
           ) : (
             <motion.div
-              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-6"
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
               initial="hidden"
               animate={notesInView ? 'visible' : 'hidden'}
               variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
@@ -217,22 +292,21 @@ export default function ServicesPage() {
         </div>
 
         {/* Free Resources */}
-        <div ref={freeRef} className="mb-20">
-          <motion.div className="mb-8"
-            initial={{ opacity: 0, y: 20 }} animate={freeInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-            <span
-              className={`inline-block text-xs font-bold px-3 py-1.5 rounded-full mb-3 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}
-              style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}
-            >
-              <Gift size={13} className="inline ml-1 -mt-0.5" /> خدمات مجانية
-            </span>
-            <h2 className={`text-2xl sm:text-3xl font-black ${text}`}>ملفات مجانية تقدر تحمّلها فورًا</h2>
-            <p className={`text-sm mt-1.5 ${subtext}`}>PDF أو PowerPoint — بدون أي مقابل، حمّلها بضغطة واحدة</p>
+        <div ref={freeRef} className="mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={freeInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
+          >
+            <SectionHeader
+              icon={Gift} color="#f59e0b" label="خدمات مجانية"
+              title="ملفات مجانية تقدر تحمّلها فورًا"
+              subtitle="PDF أو PowerPoint — بدون أي مقابل، حمّلها بضغطة واحدة"
+              text={text} subtext={subtext}
+            />
           </motion.div>
 
           {isLoadingFree ? (
-            <div className="grid md:grid-cols-3 gap-5">
-              {[1, 2, 3].map(i => <div key={i} className="h-56 rounded-2xl animate-pulse" style={card} />)}
+            <div className="grid md:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => <div key={i} className="h-72 rounded-3xl animate-pulse" style={card} />)}
             </div>
           ) : publishedFree.length === 0 ? (
             <div className="rounded-2xl p-10 text-center" style={card}>
@@ -240,7 +314,7 @@ export default function ServicesPage() {
             </div>
           ) : (
             <motion.div
-              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
               initial="hidden"
               animate={freeInView ? 'visible' : 'hidden'}
               variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
@@ -254,27 +328,28 @@ export default function ServicesPage() {
 
         {/* Teacher Apps */}
         <div ref={appRef}>
-          <motion.div className="text-center mb-8"
-            initial={{ opacity: 0, y: 20 }} animate={appInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-            <span
-              className={`inline-block text-xs font-bold px-3 py-1.5 rounded-full mb-3 ${isDark ? 'text-blue-400' : 'text-blue-600'}`}
-              style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}
-            >
-              <GraduationCap size={13} className="inline ml-1 -mt-0.5" /> تطبيقات المدرس
-            </span>
-            <h2 className={`text-2xl sm:text-3xl font-black ${text}`}>أدوات لإدارة حصتك الدراسية</h2>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={appInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
+          >
+            <SectionHeader
+              icon={GraduationCap} color="#3b82f6" label="تطبيقات المدرس"
+              title="أدوات لإدارة حصتك الدراسية"
+              text={text} subtext={subtext}
+            />
           </motion.div>
 
           <motion.div
-            className="rounded-3xl overflow-hidden max-w-4xl mx-auto"
-            style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(15,23,42,0.6) 100%)', border: '1px solid rgba(59,130,246,0.2)' }}
+            className="rounded-[28px] overflow-hidden max-w-4xl"
+            style={isDark
+              ? { background: 'linear-gradient(135deg, rgba(59,130,246,0.14) 0%, #101827 60%)', border: '1px solid rgba(59,130,246,0.25)' }
+              : { background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, #ffffff 55%)', border: '1px solid rgba(59,130,246,0.18)', boxShadow: '0 12px 32px -12px rgba(15,23,42,0.12)' }}
             initial={{ opacity: 0, scale: 0.97 }}
             animate={appInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.7 }}
           >
-            <div className="p-8 sm:p-10">
+            <div className="p-7 sm:p-10">
               <div className="flex items-center gap-4 mb-5">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20"
                   style={{ background: 'linear-gradient(135deg,#3b82f6,#1e40af)' }}>
                   <Presentation size={28} className="text-white" />
                 </div>
@@ -290,7 +365,7 @@ export default function ServicesPage() {
                 {appFeatures.map(f => (
                   <span key={f.label}
                     className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-                    style={isDark ? { background: 'rgba(255,255,255,0.06)' } : { background: 'rgba(0,0,0,0.05)' }}
+                    style={isDark ? { background: 'rgba(255,255,255,0.06)' } : { background: 'rgba(15,23,42,0.04)' }}
                   >
                     <f.icon size={13} /> {f.label}
                   </span>
@@ -305,7 +380,7 @@ export default function ServicesPage() {
                 >
                   <MessageCircle size={16} /> تواصل معي لمعرفة التفاصيل
                 </a>
-                <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>قريباً — تواصل معي للحصول على أولوية التجربة</span>
+                <span className={`text-xs ${subtext}`}>قريباً — تواصل معي للحصول على أولوية التجربة</span>
               </div>
             </div>
           </motion.div>
@@ -313,7 +388,7 @@ export default function ServicesPage() {
       </div>
 
       {/* Minimal footer */}
-      <footer dir="rtl" className={`py-8 text-center text-xs border-t ${isDark ? 'border-white/5 text-gray-600' : 'border-gray-200 text-gray-500'}`}>
+      <footer dir="rtl" className={`py-8 text-center text-xs border-t ${isDark ? 'border-white/5 text-gray-600' : 'border-gray-200 text-gray-400'}`}>
         <p>© {new Date().getFullYear()} مستر عامر تمراز — جميع الحقوق محفوظة</p>
       </footer>
 
@@ -340,17 +415,17 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
   const [previewOpen, setPreviewOpen] = useState(false);
   const studentMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة الطالب${booklet.price > 0 ? ` - ${booklet.price} ج.م` : ''}`);
   const teacherMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة المعلم${booklet.teacherPrice ? ` - ${booklet.teacherPrice} ج.م` : ''}`);
+  const metaBits = [booklet.subject, booklet.pageCount ? `${booklet.pageCount} صفحة` : null].filter(Boolean);
 
   return (
     <motion.div
-      className="rounded-2xl overflow-hidden flex flex-col"
+      className="rounded-3xl overflow-hidden flex flex-col transition-shadow"
       style={card}
       variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } } as Variants}
-      whileHover={{ y: -6, borderColor: '#22c55e' }}
+      whileHover={{ y: -8 }}
       transition={{ type: 'spring', stiffness: 300 }}
     >
-      <div className="h-1.5 w-full shrink-0" style={{ background: 'linear-gradient(90deg,#22c55e,#0ea5e9)' }} />
-      <div className="relative aspect-[3/2] bg-gray-100 dark:bg-gray-900 overflow-hidden group/cover">
+      <div className="relative aspect-[16/10] bg-gray-100 dark:bg-gray-900/60 overflow-hidden">
         {booklet.coverImageUrl ? (
           <img src={booklet.coverImageUrl} alt={booklet.title} className="w-full h-full object-cover" />
         ) : (
@@ -358,23 +433,19 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
             <BookOpen size={40} />
           </div>
         )}
+        <div className="absolute inset-x-0 bottom-0 h-16" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55), transparent)' }} />
         {booklet.gradeLevel && (
-          <span className="absolute top-3 right-3 bg-black/60 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur">
+          <span className="absolute top-3 right-3 bg-black/55 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur">
             {booklet.gradeLevel}
-          </span>
-        )}
-        {!!booklet.pageCount && (
-          <span className="absolute top-3 left-3 bg-black/60 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur flex items-center gap-1">
-            <BookOpen size={11} /> {booklet.pageCount} صفحة
           </span>
         )}
         {booklet.pdfUrl && (
           <button
             onClick={() => setPreviewOpen(true)}
-            className="absolute inset-x-0 bottom-0 py-2.5 flex items-center justify-center gap-1.5 text-white text-xs font-bold opacity-0 group-hover/cover:opacity-100 transition-opacity"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75), transparent)' }}
+            className="absolute bottom-2.5 left-3 flex items-center gap-1.5 text-white text-[11px] font-bold px-3 py-1.5 rounded-full backdrop-blur transition-colors"
+            style={{ background: 'rgba(34,197,94,0.85)' }}
           >
-            <Eye size={14} /> معاينة أول 5 صفحات
+            <Eye size={12} /> معاينة 5 صفحات
           </button>
         )}
       </div>
@@ -390,48 +461,40 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
         />
       )}
       <div className="p-5 flex flex-col flex-1">
-        <div className="flex items-center justify-between gap-2 mb-2">
-          {booklet.subject ? (
-            <span className="text-[11px] font-bold text-purple-500 bg-purple-50 dark:bg-purple-900/20 px-2.5 py-1 rounded-full">
-              {booklet.subject}
-            </span>
-          ) : <span />}
-          {booklet.pdfUrl && (
-            <button
-              onClick={() => setPreviewOpen(true)}
-              className={`shrink-0 flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border transition-colors ${isDark ? 'text-green-400 border-green-500/30 hover:bg-green-500/10' : 'text-green-700 border-green-300 hover:bg-green-50'}`}
-            >
-              <Eye size={12} /> معاينة
-            </button>
-          )}
-        </div>
+        {metaBits.length > 0 && (
+          <p className={`text-[11px] font-medium mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            {metaBits.join(' · ')}
+          </p>
+        )}
 
-        <h3 className={`font-bold text-base mb-1 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{booklet.title}</h3>
+        <h3 className={`font-bold text-[17px] mb-1.5 leading-snug line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{booklet.title}</h3>
+        {booklet.description && (
+          <p className={`text-[13px] leading-relaxed line-clamp-2 mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{booklet.description}</p>
+        )}
         {!!booklet.viewCount && (
-          <p className={`flex items-center gap-1 text-[11px] mb-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+          <p className={`flex items-center gap-1 text-[11px] mb-3 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
             <Eye size={11} /> {booklet.viewCount} مشاهدة
           </p>
         )}
-        {booklet.description && (
-          <p className={`text-xs leading-relaxed line-clamp-2 mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{booklet.description}</p>
-        )}
 
         <div className={`mt-auto grid gap-2.5 pt-4 border-t ${booklet.teacherPrice ? 'grid-cols-2' : 'grid-cols-1'}`}
-          style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }}>
+          style={{ borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(15,23,42,0.06)' }}>
           <a
             href={studentMsg}
             target="_blank" rel="noopener noreferrer"
-            className="group/price flex flex-col items-center gap-1 rounded-2xl px-3 py-3.5 text-center transition-all hover:-translate-y-0.5"
+            className="flex flex-col items-center gap-0.5 rounded-2xl px-3 py-3.5 text-center transition-all hover:-translate-y-0.5"
             style={isDark
-              ? { background: 'rgba(34,197,94,0.12)', border: '1.5px solid rgba(34,197,94,0.4)' }
-              : { background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.35)' }}
+              ? { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)' }
+              : { background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.25)' }}
           >
-            <span className={`text-[11px] font-bold ${isDark ? 'text-green-300' : 'text-green-700'}`}>نسخة الطالب</span>
-            <span className="text-2xl font-black leading-none" style={{ color: '#16a34a' }}>
+            <span className={`flex items-center gap-1 text-[11px] font-bold ${isDark ? 'text-green-300' : 'text-green-700'}`}>
+              <GraduationCap size={12} /> نسخة الطالب
+            </span>
+            <span className="text-2xl font-black leading-none mt-1" style={{ color: '#16a34a' }}>
               {booklet.price > 0 ? booklet.price : 'مجاني'}
               {booklet.price > 0 && <span className="text-xs font-bold mr-1">ج.م</span>}
             </span>
-            <span className={`flex items-center gap-1 text-[11px] font-bold mt-1 ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+            <span className={`flex items-center gap-1 text-[11px] font-bold mt-1.5 ${isDark ? 'text-green-400' : 'text-green-600'}`}>
               <MessageCircle size={12} /> اطلب الآن
             </span>
           </a>
@@ -439,25 +502,26 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
             <a
               href={teacherMsg}
               target="_blank" rel="noopener noreferrer"
-              className="group/price flex flex-col items-center gap-1 rounded-2xl px-3 py-3.5 text-center transition-all hover:-translate-y-0.5"
+              className="flex flex-col items-center gap-0.5 rounded-2xl px-3 py-3.5 text-center transition-all hover:-translate-y-0.5"
               style={isDark
-                ? { background: 'rgba(14,165,233,0.12)', border: '1.5px solid rgba(14,165,233,0.4)' }
-                : { background: 'rgba(14,165,233,0.08)', border: '1.5px solid rgba(14,165,233,0.35)' }}
+                ? { background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)' }
+                : { background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.25)' }}
             >
-              <span className={`text-[11px] font-bold ${isDark ? 'text-sky-300' : 'text-sky-700'}`}>نسخة المعلم</span>
-              <span className="text-2xl font-black leading-none" style={{ color: '#0284c7' }}>
+              <span className={`flex items-center gap-1 text-[11px] font-bold ${isDark ? 'text-sky-300' : 'text-sky-700'}`}>
+                <Users size={12} /> نسخة المعلم
+              </span>
+              <span className="text-2xl font-black leading-none mt-1" style={{ color: '#0284c7' }}>
                 {booklet.teacherPrice}
                 <span className="text-xs font-bold mr-1">ج.م</span>
               </span>
-              <span className={`flex items-center gap-1 text-[11px] font-bold mt-1 ${isDark ? 'text-sky-400' : 'text-sky-600'}`}>
+              <span className={`flex items-center gap-1 text-[11px] font-bold mt-1.5 ${isDark ? 'text-sky-400' : 'text-sky-600'}`}>
                 <MessageCircle size={12} /> اطلب الآن
               </span>
-              <span className={`text-[10px] mt-1 ${isDark ? 'text-sky-400/70' : 'text-sky-600/70'}`}>ببيانات المعلم الشخصية</span>
             </a>
           )}
         </div>
         {!!booklet.teacherPrice && (
-          <p className={`text-[11px] mt-2 leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+          <p className={`text-[11px] mt-2.5 leading-relaxed text-center ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
             * نسخة المعلم بتتعمل خصيصًا ببيانات المعلم الشخصية.
           </p>
         )}
@@ -472,12 +536,13 @@ function FreeResourceCard({ resource, card, isDark }: { resource: FreeResource; 
 
   return (
     <motion.div
-      className="rounded-2xl overflow-hidden flex flex-col"
+      className="rounded-3xl overflow-hidden flex flex-col"
       style={card}
       variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } } as Variants}
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 300 }}
     >
-      <div className="relative aspect-[3/2] bg-gray-100 dark:bg-gray-900 overflow-hidden">
+      <div className="relative aspect-[16/10] bg-gray-100 dark:bg-gray-900/60 overflow-hidden">
         {resource.coverImageUrl ? (
           <img src={resource.coverImageUrl} alt={resource.title} className="w-full h-full object-cover" />
         ) : (
@@ -485,23 +550,23 @@ function FreeResourceCard({ resource, card, isDark }: { resource: FreeResource; 
             <FileText size={40} />
           </div>
         )}
-        <span className={`absolute top-3 right-3 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur ${isPpt ? 'bg-orange-600/80' : 'bg-red-600/80'}`}>
+        <span className={`absolute top-3 right-3 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur ${isPpt ? 'bg-orange-600/85' : 'bg-red-600/85'}`}>
           {isPpt ? 'PowerPoint' : 'PDF'}
         </span>
       </div>
       <div className="p-5 flex flex-col flex-1">
-        <h3 className={`font-bold text-base mb-1 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{resource.title}</h3>
+        <h3 className={`font-bold text-[17px] mb-1.5 leading-snug line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{resource.title}</h3>
+        {resource.description && (
+          <p className={`text-[13px] leading-relaxed line-clamp-2 mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{resource.description}</p>
+        )}
         {!!resource.downloadCount && (
-          <p className={`flex items-center gap-1 text-[11px] mb-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+          <p className={`flex items-center gap-1 text-[11px] mb-3 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
             <Download size={11} /> {resource.downloadCount} تحميل
           </p>
         )}
-        {resource.description && (
-          <p className={`text-xs leading-relaxed line-clamp-2 mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{resource.description}</p>
-        )}
         <a
           href={freeResourcesApi.getDownloadUrl(resource.id)}
-          className="mt-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-white text-sm transition-transform hover:scale-[1.02]"
+          className="mt-auto flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl font-bold text-white text-sm transition-transform hover:-translate-y-0.5 shadow-lg shadow-amber-500/20"
           style={{ background: '#f59e0b' }}
         >
           <Download size={16} /> تحميل مجاني
