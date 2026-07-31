@@ -91,8 +91,8 @@ export default function ServicesPage() {
     : { background: 'rgba(255,255,255,0.85)', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' };
 
   const bookletCard = isDark
-    ? { background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(34,197,94,0.35)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }
-    : { background: '#ffffff', border: '2px solid rgba(34,197,94,0.3)', boxShadow: '0 6px 24px rgba(0,0,0,0.08)' };
+    ? { background: '#161e2b', border: '2px solid rgba(34,197,94,0.5)', boxShadow: '0 10px 30px rgba(0,0,0,0.45)' }
+    : { background: '#ffffff', border: '2px solid rgba(34,197,94,0.45)', boxShadow: '0 10px 28px rgba(0,0,0,0.1)' };
 
   const text = isDark ? 'text-white' : 'text-gray-900';
   const subtext = isDark ? 'text-gray-400' : 'text-gray-600';
@@ -204,7 +204,7 @@ export default function ServicesPage() {
             </div>
           ) : (
             <motion.div
-              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-6"
               initial="hidden"
               animate={notesInView ? 'visible' : 'hidden'}
               variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
@@ -349,6 +349,7 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
       whileHover={{ y: -6, borderColor: '#22c55e' }}
       transition={{ type: 'spring', stiffness: 300 }}
     >
+      <div className="h-1.5 w-full shrink-0" style={{ background: 'linear-gradient(90deg,#22c55e,#0ea5e9)' }} />
       <div className="relative aspect-[3/2] bg-gray-100 dark:bg-gray-900 overflow-hidden group/cover">
         {booklet.coverImageUrl ? (
           <img src={booklet.coverImageUrl} alt={booklet.title} className="w-full h-full object-cover" />
