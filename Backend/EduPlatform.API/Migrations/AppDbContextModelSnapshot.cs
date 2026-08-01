@@ -80,6 +80,10 @@ namespace EduPlatform.API.Migrations
                     b.Property<decimal?>("TeacherPrice")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("Term")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)

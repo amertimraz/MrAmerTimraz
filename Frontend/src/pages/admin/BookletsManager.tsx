@@ -94,7 +94,7 @@ export default function BookletsManager() {
                     </td>
                     <td className="p-4">
                       <div className="text-gray-300">{booklet.gradeLevel || '-'}</div>
-                      <div className="text-xs text-gray-500">{booklet.subject || '-'}</div>
+                      <div className="text-xs text-gray-500">{booklet.subject || '-'}{booklet.term ? ` · ${booklet.term}` : ''}</div>
                     </td>
                     <td className="p-4 text-center font-bold text-emerald-400">
                       {booklet.price > 0 ? `${booklet.price} ج.م` : 'مجاني'}
@@ -211,6 +211,7 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
       coverImageUrl: coverUrl,
       subject: formData.get('subject') as string,
       gradeLevel: formData.get('gradeLevel') as string,
+      term: (formData.get('term') as string) || undefined,
       price: Number(formData.get('price')),
       teacherPrice: formData.get('teacherPrice') ? Number(formData.get('teacherPrice')) : undefined,
       isPublished: formData.get('isPublished') === 'on',
@@ -298,6 +299,19 @@ function BookletFormModal({ booklet, onClose }: { booklet: Booklet | null; onClo
                   className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-green-500 transition-colors"
                   placeholder="مثل: الصف الأول الإعدادي"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-400 mb-1.5 font-medium">الفصل الدراسي</label>
+                <select
+                  name="term"
+                  defaultValue={booklet?.term || ''}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-green-500 transition-colors"
+                >
+                  <option value="">— غير محدد —</option>
+                  <option value="الفصل الدراسي الأول">الفصل الدراسي الأول</option>
+                  <option value="الفصل الدراسي الثاني">الفصل الدراسي الثاني</option>
+                </select>
               </div>
 
               <div>

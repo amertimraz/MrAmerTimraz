@@ -117,6 +117,7 @@ public class BookletsController : ControllerBase
                 CoverImageUrl = dto.CoverImageUrl,
                 Subject = dto.Subject,
                 GradeLevel = dto.GradeLevel,
+                Term = dto.Term,
                 Price = dto.Price,
                 TeacherPrice = dto.TeacherPrice,
                 IsPublished = dto.IsPublished,
@@ -154,6 +155,7 @@ public class BookletsController : ControllerBase
             booklet.CoverImageUrl = dto.CoverImageUrl;
             booklet.Subject = dto.Subject;
             booklet.GradeLevel = dto.GradeLevel;
+            booklet.Term = dto.Term;
             booklet.Price = dto.Price;
             booklet.TeacherPrice = dto.TeacherPrice;
             booklet.IsPublished = dto.IsPublished;

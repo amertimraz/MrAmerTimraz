@@ -399,6 +399,7 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"TeacherPrice\" numeric",
             "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"PageCount\" integer",
             "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"ViewCount\" integer NOT NULL DEFAULT 0",
+            "ALTER TABLE \"Booklets\" ADD COLUMN IF NOT EXISTS \"Term\" VARCHAR(50)",
             """
             CREATE TABLE IF NOT EXISTS "FreeResources" (
                 "Id" SERIAL PRIMARY KEY,

@@ -274,6 +274,7 @@ export interface Booklet {
   coverImageUrl?: string;
   subject?: string;
   gradeLevel?: string;
+  term?: string;
   price: number;
   teacherPrice?: number;
   isPublished: boolean;

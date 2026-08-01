@@ -90,6 +90,7 @@ function SectionHeader({
 export default function ServicesPage() {
   const { isDark, toggleDark } = useAuthStore();
   const [gradeFilter, setGradeFilter] = useState<string>('الكل');
+  const [termFilter, setTermFilter] = useState<string>('الكل');
   const { ref: notesRef, isInView: notesInView } = useScrollReveal();
   const { ref: freeRef, isInView: freeInView } = useScrollReveal();
   const { ref: appRef, isInView: appInView } = useScrollReveal();
@@ -107,7 +108,14 @@ export default function ServicesPage() {
 
   const published = booklets.filter(b => b.isPublished);
   const grades = ['الكل', ...Array.from(new Set(published.map(b => b.gradeLevel).filter(Boolean))) as string[]];
-  const visible = gradeFilter === 'الكل' ? published : published.filter(b => b.gradeLevel === gradeFilter);
+  const byGrade = gradeFilter === 'الكل' ? published : published.filter(b => b.gradeLevel === gradeFilter);
+  const terms = ['الكل', ...Array.from(new Set(byGrade.map(b => b.term).filter(Boolean))) as string[]];
+  const visible = termFilter === 'الكل' ? byGrade : byGrade.filter(b => b.term === termFilter);
+
+  const handleGradeFilter = (g: string) => {
+    setGradeFilter(g);
+    setTermFilter('الكل');
+  };
 
   const card = isDark
     ? { background: '#141b26', border: '1px solid rgba(255,255,255,0.08)' }
@@ -252,20 +260,44 @@ export default function ServicesPage() {
           </motion.div>
 
           {grades.length > 2 && (
-            <div className="flex flex-wrap gap-2 mb-7">
-              {grades.map(g => (
-                <button
-                  key={g}
-                  onClick={() => setGradeFilter(g)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    gradeFilter === g
-                      ? 'bg-green-500 text-white'
-                      : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                  }`}
-                >
-                  {g}
-                </button>
-              ))}
+            <div className="mb-4">
+              <p className={`text-xs font-bold mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>الصف الدراسي</p>
+              <div className="flex flex-wrap gap-2">
+                {grades.map(g => (
+                  <button
+                    key={g}
+                    onClick={() => handleGradeFilter(g)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      gradeFilter === g
+                        ? 'bg-green-500 text-white'
+                        : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    }`}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {terms.length > 2 && (
+            <div className="mb-7">
+              <p className={`text-xs font-bold mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>الفصل الدراسي</p>
+              <div className="flex flex-wrap gap-2">
+                {terms.map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setTermFilter(t)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      termFilter === t
+                        ? 'bg-sky-500 text-white'
+                        : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -415,7 +447,7 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
   const [previewOpen, setPreviewOpen] = useState(false);
   const studentMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة الطالب${booklet.price > 0 ? ` - ${booklet.price} ج.م` : ''}`);
   const teacherMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة المعلم${booklet.teacherPrice ? ` - ${booklet.teacherPrice} ج.م` : ''}`);
-  const metaBits = [booklet.subject, booklet.pageCount ? `${booklet.pageCount} صفحة` : null].filter(Boolean);
+  const metaBits = [booklet.term, booklet.subject, booklet.pageCount ? `${booklet.pageCount} صفحة` : null].filter(Boolean);
 
   return (
     <motion.div

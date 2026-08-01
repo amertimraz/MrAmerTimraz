@@ -23,6 +23,9 @@ public class Booklet
     [MaxLength(50)]
     public string? GradeLevel { get; set; }
 
+    [MaxLength(50)]
+    public string? Term { get; set; }
+
     [Column(TypeName = "numeric")]
     public decimal Price { get; set; } = 0;
 
