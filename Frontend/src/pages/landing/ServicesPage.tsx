@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet-async';
 import {
   BookOpen, GraduationCap, MessageCircle, ArrowRight, Eye,
   Presentation, Users, ListChecks, Trophy, Gamepad2, Sun, Moon,
-  Gift, Download, FileText, ChevronLeft, ChevronRight,
+  Gift, Download, FileText, ChevronLeft, ChevronRight, Sparkles, Percent,
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
 import { freeResourcesApi } from '../../api/freeResources';
@@ -73,6 +73,33 @@ function BackButton({ onClick, label, isDark }: { onClick: () => void; label: st
     >
       <ChevronRight size={16} /> {label}
     </button>
+  );
+}
+
+function HintBanners({ isDark }: { isDark: boolean }) {
+  return (
+    <div className="flex flex-col gap-2.5 mb-7">
+      <div
+        className="flex items-start gap-2.5 rounded-2xl px-4 py-3 text-sm"
+        style={isDark
+          ? { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#bbf7d0' }
+          : { background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', color: '#166534' }}
+      >
+        <Sparkles size={16} className="shrink-0 mt-0.5" />
+        <span>بنشتغل باستمرار على تجهيز كل المذكرات، وأول ما أي مذكرة تخلص بترفع على الموقع على طول.</span>
+      </div>
+      <a
+        href={waLink('مرحبًا، عايز أعرف تفاصيل عرض الباكدج الكامل بخصم')}
+        target="_blank" rel="noopener noreferrer"
+        className="flex items-start gap-2.5 rounded-2xl px-4 py-3 text-sm transition-transform hover:-translate-y-0.5"
+        style={isDark
+          ? { background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.22)', color: '#bae6fd' }
+          : { background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.22)', color: '#075985' }}
+      >
+        <Percent size={16} className="shrink-0 mt-0.5" />
+        <span>عايز الباكدج كامل بخصم كويس؟ تواصل معايا واتساب وهرتبلك.</span>
+      </a>
+    </div>
   );
 }
 
@@ -214,6 +241,8 @@ export default function ServicesPage() {
                 <span className="text-xs font-bold text-green-500">{gradeFilter}</span>
                 <h1 className={`text-2xl sm:text-3xl font-black ${text}`}>مذكرات هذه المرحلة</h1>
               </div>
+
+              <HintBanners isDark={isDark} />
 
               {terms.length > 2 && (
                 <div className="mb-7">
