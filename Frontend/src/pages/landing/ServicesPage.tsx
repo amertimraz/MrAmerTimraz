@@ -5,14 +5,13 @@ import { motion, type Variants } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import {
   BookOpen, GraduationCap, MessageCircle, ArrowRight, Eye,
-  Presentation, Users, ListChecks, Trophy, Gamepad2, Sparkles, Sun, Moon, Cpu,
-  Gift, Download, FileText, ChevronLeft,
+  Presentation, Users, ListChecks, Trophy, Gamepad2, Sun, Moon,
+  Gift, Download, FileText, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
 import { freeResourcesApi } from '../../api/freeResources';
 import PdfPreviewModal from '../../components/ui/PdfPreviewModal';
 import { useAuthStore } from '../../store/authStore';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
 import type { Booklet, FreeResource } from '../../types';
 
 const WHATSAPP_NUMBER = '201096066818';
@@ -27,6 +26,8 @@ const appFeatures = [
   { icon: Trophy, label: 'مسابقات صفية' },
   { icon: Gamepad2, label: 'ألعاب تعليمية' },
 ];
+
+type View = 'home' | 'grade' | 'results' | 'free' | 'app';
 
 function TopBar({ isDark, toggleDark }: { isDark: boolean; toggleDark: () => void }) {
   return (
@@ -64,36 +65,23 @@ function TopBar({ isDark, toggleDark }: { isDark: boolean; toggleDark: () => voi
   );
 }
 
-function SectionHeader({
-  icon: Icon, color, label, title, subtitle, text, subtext,
-}: {
-  icon: React.ElementType; color: string; label: string; title: string; subtitle?: string;
-  text: string; subtext: string;
-}) {
+function BackButton({ onClick, label, isDark }: { onClick: () => void; label: string; isDark: boolean }) {
   return (
-    <div className="flex items-start gap-4 mb-8">
-      <div
-        className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-        style={{ background: `${color}1a`, border: `1px solid ${color}33` }}
-      >
-        <Icon size={22} style={{ color }} />
-      </div>
-      <div>
-        <span className="text-xs font-bold tracking-wide" style={{ color }}>{label}</span>
-        <h2 className={`text-2xl sm:text-[28px] font-black leading-tight ${text}`}>{title}</h2>
-        {subtitle && <p className={`text-sm mt-1 ${subtext}`}>{subtitle}</p>}
-      </div>
-    </div>
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 text-sm font-bold mb-6 px-3.5 py-2 rounded-xl transition-colors ${isDark ? 'text-gray-300 hover:bg-white/5' : 'text-gray-600 hover:bg-gray-100'}`}
+    >
+      <ChevronRight size={16} /> {label}
+    </button>
   );
 }
 
 export default function ServicesPage() {
   const { isDark, toggleDark } = useAuthStore();
+  const [view, setView] = useState<View>('home');
   const [gradeFilter, setGradeFilter] = useState<string>('الكل');
   const [termFilter, setTermFilter] = useState<string>('الكل');
-  const { ref: notesRef, isInView: notesInView } = useScrollReveal();
-  const { ref: freeRef, isInView: freeInView } = useScrollReveal();
-  const { ref: appRef, isInView: appInView } = useScrollReveal();
+  const [previewOpen, setPreviewOpen] = useState<Booklet | null>(null);
 
   const { data: booklets = [], isLoading } = useQuery({
     queryKey: ['services-booklets'],
@@ -107,14 +95,15 @@ export default function ServicesPage() {
   const publishedFree = freeResources.filter(r => r.isPublished);
 
   const published = booklets.filter(b => b.isPublished);
-  const grades = ['الكل', ...Array.from(new Set(published.map(b => b.gradeLevel).filter(Boolean))) as string[]];
+  const grades = Array.from(new Set(published.map(b => b.gradeLevel).filter(Boolean))) as string[];
   const byGrade = gradeFilter === 'الكل' ? published : published.filter(b => b.gradeLevel === gradeFilter);
   const terms = ['الكل', ...Array.from(new Set(byGrade.map(b => b.term).filter(Boolean))) as string[]];
   const visible = termFilter === 'الكل' ? byGrade : byGrade.filter(b => b.term === termFilter);
 
-  const handleGradeFilter = (g: string) => {
+  const goToGrade = (g: string) => {
     setGradeFilter(g);
     setTermFilter('الكل');
+    setView('results');
   };
 
   const card = isDark
@@ -128,11 +117,12 @@ export default function ServicesPage() {
   const text = isDark ? 'text-white' : 'text-gray-900';
   const subtext = isDark ? 'text-gray-400' : 'text-gray-500';
 
-  const stats = [
-    { icon: BookOpen, value: `${published.length}+`, label: 'مذكرة متاحة' },
-    { icon: Gift, value: `${publishedFree.length}+`, label: 'ملف مجاني' },
-    { icon: MessageCircle, value: '100%', label: 'رد سريع واتساب' },
-  ];
+  const pageMotion = {
+    initial: { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -12 },
+    transition: { duration: 0.25 },
+  };
 
   return (
     <div
@@ -150,273 +140,208 @@ export default function ServicesPage() {
 
       <TopBar isDark={isDark} toggleDark={toggleDark} />
 
-      {/* Hero */}
-      <div className="relative overflow-hidden pt-16 pb-10">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: isDark
-              ? 'radial-gradient(ellipse 70% 55% at 50% -10%, rgba(34,197,94,0.16) 0%, transparent 70%)'
-              : 'radial-gradient(ellipse 70% 55% at 50% -10%, rgba(34,197,94,0.1) 0%, transparent 70%)',
-          }}
-        />
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.4]"
-          style={{
-            backgroundImage: `radial-gradient(${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)'} 1px, transparent 1px)`,
-            backgroundSize: '22px 22px',
-            maskImage: 'linear-gradient(to bottom, black, transparent)',
-          }}
-        />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24 flex-1 w-full">
+        <motion.div key={view} {...pageMotion}>
 
-        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-          <motion.span
-            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className={`inline-flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-full mb-6 ${isDark ? 'text-green-400' : 'text-green-700'}`}
-            style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }}
-          >
-            <Sparkles size={13} /> خدماتي
-          </motion.span>
+          {/* ── Home: pick a path ─────────────────────────────────── */}
+          {view === 'home' && (
+            <>
+              <div className="text-center mb-10">
+                <h1 className={`text-3xl sm:text-4xl font-black mb-2 ${text}`}>عايز إيه من خدماتي؟</h1>
+                <p className={`text-sm sm:text-base ${subtext}`}>اختار من هنا وهوريك اللي يناسبك على طول</p>
+              </div>
 
-          <motion.h1
-            className={`text-[2.5rem] sm:text-6xl font-black mb-4 leading-[1.1] tracking-tight ${text}`}
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          >
-            كل خدماتي في <span style={{ color: '#22c55e' }}>مكان واحد</span>
-          </motion.h1>
+              <div className="grid sm:grid-cols-3 gap-5 max-w-4xl mx-auto">
+                <ChoiceCard
+                  icon={BookOpen} color="#22c55e" isDark={isDark}
+                  title="المذكرات الدراسية" desc="اختار مرحلتك وشوف المذكرات المتاحة"
+                  onClick={() => setView('grade')}
+                />
+                <ChoiceCard
+                  icon={Gift} color="#f59e0b" isDark={isDark}
+                  title="ملفات مجانية" desc="PDF أو PowerPoint تحمّلها فورًا"
+                  onClick={() => setView('free')}
+                />
+                <ChoiceCard
+                  icon={GraduationCap} color="#3b82f6" isDark={isDark}
+                  title="تطبيقات المدرس" desc="أدوات لإدارة حصتك الدراسية"
+                  onClick={() => setView('app')}
+                />
+              </div>
+            </>
+          )}
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}
-            style={isDark
-              ? { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }
-              : { background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}
-          >
-            <Cpu size={15} style={{ color: '#22c55e' }} /> تخصصي: التكنولوجيا والبرمجة والذكاء الاصطناعي
-          </motion.div>
+          {/* ── Grade picker ──────────────────────────────────────── */}
+          {view === 'grade' && (
+            <>
+              <BackButton onClick={() => setView('home')} label="رجوع" isDark={isDark} />
+              <div className="text-center mb-9">
+                <h1 className={`text-2xl sm:text-3xl font-black mb-2 ${text}`}>اختار مرحلتك الدراسية</h1>
+                <p className={`text-sm ${subtext}`}>هنوريك المذكرات المتاحة لمرحلتك بس</p>
+              </div>
 
-          <motion.p
-            className={`text-base sm:text-lg leading-relaxed mb-8 max-w-xl mx-auto ${subtext}`}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-          >
-            مذكرات دراسية لمختلف المراحل بنسخة للطالب ونسخة للمعلم، وملفات مجانية، وتطبيق متخصص لمساعدة المدرسين على إدارة حصصهم.
-          </motion.p>
+              {isLoading ? (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                  {[1, 2, 3, 4].map(i => <div key={i} className="h-20 rounded-2xl animate-pulse" style={card} />)}
+                </div>
+              ) : grades.length === 0 ? (
+                <div className="rounded-2xl p-10 text-center max-w-md mx-auto" style={card}>
+                  <p className={subtext}>لا توجد مذكرات منشورة حالياً.</p>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                  {grades.map(g => (
+                    <button
+                      key={g}
+                      onClick={() => goToGrade(g)}
+                      className="flex items-center justify-between gap-3 px-5 py-4 rounded-2xl font-bold transition-all hover:-translate-y-0.5"
+                      style={card}
+                    >
+                      <span className={text}>{g}</span>
+                      <ChevronLeft size={18} className="text-green-500 shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
 
-          <motion.div
-            className="flex flex-wrap justify-center gap-3 mb-10"
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}
-          >
-            <motion.a
-              href={waLink('مرحبًا، عندي استفسار عن خدمات المنصة')}
-              target="_blank" rel="noopener noreferrer"
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-white text-sm shadow-lg shadow-green-500/25"
-              style={{ background: '#22c55e' }}
-            >
-              <MessageCircle size={18} /> تواصل معي واتساب
-            </motion.a>
-            <motion.a
-              href="#booklets"
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-              className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-sm border transition-colors ${isDark ? 'text-white border-white/15 hover:bg-white/5' : 'text-gray-800 border-gray-200 hover:bg-white'}`}
-            >
-              استعرض المذكرات <ChevronLeft size={16} />
-            </motion.a>
-          </motion.div>
+          {/* ── Results: filtered booklets ────────────────────────── */}
+          {view === 'results' && (
+            <>
+              <BackButton onClick={() => setView('grade')} label="تغيير المرحلة" isDark={isDark} />
+              <div className="mb-6">
+                <span className="text-xs font-bold text-green-500">{gradeFilter}</span>
+                <h1 className={`text-2xl sm:text-3xl font-black ${text}`}>مذكرات هذه المرحلة</h1>
+              </div>
 
-          <motion.div
-            className="flex items-center justify-center gap-6 sm:gap-10"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-          >
-            {stats.map((s, i) => (
-              <div key={s.label} className="flex items-center gap-6 sm:gap-10">
-                {i > 0 && <div className={`w-px h-9 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />}
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                    <s.icon size={15} className="text-green-500" />
-                    <span className={`text-xl font-black ${text}`}>{s.value}</span>
+              {terms.length > 2 && (
+                <div className="mb-7">
+                  <p className={`text-xs font-bold mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>الفصل الدراسي</p>
+                  <div className="flex flex-wrap gap-2">
+                    {terms.map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setTermFilter(t)}
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                          termFilter === t
+                            ? 'bg-sky-500 text-white'
+                            : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
                   </div>
-                  <p className={`text-[11px] ${subtext}`}>{s.label}</p>
                 </div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </div>
+              )}
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 flex-1 w-full">
-
-        {/* Booklets / Notes */}
-        <div id="booklets" ref={notesRef} className="mb-24 scroll-mt-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={notesInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
-          >
-            <SectionHeader
-              icon={BookOpen} color="#a855f7" label="المذكرات الدراسية"
-              title="مذكرات لكل المراحل الدراسية"
-              subtitle="لكل مذكرة نسخة للطالب ونسخة للمعلم — اطلب مباشرة على واتساب"
-              text={text} subtext={subtext}
-            />
-          </motion.div>
-
-          {grades.length > 2 && (
-            <div className="mb-4">
-              <p className={`text-xs font-bold mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>الصف الدراسي</p>
-              <div className="flex flex-wrap gap-2">
-                {grades.map(g => (
-                  <button
-                    key={g}
-                    onClick={() => handleGradeFilter(g)}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                      gradeFilter === g
-                        ? 'bg-green-500 text-white'
-                        : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                    }`}
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {terms.length > 2 && (
-            <div className="mb-7">
-              <p className={`text-xs font-bold mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>الفصل الدراسي</p>
-              <div className="flex flex-wrap gap-2">
-                {terms.map(t => (
-                  <button
-                    key={t}
-                    onClick={() => setTermFilter(t)}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                      termFilter === t
-                        ? 'bg-sky-500 text-white'
-                        : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {isLoading ? (
-            <div className="grid md:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-3xl animate-pulse" style={card} />)}
-            </div>
-          ) : visible.length === 0 ? (
-            <div className="rounded-2xl p-10 text-center" style={card}>
-              <p className={subtext}>لا توجد مذكرات منشورة حالياً في هذا القسم.</p>
-            </div>
-          ) : (
-            <motion.div
-              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-              initial="hidden"
-              animate={notesInView ? 'visible' : 'hidden'}
-              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
-            >
-              {visible.map(booklet => (
-                <BookletServiceCard key={booklet.id} booklet={booklet} card={bookletCard} isDark={isDark} />
-              ))}
-            </motion.div>
-          )}
-        </div>
-
-        {/* Free Resources */}
-        <div ref={freeRef} className="mb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={freeInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
-          >
-            <SectionHeader
-              icon={Gift} color="#f59e0b" label="خدمات مجانية"
-              title="ملفات مجانية تقدر تحمّلها فورًا"
-              subtitle="PDF أو PowerPoint — بدون أي مقابل، حمّلها بضغطة واحدة"
-              text={text} subtext={subtext}
-            />
-          </motion.div>
-
-          {isLoadingFree ? (
-            <div className="grid md:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => <div key={i} className="h-72 rounded-3xl animate-pulse" style={card} />)}
-            </div>
-          ) : publishedFree.length === 0 ? (
-            <div className="rounded-2xl p-10 text-center" style={card}>
-              <p className={subtext}>لا توجد ملفات مجانية منشورة حالياً.</p>
-            </div>
-          ) : (
-            <motion.div
-              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-              initial="hidden"
-              animate={freeInView ? 'visible' : 'hidden'}
-              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
-            >
-              {publishedFree.map(resource => (
-                <FreeResourceCard key={resource.id} resource={resource} card={card} isDark={isDark} />
-              ))}
-            </motion.div>
-          )}
-        </div>
-
-        {/* Teacher Apps */}
-        <div ref={appRef}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={appInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
-          >
-            <SectionHeader
-              icon={GraduationCap} color="#3b82f6" label="تطبيقات المدرس"
-              title="أدوات لإدارة حصتك الدراسية"
-              text={text} subtext={subtext}
-            />
-          </motion.div>
-
-          <motion.div
-            className="rounded-[28px] overflow-hidden max-w-4xl"
-            style={isDark
-              ? { background: 'linear-gradient(135deg, rgba(59,130,246,0.14) 0%, #101827 60%)', border: '1px solid rgba(59,130,246,0.25)' }
-              : { background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, #ffffff 55%)', border: '1px solid rgba(59,130,246,0.18)', boxShadow: '0 12px 32px -12px rgba(15,23,42,0.12)' }}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={appInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.7 }}
-          >
-            <div className="p-7 sm:p-10">
-              <div className="flex items-center gap-4 mb-5">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20"
-                  style={{ background: 'linear-gradient(135deg,#3b82f6,#1e40af)' }}>
-                  <Presentation size={28} className="text-white" />
+              {visible.length === 0 ? (
+                <div className="rounded-2xl p-10 text-center" style={card}>
+                  <p className={subtext}>لا توجد مذكرات منشورة لهذا الاختيار حاليًا.</p>
                 </div>
-                <div>
-                  <h3 className={`text-xl font-bold ${text}`}>Active Class</h3>
-                  <p className={`text-sm ${subtext}`}>تطبيق متكامل لإدارة الحصة الدراسية</p>
-                </div>
-              </div>
-              <p className={`text-sm leading-relaxed mb-6 ${subtext}`}>
-                تطبيق يساعد المدرس على إدارة حصته بكل سهولة: سبورة تفاعلية، تقسيم الطلاب لمجموعات، إجراء اختبارات ومسابقات فورية، وألعاب تعليمية تزيد من تفاعل الطلاب داخل الفصل.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-7">
-                {appFeatures.map(f => (
-                  <span key={f.label}
-                    className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-                    style={isDark ? { background: 'rgba(255,255,255,0.06)' } : { background: 'rgba(15,23,42,0.04)' }}
-                  >
-                    <f.icon size={13} /> {f.label}
-                  </span>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <a
-                  href={waLink('مرحبًا، عايز أعرف تفاصيل أكتر عن تطبيق Active Class لإدارة الحصة الدراسية')}
-                  target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-blue-500/20"
-                  style={{ background: '#3b82f6' }}
+              ) : (
+                <motion.div
+                  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  initial="hidden" animate="visible"
+                  variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
                 >
-                  <MessageCircle size={16} /> تواصل معي لمعرفة التفاصيل
-                </a>
-                <span className={`text-xs ${subtext}`}>قريباً — تواصل معي للحصول على أولوية التجربة</span>
+                  {visible.map(booklet => (
+                    <BookletServiceCard key={booklet.id} booklet={booklet} card={bookletCard} isDark={isDark} onPreview={() => setPreviewOpen(booklet)} />
+                  ))}
+                </motion.div>
+              )}
+            </>
+          )}
+
+          {/* ── Free resources ────────────────────────────────────── */}
+          {view === 'free' && (
+            <>
+              <BackButton onClick={() => setView('home')} label="رجوع" isDark={isDark} />
+              <div className="mb-7">
+                <span className="text-xs font-bold" style={{ color: '#f59e0b' }}>خدمات مجانية</span>
+                <h1 className={`text-2xl sm:text-3xl font-black ${text}`}>ملفات مجانية تقدر تحمّلها فورًا</h1>
+                <p className={`text-sm mt-1 ${subtext}`}>PDF أو PowerPoint — بدون أي مقابل، حمّلها بضغطة واحدة</p>
               </div>
-            </div>
-          </motion.div>
-        </div>
+
+              {isLoadingFree ? (
+                <div className="grid md:grid-cols-3 gap-6">
+                  {[1, 2, 3].map(i => <div key={i} className="h-72 rounded-3xl animate-pulse" style={card} />)}
+                </div>
+              ) : publishedFree.length === 0 ? (
+                <div className="rounded-2xl p-10 text-center" style={card}>
+                  <p className={subtext}>لا توجد ملفات مجانية منشورة حالياً.</p>
+                </div>
+              ) : (
+                <motion.div
+                  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  initial="hidden" animate="visible"
+                  variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
+                >
+                  {publishedFree.map(resource => (
+                    <FreeResourceCard key={resource.id} resource={resource} card={card} isDark={isDark} />
+                  ))}
+                </motion.div>
+              )}
+            </>
+          )}
+
+          {/* ── Teacher app ───────────────────────────────────────── */}
+          {view === 'app' && (
+            <>
+              <BackButton onClick={() => setView('home')} label="رجوع" isDark={isDark} />
+              <div className="mb-7">
+                <span className="text-xs font-bold text-blue-500">تطبيقات المدرس</span>
+                <h1 className={`text-2xl sm:text-3xl font-black ${text}`}>أدوات لإدارة حصتك الدراسية</h1>
+              </div>
+
+              <motion.div
+                className="rounded-[28px] overflow-hidden max-w-4xl"
+                style={isDark
+                  ? { background: 'linear-gradient(135deg, rgba(59,130,246,0.14) 0%, #101827 60%)', border: '1px solid rgba(59,130,246,0.25)' }
+                  : { background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, #ffffff 55%)', border: '1px solid rgba(59,130,246,0.18)', boxShadow: '0 12px 32px -12px rgba(15,23,42,0.12)' }}
+                initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}
+              >
+                <div className="p-7 sm:p-10">
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20"
+                      style={{ background: 'linear-gradient(135deg,#3b82f6,#1e40af)' }}>
+                      <Presentation size={28} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className={`text-xl font-bold ${text}`}>Active Class</h3>
+                      <p className={`text-sm ${subtext}`}>تطبيق متكامل لإدارة الحصة الدراسية</p>
+                    </div>
+                  </div>
+                  <p className={`text-sm leading-relaxed mb-6 ${subtext}`}>
+                    تطبيق يساعد المدرس على إدارة حصته بكل سهولة: سبورة تفاعلية، تقسيم الطلاب لمجموعات، إجراء اختبارات ومسابقات فورية، وألعاب تعليمية تزيد من تفاعل الطلاب داخل الفصل.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-7">
+                    {appFeatures.map(f => (
+                      <span key={f.label}
+                        className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                        style={isDark ? { background: 'rgba(255,255,255,0.06)' } : { background: 'rgba(15,23,42,0.04)' }}
+                      >
+                        <f.icon size={13} /> {f.label}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <a
+                      href={waLink('مرحبًا، عايز أعرف تفاصيل أكتر عن تطبيق Active Class لإدارة الحصة الدراسية')}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-blue-500/20"
+                      style={{ background: '#3b82f6' }}
+                    >
+                      <MessageCircle size={16} /> تواصل معي لمعرفة التفاصيل
+                    </a>
+                    <span className={`text-xs ${subtext}`}>قريباً — تواصل معي للحصول على أولوية التجربة</span>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </motion.div>
       </div>
 
       {/* Minimal footer */}
@@ -432,19 +357,56 @@ export default function ServicesPage() {
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
-        transition={{ delay: 0.5, type: 'spring' }}
+        transition={{ delay: 0.3, type: 'spring' }}
         className="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-green-500/30"
         style={{ background: '#25D366' }}
         aria-label="تواصل عبر واتساب"
       >
         <MessageCircle size={26} className="text-white" fill="white" />
       </motion.a>
+
+      {previewOpen && (
+        <PdfPreviewModal
+          url={bookletsApi.getPreviewUrl(previewOpen.id)}
+          title={previewOpen.title}
+          maxPages={5}
+          onClose={() => setPreviewOpen(null)}
+          studentWaLink={waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${previewOpen.title}"\nنسخة الطالب${previewOpen.price > 0 ? ` - ${previewOpen.price} ج.م` : ''}`)}
+          teacherWaLink={previewOpen.teacherPrice ? waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${previewOpen.title}"\nنسخة المعلم - ${previewOpen.teacherPrice} ج.م`) : undefined}
+        />
+      )}
     </div>
   );
 }
 
-function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card: React.CSSProperties; isDark: boolean }) {
-  const [previewOpen, setPreviewOpen] = useState(false);
+function ChoiceCard({
+  icon: Icon, color, title, desc, onClick, isDark,
+}: {
+  icon: React.ElementType; color: string; title: string; desc: string; onClick: () => void; isDark: boolean;
+}) {
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={{ y: -6 }}
+      whileTap={{ scale: 0.98 }}
+      className="text-center p-7 rounded-3xl transition-shadow"
+      style={isDark
+        ? { background: '#141b26', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 12px 32px -8px rgba(0,0,0,0.5)' }
+        : { background: '#ffffff', border: '1px solid rgba(15,23,42,0.07)', boxShadow: '0 12px 32px -12px rgba(15,23,42,0.15)' }}
+    >
+      <div
+        className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+        style={{ background: `${color}1a`, border: `1px solid ${color}33` }}
+      >
+        <Icon size={26} style={{ color }} />
+      </div>
+      <h3 className={`font-black text-lg mb-1.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>{title}</h3>
+      <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{desc}</p>
+    </motion.button>
+  );
+}
+
+function BookletServiceCard({ booklet, card, isDark, onPreview }: { booklet: Booklet; card: React.CSSProperties; isDark: boolean; onPreview: () => void }) {
   const studentMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة الطالب${booklet.price > 0 ? ` - ${booklet.price} ج.م` : ''}`);
   const teacherMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة المعلم${booklet.teacherPrice ? ` - ${booklet.teacherPrice} ج.م` : ''}`);
   const metaBits = [booklet.term, booklet.subject, booklet.pageCount ? `${booklet.pageCount} صفحة` : null].filter(Boolean);
@@ -473,7 +435,7 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
         )}
         {booklet.pdfUrl && (
           <button
-            onClick={() => setPreviewOpen(true)}
+            onClick={onPreview}
             className="absolute bottom-2.5 left-3 flex items-center gap-1.5 text-white text-[11px] font-bold px-3 py-1.5 rounded-full backdrop-blur transition-colors"
             style={{ background: 'rgba(34,197,94,0.85)' }}
           >
@@ -482,16 +444,6 @@ function BookletServiceCard({ booklet, card, isDark }: { booklet: Booklet; card:
         )}
       </div>
 
-      {previewOpen && (
-        <PdfPreviewModal
-          url={bookletsApi.getPreviewUrl(booklet.id)}
-          title={booklet.title}
-          maxPages={5}
-          onClose={() => setPreviewOpen(false)}
-          studentWaLink={studentMsg}
-          teacherWaLink={booklet.teacherPrice ? teacherMsg : undefined}
-        />
-      )}
       <div className="p-5 flex flex-col flex-1">
         {metaBits.length > 0 && (
           <p className={`text-[11px] font-medium mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
