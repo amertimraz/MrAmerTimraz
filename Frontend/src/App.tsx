@@ -82,9 +82,7 @@ const AdminBookletStats = lazy(() => import('./pages/admin/AdminBookletStats'));
 const AdminPaymentSettings = lazy(() => import('./pages/admin/AdminPaymentSettings'));
 const AdminAllResults = lazy(() => import('./pages/admin/AdminAllResults'));
 const FileManagerPage = lazy(() => import('./pages/admin/FileManagerPage'));
-const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
-const FreeResourcesManager = lazy(() => import('./pages/admin/FreeResourcesManager'));
-const TeacherPackagesManager = lazy(() => import('./pages/admin/TeacherPackagesManager'));
+const ContentManager = lazy(() => import('./pages/admin/ContentManager'));
 
 
 
@@ -201,9 +199,10 @@ export default function App() {
 
               <Route path="challenges"      element={<AdminChallenges />} />
               <Route path="all-results"     element={<AdminAllResults />} />
-              <Route path="booklets"        element={<BookletsManager />} />
-              <Route path="free-resources"  element={<FreeResourcesManager />} />
-              <Route path="teacher-packages" element={<TeacherPackagesManager />} />
+              <Route path="content"         element={<ContentManager />} />
+              <Route path="booklets"        element={<Navigate to="/admin/content" replace />} />
+              <Route path="free-resources"  element={<Navigate to="/admin/content?tab=free" replace />} />
+              <Route path="teacher-packages" element={<Navigate to="/admin/content?tab=packages" replace />} />
               <Route path="booklet-stats"    element={<AdminBookletStats />} />
               <Route path="payment-settings" element={<AdminPaymentSettings />} />
 

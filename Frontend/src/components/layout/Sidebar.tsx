@@ -3,7 +3,7 @@ import {
   LayoutDashboard, BookOpen, FileText, Trophy,
   Gamepad2, Bell, Users, LogOut, GraduationCap, Settings,
   Database, Zap, Tag, Home, CreditCard, FolderOpen, Layers, Video,
-  Wallet, UserCircle2, HardDrive, Gift, Presentation,
+  Wallet, UserCircle2, HardDrive,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -48,9 +48,7 @@ const adminLinks: NavItem[] = [
   { to: '/admin/library-stats', icon: <Users size={20} />, label: 'بيانات تحميل المذكرات' },
 
   { to: '/admin/challenges',    icon: <Database size={20} />,   label: 'إختبارات Tofas' },
-  { to: '/admin/booklets',      icon: <BookOpen size={20} />,   label: 'الملازم الدراسية' },
-  { to: '/admin/free-resources', icon: <Gift size={20} />,      label: 'الخدمات المجانية' },
-  { to: '/admin/teacher-packages', icon: <Presentation size={20} />, label: 'باكدجات المعلمين' },
+  { to: '/admin/content',       icon: <BookOpen size={20} />,   label: 'المحتوى (ملازم / مجاني / باكدجات)' },
   { to: '/admin/booklet-stats', icon: <CreditCard size={20} />, label: 'إحصائيات الملازم' },
   { to: '/admin/payment-settings', icon: <Wallet size={20} />, label: 'إعدادات الدفع' },
   { to: '/admin/files',         icon: <HardDrive size={20} />,  label: 'إدارة الملفات' },
