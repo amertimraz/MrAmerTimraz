@@ -30,6 +30,7 @@ public class AppDbContext : DbContext
     public DbSet<LiveSessionEnrollment> LiveSessionEnrollments => Set<LiveSessionEnrollment>();
     public DbSet<Booklet> Booklets => Set<Booklet>();
     public DbSet<FreeResource> FreeResources => Set<FreeResource>();
+    public DbSet<TeacherPackage> TeacherPackages => Set<TeacherPackage>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
     public DbSet<TofasTest> TofasTests => Set<TofasTest>();
     public DbSet<Challenge> Challenges => Set<Challenge>();

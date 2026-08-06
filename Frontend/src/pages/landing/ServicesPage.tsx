@@ -10,9 +10,10 @@ import {
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
 import { freeResourcesApi } from '../../api/freeResources';
+import { teacherPackagesApi } from '../../api/teacherPackages';
 import PdfPreviewModal from '../../components/ui/PdfPreviewModal';
 import { useAuthStore } from '../../store/authStore';
-import type { Booklet, FreeResource } from '../../types';
+import type { Booklet, FreeResource, TeacherPackage } from '../../types';
 
 const WHATSAPP_NUMBER = '201096066818';
 function waLink(message: string) {
@@ -27,7 +28,7 @@ const appFeatures = [
   { icon: Gamepad2, label: 'ألعاب تعليمية' },
 ];
 
-type View = 'home' | 'grade' | 'results' | 'free' | 'app';
+type View = 'home' | 'grade' | 'results' | 'free' | 'app' | 'teacherPackages';
 
 function TopBar({ isDark, toggleDark }: { isDark: boolean; toggleDark: () => void }) {
   return (
@@ -121,6 +122,12 @@ export default function ServicesPage() {
   });
   const publishedFree = freeResources.filter(r => r.isPublished);
 
+  const { data: teacherPackages = [], isLoading: isLoadingPackages } = useQuery({
+    queryKey: ['services-teacher-packages'],
+    queryFn: () => teacherPackagesApi.getAll(),
+  });
+  const publishedPackages = teacherPackages.filter(p => p.isPublished);
+
   const published = booklets.filter(b => b.isPublished);
   const grades = Array.from(new Set(published.map(b => b.gradeLevel).filter(Boolean))) as string[];
   const byGrade = gradeFilter === 'الكل' ? published : published.filter(b => b.gradeLevel === gradeFilter);
@@ -178,7 +185,7 @@ export default function ServicesPage() {
                 <p className={`text-sm sm:text-base ${subtext}`}>اختار من هنا وهوريك اللي يناسبك على طول</p>
               </div>
 
-              <div className="grid sm:grid-cols-3 gap-5 max-w-4xl mx-auto">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
                 <ChoiceCard
                   icon={BookOpen} color="#22c55e" isDark={isDark}
                   title="المذكرات الدراسية" desc="اختار مرحلتك وشوف المذكرات المتاحة"
@@ -188,6 +195,11 @@ export default function ServicesPage() {
                   icon={Gift} color="#f59e0b" isDark={isDark}
                   title="ملفات مجانية" desc="PDF أو PowerPoint تحمّلها فورًا"
                   onClick={() => setView('free')}
+                />
+                <ChoiceCard
+                  icon={Presentation} color="#a855f7" isDark={isDark}
+                  title="باكدج بوربوينت للمعلمين" desc="دروس بوربوينت جاهزة — عينة وسعر وطلب مباشر"
+                  onClick={() => setView('teacherPackages')}
                 />
                 <ChoiceCard
                   icon={GraduationCap} color="#3b82f6" isDark={isDark}
@@ -309,6 +321,38 @@ export default function ServicesPage() {
                 >
                   {publishedFree.map(resource => (
                     <FreeResourceCard key={resource.id} resource={resource} card={card} isDark={isDark} />
+                  ))}
+                </motion.div>
+              )}
+            </>
+          )}
+
+          {/* ── Teacher PowerPoint packages ──────────────────────── */}
+          {view === 'teacherPackages' && (
+            <>
+              <BackButton onClick={() => setView('home')} label="رجوع" isDark={isDark} />
+              <div className="mb-7">
+                <span className="text-xs font-bold" style={{ color: '#a855f7' }}>خاص بالمعلمين</span>
+                <h1 className={`text-2xl sm:text-3xl font-black ${text}`}>باكدجات دروس بوربوينت جاهزة</h1>
+                <p className={`text-sm mt-1 ${subtext}`}>عاين عينة من الباكدج، وابعت طلبك على واتساب برسالة جاهزة</p>
+              </div>
+
+              {isLoadingPackages ? (
+                <div className="grid md:grid-cols-3 gap-6">
+                  {[1, 2, 3].map(i => <div key={i} className="h-72 rounded-3xl animate-pulse" style={card} />)}
+                </div>
+              ) : publishedPackages.length === 0 ? (
+                <div className="rounded-2xl p-10 text-center" style={card}>
+                  <p className={subtext}>لا توجد باكدجات منشورة حالياً.</p>
+                </div>
+              ) : (
+                <motion.div
+                  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  initial="hidden" animate="visible"
+                  variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } } as Variants}
+                >
+                  {publishedPackages.map(pkg => (
+                    <TeacherPackageCard key={pkg.id} pkg={pkg} card={card} isDark={isDark} />
                   ))}
                 </motion.div>
               )}
@@ -584,6 +628,54 @@ function FreeResourceCard({ resource, card, isDark }: { resource: FreeResource; 
         >
           <Download size={16} /> تحميل مجاني
         </a>
+      </div>
+    </motion.div>
+  );
+}
+
+function TeacherPackageCard({ pkg, card, isDark }: { pkg: TeacherPackage; card: React.CSSProperties; isDark: boolean }) {
+  return (
+    <motion.div
+      className="rounded-3xl overflow-hidden flex flex-col"
+      style={card}
+      variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } } as Variants}
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+    >
+      <div className="relative aspect-[16/10] bg-gray-100 dark:bg-gray-900/60 overflow-hidden">
+        {pkg.coverImageUrl ? (
+          <img src={pkg.coverImageUrl} alt={pkg.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-300">
+            <Presentation size={40} />
+          </div>
+        )}
+        {pkg.sampleFileUrl && (
+          <a
+            href={pkg.sampleFileUrl}
+            target="_blank" rel="noopener noreferrer"
+            className="absolute bottom-3 left-3 flex items-center gap-1.5 text-white text-[11px] font-bold px-3 py-1.5 rounded-full backdrop-blur bg-black/55 hover:bg-black/70 transition-colors"
+          >
+            <Eye size={12} /> عاين عينة
+          </a>
+        )}
+      </div>
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className={`font-bold text-[17px] mb-1.5 leading-snug line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{pkg.title}</h3>
+        {pkg.description && (
+          <p className={`text-[13px] leading-relaxed line-clamp-2 mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{pkg.description}</p>
+        )}
+        <div className="mt-auto flex items-center justify-between gap-3">
+          <span className={`text-xl font-black ${isDark ? 'text-white' : 'text-gray-900'}`}>{pkg.price}<span className="text-sm font-bold">ج.م</span></span>
+          <a
+            href={waLink(`مرحبًا، عايز أطلب باكدج "${pkg.title}"`)}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-white text-sm transition-transform hover:-translate-y-0.5 shadow-lg shadow-purple-500/20"
+            style={{ background: '#a855f7' }}
+          >
+            <MessageCircle size={16} /> اطلب الآن
+          </a>
+        </div>
       </div>
     </motion.div>
   );

@@ -294,6 +294,17 @@ export interface FreeResource {
   createdAt: string;
 }
 
+export interface TeacherPackage {
+  id: number;
+  title: string;
+  description?: string;
+  coverImageUrl?: string;
+  sampleFileUrl?: string;
+  price: number;
+  isPublished: boolean;
+  createdAt: string;
+}
+
 export interface BookletPurchaseItem {
   id: number;
   studentName: string;

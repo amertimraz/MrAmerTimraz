@@ -84,6 +84,7 @@ const AdminAllResults = lazy(() => import('./pages/admin/AdminAllResults'));
 const FileManagerPage = lazy(() => import('./pages/admin/FileManagerPage'));
 const BookletsManager = lazy(() => import('./pages/admin/BookletsManager'));
 const FreeResourcesManager = lazy(() => import('./pages/admin/FreeResourcesManager'));
+const TeacherPackagesManager = lazy(() => import('./pages/admin/TeacherPackagesManager'));
 
 
 
@@ -202,6 +203,7 @@ export default function App() {
               <Route path="all-results"     element={<AdminAllResults />} />
               <Route path="booklets"        element={<BookletsManager />} />
               <Route path="free-resources"  element={<FreeResourcesManager />} />
+              <Route path="teacher-packages" element={<TeacherPackagesManager />} />
               <Route path="booklet-stats"    element={<AdminBookletStats />} />
               <Route path="payment-settings" element={<AdminPaymentSettings />} />
 
