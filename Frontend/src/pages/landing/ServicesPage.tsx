@@ -7,6 +7,7 @@ import {
   BookOpen, GraduationCap, MessageCircle, ArrowRight, Eye,
   Presentation, Users, ListChecks, Trophy, Gamepad2, Sun, Moon,
   Gift, Download, FileText, ChevronLeft, ChevronRight, Sparkles, Percent,
+  Wallet, CalendarCheck,
 } from 'lucide-react';
 import { bookletsApi } from '../../api/booklets';
 import { freeResourcesApi } from '../../api/freeResources';
@@ -22,7 +23,9 @@ function waLink(message: string) {
 
 const appFeatures = [
   { icon: Presentation, label: 'سبورة تفاعلية' },
-  { icon: Users, label: 'مجموعات وطلاب' },
+  { icon: Users, label: 'إدارة المجموعات' },
+  { icon: Wallet, label: 'متابعة المدفوعات' },
+  { icon: CalendarCheck, label: 'الحضور والغياب' },
   { icon: ListChecks, label: 'اختبارات فورية' },
   { icon: Trophy, label: 'مسابقات صفية' },
   { icon: Gamepad2, label: 'ألعاب تعليمية' },
@@ -383,11 +386,11 @@ export default function ServicesPage() {
                     </div>
                     <div>
                       <h3 className={`text-xl font-bold ${text}`}>Active Class</h3>
-                      <p className={`text-sm ${subtext}`}>تطبيق متكامل لإدارة الحصة الدراسية</p>
+                      <p className={`text-sm ${subtext}`}>تطبيق موبايل متكامل لإدارة المجموعات والحصص</p>
                     </div>
                   </div>
                   <p className={`text-sm leading-relaxed mb-6 ${subtext}`}>
-                    تطبيق يساعد المدرس على إدارة حصته بكل سهولة: سبورة تفاعلية، تقسيم الطلاب لمجموعات، إجراء اختبارات ومسابقات فورية، وألعاب تعليمية تزيد من تفاعل الطلاب داخل الفصل.
+                    تطبيق على الموبايل يساعد المدرس على إدارة مجموعاته بكل سهولة: تقسيم الطلاب لمجموعات، متابعة المدفوعات، تسجيل الحضور والغياب، سبورة تفاعلية، اختبارات ومسابقات فورية، وألعاب تعليمية تزيد من تفاعل الطلاب.
                   </p>
                   <div className="flex flex-wrap gap-2 mb-7">
                     {appFeatures.map(f => (
@@ -401,14 +404,14 @@ export default function ServicesPage() {
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     <a
-                      href={waLink('مرحبًا، عايز أعرف تفاصيل أكتر عن تطبيق Active Class لإدارة الحصة الدراسية')}
+                      href={waLink('مرحبًا، عايز أطلب تطبيق Active Class لإدارة مجموعاتي')}
                       target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-blue-500/20"
                       style={{ background: '#3b82f6' }}
                     >
-                      <MessageCircle size={16} /> تواصل معي لمعرفة التفاصيل
+                      <MessageCircle size={16} /> اطلب التطبيق الآن
                     </a>
-                    <span className={`text-xs ${subtext}`}>قريباً — تواصل معي للحصول على أولوية التجربة</span>
+                    <span className={`text-xs ${subtext}`}>متاح الآن للمدرسين — تواصل معي وهرتبلك</span>
                   </div>
                 </div>
               </motion.div>
