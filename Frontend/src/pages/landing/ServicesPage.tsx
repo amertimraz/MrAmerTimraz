@@ -378,40 +378,49 @@ export default function ServicesPage() {
                   : { background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, #ffffff 55%)', border: '1px solid rgba(59,130,246,0.18)', boxShadow: '0 12px 32px -12px rgba(15,23,42,0.12)' }}
                 initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}
               >
-                <div className="p-7 sm:p-10">
-                  <div className="flex items-center gap-4 mb-5">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20"
-                      style={{ background: 'linear-gradient(135deg,#3b82f6,#1e40af)' }}>
-                      <Presentation size={28} className="text-white" />
-                    </div>
-                    <div>
-                      <h3 className={`text-xl font-bold ${text}`}>Active Class</h3>
-                      <p className={`text-sm ${subtext}`}>تطبيق موبايل متكامل لإدارة المجموعات والحصص</p>
-                    </div>
-                  </div>
-                  <p className={`text-sm leading-relaxed mb-6 ${subtext}`}>
-                    تطبيق على الموبايل يساعد المدرس على إدارة مجموعاته بكل سهولة: تقسيم الطلاب لمجموعات، متابعة المدفوعات، تسجيل الحضور والغياب، سبورة تفاعلية، اختبارات ومسابقات فورية، وألعاب تعليمية تزيد من تفاعل الطلاب.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-7">
-                    {appFeatures.map(f => (
-                      <span key={f.label}
-                        className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-                        style={isDark ? { background: 'rgba(255,255,255,0.06)' } : { background: 'rgba(15,23,42,0.04)' }}
-                      >
-                        <f.icon size={13} /> {f.label}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <a
-                      href={waLink('مرحبًا، عايز أطلب تطبيق Active Class لإدارة مجموعاتي')}
-                      target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-blue-500/20"
-                      style={{ background: '#3b82f6' }}
+                <div className="p-7 sm:p-10 flex flex-col md:flex-row-reverse gap-8 items-center">
+                  <div className="shrink-0">
+                    <div className="w-[180px] sm:w-[210px] rounded-[26px] overflow-hidden border-4 shadow-2xl"
+                      style={{ borderColor: isDark ? '#1e293b' : '#ffffff' }}
                     >
-                      <MessageCircle size={16} /> اطلب التطبيق الآن
-                    </a>
-                    <span className={`text-xs ${subtext}`}>متاح الآن للمدرسين — تواصل معي وهرتبلك</span>
+                      <img src="/active-class-screenshot.jpg" alt="لقطة شاشة من تطبيق Active Class" className="w-full h-auto block" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-4 mb-5">
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20"
+                        style={{ background: 'linear-gradient(135deg,#3b82f6,#1e40af)' }}>
+                        <Presentation size={28} className="text-white" />
+                      </div>
+                      <div>
+                        <h3 className={`text-xl font-bold ${text}`}>Active Class</h3>
+                        <p className={`text-sm ${subtext}`}>تطبيق موبايل متكامل لإدارة المجموعات والحصص</p>
+                      </div>
+                    </div>
+                    <p className={`text-sm leading-relaxed mb-6 ${subtext}`}>
+                      تطبيق على الموبايل يساعد المدرس على إدارة مجموعاته بكل سهولة: تقسيم الطلاب لمجموعات، متابعة المدفوعات، تسجيل الحضور والغياب، سبورة تفاعلية، اختبارات ومسابقات فورية، وألعاب تعليمية تزيد من تفاعل الطلاب.
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-7">
+                      {appFeatures.map(f => (
+                        <span key={f.label}
+                          className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                          style={isDark ? { background: 'rgba(255,255,255,0.06)' } : { background: 'rgba(15,23,42,0.04)' }}
+                        >
+                          <f.icon size={13} /> {f.label}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <a
+                        href={waLink('مرحبًا، عايز أطلب تطبيق Active Class لإدارة مجموعاتي')}
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-blue-500/20"
+                        style={{ background: '#3b82f6' }}
+                      >
+                        <MessageCircle size={16} /> اطلب التطبيق الآن
+                      </a>
+                      <span className={`text-xs ${subtext}`}>متاح الآن للمدرسين — تواصل معي وهرتبلك</span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
