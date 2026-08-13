@@ -412,7 +412,7 @@ export default function ServicesPage() {
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
                       <a
-                        href={waLink('مرحبًا، عايز أطلب تطبيق Active Class لإدارة مجموعاتي')}
+                        href="https://whatsapp.com/channel/0029VbDFTCsEquiR7nSaO52X"
                         target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-blue-500/20"
                         style={{ background: '#3b82f6' }}
