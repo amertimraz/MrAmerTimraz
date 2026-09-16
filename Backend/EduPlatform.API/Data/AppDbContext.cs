@@ -37,6 +37,9 @@ public class AppDbContext : DbContext
     public DbSet<ChallengeSnippet> ChallengeSnippets => Set<ChallengeSnippet>();
     public DbSet<TofasTestResult> TofasTestResults => Set<TofasTestResult>();
     public DbSet<PathResult> PathResults => Set<PathResult>();
+    public DbSet<ReviewQuiz> ReviewQuizzes => Set<ReviewQuiz>();
+    public DbSet<ReviewQuestion> ReviewQuestions => Set<ReviewQuestion>();
+    public DbSet<ReviewAttempt> ReviewAttempts => Set<ReviewAttempt>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -240,6 +243,29 @@ public class AppDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(r => r.StudentId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ReviewQuiz>(entity =>
+        {
+            entity.Property(q => q.Stage).HasConversion<string>();
+        });
+
+        modelBuilder.Entity<ReviewQuestion>(entity =>
+        {
+            entity.HasOne(q => q.Quiz)
+                  .WithMany(qz => qz.Questions)
+                  .HasForeignKey(q => q.ReviewQuizId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ReviewAttempt>(entity =>
+        {
+            entity.HasOne(a => a.Quiz)
+                  .WithMany(qz => qz.Attempts)
+                  .HasForeignKey(a => a.ReviewQuizId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(a => new { a.ReviewQuizId, a.StudentName }).IsUnique();
         });
     }
 }

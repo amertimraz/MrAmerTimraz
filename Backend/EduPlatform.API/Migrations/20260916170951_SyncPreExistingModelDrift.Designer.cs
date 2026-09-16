@@ -3,6 +3,7 @@ using System;
 using EduPlatform.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduPlatform.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260916170951_SyncPreExistingModelDrift")]
+    partial class SyncPreExistingModelDrift
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -655,96 +658,6 @@ namespace EduPlatform.API.Migrations
                     b.ToTable("Results");
                 });
 
-            modelBuilder.Entity("EduPlatform.API.Models.ReviewAttempt", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("DurationSeconds")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ReviewQuizId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("StudentName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TotalQuestions")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewQuizId", "StudentName")
-                        .IsUnique();
-
-                    b.ToTable("ReviewAttempts");
-                });
-
-            modelBuilder.Entity("EduPlatform.API.Models.ReviewQuestion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CorrectOptionIndex")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("OptionsJson")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ReviewQuizId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewQuizId");
-
-                    b.ToTable("ReviewQuestions");
-                });
-
-            modelBuilder.Entity("EduPlatform.API.Models.ReviewQuiz", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Stage")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ReviewQuizzes");
-                });
-
             modelBuilder.Entity("EduPlatform.API.Models.TeacherPackage", b =>
                 {
                     b.Property<int>("Id")
@@ -1223,28 +1136,6 @@ namespace EduPlatform.API.Migrations
                     b.Navigation("Test");
                 });
 
-            modelBuilder.Entity("EduPlatform.API.Models.ReviewAttempt", b =>
-                {
-                    b.HasOne("EduPlatform.API.Models.ReviewQuiz", "Quiz")
-                        .WithMany("Attempts")
-                        .HasForeignKey("ReviewQuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-                });
-
-            modelBuilder.Entity("EduPlatform.API.Models.ReviewQuestion", b =>
-                {
-                    b.HasOne("EduPlatform.API.Models.ReviewQuiz", "Quiz")
-                        .WithMany("Questions")
-                        .HasForeignKey("ReviewQuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-                });
-
             modelBuilder.Entity("EduPlatform.API.Models.Test", b =>
                 {
                     b.HasOne("EduPlatform.API.Models.Course", "Course")
@@ -1343,13 +1234,6 @@ namespace EduPlatform.API.Migrations
             modelBuilder.Entity("EduPlatform.API.Models.LiveSession", b =>
                 {
                     b.Navigation("Enrollments");
-                });
-
-            modelBuilder.Entity("EduPlatform.API.Models.ReviewQuiz", b =>
-                {
-                    b.Navigation("Attempts");
-
-                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("EduPlatform.API.Models.Test", b =>

@@ -29,6 +29,9 @@ const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 
 const InteractiveTheoryPage = lazy(() => import('./pages/landing/InteractiveTheoryPage'));
 const TofasExamPage = lazy(() => import('./pages/TofasExamPage'));
+const ReviewsStagesPage = lazy(() => import('./pages/reviews/ReviewsStagesPage'));
+const ReviewStageQuizzesPage = lazy(() => import('./pages/reviews/ReviewStageQuizzesPage'));
+const ReviewQuizPage = lazy(() => import('./pages/reviews/ReviewQuizPage'));
 const BookletStorePage = lazy(() => import('./pages/student/BookletStorePage'));
 const PaymentSuccessPage = lazy(() => import('./pages/PaymentStatusPage').then(m => ({ default: m.PaymentSuccessPage })));
 const PaymentFailedPage = lazy(() => import('./pages/PaymentStatusPage').then(m => ({ default: m.PaymentFailedPage })));
@@ -132,6 +135,10 @@ export default function App() {
 
             <Route path="/tofas-exam" element={<TofasExamPage />} />
             <Route path="/services" element={<ServicesPage />} />
+
+            <Route path="/reviews" element={<ReviewsStagesPage />} />
+            <Route path="/reviews/quiz/:quizId" element={<ReviewQuizPage />} />
+            <Route path="/reviews/:stage" element={<ReviewStageQuizzesPage />} />
 
 
             <Route path="/login"    element={<LoginPage />} />
