@@ -77,23 +77,6 @@ namespace EduPlatform.API.Migrations
                 {
                     table.PrimaryKey("PK_LibraryStudentInfos", x => x.Id);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "PathResults",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    StudentName = table.Column<string>(type: "TEXT", nullable: true),
-                    TrackId = table.Column<string>(type: "TEXT", nullable: false),
-                    TrackName = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    SessionId = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PathResults", x => x.Id);
-                });
         }
 
         /// <inheritdoc />
@@ -101,9 +84,6 @@ namespace EduPlatform.API.Migrations
         {
             migrationBuilder.DropTable(
                 name: "LibraryStudentInfos");
-
-            migrationBuilder.DropTable(
-                name: "PathResults");
 
             migrationBuilder.DropColumn(
                 name: "DownloadToken",
