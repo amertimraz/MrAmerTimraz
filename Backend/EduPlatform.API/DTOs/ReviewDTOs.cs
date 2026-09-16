@@ -29,6 +29,17 @@ public class ReviewQuizPublicDto
     public List<ReviewQuestionPublicDto> Questions { get; set; } = new();
 }
 
+public class ReviewCheckAnswerDto
+{
+    public int SelectedOptionIndex { get; set; }
+}
+
+public class ReviewCheckAnswerResultDto
+{
+    public bool IsCorrect { get; set; }
+    public int CorrectOptionIndex { get; set; }
+}
+
 public class ReviewAnswerDto
 {
     public int QuestionId { get; set; }

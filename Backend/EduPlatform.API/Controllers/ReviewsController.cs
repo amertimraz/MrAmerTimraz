@@ -76,6 +76,22 @@ public class ReviewsController : ControllerBase
         return Ok(dto);
     }
 
+    [HttpPost("quizzes/{id}/questions/{questionId}/check")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CheckAnswer(int id, int questionId, ReviewCheckAnswerDto dto)
+    {
+        var question = await _db.ReviewQuestions
+            .FirstOrDefaultAsync(q => q.Id == questionId && q.ReviewQuizId == id);
+
+        if (question == null) return NotFound("السؤال غير موجود");
+
+        return Ok(new ReviewCheckAnswerResultDto
+        {
+            IsCorrect = dto.SelectedOptionIndex == question.CorrectOptionIndex,
+            CorrectOptionIndex = question.CorrectOptionIndex
+        });
+    }
+
     [HttpPost("quizzes/{id}/submit")]
     [AllowAnonymous]
     public async Task<IActionResult> Submit(int id, ReviewSubmitDto dto)
