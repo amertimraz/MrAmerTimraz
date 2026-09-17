@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EduPlatform.API.Models;
 
@@ -18,5 +19,6 @@ public class ReviewAttempt
 
     public int DurationSeconds { get; set; }
 
+    [Column(TypeName = "timestamp without time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

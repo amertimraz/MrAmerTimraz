@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduPlatform.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260916175843_SeedPrep3Lesson1Review")]
-    partial class SeedPrep3Lesson1Review
+    [Migration("20260917134249_SeedPrep3Lesson1MCQ")]
+    partial class SeedPrep3Lesson1MCQ
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -665,7 +665,7 @@ namespace EduPlatform.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("DurationSeconds")
                         .HasColumnType("INTEGER");
@@ -729,10 +729,10 @@ namespace EduPlatform.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Stage")
                         .IsRequired()

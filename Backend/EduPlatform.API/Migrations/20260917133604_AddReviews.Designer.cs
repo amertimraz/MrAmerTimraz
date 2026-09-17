@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduPlatform.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260916171032_AddReviews")]
+    [Migration("20260917133604_AddReviews")]
     partial class AddReviews
     {
         /// <inheritdoc />
@@ -665,7 +665,7 @@ namespace EduPlatform.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("DurationSeconds")
                         .HasColumnType("INTEGER");
@@ -729,10 +729,10 @@ namespace EduPlatform.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Stage")
                         .IsRequired()
