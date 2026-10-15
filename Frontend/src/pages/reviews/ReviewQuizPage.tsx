@@ -18,6 +18,31 @@ interface Feedback {
 
 const PAGE_BG = 'radial-gradient(circle at 50% -10%, #1e3a5f 0%, #0b1120 55%, #060a14 100%)';
 
+// Text between ``` fences is rendered as an LTR code block; everything else is normal Arabic prose.
+function QuestionText({ text }: { text: string }) {
+  const parts = text.split('```');
+  return (
+    <>
+      {parts.map((part, i) => {
+        const content = part.trim();
+        if (!content) return null;
+        if (i % 2 === 1) {
+          return (
+            <pre
+              key={i}
+              dir="ltr"
+              className="my-3 text-left text-sm sm:text-base font-mono font-normal bg-black/30 border border-white/10 rounded-xl p-3 overflow-x-auto whitespace-pre"
+            >
+              {content}
+            </pre>
+          );
+        }
+        return <bdi key={i} className="block whitespace-pre-wrap">{content}</bdi>;
+      })}
+    </>
+  );
+}
+
 function formatTime(totalSeconds: number) {
   const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
   const s = (totalSeconds % 60).toString().padStart(2, '0');
@@ -175,9 +200,9 @@ export default function ReviewQuizPage() {
         </div>
 
         <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-5 sm:px-6 sm:py-6 flex flex-col">
-          <p className="font-extrabold text-lg sm:text-xl leading-relaxed mb-5 sm:mb-6">
-            <bdi>{q.text}</bdi>
-          </p>
+          <div className="font-extrabold text-lg sm:text-xl leading-relaxed mb-5 sm:mb-6">
+            <QuestionText text={q.text} />
+          </div>
 
           <div className="flex flex-col gap-2.5 sm:gap-3 flex-1">
             {q.options.map((opt, idx) => {
