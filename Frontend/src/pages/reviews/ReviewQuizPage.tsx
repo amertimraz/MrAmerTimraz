@@ -18,6 +18,28 @@ interface Feedback {
 
 const PAGE_BG = 'radial-gradient(circle at 50% -10%, #1e3a5f 0%, #0b1120 55%, #060a14 100%)';
 
+// Latin identifiers/calls/indexing (int(), range(1,6), text[-1]) are isolated as LTR so the
+// bidi algorithm can't flip their parentheses/brackets inside Arabic sentences.
+const CODE_TOKEN = /[A-Za-z_][\w.]*(?:\([^()]*\)|\[[^[\]]*\])*/g;
+
+function Rich({ text }: { text: string }) {
+  const out: React.ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(CODE_TOKEN)) {
+    const start = m.index ?? 0;
+    if (start > last) out.push(text.slice(last, start));
+    const isCode = /[([]/.test(m[0]);
+    out.push(
+      <bdi key={start} dir="ltr" className={isCode ? 'font-mono text-[0.95em]' : undefined}>
+        {m[0]}
+      </bdi>
+    );
+    last = start + m[0].length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return <>{out}</>;
+}
+
 // Text between ``` fences is rendered as an LTR code block; everything else is normal Arabic prose.
 function QuestionText({ text }: { text: string }) {
   const parts = text.split('```');
@@ -37,7 +59,7 @@ function QuestionText({ text }: { text: string }) {
             </pre>
           );
         }
-        return <bdi key={i} className="block whitespace-pre-wrap">{content}</bdi>;
+        return <bdi key={i} className="block whitespace-pre-wrap"><Rich text={content} /></bdi>;
       })}
     </>
   );
@@ -222,7 +244,7 @@ export default function ReviewQuizPage() {
                   disabled={!!fb}
                   className={`flex items-center justify-between gap-3 text-right py-3.5 px-4 sm:py-4 sm:px-5 rounded-xl border-2 transition font-bold active:scale-[0.99] ${cls}`}
                 >
-                  <bdi className="min-w-0">{opt}</bdi>
+                  <bdi className="min-w-0"><Rich text={opt} /></bdi>
                   {fb && idx === fb.correctOptionIndex && <Check size={20} className="text-emerald-400 shrink-0" />}
                   {fb && isSel && idx !== fb.correctOptionIndex && <X size={20} className="text-rose-400 shrink-0" />}
                 </button>
