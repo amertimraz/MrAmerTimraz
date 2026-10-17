@@ -1,11 +1,8 @@
 import { Helmet } from 'react-helmet-async';
 import Hero from '../../components/landing/HeroNew';
-import StatisticsSection from '../../components/landing/StatisticsSection';
-import HowItWorksSection from '../../components/landing/HowItWorksSection';
+import ReviewsPromoSection from '../../components/landing/ReviewsPromoSection';
 import CoursesSection from '../../components/landing/CoursesSection';
 import FeaturesSection from '../../components/landing/FeaturesSection';
-import Testimonials from '../../components/landing/Testimonials';
-import NewsletterSection from '../../components/landing/NewsletterSection';
 
 export default function HomePage() {
   return (
@@ -25,12 +22,9 @@ export default function HomePage() {
         <meta name="twitter:image" content="https://www.amertimraz.com/teacher.png" />
       </Helmet>
       <Hero />
-      <StatisticsSection />
-      <HowItWorksSection />
+      <ReviewsPromoSection />
       <CoursesSection />
       <FeaturesSection />
-      <Testimonials />
-      <NewsletterSection />
     </>
   );
 }

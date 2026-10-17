@@ -30,10 +30,9 @@ function TeacherLogo({ isDark }: { isDark: boolean }) {
 const navLinks = [
   { to: '/',        label: 'الرئيسية'   },
   { to: '/courses', label: 'الدروس'     },
+  { to: '/reviews', label: 'المراجعات'  },
   { to: '/library', label: 'المكتبة'    },
   { to: '/services', label: 'خدماتي'    },
-  { to: '/interactive-theory', label: 'شرح تفاعلي ✨' },
-  { to: '/masarat', label: 'دليل المسارات' },
   { to: '/about',   label: 'عن مستر' },
   { to: '/contact', label: 'تواصل معنا' },
 ];

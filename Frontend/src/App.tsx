@@ -25,9 +25,7 @@ const PrivacyPolicyPage = lazy(() => import('./pages/landing/PrivacyPolicyPage')
 const TermsPage = lazy(() => import('./pages/landing/TermsPage'));
 const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
 const ServicesPage = lazy(() => import('./pages/landing/ServicesPage'));
-const PathsGuidePage = lazy(() => import('./pages/landing/PathsGuidePage'));
 
-const InteractiveTheoryPage = lazy(() => import('./pages/landing/InteractiveTheoryPage'));
 const TofasExamPage = lazy(() => import('./pages/TofasExamPage'));
 const ReviewsStagesPage = lazy(() => import('./pages/reviews/ReviewsStagesPage'));
 const ReviewStageQuizzesPage = lazy(() => import('./pages/reviews/ReviewStageQuizzesPage'));
@@ -127,9 +125,6 @@ export default function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/library"  element={<LibraryPage />} />
-              <Route path="/masarat"  element={<PathsGuidePage />} />
-
-              <Route path="/interactive-theory" element={<InteractiveTheoryPage />} />
               <Route path="/booklet-store"   element={<BookletStorePage />} />
             </Route>
 
