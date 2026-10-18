@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { ClipboardCheck, ExternalLink, Eye, EyeOff, Printer, Clock, Sparkles } from 'lucide-react';
-import { assessmentsApi, type AssessmentContent, type AssessmentTrackSummary, type AssessmentWeekSummary } from '../../api/assessments';
+import { assessmentsApi, visitsApi, type AssessmentContent, type AssessmentTrackSummary, type AssessmentWeekSummary } from '../../api/assessments';
 import AssessmentSheet from '../../components/assessments/AssessmentSheet';
 
 const NEW_DAYS = 10;
@@ -76,6 +76,18 @@ export default function AssessmentsPage() {
     queryFn: assessmentsApi.getCatalog,
   });
 
+  // Count one visit per browser session, then show the running total.
+  const [visits, setVisits] = useState<number | null>(null);
+  useEffect(() => {
+    let counted = false;
+    try { counted = sessionStorage.getItem('assessments-visit') === '1'; } catch { /* storage blocked */ }
+    const req = counted ? visitsApi.get('assessments') : visitsApi.hit('assessments');
+    req.then(n => {
+      setVisits(n);
+      try { sessionStorage.setItem('assessments-visit', '1'); } catch { /* storage blocked */ }
+    }).catch(() => {});
+  }, []);
+
   const [selected, setSelected] = useState<number | 'all' | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
   const [stageKey, setStageKey] = useState<string | null>(null);
@@ -136,6 +148,14 @@ export default function AssessmentsPage() {
         <span className="inline-flex items-center gap-2 rounded-full border-2 border-slate-900 bg-teal-100 px-4 py-1 text-sm font-extrabold text-teal-900 dark:border-teal-300 dark:bg-teal-950 dark:text-teal-100">
           <ClipboardCheck size={16} aria-hidden /> التقييمات الأسبوعية
         </span>
+        {visits !== null && (
+          <span
+            className="mr-2 inline-flex items-center gap-2 rounded-full border-2 border-slate-900 bg-orange-500 px-4 py-1 text-sm font-extrabold text-slate-900 dark:border-orange-300"
+            aria-label={`عدد الزيارات ${visits.toLocaleString('ar-EG')}`}
+          >
+            <Eye size={16} aria-hidden /> عدد الزيارات: {visits.toLocaleString('ar-EG')}
+          </span>
+        )}
         <h1 className="mt-3 text-3xl font-black text-slate-900 dark:text-white sm:text-4xl">
           تقييمات {track?.subject ?? 'الحاسب الآلي'}
         </h1>

@@ -46,3 +46,9 @@ export const assessmentsApi = {
   getWeek: (track: string, week: number) =>
     client.get<AssessmentContent>(`/assessments/${track}/${week}`).then(res => res.data),
 };
+
+export const visitsApi = {
+  // Registers a visit and returns the new total.
+  hit: (page: string) => client.post<{ count: number }>(`/visits/${page}`).then(res => res.data.count),
+  get: (page: string) => client.get<{ count: number }>(`/visits/${page}`).then(res => res.data.count),
+};
