@@ -19,14 +19,26 @@ const GRADES = [
 ];
 
 const PRINT_CSS = `
+.print-watermark { display: none; }
 @media print {
+  html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; }
+  #root > div { display: block !important; min-height: 0 !important; height: auto !important; background: #fff !important; }
   #root > div > *:not(main) { display: none !important; }
-  #root > div { background: #fff !important; }
-  #root main { padding-top: 0 !important; }
+  #root main { display: block !important; padding: 0 !important; position: static !important; }
   .no-print { display: none !important; }
-  .print-sheet { break-after: page; border: none !important; padding: 0 !important; }
-  .print-sheet:last-child { break-after: auto; }
-  @page { margin: 14mm; }
+  .print-sheet { break-after: page; page-break-after: always; border: none !important; padding: 0 !important; margin: 0 !important; }
+  .print-sheet:last-child { break-after: auto; page-break-after: auto; }
+  .print-sheet article { border: none !important; padding: 0 !important; }
+  .print-sheet li, .print-sheet pre { break-inside: avoid; page-break-inside: avoid; }
+  .print-watermark {
+    display: block; position: fixed; top: 50%; left: 50%; z-index: 0; pointer-events: none;
+    transform: translate(-50%, -50%) rotate(-30deg); white-space: nowrap;
+    font-size: 54px; font-weight: 900; color: rgba(13, 148, 136, 0.10); text-align: center; line-height: 1.4;
+  }
+  .print-watermark small { display: block; font-size: 30px; font-weight: 700; direction: ltr; }
+  .print-sheet article { position: relative; z-index: 1; }
+  @page { size: A4; margin: 14mm; }
 }
 `;
 
@@ -102,6 +114,10 @@ export default function AssessmentsPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6" dir="rtl">
       <style>{PRINT_CSS}</style>
+      <div className="print-watermark" aria-hidden>
+        منصة الأستاذ عامر تمراز
+        <small>amertimraz.com</small>
+      </div>
 
       <header className="no-print">
         <span className="inline-flex items-center gap-2 rounded-full border-2 border-slate-900 bg-teal-100 px-4 py-1 text-sm font-extrabold text-teal-900 dark:border-teal-300 dark:bg-teal-950 dark:text-teal-100">

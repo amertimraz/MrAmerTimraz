@@ -24,7 +24,10 @@ public static class AssessmentTracks
             "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Prepratory/Prepratory1/Term1/ClassrHomeAssessmentsTest/ICT_ARABIC_Prep1_TR1_W{0}.pdf"),
         new AssessmentTrack(
             "sec1-ai-t1", "Sec1", "الصف الأول الثانوي", "البرمجة والذكاء الاصطناعي", 1,
-            "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Secondry/Secondry1/Term1/ClassrHomeAssessmentsTest/AI_AR_Sec1_TR1_W{0}.pdf")
+            "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Secondry/Secondry1/Term1/ClassrHomeAssessmentsTest/AI_AR_Sec1_TR1_W{0}.pdf"),
+        new AssessmentTrack(
+            "prim4-ict-t1", "Prim4", "الصف الرابع الابتدائي", "تكنولوجيا المعلومات والاتصالات", 1,
+            "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Primary/Primary4/Term1/ClassrHomeAssessmentsTest/ICT_ARABIC_Prim4_TR1_W{0}.pdf")
     };
 }
 

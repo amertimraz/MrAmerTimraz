@@ -172,6 +172,10 @@ export default function AssessmentSheet({
 }) {
   return (
     <article dir="rtl" className="rounded-2xl border-2 border-slate-300 bg-white p-4 text-slate-900 sm:p-6">
+      <div className="mb-3 flex items-center justify-between rounded-xl bg-teal-700 px-4 py-2 text-white">
+        <span className="text-base font-black">منصة الأستاذ عامر تمراز</span>
+        <span dir="ltr" className="text-sm font-bold">amertimraz.com</span>
+      </div>
       <header className="border-b-2 border-slate-900 pb-3">
         <p className="text-sm font-bold text-slate-600">{stageLabel} — التقييم الأسبوعي والواجب المنزلي</p>
         <h3 className="mt-1 text-xl font-black">الأسبوع {content.week}</h3>
