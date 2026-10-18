@@ -1,0 +1,164 @@
+{
+  "track": "prep3-ict-t1",
+  "week": 5,
+  "unit": "الوحدة الأولى: الذكاء الاصطناعي ولغات البرمجة",
+  "lesson": "الدرس الثالث: السلاسل النصية Strings والقوائم Lists في لغة Python",
+  "parts": [
+    {
+      "group": "التقييم الأسبوعي",
+      "title": "الاختبار الأول",
+      "items": [
+        {
+          "type": "open",
+          "text": "كيف يمكنك تحويل النص \"Python\" إلى قائمة من الحروف باستخدام دالة list()؟ اكتب الكود.",
+          "answer": "نمرر النص إلى list() فتعيد قائمة بحروفه.",
+          "code": "letters = list(\"Python\")\nprint(letters)",
+          "output": "['P', 'y', 't', 'h', 'o', 'n']"
+        },
+        {
+          "type": "open",
+          "text": "اكتب كوداً لإنشاء قائمة بأسماء الفواكه، ثم احذف فاكهة معينة.",
+          "answer": "ننشئ القائمة بين قوسين مربعين ثم نحذف العنصر المطلوب بـ remove().",
+          "code": "fruits = [\"apple\", \"banana\", \"orange\"]\nfruits.remove(\"banana\")\nprint(fruits)",
+          "output": "['apple', 'orange']"
+        },
+        {
+          "type": "mcq",
+          "text": "أي من العبارات التالية صحيحة لإنشاء قائمة (List) في Python؟",
+          "options": [
+            "names = (\"Ahmed\", \"Ali\")",
+            "names = [\"Ahmed\", \"Ali\"]",
+            "names = {\"Ahmed\", \"Ali\"}",
+            "names = <\"Ahmed\", \"Ali\">"
+          ],
+          "answer": 1
+        }
+      ]
+    },
+    {
+      "group": "التقييم الأسبوعي",
+      "title": "الاختبار الثاني",
+      "items": [
+        {
+          "type": "open",
+          "text": "اشرح الفرق بين append() و remove() في القوائم.",
+          "answer": "append() تضيف عنصراً جديداً إلى نهاية القائمة، أما remove() فتحذف عنصراً محدداً (بقيمته) من القائمة.",
+          "code": "items = [1, 2]\nitems.append(3)\nprint(items)\nitems.remove(1)\nprint(items)",
+          "output": "[1, 2, 3]\n[2, 3]"
+        },
+        {
+          "type": "open",
+          "text": "اكتب كوداً لتحويل النص \"Welcome\" إلى قائمة حروف.",
+          "answer": "نستخدم الدالة list().",
+          "code": "print(list(\"Welcome\"))",
+          "output": "['W', 'e', 'l', 'c', 'o', 'm', 'e']"
+        },
+        {
+          "type": "mcq",
+          "text": "ما هي الدالة التي تستخدم لإضافة عنصر إلى نهاية القائمة؟",
+          "options": [
+            "add()",
+            "append()",
+            "insert()",
+            "push()"
+          ],
+          "answer": 1
+        }
+      ]
+    },
+    {
+      "group": "التقييم الأسبوعي",
+      "title": "الاختبار الثالث",
+      "items": [
+        {
+          "type": "open",
+          "text": "اكتب كوداً يتحقق من وجود الرقم 5 في القائمة [1, 2, 3, 4].",
+          "answer": "نستخدم in، والنتيجة False لأن الرقم 5 غير موجود في القائمة.",
+          "code": "numbers = [1, 2, 3, 4]\nprint(5 in numbers)",
+          "output": "False"
+        },
+        {
+          "type": "open",
+          "text": "اشرح كيف تعمل حلقة for مع القوائم، مع كتابة مثال.",
+          "answer": "تمر حلقة for على عناصر القائمة واحداً تلو الآخر وتنفذ الكود داخلها مرة لكل عنصر.",
+          "code": "names = [\"Ahmed\", \"Ali\", \"Sara\"]\nfor name in names:\n    print(name)",
+          "output": "Ahmed\nAli\nSara"
+        },
+        {
+          "type": "mcq",
+          "text": "ما هو ناتج الكود التالي؟",
+          "options": [
+            "['Ahmed', 'Ali', 'Sara']",
+            "['Ahmed', 'Sara']",
+            "['Ali', 'Sara']",
+            "Error"
+          ],
+          "answer": 1,
+          "code": "names = [\"Ahmed\", \"Ali\", \"Sara\"]\nnames.remove(\"Ali\")\nprint(names)"
+        }
+      ]
+    },
+    {
+      "group": "التقييم الصفي",
+      "title": "",
+      "items": [
+        {
+          "type": "open",
+          "text": "ما الفرق بين السلسلة النصية (String) والقائمة (List) من حيث قابلية التعديل (Mutable vs. Immutable)؟",
+          "answer": "السلسلة النصية Immutable: لا يمكن تعديل حرف منها بعد إنشائها (محاولة text[0] = \"x\" تعطي خطأ). القائمة Mutable: يمكن تغيير عناصرها وإضافة عناصر وحذفها بعد إنشائها."
+        },
+        {
+          "type": "open",
+          "text": "اكتب حلقة تكرارية تطبع عناصر القائمة [\"A\", \"B\", \"C\"].",
+          "answer": "تمر حلقة for على القائمة وتطبع كل عنصر.",
+          "code": "for item in [\"A\", \"B\", \"C\"]:\n    print(item)",
+          "output": "A\nB\nC"
+        },
+        {
+          "type": "mcq",
+          "text": "ما هو ناتج الكود التالي؟",
+          "options": [
+            "10",
+            "20",
+            "30",
+            "40"
+          ],
+          "answer": 2,
+          "code": "numbers = [10, 20, 30, 40]\nprint(numbers[2])"
+        }
+      ]
+    },
+    {
+      "group": "الواجب المنزلي",
+      "title": "",
+      "items": [
+        {
+          "type": "open",
+          "text": "لديك القائمة numbers = [1, 2, 3, 4]، اكتب كوداً لحذف العنصر 3 من القائمة.",
+          "answer": "نستخدم remove(3) لحذف العنصر الذي قيمته 3.",
+          "code": "numbers = [1, 2, 3, 4]\nnumbers.remove(3)\nprint(numbers)",
+          "output": "[1, 2, 4]"
+        },
+        {
+          "type": "open",
+          "text": "اكتب كوداً لإنشاء قائمة تحتوي على أسماء خمسة طلاب، ثم اطبع العنصر الرابع.",
+          "answer": "العنصر الرابع فهرسه 3 لأن الفهرس يبدأ من 0.",
+          "code": "students = [\"Ahmed\", \"Ali\", \"Sara\", \"Mona\", \"Omar\"]\nprint(students[3])",
+          "output": "Mona"
+        },
+        {
+          "type": "mcq",
+          "text": "ما هو ناتج الكود التالي؟",
+          "options": [
+            "3",
+            "4",
+            "5",
+            "Error"
+          ],
+          "answer": 1,
+          "code": "print(len([1, 2, 3, 4]))"
+        }
+      ]
+    }
+  ]
+}

@@ -27,6 +27,7 @@ const LibraryPage = lazy(() => import('./pages/landing/LibraryPage'));
 const ServicesPage = lazy(() => import('./pages/landing/ServicesPage'));
 
 const TofasExamPage = lazy(() => import('./pages/TofasExamPage'));
+const AssessmentsPage = lazy(() => import('./pages/landing/AssessmentsPage'));
 const ReviewsStagesPage = lazy(() => import('./pages/reviews/ReviewsStagesPage'));
 const ReviewStageQuizzesPage = lazy(() => import('./pages/reviews/ReviewStageQuizzesPage'));
 const ReviewQuizPage = lazy(() => import('./pages/reviews/ReviewQuizPage'));
@@ -124,6 +125,7 @@ export default function App() {
               <Route path="/contact"  element={<ContactPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/assessments" element={<AssessmentsPage />} />
               <Route path="/library"  element={<LibraryPage />} />
               <Route path="/booklet-store"   element={<BookletStorePage />} />
             </Route>

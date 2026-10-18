@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, Trophy, Timer, Check, X } from 'lucide-react';
 import axios from 'axios';
+import { Rich } from '../../components/shared/RichText';
 import {
   reviewsApi,
   type ReviewQuizPublic,
@@ -17,28 +18,6 @@ interface Feedback {
 }
 
 const PAGE_BG = 'radial-gradient(circle at 50% -10%, #1e3a5f 0%, #0b1120 55%, #060a14 100%)';
-
-// Latin identifiers/calls/indexing (int(), range(1,6), text[-1]) are isolated as LTR so the
-// bidi algorithm can't flip their parentheses/brackets inside Arabic sentences.
-const CODE_TOKEN = /[A-Za-z_][\w.]*(?:\([^()]*\)|\[[^[\]]*\])*/g;
-
-function Rich({ text }: { text: string }) {
-  const out: React.ReactNode[] = [];
-  let last = 0;
-  for (const m of text.matchAll(CODE_TOKEN)) {
-    const start = m.index ?? 0;
-    if (start > last) out.push(text.slice(last, start));
-    const isCode = /[([]/.test(m[0]);
-    out.push(
-      <bdi key={start} dir="ltr" className={isCode ? 'font-mono text-[0.95em]' : undefined}>
-        {m[0]}
-      </bdi>
-    );
-    last = start + m[0].length;
-  }
-  if (last < text.length) out.push(text.slice(last));
-  return <>{out}</>;
-}
 
 // Text between ``` fences is rendered as an LTR code block; everything else is normal Arabic prose.
 function QuestionText({ text }: { text: string }) {

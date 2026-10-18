@@ -71,6 +71,8 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IKashierService, KashierService>();
 builder.Services.AddScoped<IMuxService, MuxService>();
 builder.Services.AddHttpClient();
+builder.Services.AddSingleton<EduPlatform.API.Assessments.AssessmentCatalog>();
+builder.Services.AddHostedService<EduPlatform.API.Assessments.AssessmentWatcher>();
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
 {
     o.MultipartBodyLengthLimit = 500 * 1024 * 1024;

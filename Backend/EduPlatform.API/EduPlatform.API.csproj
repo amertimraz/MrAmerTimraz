@@ -23,4 +23,9 @@
     <PackageReference Include="PdfPig" Version="0.1.15" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Solved assessment content is read from disk at runtime; make sure it ships with build and publish. -->
+    <Content Update="Assessments\Content\**\*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

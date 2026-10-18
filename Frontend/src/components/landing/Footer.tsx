@@ -60,6 +60,7 @@ export default function Footer() {
                 { to: '/',        label: 'الرئيسية' },
                 { to: '/courses', label: 'الدروس' },
                 { to: '/reviews', label: 'المراجعات' },
+                { to: '/assessments', label: 'التقييمات' },
                 { to: '/services', label: 'خدماتي' },
                 { to: '/about',   label: 'عن مستر' },
                 { to: '/contact', label: 'تواصل معنا' },
