@@ -20,6 +20,10 @@ const GRADES = [
 
 // Printing happens in an isolated iframe that holds only the sheets, so the app chrome can never
 // leak into (or blank out) the PDF.
+const WATERMARK_SVG = encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="380" height="280"><g transform="rotate(-30 190 140)" text-anchor="middle" font-family="Tahoma, Arial, sans-serif" fill="#0d9488" fill-opacity="0.13"><text x="190" y="135" font-size="30" font-weight="bold">منصة الأستاذ عامر تمراز</text><text x="190" y="170" font-size="20" font-weight="bold">amertimraz.com</text></g></svg>'
+);
+
 const PRINT_CSS = `
   html, body { margin: 0; background: #fff !important; font-family: 'Cairo', sans-serif; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; }
@@ -27,12 +31,8 @@ const PRINT_CSS = `
   .print-sheet:last-child { break-after: auto; page-break-after: auto; }
   .print-sheet article { border: none !important; padding: 0 !important; position: relative; z-index: 1; }
   .print-sheet li, .print-sheet pre { break-inside: avoid; page-break-inside: avoid; }
-  .print-watermark {
-    position: fixed; top: 50%; left: 50%; z-index: 0; pointer-events: none;
-    transform: translate(-50%, -50%) rotate(-30deg); white-space: nowrap;
-    font-size: 54px; font-weight: 900; color: rgba(13, 148, 136, 0.10); text-align: center; line-height: 1.4;
-  }
-  .print-watermark small { display: block; font-size: 30px; font-weight: 700; direction: ltr; }
+  html, body { background: #fff var(--wm) repeat !important; }
+  .print-sheet article { background: transparent !important; }
   @page { size: A4; margin: 14mm; }
 `;
 
@@ -49,7 +49,7 @@ function printSheets() {
   const doc = frame.contentDocument!;
   doc.open();
   doc.write(
-    `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقييمات - منصة الأستاذ عامر تمراز</title>${head}<style>${PRINT_CSS}</style></head><body><div class="print-watermark">منصة الأستاذ عامر تمراز<small>amertimraz.com</small></div>${sheets}</body></html>`
+    `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقييمات - منصة الأستاذ عامر تمراز</title>${head}<style>:root{--wm:url("data:image/svg+xml,${WATERMARK_SVG}")}${PRINT_CSS}</style></head><body>${sheets}</body></html>`
   );
   doc.close();
   const win = frame.contentWindow!;
