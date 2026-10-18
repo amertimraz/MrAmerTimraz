@@ -18,29 +18,47 @@ const GRADES = [
   { key: 'Sec2', label: 'الصف الثاني الثانوي', short: 'الثاني', level: 'الثانوي' },
 ];
 
+// Printing happens in an isolated iframe that holds only the sheets, so the app chrome can never
+// leak into (or blank out) the PDF.
 const PRINT_CSS = `
-.print-watermark { display: none; }
-@media print {
-  html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
+  html, body { margin: 0; background: #fff !important; font-family: 'Cairo', sans-serif; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; }
-  #root > div { display: block !important; min-height: 0 !important; height: auto !important; background: #fff !important; }
-  #root > div > *:not(main) { display: none !important; }
-  #root main { display: block !important; padding: 0 !important; position: static !important; }
-  .no-print { display: none !important; }
-  .print-sheet { break-after: page; page-break-after: always; border: none !important; padding: 0 !important; margin: 0 !important; }
+  .print-sheet { break-after: page; page-break-after: always; }
   .print-sheet:last-child { break-after: auto; page-break-after: auto; }
-  .print-sheet article { border: none !important; padding: 0 !important; }
+  .print-sheet article { border: none !important; padding: 0 !important; position: relative; z-index: 1; }
   .print-sheet li, .print-sheet pre { break-inside: avoid; page-break-inside: avoid; }
   .print-watermark {
-    display: block; position: fixed; top: 50%; left: 50%; z-index: 0; pointer-events: none;
+    position: fixed; top: 50%; left: 50%; z-index: 0; pointer-events: none;
     transform: translate(-50%, -50%) rotate(-30deg); white-space: nowrap;
     font-size: 54px; font-weight: 900; color: rgba(13, 148, 136, 0.10); text-align: center; line-height: 1.4;
   }
   .print-watermark small { display: block; font-size: 30px; font-weight: 700; direction: ltr; }
-  .print-sheet article { position: relative; z-index: 1; }
   @page { size: A4; margin: 14mm; }
-}
 `;
+
+function printSheets() {
+  const sheets = [...document.querySelectorAll('.print-sheet')].map(n => n.outerHTML).join('');
+  if (!sheets) return;
+  const head = [...document.querySelectorAll('link[rel="stylesheet"], style')]
+    .map(n => (n as HTMLElement).outerHTML)
+    .join('');
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;width:0;height:0;border:0;right:0;bottom:0;';
+  document.body.appendChild(frame);
+  const doc = frame.contentDocument!;
+  doc.open();
+  doc.write(
+    `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقييمات - منصة الأستاذ عامر تمراز</title>${head}<style>${PRINT_CSS}</style></head><body><div class="print-watermark">منصة الأستاذ عامر تمراز<small>amertimraz.com</small></div>${sheets}</body></html>`
+  );
+  doc.close();
+  const win = frame.contentWindow!;
+  win.addEventListener('afterprint', () => frame.remove());
+  setTimeout(() => {
+    win.focus();
+    win.print();
+  }, 800);
+}
 
 function isNew(w: AssessmentWeekSummary) {
   if (!w.publishedAt) return false;
@@ -113,11 +131,6 @@ export default function AssessmentsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6" dir="rtl">
-      <style>{PRINT_CSS}</style>
-      <div className="print-watermark" aria-hidden>
-        منصة الأستاذ عامر تمراز
-        <small>amertimraz.com</small>
-      </div>
 
       <header className="no-print">
         <span className="inline-flex items-center gap-2 rounded-full border-2 border-slate-900 bg-teal-100 px-4 py-1 text-sm font-extrabold text-teal-900 dark:border-teal-300 dark:bg-teal-950 dark:text-teal-100">
@@ -294,7 +307,7 @@ export default function AssessmentsPage() {
               <button
                 type="button"
                 disabled={loaded.length === 0}
-                onClick={() => window.print()}
+                onClick={printSheets}
                 className="mr-auto inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-slate-900 bg-orange-500 px-5 font-extrabold text-slate-900 hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Printer size={18} aria-hidden /> طباعة / حفظ PDF
