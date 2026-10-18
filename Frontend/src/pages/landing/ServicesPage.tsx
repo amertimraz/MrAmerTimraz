@@ -39,7 +39,7 @@ function TopBar({ isDark, toggleDark }: { isDark: boolean; toggleDark: () => voi
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 group">
           <div className={`w-9 h-9 rounded-xl overflow-hidden shadow-md border-2 ${isDark ? 'border-green-500/40' : 'border-green-500/50'}`}>
-            <img src="/teacher2.png" alt="عامر تمراز" className="w-full h-full object-cover object-top"
+            <img src="/teacher2-640.webp" alt="عامر تمراز" className="w-full h-full object-cover object-top"
               onError={(e) => {
                 const p = e.currentTarget.parentElement!;
                 p.className = 'w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black text-white';

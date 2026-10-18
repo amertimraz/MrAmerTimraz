@@ -54,7 +54,7 @@ export default function AboutPage() {
           >
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-green-500/40 shadow-2xl mx-auto"
               style={{ boxShadow: '0 0 40px rgba(34,197,94,0.25)' }}>
-              <img src="/teacher2.png" alt="عامر تمراز" className="w-full h-full object-cover object-top"
+              <img src="/teacher2-640.webp" alt="عامر تمراز" className="w-full h-full object-cover object-top"
                 onError={(e) => {
                   const p = e.currentTarget.parentElement!;
                   p.className = 'w-24 h-24 rounded-2xl flex items-center justify-center text-4xl font-black text-white shadow-2xl mx-auto';

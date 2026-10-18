@@ -46,6 +46,50 @@ public class ReviewsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("highlights")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetHighlights()
+    {
+        var totalAttempts = await _db.ReviewAttempts.CountAsync();
+        var totalQuizzes = await _db.ReviewQuizzes.CountAsync(q => q.IsActive);
+        var totalQuestions = await _db.ReviewQuestions.CountAsync(q => q.Quiz.IsActive);
+
+        // Best scores by percentage (so 44/44 and 32/32 tie), fastest first. Pulled with a small
+        // over-fetch so names that can't yield an initial (digits/symbols only) can be skipped.
+        var candidates = await _db.ReviewAttempts
+            .Where(a => a.TotalQuestions > 0)
+            .OrderByDescending(a => (double)a.Score / a.TotalQuestions)
+            .ThenBy(a => a.DurationSeconds)
+            .Take(20)
+            .Select(a => new { a.StudentName, a.Score, a.TotalQuestions })
+            .ToListAsync();
+
+        var top = candidates
+            .Select(a => new
+            {
+                Letter = a.StudentName.FirstOrDefault(char.IsLetter),
+                a.Score,
+                a.TotalQuestions
+            })
+            .Where(a => a.Letter != '\0')
+            .Take(5)
+            .Select(a => new ReviewHighlightEntryDto
+            {
+                Initial = char.ToUpperInvariant(a.Letter).ToString(),
+                Score = a.Score,
+                TotalQuestions = a.TotalQuestions
+            })
+            .ToList();
+
+        return Ok(new ReviewHighlightsDto
+        {
+            TotalAttempts = totalAttempts,
+            TotalQuizzes = totalQuizzes,
+            TotalQuestions = totalQuestions,
+            Top = top
+        });
+    }
+
     [HttpGet("quizzes/{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetQuiz(int id)

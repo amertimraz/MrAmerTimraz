@@ -3,22 +3,27 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus, Menu, X, Sun, Moon, LayoutDashboard } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
+const FOCUS =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 ring-offset-white dark:ring-offset-[#0d1117]';
+
 function TeacherLogo({ isDark }: { isDark: boolean }) {
   const [err, setErr] = useState(false);
   if (err) {
     return (
       <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black text-white select-none shadow-lg"
-        style={{ background: 'linear-gradient(135deg,#22c55e,#15803d)' }}
+        className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-black text-white select-none shadow-lg"
+        style={{ background: 'linear-gradient(135deg,#0d9488,#115e59)' }}
       >
         عا
       </div>
     );
   }
   return (
-    <div className={`w-10 h-10 rounded-xl overflow-hidden shadow-lg border-2 ${isDark ? 'border-green-500/40' : 'border-green-500/50'}`}>
+    <div className={`w-11 h-11 rounded-xl overflow-hidden shadow-lg border-2 ${isDark ? 'border-teal-400/50' : 'border-teal-600/60'}`}>
       <img
-        src="/teacher2.png"
+        src="/teacher-avatar.webp"
+        width={44}
+        height={44}
         alt="عامر تمراز"
         className="w-full h-full object-cover object-top"
         onError={() => setErr(true)}
@@ -48,7 +53,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -61,13 +66,22 @@ export default function Navbar() {
   }`;
 
   const linkBase = (isActive: boolean) =>
-    `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+    `px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${FOCUS} ${
       isActive
-        ? 'bg-green-500/15 text-green-500'
+        ? isDark
+          ? 'bg-teal-400/15 text-teal-300'
+          : 'bg-teal-600/10 text-teal-800'
         : isDark
-          ? 'text-white/70 hover:text-white hover:bg-white/5'
-          : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+          ? 'text-white/75 hover:text-white hover:bg-white/5'
+          : 'text-slate-700 hover:text-slate-900 hover:bg-slate-900/5'
     }`;
+
+  const primaryBtn =
+    `flex items-center gap-2 min-h-11 px-5 rounded-xl text-sm font-bold text-white bg-teal-700 hover:bg-teal-800 shadow-lg shadow-teal-900/20 transition-colors ${FOCUS}`;
+
+  const iconBtn = `grid place-items-center min-h-11 min-w-11 rounded-xl transition-colors ${FOCUS} ${
+    isDark ? 'text-gray-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-900/5'
+  }`;
 
   return (
     <header dir="rtl" className={headerClass}>
@@ -75,20 +89,20 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
 
           {/* Logo */}
-          <NavLink to="/" className="flex items-center gap-3 group">
+          <NavLink to="/" className={`flex items-center gap-3 rounded-xl group ${FOCUS}`}>
             <TeacherLogo isDark={isDark} />
             <div className="hidden sm:block leading-none">
               <p className={`font-bold text-sm transition-colors ${
-                isDark ? 'text-white' : 'text-gray-900'
+                isDark ? 'text-white' : 'text-slate-900'
               }`}>
                 MR. AMER TIMRAZ
               </p>
-              <p className="text-green-500 text-xs mt-0.5">منصة تعليمية</p>
+              <p className={`text-xs mt-0.5 font-semibold ${isDark ? 'text-teal-300' : 'text-teal-800'}`}>منصة تعليمية</p>
             </div>
           </NavLink>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav aria-label="القائمة الرئيسية" className="hidden xl:flex items-center gap-1">
             {navLinks.map(link => (
               <NavLink
                 key={link.to}
@@ -102,27 +116,19 @@ export default function Navbar() {
           </nav>
 
           {/* Actions */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden xl:flex items-center gap-3">
 
             {/* Dark / Light Toggle */}
             <button
               onClick={toggleDark}
-              title={isDark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
-              className={`p-2 rounded-xl transition-colors ${
-                isDark
-                  ? 'text-gray-400 hover:bg-white/10'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
+              aria-label={isDark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
+              className={iconBtn}
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
             {user ? (
-              <button
-                onClick={() => navigate(dashPath)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-green-500/20 hover:shadow-green-500/30 transition-shadow"
-                style={{ background: '#22c55e' }}
-              >
+              <button onClick={() => navigate(dashPath)} className={primaryBtn}>
                 <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
@@ -133,20 +139,16 @@ export default function Navbar() {
               <>
                 <button
                   onClick={() => navigate('/login')}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
+                  className={`flex items-center gap-2 min-h-11 px-5 rounded-xl text-sm font-bold border-2 transition-colors ${FOCUS} ${
                     isDark
-                      ? 'border-white/15 text-white/80 hover:bg-white/5'
-                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                      ? 'border-white/20 text-white/90 hover:bg-white/5'
+                      : 'border-slate-300 text-slate-800 hover:bg-slate-900/5'
                   }`}
                 >
                   <LogIn size={15} />
                   دخول
                 </button>
-                <button
-                  onClick={() => navigate('/register')}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white shadow-lg shadow-green-500/20 hover:shadow-green-500/30 transition-shadow"
-                  style={{ background: '#22c55e' }}
-                >
+                <button onClick={() => navigate('/register')} className={primaryBtn}>
                   <UserPlus size={15} />
                   سجّل الآن
                 </button>
@@ -155,22 +157,20 @@ export default function Navbar() {
           </div>
 
           {/* Mobile actions */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="xl:hidden flex items-center gap-1">
             <button
               onClick={toggleDark}
-              className={`p-2 rounded-lg transition-colors ${
-                isDark ? 'text-green-400 hover:bg-white/5' : 'text-gray-600 hover:bg-gray-100'
-              }`}
+              aria-label={isDark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
+              className={iconBtn}
             >
-              {isDark ? <Moon size={20} /> : <Sun size={20} />}
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             <button
               onClick={() => setOpen(v => !v)}
-              className={`p-2 rounded-lg transition-colors ${
-                isDark
-                  ? 'text-white hover:bg-white/10'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              aria-label={open ? 'إغلاق القائمة' : 'فتح القائمة'}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+              className={iconBtn}
             >
               {open ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -180,13 +180,15 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ${
+        id="mobile-menu"
+        className={`xl:hidden overflow-hidden transition-all duration-300 motion-reduce:transition-none ${
           isDark
             ? 'bg-[#0d1117]/98 border-t border-white/5'
             : 'bg-white border-t border-gray-100 shadow-xl'
-        } ${open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+        } ${open ? 'max-h-[28rem] opacity-100' : 'max-h-0 opacity-0'}`}
+        {...(open ? {} : { inert: true })}
       >
-        <nav className="px-4 py-4 space-y-1">
+        <nav aria-label="القائمة الرئيسية للجوال" className="px-4 py-4 space-y-1">
           {navLinks.map(link => (
             <NavLink
               key={link.to}
@@ -194,12 +196,14 @@ export default function Navbar() {
               end={link.to === '/'}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
-                `block px-4 py-3 rounded-xl font-medium text-sm transition-all ${
+                `block min-h-11 px-4 py-3 rounded-xl font-semibold text-sm transition-all ${FOCUS} ${
                   isActive
-                    ? 'bg-green-500/15 text-green-500'
+                    ? isDark
+                      ? 'bg-teal-400/15 text-teal-300'
+                      : 'bg-teal-600/10 text-teal-800'
                     : isDark
-                      ? 'text-white/70 hover:bg-white/5'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'text-white/75 hover:bg-white/5'
+                      : 'text-slate-700 hover:bg-slate-900/5'
                 }`
               }
             >
@@ -210,29 +214,27 @@ export default function Navbar() {
             {user ? (
               <button
                 onClick={() => { navigate(dashPath); setOpen(false); }}
-                className="col-span-2 px-4 py-2.5 rounded-xl text-white font-medium text-sm text-center flex items-center justify-center gap-2"
-                style={{ background: '#22c55e' }}
+                className={`col-span-2 min-h-11 px-4 rounded-xl text-white bg-teal-700 hover:bg-teal-800 font-bold text-sm text-center flex items-center justify-center gap-2 ${FOCUS}`}
               >
                 <LayoutDashboard size={16} />
                 لوحة التحكم — {user.name}
               </button>
             ) : (
               <>
-            <button
-              onClick={() => { navigate('/login'); setOpen(false); }}
-              className={`px-4 py-2.5 rounded-xl border font-medium text-sm text-center transition-colors ${
-                isDark ? 'border-white/15 text-white/80' : 'border-gray-300 text-gray-700'
-              }`}
-            >
-              دخول
-            </button>
-            <button
-              onClick={() => { navigate('/register'); setOpen(false); }}
-              className="px-4 py-2.5 rounded-xl text-white font-medium text-sm text-center"
-              style={{ background: '#22c55e' }}
-            >
-              سجّل الآن
-            </button>
+                <button
+                  onClick={() => { navigate('/login'); setOpen(false); }}
+                  className={`min-h-11 px-4 rounded-xl border-2 font-bold text-sm text-center transition-colors ${FOCUS} ${
+                    isDark ? 'border-white/20 text-white/90' : 'border-slate-300 text-slate-800'
+                  }`}
+                >
+                  دخول
+                </button>
+                <button
+                  onClick={() => { navigate('/register'); setOpen(false); }}
+                  className={`min-h-11 px-4 rounded-xl text-white bg-teal-700 hover:bg-teal-800 font-bold text-sm text-center ${FOCUS}`}
+                >
+                  سجّل الآن
+                </button>
               </>
             )}
           </div>

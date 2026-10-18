@@ -60,6 +60,22 @@ public class ReviewSubmitResultDto
     public int Rank { get; set; }
 }
 
+public class ReviewHighlightEntryDto
+{
+    // Only the first letter of the student's name is exposed on the public landing page.
+    public string Initial { get; set; } = string.Empty;
+    public int Score { get; set; }
+    public int TotalQuestions { get; set; }
+}
+
+public class ReviewHighlightsDto
+{
+    public int TotalAttempts { get; set; }
+    public int TotalQuizzes { get; set; }
+    public int TotalQuestions { get; set; }
+    public List<ReviewHighlightEntryDto> Top { get; set; } = new();
+}
+
 public class ReviewLeaderboardEntryDto
 {
     public string StudentName { get; set; } = string.Empty;

@@ -18,9 +18,15 @@ export default function LandingLayout() {
         transition: 'background 0.3s ease',
       }}
     >
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-[60] focus:rounded-xl focus:bg-teal-700 focus:px-5 focus:py-3 focus:font-bold focus:text-white"
+      >
+        انتقل إلى المحتوى
+      </a>
       <TechBackground />
       <Navbar />
-      <main className="relative z-10 flex-1 pt-20">
+      <main id="main-content" className="relative z-10 flex-1 pt-20">
         <Outlet />
       </main>
       <Footer />

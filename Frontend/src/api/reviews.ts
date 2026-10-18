@@ -44,6 +44,19 @@ export interface ReviewLeaderboardEntry {
   createdAt: string;
 }
 
+export interface ReviewHighlightEntry {
+  initial: string;
+  score: number;
+  totalQuestions: number;
+}
+
+export interface ReviewHighlights {
+  totalAttempts: number;
+  totalQuizzes: number;
+  totalQuestions: number;
+  top: ReviewHighlightEntry[];
+}
+
 export interface ReviewCheckAnswerResult {
   isCorrect: boolean;
   correctOptionIndex: number;
@@ -52,6 +65,9 @@ export interface ReviewCheckAnswerResult {
 export const reviewsApi = {
   getStages: () =>
     client.get<ReviewStageSummary[]>('/reviews/stages').then(res => res.data),
+
+  getHighlights: () =>
+    client.get<ReviewHighlights>('/reviews/highlights').then(res => res.data),
 
   getQuiz: (id: number) =>
     client.get<ReviewQuizPublic>(`/reviews/quizzes/${id}`).then(res => res.data),
