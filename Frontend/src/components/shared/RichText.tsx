@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 // Latin identifiers/calls/indexing (int(), range(1,6), text[-1]) are isolated as LTR so the
 // bidi algorithm can't flip their parentheses/brackets inside Arabic sentences.
-const CODE_TOKEN = /[A-Za-z_][\w.]*(?:\([^()]*\)|\[[^[\]]*\])*/g;
+const CODE_TOKEN = /\([0-9A-Fa-f]+\)[₀-₉]+|[A-Za-z_][\w.]*(?:\([^()]*\)|\[[^[\]]*\])*/g;
 
 export function Rich({ text }: { text: string }) {
   const out: ReactNode[] = [];

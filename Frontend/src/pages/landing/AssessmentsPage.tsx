@@ -300,7 +300,7 @@ export default function AssessmentsPage() {
             )}
             {loaded.map(c => (
               <div key={c.week} className="print-sheet">
-                <AssessmentSheet content={c} showAnswers={showAnswers} />
+                <AssessmentSheet content={c} showAnswers={showAnswers} stageLabel={stage?.label ?? ''} />
               </div>
             ))}
           </section>

@@ -15,7 +15,16 @@ public static class AssessmentTracks
     {
         new AssessmentTrack(
             "prep3-ict-t1", "Prep3", "الصف الثالث الإعدادي", "الكمبيوتر وتكنولوجيا المعلومات والاتصالات", 1,
-            "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Prepratory/Prepratory3/Term1/ClassrHomeAssessmentsTest/ICT_ARABIC_Prep3_TR1_W{0}.pdf")
+            "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Prepratory/Prepratory3/Term1/ClassrHomeAssessmentsTest/ICT_ARABIC_Prep3_TR1_W{0}.pdf"),
+        new AssessmentTrack(
+            "prep2-ict-t1", "Prep2", "الصف الثاني الإعدادي", "الكمبيوتر وتكنولوجيا المعلومات والاتصالات", 1,
+            "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Prepratory/Prepratory2/Term1/ClassrHomeAssessmentsTest/ICT_ARABIC_Prep2_TR1_W{0}.pdf"),
+        new AssessmentTrack(
+            "prep1-ict-t1", "Prep1", "الصف الأول الإعدادي", "الكمبيوتر وتكنولوجيا المعلومات والاتصالات", 1,
+            "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Prepratory/Prepratory1/Term1/ClassrHomeAssessmentsTest/ICT_ARABIC_Prep1_TR1_W{0}.pdf"),
+        new AssessmentTrack(
+            "sec1-ai-t1", "Sec1", "الصف الأول الثانوي", "البرمجة والذكاء الاصطناعي", 1,
+            "https://elearnningcontent.blob.core.windows.net/elearnningcontent/2026_2027/Secondry/Secondry1/Term1/ClassrHomeAssessmentsTest/AI_AR_Sec1_TR1_W{0}.pdf")
     };
 }
 

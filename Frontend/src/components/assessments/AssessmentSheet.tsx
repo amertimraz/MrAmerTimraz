@@ -164,14 +164,16 @@ function GroupItems({ parts, showAnswers }: { parts: AssessmentPart[]; showAnswe
 export default function AssessmentSheet({
   content,
   showAnswers,
+  stageLabel,
 }: {
   content: AssessmentContent;
   showAnswers: boolean;
+  stageLabel: string;
 }) {
   return (
     <article dir="rtl" className="rounded-2xl border-2 border-slate-300 bg-white p-4 text-slate-900 sm:p-6">
       <header className="border-b-2 border-slate-900 pb-3">
-        <p className="text-sm font-bold text-slate-600">الصف الثالث الإعدادي — التقييم الأسبوعي والواجب المنزلي</p>
+        <p className="text-sm font-bold text-slate-600">{stageLabel} — التقييم الأسبوعي والواجب المنزلي</p>
         <h3 className="mt-1 text-xl font-black">الأسبوع {content.week}</h3>
         <p className="mt-1 text-sm font-semibold text-slate-700">{content.unit}</p>
         <p className="text-sm font-semibold text-slate-700">{content.lesson}</p>
