@@ -27,6 +27,57 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
+function BarChart({ chart }: { chart: { title?: string; labels: string[]; values: number[] } }) {
+  const max = Math.max(...chart.values, 1);
+  const W = 420, H = 230, top = 34, base = 180, left = 36;
+  const slot = (W - left - 10) / chart.values.length;
+  const barW = Math.min(70, slot * 0.6);
+  return (
+    <figure className="my-3 break-inside-avoid">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={chart.title ?? 'رسم بياني'} className="mx-auto w-full max-w-md">
+        {chart.title && (
+          <text x={W / 2} y={16} textAnchor="middle" fontSize="13" fontWeight="700" fill="#0f172a">{chart.title}</text>
+        )}
+        {Array.from({ length: max + 1 }).map((_, i) => {
+          const y = base - (i / max) * (base - top);
+          return (
+            <g key={i}>
+              <line x1={left} x2={W - 10} y1={y} y2={y} stroke="#cbd5e1" strokeWidth="1" />
+              <text x={left - 6} y={y + 4} textAnchor="end" fontSize="11" fill="#475569">{i}</text>
+            </g>
+          );
+        })}
+        <line x1={left} x2={left} y1={top} y2={base} stroke="#0f172a" strokeWidth="1.5" />
+        <line x1={left} x2={W - 10} y1={base} y2={base} stroke="#0f172a" strokeWidth="1.5" />
+        {chart.values.map((v, i) => {
+          const h = (v / max) * (base - top);
+          const cx = left + slot * i + slot / 2;
+          return (
+            <g key={i}>
+              <rect x={cx - barW / 2} y={base - h} width={barW} height={h} rx="4" fill="#0d9488" stroke="#0f172a" strokeWidth="1.5" />
+              <text x={cx} y={base - h - 6} textAnchor="middle" fontSize="13" fontWeight="700" fill="#0f172a">{v}</text>
+              <text x={cx} y={base + 18} textAnchor="middle" fontSize="11" fill="#0f172a">{chart.labels[i]}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </figure>
+  );
+}
+
+function FlowDiagram({ steps }: { steps: string[] }) {
+  return (
+    <div className="my-3 flex flex-wrap items-center gap-2 break-inside-avoid" aria-label="مخطط انسيابي">
+      {steps.map((s, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span className="rounded-xl border-2 border-slate-900 bg-teal-50 px-3 py-2 text-sm font-bold text-slate-900">{s}</span>
+          {i < steps.length - 1 && <span aria-hidden className="text-lg font-black text-orange-600">←</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function WritingLines({ count }: { count: number }) {
   return (
     <div aria-hidden className="mt-3 space-y-5">
@@ -109,6 +160,8 @@ function ItemView({ item, n, showAnswers }: { item: AssessmentItem; n: number; s
                   <p className="whitespace-pre-wrap text-base leading-8 text-slate-900">
                     <Rich text={item.answer} />
                   </p>
+                  {item.chart && <BarChart chart={item.chart} />}
+                  {item.flow && <FlowDiagram steps={item.flow} />}
                   {item.code && <CodeBlock code={item.code} />}
                   {item.output != null && (
                     <>

@@ -23,7 +23,15 @@ export interface AssessmentTrackSummary {
 export type AssessmentItem =
   | { type: 'tf'; text: string; answer: boolean; note?: string }
   | { type: 'mcq'; text: string; code?: string; options: string[]; answer: number; note?: string }
-  | { type: 'open'; text: string; answer: string; code?: string; output?: string };
+  | {
+      type: 'open';
+      text: string;
+      answer: string;
+      code?: string;
+      output?: string;
+      chart?: { title?: string; labels: string[]; values: number[] };
+      flow?: string[];
+    };
 
 export interface AssessmentPart {
   group: string;
