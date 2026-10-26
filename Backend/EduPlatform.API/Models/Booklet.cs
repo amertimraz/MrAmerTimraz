@@ -37,6 +37,16 @@ public class Booklet
 
     public int? PageCount { get; set; }
 
+    // Teachers' showcase: shown on /teachers only when this is true AND IsPublished is true.
+    [Column(TypeName = "boolean")]
+    public bool TeacherShowcase { get; set; } = false;
+
+    [MaxLength(1000)]
+    public string? TeacherSummary { get; set; }
+
+    public ICollection<BookletQuantityOffer> QuantityOffers { get; set; } = new List<BookletQuantityOffer>();
+    public ICollection<BookletSamplePage> SamplePages { get; set; } = new List<BookletSamplePage>();
+
     public int ViewCount { get; set; } = 0;
 
     [Column(TypeName = "timestamp without time zone")]

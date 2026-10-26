@@ -29,6 +29,9 @@ public class AppDbContext : DbContext
     public DbSet<LiveSession> LiveSessions => Set<LiveSession>();
     public DbSet<LiveSessionEnrollment> LiveSessionEnrollments => Set<LiveSessionEnrollment>();
     public DbSet<Booklet> Booklets => Set<Booklet>();
+    public DbSet<BookletQuantityOffer> BookletQuantityOffers => Set<BookletQuantityOffer>();
+    public DbSet<BookletSamplePage> BookletSamplePages => Set<BookletSamplePage>();
+    public DbSet<TeacherInquiry> TeacherInquiries => Set<TeacherInquiry>();
     public DbSet<FreeResource> FreeResources => Set<FreeResource>();
     public DbSet<TeacherPackage> TeacherPackages => Set<TeacherPackage>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
@@ -45,6 +48,22 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<BookletQuantityOffer>(e =>
+        {
+            e.HasIndex(o => new { o.BookletId, o.MinQuantity }).IsUnique();
+            e.HasOne(o => o.Booklet).WithMany(b => b.QuantityOffers).HasForeignKey(o => o.BookletId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<BookletSamplePage>(e =>
+        {
+            e.HasOne(p => p.Booklet).WithMany(b => b.SamplePages).HasForeignKey(p => p.BookletId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<TeacherInquiry>(e =>
+        {
+            e.Property(i => i.Status).HasConversion<string>().HasMaxLength(20);
+            e.HasIndex(i => i.CreatedAt);
+            e.HasOne(i => i.Booklet).WithMany().HasForeignKey(i => i.BookletId).OnDelete(DeleteBehavior.SetNull);
+        });
 
         modelBuilder.Entity<User>(entity =>
         {

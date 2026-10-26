@@ -70,6 +70,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IKashierService, KashierService>();
 builder.Services.AddScoped<IMuxService, MuxService>();
+builder.Services.AddSingleton<IInquiryNotifier, InquiryNotifier>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<EduPlatform.API.Assessments.AssessmentCatalog>();
 builder.Services.AddHostedService<EduPlatform.API.Assessments.AssessmentWatcher>();
@@ -119,6 +120,17 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit = 100,
                 QueueLimit = 0,
                 Window = TimeSpan.FromSeconds(10)
+            }));
+
+    // Teacher price-quote requests: 5 per 10 minutes per IP
+    options.AddPolicy("inquiries", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
             }));
 
     // Specific policy for Auth (Login/Register)

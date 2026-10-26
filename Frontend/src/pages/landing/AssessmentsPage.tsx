@@ -2,21 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { ClipboardCheck, ExternalLink, Eye, EyeOff, Printer, Clock, Sparkles } from 'lucide-react';
 import { assessmentsApi, visitsApi, type AssessmentContent, type AssessmentTrackSummary, type AssessmentWeekSummary } from '../../api/assessments';
+import { GRADES } from '../../data/grades';
 import AssessmentSheet from '../../components/assessments/AssessmentSheet';
 
 const NEW_DAYS = 10;
 
-// Grades shown as cards, Primary 4 → Secondary 2. `key` must match AssessmentTrack.Stage on the backend.
-const GRADES = [
-  { key: 'Prim4', label: 'الصف الرابع الابتدائي', short: 'الرابع', level: 'الابتدائي' },
-  { key: 'Prim5', label: 'الصف الخامس الابتدائي', short: 'الخامس', level: 'الابتدائي' },
-  { key: 'Prim6', label: 'الصف السادس الابتدائي', short: 'السادس', level: 'الابتدائي' },
-  { key: 'Prep1', label: 'الصف الأول الإعدادي', short: 'الأول', level: 'الإعدادي' },
-  { key: 'Prep2', label: 'الصف الثاني الإعدادي', short: 'الثاني', level: 'الإعدادي' },
-  { key: 'Prep3', label: 'الصف الثالث الإعدادي', short: 'الثالث', level: 'الإعدادي' },
-  { key: 'Sec1', label: 'الصف الأول الثانوي', short: 'الأول', level: 'الثانوي' },
-  { key: 'Sec2', label: 'الصف الثاني الثانوي', short: 'الثاني', level: 'الثانوي' },
-];
 
 // Printing happens in an isolated iframe that holds only the sheets, so the app chrome can never
 // leak into (or blank out) the PDF.

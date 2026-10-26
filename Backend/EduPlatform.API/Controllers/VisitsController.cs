@@ -15,7 +15,7 @@ namespace EduPlatform.API.Controllers;
 [Route("api/[controller]")]
 public class VisitsController : ControllerBase
 {
-    private static readonly string[] AllowedPages = { "assessments" };
+    private static readonly string[] AllowedPages = { "assessments", "teachers" };
     private static volatile bool _tableReady;
     private static readonly SemaphoreSlim Gate = new(1, 1);
 

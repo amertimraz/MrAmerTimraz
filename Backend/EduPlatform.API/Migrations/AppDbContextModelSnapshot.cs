@@ -80,6 +80,13 @@ namespace EduPlatform.API.Migrations
                     b.Property<decimal?>("TeacherPrice")
                         .HasColumnType("numeric");
 
+                    b.Property<bool>("TeacherShowcase")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TeacherSummary")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Term")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
@@ -95,6 +102,59 @@ namespace EduPlatform.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Booklets");
+                });
+
+            modelBuilder.Entity("EduPlatform.API.Models.BookletQuantityOffer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BookletId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MinQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookletId", "MinQuantity")
+                        .IsUnique();
+
+                    b.ToTable("BookletQuantityOffers");
+                });
+
+            modelBuilder.Entity("EduPlatform.API.Models.BookletSamplePage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BookletId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PageNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookletId");
+
+                    b.ToTable("BookletSamplePages");
                 });
 
             modelBuilder.Entity("EduPlatform.API.Models.Challenge", b =>
@@ -745,6 +805,73 @@ namespace EduPlatform.API.Migrations
                     b.ToTable("ReviewQuizzes");
                 });
 
+            modelBuilder.Entity("EduPlatform.API.Models.TeacherInquiry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AdminNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("BookletId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Governorate")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GradeLevel")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IpHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Subject")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookletId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.ToTable("TeacherInquiries");
+                });
+
             modelBuilder.Entity("EduPlatform.API.Models.TeacherPackage", b =>
                 {
                     b.Property<int>("Id")
@@ -1063,6 +1190,28 @@ namespace EduPlatform.API.Migrations
                     b.ToTable("VideoComments");
                 });
 
+            modelBuilder.Entity("EduPlatform.API.Models.BookletQuantityOffer", b =>
+                {
+                    b.HasOne("EduPlatform.API.Models.Booklet", "Booklet")
+                        .WithMany("QuantityOffers")
+                        .HasForeignKey("BookletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booklet");
+                });
+
+            modelBuilder.Entity("EduPlatform.API.Models.BookletSamplePage", b =>
+                {
+                    b.HasOne("EduPlatform.API.Models.Booklet", "Booklet")
+                        .WithMany("SamplePages")
+                        .HasForeignKey("BookletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booklet");
+                });
+
             modelBuilder.Entity("EduPlatform.API.Models.Challenge", b =>
                 {
                     b.HasOne("EduPlatform.API.Models.TofasTest", "Test")
@@ -1245,6 +1394,16 @@ namespace EduPlatform.API.Migrations
                     b.Navigation("Quiz");
                 });
 
+            modelBuilder.Entity("EduPlatform.API.Models.TeacherInquiry", b =>
+                {
+                    b.HasOne("EduPlatform.API.Models.Booklet", "Booklet")
+                        .WithMany()
+                        .HasForeignKey("BookletId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Booklet");
+                });
+
             modelBuilder.Entity("EduPlatform.API.Models.Test", b =>
                 {
                     b.HasOne("EduPlatform.API.Models.Course", "Course")
@@ -1324,6 +1483,10 @@ namespace EduPlatform.API.Migrations
             modelBuilder.Entity("EduPlatform.API.Models.Booklet", b =>
                 {
                     b.Navigation("PaymentRequests");
+
+                    b.Navigation("QuantityOffers");
+
+                    b.Navigation("SamplePages");
                 });
 
             modelBuilder.Entity("EduPlatform.API.Models.Challenge", b =>
