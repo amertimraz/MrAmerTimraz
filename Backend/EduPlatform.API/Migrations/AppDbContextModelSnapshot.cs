@@ -80,6 +80,10 @@ namespace EduPlatform.API.Migrations
                     b.Property<decimal?>("TeacherPrice")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("TeacherSamplePdfUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("TeacherShowcase")
                         .HasColumnType("boolean");
 

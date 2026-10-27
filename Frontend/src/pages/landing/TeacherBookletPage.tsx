@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, BookOpen, CalendarDays, Eye, FileText, GraduationCap, Layers } from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarDays, Download, Eye, FileText, GraduationCap, Layers } from 'lucide-react';
 import { visitsApi } from '../../api/assessments';
 import { teachersApi } from '../../api/teachers';
 import { getMediaUrl } from '../../api/client';
@@ -89,6 +89,17 @@ export default function TeacherBookletPage() {
             <div>
               <h2 className="mb-3 border-r-4 border-orange-500 pr-3 text-xl font-black text-slate-900 dark:text-white">عينات من المذكرة</h2>
               <SampleViewer samples={b.samples} />
+              {b.samplePdfUrl && (
+                <a
+                  href={getMediaUrl(b.samplePdfUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-slate-900 bg-white px-4 font-extrabold text-slate-900 hover:bg-orange-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-600 dark:border-teal-300 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+                >
+                  <Download size={18} aria-hidden /> حمّل ملف العينة (PDF)
+                </a>
+              )}
             </div>
             <div className="space-y-6">
               <div>

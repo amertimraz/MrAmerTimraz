@@ -57,6 +57,7 @@ public class TeacherBookletsController : ControllerBase
                 x.PageCount, x.CoverImageUrl,
                 StudentPrice = x.Price,
                 x.TeacherPrice,
+                SamplePdfUrl = x.TeacherSamplePdfUrl,
                 Samples = x.SamplePages.OrderBy(s => s.SortOrder).ThenBy(s => s.Id)
                     .Select(s => new { s.Id, s.ImageUrl, s.SortOrder }).ToList(),
             }).FirstOrDefaultAsync();
@@ -75,6 +76,8 @@ public class TeacherBookletsController : ControllerBase
                 b.Id, b.Title, b.GradeLevel, b.Subject, b.IsPublished, b.TeacherShowcase, b.TeacherSummary,
                 StudentPrice = b.Price,
                 b.TeacherPrice, b.CoverImageUrl,
+                SamplePdfUrl = b.TeacherSamplePdfUrl,
+                FullPdfUrl = b.PdfUrl, // admin only: lets the owner open the full file
                 Samples = b.SamplePages.OrderBy(s => s.SortOrder).Select(s => new { s.Id, s.ImageUrl, s.SortOrder }).ToList(),
             }).ToListAsync();
         return Ok(new { items });
@@ -98,14 +101,14 @@ public class TeacherBookletsController : ControllerBase
 
     // Manual sample upload (watermarked images prepared by the owner). Automatic PDF rendering is a later task.
     [HttpPost("api/admin/teacher-booklets/{id:int}/samples/upload"), Authorize(Roles = "Admin")]
-    [RequestSizeLimit(20_000_000)]
+    [RequestSizeLimit(15_000_000)]
     public async Task<IActionResult> UploadSample(int id, IFormFile file, [FromForm] int pageNumber = 0)
     {
         var b = await _db.Booklets.Include(x => x.SamplePages).FirstOrDefaultAsync(x => x.Id == id);
         if (b == null) return NotFound();
         if (b.SamplePages.Count >= MaxSamples) return BadRequest($"الحد الأقصى {MaxSamples} صفحات عينة");
         if (file == null || file.Length == 0) return BadRequest("لم يتم اختيار ملف");
-        if (file.Length > 2_000_000) return BadRequest("حجم الصورة أكبر من 2MB");
+        if (file.Length > 10_000_000) return BadRequest("حجم الصورة أكبر من 10MB");
 
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (ext is not (".png" or ".jpg" or ".jpeg" or ".webp")) return BadRequest("الصيغة المسموحة: png أو jpg أو webp");
@@ -126,6 +129,56 @@ public class TeacherBookletsController : ControllerBase
         _db.BookletSamplePages.Add(sample);
         await _db.SaveChangesAsync();
         return Ok(new { sample.Id, sample.ImageUrl, sample.SortOrder });
+    }
+
+    // Owner-uploaded sample PDF (any page count; the owner prepares it). Public download link only for this file.
+    [HttpPost("api/admin/teacher-booklets/{id:int}/sample-pdf"), Authorize(Roles = "Admin")]
+    [RequestSizeLimit(60_000_000)]
+    public async Task<IActionResult> UploadSamplePdf(int id, IFormFile file)
+    {
+        var b = await _db.Booklets.FindAsync(id);
+        if (b == null) return NotFound();
+        if (file == null || file.Length == 0) return BadRequest("لم يتم اختيار ملف");
+        if (file.Length > 50_000_000) return BadRequest("حجم الملف أكبر من 50MB");
+        if (!string.Equals(Path.GetExtension(file.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+            return BadRequest("الملف يجب أن يكون PDF");
+
+        // Check the PDF signature so a renamed file is rejected.
+        var head = new byte[5];
+        await using (var peek = file.OpenReadStream())
+        {
+            var read = await peek.ReadAsync(head.AsMemory(0, 5));
+            if (read < 5 || System.Text.Encoding.ASCII.GetString(head) != "%PDF-") return BadRequest("الملف ليس PDF صالحاً");
+        }
+
+        var dir = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", "teacher-samples", id.ToString());
+        Directory.CreateDirectory(dir);
+        var name = $"{Guid.NewGuid():N}.pdf";
+        await using (var fs = System.IO.File.Create(Path.Combine(dir, name)))
+            await file.CopyToAsync(fs);
+
+        DeleteSamplePdfFile(b.TeacherSamplePdfUrl);
+        b.TeacherSamplePdfUrl = $"/uploads/teacher-samples/{id}/{name}";
+        await _db.SaveChangesAsync();
+        return Ok(new { SamplePdfUrl = b.TeacherSamplePdfUrl });
+    }
+
+    [HttpDelete("api/admin/teacher-booklets/{id:int}/sample-pdf"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteSamplePdf(int id)
+    {
+        var b = await _db.Booklets.FindAsync(id);
+        if (b == null) return NotFound();
+        DeleteSamplePdfFile(b.TeacherSamplePdfUrl);
+        b.TeacherSamplePdfUrl = null;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    private void DeleteSamplePdfFile(string? url)
+    {
+        if (string.IsNullOrEmpty(url) || !url.StartsWith("/uploads/teacher-samples/")) return;
+        var path = Path.Combine(_env.WebRootPath ?? "wwwroot", url.TrimStart('/'));
+        if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
     }
 
     [HttpDelete("api/admin/teacher-booklets/{id:int}/samples/{sampleId:int}"), Authorize(Roles = "Admin")]

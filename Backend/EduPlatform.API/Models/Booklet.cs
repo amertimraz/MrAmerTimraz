@@ -44,6 +44,10 @@ public class Booklet
     [MaxLength(1000)]
     public string? TeacherSummary { get; set; }
 
+    // Owner-uploaded sample PDF offered for download in the teachers section (not the full booklet).
+    [MaxLength(300)]
+    public string? TeacherSamplePdfUrl { get; set; }
+
     public ICollection<BookletQuantityOffer> QuantityOffers { get; set; } = new List<BookletQuantityOffer>();
     public ICollection<BookletSamplePage> SamplePages { get; set; } = new List<BookletSamplePage>();
 

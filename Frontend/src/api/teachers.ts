@@ -23,6 +23,7 @@ export interface SamplePage {
 export interface TeacherBookletDetails extends Omit<TeacherBookletSummary, 'hasSamples'> {
   teacherSummary?: string | null;
   description?: string | null;
+  samplePdfUrl?: string | null;
   samples: SamplePage[];
 }
 
@@ -70,6 +71,8 @@ export interface AdminTeacherBooklet {
   studentPrice?: number | null;
   teacherPrice?: number | null;
   coverImageUrl?: string | null;
+  samplePdfUrl?: string | null;
+  fullPdfUrl?: string | null;
   samples: SamplePage[];
 }
 
@@ -102,6 +105,16 @@ export const teachersApi = {
       .post(`/admin/teacher-booklets/${id}/samples/upload`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(r => r.data);
   },
+
+  uploadSamplePdf: (id: number, file: File) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return client
+      .post(`/admin/teacher-booklets/${id}/sample-pdf`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .then(r => r.data);
+  },
+
+  deleteSamplePdf: (id: number) => client.delete(`/admin/teacher-booklets/${id}/sample-pdf`).then(r => r.data),
 
   deleteSample: (id: number, sampleId: number) =>
     client.delete(`/admin/teacher-booklets/${id}/samples/${sampleId}`).then(r => r.data),

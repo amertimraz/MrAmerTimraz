@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, ChevronUp, Eye, EyeOff, ImagePlus, Save, Trash2, GraduationCap } from 'lucide-react';
+import { ChevronDown, ChevronUp, Eye, EyeOff, FileUp, ImagePlus, Save, Trash2, GraduationCap } from 'lucide-react';
 import { teachersApi, type AdminTeacherBooklet } from '../../api/teachers';
 import { getMediaUrl } from '../../api/client';
 import { GRADES, findGrade } from '../../data/grades';
@@ -59,6 +59,18 @@ function BookletEditor({ b }: { b: AdminTeacherBooklet }) {
       refresh();
     },
     onError: e => { setMessage({ ok: false, text: errText(e) }); refresh(); },
+  });
+
+  const uploadPdf = useMutation({
+    mutationFn: (file: File) => teachersApi.uploadSamplePdf(b.id, file),
+    onSuccess: () => { setMessage({ ok: true, text: 'تم رفع ملف العينة' }); refresh(); },
+    onError: e => setMessage({ ok: false, text: errText(e) }),
+  });
+
+  const removePdf = useMutation({
+    mutationFn: () => teachersApi.deleteSamplePdf(b.id),
+    onSuccess: () => { setMessage({ ok: true, text: 'تم حذف ملف العينة' }); refresh(); },
+    onError: e => setMessage({ ok: false, text: errText(e) }),
   });
 
   const removeSample = useMutation({
@@ -130,7 +142,7 @@ function BookletEditor({ b }: { b: AdminTeacherBooklet }) {
           <div>
             <section aria-label="العينات">
               <h3 className="mb-1 font-extrabold text-slate-900 dark:text-white">صور العينات ({b.samples.length} / 8)</h3>
-              <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">اختر عدة صور مرة واحدة (png أو jpg أو webp، حتى 2MB للصورة). الصورة الأولى هي صورة المذكرة المصغّرة.</p>
+              <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">اختر عدة صور مرة واحدة (png أو jpg أو webp، حتى 10MB للصورة). الصورة الأولى هي صورة المذكرة المصغّرة.</p>
               <div className="flex flex-wrap gap-3">
                 {b.samples.map(sm => (
                   <div key={sm.id} className="relative">
@@ -147,6 +159,40 @@ function BookletEditor({ b }: { b: AdminTeacherBooklet }) {
                     <input type="file" multiple accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={upload.isPending}
                       onChange={e => { const fs = Array.from(e.target.files ?? []); if (fs.length) upload.mutate(fs); e.target.value = ''; }} />
                   </label>
+                )}
+              </div>
+            </section>
+
+            <section aria-label="ملف العينة PDF" className="mt-6">
+              <h3 className="mb-1 font-extrabold text-slate-900 dark:text-white">ملف العينة (PDF)</h3>
+              <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">
+                ملف تجهّزه أنت بأي عدد صفحات، ويظهر للمدرس زر «حمّل ملف العينة». لا ترفع هنا المذكرة الكاملة (حتى 50MB).
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                {b.samplePdfUrl ? (
+                  <>
+                    <a href={getMediaUrl(b.samplePdfUrl)} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-emerald-700 px-4 font-bold text-emerald-800 dark:text-emerald-300">
+                      <FileUp size={16} aria-hidden /> فتح ملف العينة الحالي
+                    </a>
+                    <button type="button" onClick={() => window.confirm('حذف ملف العينة؟') && removePdf.mutate()}
+                      className="inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-rose-300 px-4 font-bold text-rose-700 dark:text-rose-300">
+                      <Trash2 size={16} aria-hidden /> حذف
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-sm text-slate-500 dark:text-slate-400">لا يوجد ملف عينة.</span>
+                )}
+                <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border-2 border-dashed border-slate-400 px-4 font-bold text-slate-700 dark:text-slate-200">
+                  <FileUp size={16} aria-hidden /> {uploadPdf.isPending ? 'جاري الرفع…' : b.samplePdfUrl ? 'استبدال الملف' : 'رفع ملف PDF'}
+                  <input type="file" accept="application/pdf,.pdf" className="sr-only" disabled={uploadPdf.isPending}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) uploadPdf.mutate(f); e.target.value = ''; }} />
+                </label>
+                {b.fullPdfUrl && (
+                  <a href={getMediaUrl(b.fullPdfUrl)} target="_blank" rel="noopener noreferrer"
+                    className="text-sm font-bold text-slate-600 underline dark:text-slate-300">
+                    فتح الملف الكامل (لك فقط)
+                  </a>
                 )}
               </div>
             </section>
