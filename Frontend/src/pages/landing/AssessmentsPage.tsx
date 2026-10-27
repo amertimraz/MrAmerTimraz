@@ -83,19 +83,29 @@ export default function AssessmentsPage() {
 
   const [selected, setSelected] = useState<number | 'all' | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
+  const [term, setTerm] = useState<1 | 2>(1);
   const [stageKey, setStageKey] = useState<string | null>(null);
   const [trackKey, setTrackKey] = useState<string | null>(null);
 
   const tracksByStage = useMemo(() => {
     const map = new Map<string, AssessmentTrackSummary[]>();
-    for (const t of tracks ?? []) map.set(t.stage, [...(map.get(t.stage) ?? []), t]);
+    for (const t of tracks ?? []) {
+      if (t.term !== term) continue;
+      map.set(t.stage, [...(map.get(t.stage) ?? []), t]);
+    }
     return map;
-  }, [tracks]);
+  }, [tracks, term]);
   const stageTracks = tracksByStage.get(stageKey ?? '') ?? [];
   const track = stageTracks.find(t => t.key === trackKey) ?? stageTracks[0];
   const stage = GRADES.find(g => g.key === stageKey);
 
   if (stageKey == null && tracks && tracks.length > 0) setStageKey(tracks[0].stage);
+
+  const pickTerm = (t: 1 | 2) => {
+    setTerm(t);
+    setTrackKey(null);
+    setSelected(null);
+  };
 
   const pickStage = (k: string) => {
     setStageKey(k);
@@ -168,6 +178,21 @@ export default function AssessmentsPage() {
 
       {tracks && (
         <nav className="no-print mt-6 space-y-4" aria-label="الصف الدراسي">
+          <div role="group" aria-label="الفصل الدراسي" className="inline-flex overflow-hidden rounded-xl border-2 border-slate-900 dark:border-teal-300">
+            {([1, 2] as const).map(t => (
+              <button
+                key={t}
+                type="button"
+                aria-pressed={term === t}
+                onClick={() => pickTerm(t)}
+                className={`min-h-11 px-5 font-extrabold ${
+                  term === t ? 'bg-slate-900 text-white dark:bg-teal-300 dark:text-slate-900' : 'bg-white text-slate-900 dark:bg-slate-800 dark:text-white'
+                }`}
+              >
+                {t === 1 ? 'الترم الأول' : 'الترم الثاني'}
+              </button>
+            ))}
+          </div>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {GRADES.map(g => {
               const count = (tracksByStage.get(g.key) ?? []).reduce((n, t) => n + t.weeks.length, 0);
@@ -218,6 +243,12 @@ export default function AssessmentsPage() {
             </div>
           )}
         </nav>
+      )}
+
+      {tracks && !track && (
+        <p className="no-print mt-8 rounded-xl border-2 border-dashed border-slate-400 p-8 text-center font-bold text-slate-600 dark:text-slate-300">
+          تقييمات {term === 1 ? 'الترم الأول' : 'الترم الثاني'} لهذا الصف قريباً.
+        </p>
       )}
 
       {track && (

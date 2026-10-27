@@ -7,6 +7,9 @@ import { visitsApi } from '../../api/assessments';
 import { getMediaUrl } from '../../api/client';
 import { GRADES, findGrade } from '../../data/grades';
 
+// A booklet's free-text Term ("الترم الأول" / "الترم الثاني"); anything else is shown in both terms.
+const termOf = (v?: string | null): 1 | 2 | null => (!v ? null : v.includes('الثاني') || v.includes('2') ? 2 : v.includes('الأول') || v.includes('1') ? 1 : null);
+
 const fmt = (n: number) => `${n.toLocaleString('ar-EG')} جنيه`;
 
 export default function TeachersPage() {
@@ -16,6 +19,7 @@ export default function TeachersPage() {
   });
 
   const [stage, setStage] = useState<string | null>(null);
+  const [term, setTerm] = useState<1 | 2>(1);
   const [visits, setVisits] = useState<number | null>(null);
 
   // One counted visit per browser session.
@@ -33,13 +37,15 @@ export default function TeachersPage() {
   const byGrade = useMemo(() => {
     const map = new Map<string, NonNullable<typeof booklets>>();
     for (const b of booklets ?? []) {
+      const t = termOf(b.term);
+      if (t !== null && t !== term) continue;
       const key = findGrade(b.gradeLevel)?.key ?? 'other';
       map.set(key, [...(map.get(key) ?? []), b]);
     }
     return map;
-  }, [booklets]);
+  }, [booklets, term]);
 
-  const shown = stage ? byGrade.get(stage) ?? [] : booklets ?? [];
+  const shown = stage ? byGrade.get(stage) ?? [] : [...byGrade.values()].flat();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6" dir="rtl">
@@ -59,6 +65,21 @@ export default function TeachersPage() {
       </header>
 
       <nav aria-label="الصف الدراسي" className="mt-6">
+        <div role="group" aria-label="الفصل الدراسي" className="mb-4 inline-flex overflow-hidden rounded-xl border-2 border-slate-900 dark:border-teal-300">
+          {([1, 2] as const).map(t => (
+            <button
+              key={t}
+              type="button"
+              aria-pressed={term === t}
+              onClick={() => { setTerm(t); setStage(null); }}
+              className={`min-h-11 px-5 font-extrabold ${
+                term === t ? 'bg-slate-900 text-white dark:bg-teal-300 dark:text-slate-900' : 'bg-white text-slate-900 dark:bg-slate-800 dark:text-white'
+              }`}
+            >
+              {t === 1 ? 'الترم الأول' : 'الترم الثاني'}
+            </button>
+          ))}
+        </div>
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {GRADES.map(g => {
             const count = byGrade.get(g.key)?.length ?? 0;
@@ -98,7 +119,7 @@ export default function TeachersPage() {
         )}
         {!isLoading && !isError && shown.length === 0 && (
           <p className="rounded-xl border-2 border-dashed border-slate-400 p-8 text-center font-bold text-slate-600 dark:text-slate-300">
-            المذكرات قريباً.
+            مذكرات هذا الترم قريباً.
           </p>
         )}
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
