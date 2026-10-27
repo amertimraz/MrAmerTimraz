@@ -61,7 +61,7 @@ export default function TeacherBookletPage() {
             <div className="space-y-6">
               <div>
                 <h2 className="mb-3 border-r-4 border-orange-500 pr-3 text-xl font-black text-slate-900 dark:text-white">الأسعار</h2>
-                <PriceTable studentPrice={b.studentPrice} teacherPrice={b.teacherPrice} />
+                <PriceTable bookletTitle={b.title} studentPrice={b.studentPrice} teacherPrice={b.teacherPrice} />
               </div>
             </div>
           </div>
