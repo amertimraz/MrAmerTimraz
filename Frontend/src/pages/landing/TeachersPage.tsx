@@ -10,7 +10,7 @@ import { GRADES, findGrade } from '../../data/grades';
 // A booklet's free-text Term ("الترم الأول" / "الترم الثاني"); anything else is shown in both terms.
 const termOf = (v?: string | null): 1 | 2 | null => (!v ? null : v.includes('الثاني') || v.includes('2') ? 2 : v.includes('الأول') || v.includes('1') ? 1 : null);
 
-const fmt = (n: number) => `${n.toLocaleString('ar-EG')} جنيه`;
+const fmt = (n: number) => `${n.toLocaleString('en-US')} جنيه`;
 
 export default function TeachersPage() {
   const { data: booklets, isLoading, isError } = useQuery({

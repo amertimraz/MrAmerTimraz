@@ -1,7 +1,7 @@
 import { MessageCircle, UserRound, GraduationCap } from 'lucide-react';
 import { waLink } from '../../data/contact';
 
-const fmt = (n: number) => `${n.toLocaleString('ar-EG')} جنيه`;
+const fmt = (n: number) => `${n.toLocaleString('en-US')} جنيه`;
 
 interface Props {
   bookletTitle: string;
@@ -9,7 +9,7 @@ interface Props {
   teacherPrice?: number | null;
 }
 
-// Each booklet is a single PDF delivered either to a student or to a teacher. The two versions differ
+// Prices use Latin digits on purpose. Each booklet is a single PDF delivered either to a student or to a teacher. The two versions differ
 // in whose details it carries, so each has its own description and its own WhatsApp message.
 export default function PriceTable({ bookletTitle, studentPrice, teacherPrice }: Props) {
   const versions = [
@@ -18,9 +18,9 @@ export default function PriceTable({ bookletTitle, studentPrice, teacherPrice }:
           key: 'student',
           label: 'نسخة الطالب',
           Icon: UserRound,
-          detail: 'نسخة الطالب: ببيانات مستر عامر تمراز كاملة.',
+          detail: 'ملف PDF واحد، ببيانات مستر عامر تمراز كاملة.',
           price: studentPrice,
-          message: `السلام عليكم، أريد شراء مذكرة «${bookletTitle}» نسخة الطالب (ببيانات مستر عامر تمراز) بسعر ${studentPrice} جنيه.`,
+          message: `السلام عليكم، أريد شراء مذكرة «${bookletTitle}» نسخة الطالب PDF (ببيانات مستر عامر تمراز) بسعر ${studentPrice} جنيه.`,
           button: 'اطلب نسخة الطالب عبر واتساب',
         }]
       : []),
@@ -29,9 +29,9 @@ export default function PriceTable({ bookletTitle, studentPrice, teacherPrice }:
           key: 'teacher',
           label: 'نسخة المدرس',
           Icon: GraduationCap,
-          detail: 'نسخة المدرس: مخصصة ببيانات المدرس كاملة.',
+          detail: 'ملف PDF واحد مخصص ببيانات المدرس كاملة (اسمك ورقمك واسم المدرسة أو السنتر).',
           price: teacherPrice,
-          message: `السلام عليكم، أنا مدرس وأريد شراء مذكرة «${bookletTitle}» نسخة المدرس المخصصة ببياناتي بسعر ${teacherPrice} جنيه. سأرسل لك بياناتي (الاسم ورقم الهاتف واسم المدرسة أو السنتر).`,
+          message: `السلام عليكم، أنا مدرس وأريد شراء مذكرة «${bookletTitle}» نسخة المدرس PDF المخصصة ببياناتي بسعر ${teacherPrice} جنيه. سأرسل لك بياناتي (الاسم ورقم الهاتف واسم المدرسة أو السنتر).`,
           button: 'اطلب نسخة المدرس عبر واتساب',
         }]
       : []),

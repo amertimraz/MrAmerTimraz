@@ -64,8 +64,8 @@ function BookletEditor({ b }: { b: AdminTeacherBooklet }) {
           <h2 className="truncate text-lg font-extrabold text-slate-900 dark:text-white">{b.title}</h2>
           <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600 dark:text-slate-400">
             <span>{grade?.label ?? b.gradeLevel ?? 'بدون صف'}</span>
-            <span>طالب: {b.studentPrice ? b.studentPrice.toLocaleString('ar-EG') : '—'}</span>
-            <span>مدرس: {b.teacherPrice ? b.teacherPrice.toLocaleString('ar-EG') : '—'}</span>
+            <span>طالب: {b.studentPrice ? b.studentPrice.toLocaleString('en-US') : '—'}</span>
+            <span>مدرس: {b.teacherPrice ? b.teacherPrice.toLocaleString('en-US') : '—'}</span>
             <span>{b.samples.length.toLocaleString('ar-EG')} عينة</span>
             {!grade && b.gradeLevel && <span className="font-bold text-orange-700 dark:text-orange-300">⚠ الصف غير معروف</span>}
             {!ready && <span className="font-bold text-rose-700 dark:text-rose-300">⚠ غير منشورة في المتجر</span>}
