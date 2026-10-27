@@ -6,7 +6,6 @@ import { getMediaUrl } from '../../api/client';
 import { findGrade } from '../../data/grades';
 import SampleViewer from '../../components/teachers/SampleViewer';
 import QuantityTable from '../../components/teachers/QuantityTable';
-import InquiryForm from '../../components/teachers/InquiryForm';
 
 export default function TeacherBookletPage() {
   const { id } = useParams();
@@ -64,7 +63,6 @@ export default function TeacherBookletPage() {
                 <h2 className="mb-3 border-r-4 border-orange-500 pr-3 text-xl font-black text-slate-900 dark:text-white">الأسعار</h2>
                 <QuantityTable basePrice={b.teacherPrice} offers={b.quantityOffers} />
               </div>
-              <InquiryForm bookletId={b.id} bookletTitle={b.title} gradeLevel={b.gradeLevel} subject={b.subject} />
             </div>
           </div>
         </>

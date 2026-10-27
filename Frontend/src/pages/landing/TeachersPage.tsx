@@ -6,7 +6,6 @@ import { teachersApi } from '../../api/teachers';
 import { visitsApi } from '../../api/assessments';
 import { getMediaUrl } from '../../api/client';
 import { GRADES, findGrade } from '../../data/grades';
-import InquiryForm from '../../components/teachers/InquiryForm';
 
 const fmt = (n: number) => `${n.toLocaleString('ar-EG')} جنيه`;
 
@@ -55,7 +54,7 @@ export default function TeachersPage() {
         )}
         <h1 className="mt-3 text-3xl font-black text-slate-900 dark:text-white sm:text-4xl">مذكرات جاهزة للمدرسين</h1>
         <p className="mt-2 max-w-2xl text-base leading-8 text-slate-700 dark:text-slate-300">
-          شاهد عينات من كل مذكرة، واعرف الأسعار وعروض الكميات، ثم اطلب عرض السعر مباشرة وسنتواصل معك.
+          شاهد عينات من كل مذكرة، واعرف الأسعار وعروض الكميات.
         </p>
       </header>
 
@@ -99,7 +98,7 @@ export default function TeachersPage() {
         )}
         {!isLoading && !isError && shown.length === 0 && (
           <p className="rounded-xl border-2 border-dashed border-slate-400 p-8 text-center font-bold text-slate-600 dark:text-slate-300">
-            المذكرات قريباً. يمكنك طلب عرض سعر من النموذج بالأسفل.
+            المذكرات قريباً.
           </p>
         )}
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,10 +131,6 @@ export default function TeachersPage() {
             </li>
           ))}
         </ul>
-      </section>
-
-      <section className="mt-10 max-w-xl" aria-label="طلب عرض سعر">
-        <InquiryForm />
       </section>
     </div>
   );
