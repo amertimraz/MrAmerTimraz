@@ -141,11 +141,10 @@ export default function TeachersPage() {
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                     {[findGrade(b.gradeLevel)?.label ?? b.gradeLevel, b.term].filter(Boolean).join(' · ')}
                   </p>
-                  <p className="mt-auto pt-3 text-base font-extrabold text-teal-800 dark:text-teal-300">
-                    {b.teacherPrice != null ? fmt(b.teacherPrice) : 'اسأل عن السعر'}
-                    {b.minOfferPrice != null && (
-                      <span className="mr-2 text-sm font-bold text-orange-700 dark:text-orange-300">عروض كميات من {fmt(b.minOfferPrice)}</span>
-                    )}
+                  <p className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-3 text-base font-extrabold text-teal-800 dark:text-teal-300">
+                    {b.studentPrice != null && b.studentPrice > 0 && <span>طالب: {fmt(b.studentPrice)}</span>}
+                    {b.teacherPrice != null && b.teacherPrice > 0 && <span>مدرس: {fmt(b.teacherPrice)}</span>}
+                    {!(b.studentPrice && b.studentPrice > 0) && !(b.teacherPrice && b.teacherPrice > 0) && <span>اسأل عن السعر</span>}
                   </p>
                 </div>
               </Link>

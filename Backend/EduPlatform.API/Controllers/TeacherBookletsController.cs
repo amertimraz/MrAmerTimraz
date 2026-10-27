@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.API.Controllers;
 
-public record UpdateTeacherBookletDto(bool TeacherShowcase, string? TeacherSummary, decimal? TeacherPrice);
-public record QuantityOfferDto(int MinQuantity, decimal UnitPrice);
+// Price = student price (shared with the student store); TeacherPrice = teacher version price.
+public record UpdateTeacherBookletDto(bool TeacherShowcase, string? TeacherSummary, decimal? TeacherPrice, decimal? StudentPrice);
 
 [ApiController]
 public class TeacherBookletsController : ControllerBase
@@ -31,22 +31,14 @@ public class TeacherBookletsController : ControllerBase
         var q = _db.Booklets.AsNoTracking().Where(b => b.IsPublished && b.TeacherShowcase);
         if (!string.IsNullOrWhiteSpace(grade)) q = q.Where(b => b.GradeLevel == grade);
 
-        // Aggregate prices in memory: SQLite (local dev) cannot apply Min on decimal columns.
-        var rows = await q.OrderBy(b => b.GradeLevel).ThenBy(b => b.Title)
+        var items = await q.OrderBy(b => b.GradeLevel).ThenBy(b => b.Title)
             .Select(b => new
             {
                 b.Id, b.Title, b.GradeLevel, b.Subject, b.Term, b.PageCount, b.CoverImageUrl,
+                StudentPrice = b.Price,
                 b.TeacherPrice,
-                OfferPrices = b.QuantityOffers.Select(o => o.UnitPrice).ToList(),
                 HasSamples = b.SamplePages.Any(),
             }).ToListAsync();
-
-        var items = rows.Select(r => new
-        {
-            r.Id, r.Title, r.GradeLevel, r.Subject, r.Term, r.PageCount, r.CoverImageUrl, r.TeacherPrice,
-            MinOfferPrice = r.OfferPrices.Count > 0 ? (decimal?)r.OfferPrices.Min() : null,
-            r.HasSamples,
-        });
 
         return Ok(new { items });
     }
@@ -59,9 +51,9 @@ public class TeacherBookletsController : ControllerBase
             .Select(x => new
             {
                 x.Id, x.Title, x.TeacherSummary, x.Description, x.GradeLevel, x.Subject, x.Term,
-                x.PageCount, x.CoverImageUrl, x.TeacherPrice,
-                QuantityOffers = x.QuantityOffers.OrderBy(o => o.MinQuantity)
-                    .Select(o => new { o.MinQuantity, o.UnitPrice }).ToList(),
+                x.PageCount, x.CoverImageUrl,
+                StudentPrice = x.Price,
+                x.TeacherPrice,
                 Samples = x.SamplePages.OrderBy(s => s.SortOrder).ThenBy(s => s.Id)
                     .Select(s => new { s.Id, s.ImageUrl, s.SortOrder }).ToList(),
             }).FirstOrDefaultAsync();
@@ -78,8 +70,8 @@ public class TeacherBookletsController : ControllerBase
             .Select(b => new
             {
                 b.Id, b.Title, b.GradeLevel, b.Subject, b.IsPublished, b.TeacherShowcase, b.TeacherSummary,
+                StudentPrice = b.Price,
                 b.TeacherPrice, b.CoverImageUrl,
-                QuantityOffers = b.QuantityOffers.OrderBy(o => o.MinQuantity).Select(o => new { o.MinQuantity, o.UnitPrice }).ToList(),
                 Samples = b.SamplePages.OrderBy(s => s.SortOrder).Select(s => new { s.Id, s.ImageUrl, s.SortOrder }).ToList(),
             }).ToListAsync();
         return Ok(new { items });
@@ -91,31 +83,14 @@ public class TeacherBookletsController : ControllerBase
         var b = await _db.Booklets.FindAsync(id);
         if (b == null) return NotFound();
         if ((dto.TeacherSummary?.Length ?? 0) > 1000) return BadRequest("الملخص طويل (الحد 1000 حرف)");
-        if (dto.TeacherPrice is < 0) return BadRequest("السعر غير صالح");
+        if (dto.TeacherPrice is < 0 || dto.StudentPrice is < 0) return BadRequest("السعر غير صالح");
 
         b.TeacherShowcase = dto.TeacherShowcase;
         b.TeacherSummary = dto.TeacherSummary;
         b.TeacherPrice = dto.TeacherPrice;
+        if (dto.StudentPrice.HasValue) b.Price = dto.StudentPrice.Value;
         await _db.SaveChangesAsync();
         return Ok(new { b.Id, b.TeacherShowcase });
-    }
-
-    [HttpPut("api/admin/teacher-booklets/{id:int}/offers"), Authorize(Roles = "Admin")]
-    public async Task<IActionResult> ReplaceOffers(int id, [FromBody] List<QuantityOfferDto> offers)
-    {
-        var b = await _db.Booklets.Include(x => x.QuantityOffers).FirstOrDefaultAsync(x => x.Id == id);
-        if (b == null) return NotFound();
-
-        if (offers.Any(o => o.MinQuantity < 2 || o.UnitPrice <= 0)) return BadRequest("الحد الأدنى للكمية 2 والسعر أكبر من صفر");
-        if (offers.GroupBy(o => o.MinQuantity).Any(g => g.Count() > 1)) return BadRequest("لا يمكن تكرار نفس الحد الأدنى للكمية");
-        if (b.TeacherPrice.HasValue && offers.Any(o => o.UnitPrice >= b.TeacherPrice.Value))
-            return BadRequest("سعر عرض الكمية يجب أن يكون أقل من سعر المدرس الأساسي");
-
-        _db.BookletQuantityOffers.RemoveRange(b.QuantityOffers);
-        foreach (var o in offers.OrderBy(o => o.MinQuantity))
-            b.QuantityOffers.Add(new BookletQuantityOffer { MinQuantity = o.MinQuantity, UnitPrice = o.UnitPrice });
-        await _db.SaveChangesAsync();
-        return Ok(new { count = offers.Count });
     }
 
     // Manual sample upload (watermarked images prepared by the owner). Automatic PDF rendering is a later task.

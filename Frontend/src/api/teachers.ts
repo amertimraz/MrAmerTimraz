@@ -8,14 +8,9 @@ export interface TeacherBookletSummary {
   term?: string | null;
   pageCount?: number | null;
   coverImageUrl?: string | null;
+  studentPrice?: number | null;
   teacherPrice?: number | null;
-  minOfferPrice?: number | null;
   hasSamples: boolean;
-}
-
-export interface QuantityOffer {
-  minQuantity: number;
-  unitPrice: number;
 }
 
 export interface SamplePage {
@@ -24,10 +19,9 @@ export interface SamplePage {
   sortOrder: number;
 }
 
-export interface TeacherBookletDetails extends Omit<TeacherBookletSummary, 'hasSamples' | 'minOfferPrice'> {
+export interface TeacherBookletDetails extends Omit<TeacherBookletSummary, 'hasSamples'> {
   teacherSummary?: string | null;
   description?: string | null;
-  quantityOffers: QuantityOffer[];
   samples: SamplePage[];
 }
 
@@ -72,9 +66,9 @@ export interface AdminTeacherBooklet {
   isPublished: boolean;
   teacherShowcase: boolean;
   teacherSummary?: string | null;
+  studentPrice?: number | null;
   teacherPrice?: number | null;
   coverImageUrl?: string | null;
-  quantityOffers: QuantityOffer[];
   samples: SamplePage[];
 }
 
@@ -97,11 +91,8 @@ export const teachersApi = {
   adminBooklets: () =>
     client.get<{ items: AdminTeacherBooklet[] }>('/admin/teacher-booklets').then(r => r.data.items),
 
-  updateBooklet: (id: number, body: { teacherShowcase: boolean; teacherSummary?: string | null; teacherPrice?: number | null }) =>
+  updateBooklet: (id: number, body: { teacherShowcase: boolean; teacherSummary?: string | null; teacherPrice?: number | null; studentPrice?: number | null }) =>
     client.put(`/admin/teacher-booklets/${id}`, body).then(r => r.data),
-
-  replaceOffers: (id: number, offers: QuantityOffer[]) =>
-    client.put(`/admin/teacher-booklets/${id}/offers`, offers).then(r => r.data),
 
   uploadSample: (id: number, file: File) => {
     const fd = new FormData();
@@ -117,11 +108,3 @@ export const teachersApi = {
   updateInquiry: (id: number, body: { status?: string; adminNote?: string }) =>
     client.put(`/admin/teacher-inquiries/${id}`, body).then(r => r.data),
 };
-
-/** The unit price that applies for a given quantity (largest matching offer, else base price). */
-export function unitPriceFor(details: Pick<TeacherBookletDetails, 'teacherPrice' | 'quantityOffers'>, qty: number): number | null {
-  const offer = [...details.quantityOffers]
-    .filter(o => o.minQuantity <= qty)
-    .sort((a, b) => b.minQuantity - a.minQuantity)[0];
-  return offer ? offer.unitPrice : details.teacherPrice ?? null;
-}

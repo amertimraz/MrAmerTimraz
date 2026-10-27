@@ -5,7 +5,7 @@ import { teachersApi } from '../../api/teachers';
 import { getMediaUrl } from '../../api/client';
 import { findGrade } from '../../data/grades';
 import SampleViewer from '../../components/teachers/SampleViewer';
-import QuantityTable from '../../components/teachers/QuantityTable';
+import PriceTable from '../../components/teachers/PriceTable';
 
 export default function TeacherBookletPage() {
   const { id } = useParams();
@@ -61,7 +61,7 @@ export default function TeacherBookletPage() {
             <div className="space-y-6">
               <div>
                 <h2 className="mb-3 border-r-4 border-orange-500 pr-3 text-xl font-black text-slate-900 dark:text-white">الأسعار</h2>
-                <QuantityTable basePrice={b.teacherPrice} offers={b.quantityOffers} />
+                <PriceTable studentPrice={b.studentPrice} teacherPrice={b.teacherPrice} />
               </div>
             </div>
           </div>
