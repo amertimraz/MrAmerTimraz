@@ -86,6 +86,7 @@ const AdminBookletStats = lazy(() => import('./pages/admin/AdminBookletStats'));
 const AdminPaymentSettings = lazy(() => import('./pages/admin/AdminPaymentSettings'));
 const AdminAllResults = lazy(() => import('./pages/admin/AdminAllResults'));
 const FileManagerPage = lazy(() => import('./pages/admin/FileManagerPage'));
+const TeacherShowcaseManager = lazy(() => import('./pages/admin/TeacherShowcaseManager'));
 const ContentManager = lazy(() => import('./pages/admin/ContentManager'));
 
 
@@ -208,6 +209,7 @@ export default function App() {
               <Route path="challenges"      element={<AdminChallenges />} />
               <Route path="all-results"     element={<AdminAllResults />} />
               <Route path="content"         element={<ContentManager />} />
+              <Route path="teacher-showcase" element={<TeacherShowcaseManager />} />
               <Route path="booklets"        element={<Navigate to="/admin/content" replace />} />
               <Route path="free-resources"  element={<Navigate to="/admin/content?tab=free" replace />} />
               <Route path="teacher-packages" element={<Navigate to="/admin/content?tab=packages" replace />} />

@@ -64,6 +64,20 @@ export interface TeacherInquiryRow {
   bookletTitle?: string | null;
 }
 
+export interface AdminTeacherBooklet {
+  id: number;
+  title: string;
+  gradeLevel?: string | null;
+  subject?: string | null;
+  isPublished: boolean;
+  teacherShowcase: boolean;
+  teacherSummary?: string | null;
+  teacherPrice?: number | null;
+  coverImageUrl?: string | null;
+  quantityOffers: QuantityOffer[];
+  samples: SamplePage[];
+}
+
 export const teachersApi = {
   list: () =>
     client.get<{ items: TeacherBookletSummary[] }>('/teacher-booklets').then(r => r.data.items),
@@ -79,6 +93,26 @@ export const teachersApi = {
     client
       .get<{ total: number; newCount: number; items: TeacherInquiryRow[] }>('/admin/teacher-inquiries', { params })
       .then(r => r.data),
+
+  adminBooklets: () =>
+    client.get<{ items: AdminTeacherBooklet[] }>('/admin/teacher-booklets').then(r => r.data.items),
+
+  updateBooklet: (id: number, body: { teacherShowcase: boolean; teacherSummary?: string | null; teacherPrice?: number | null }) =>
+    client.put(`/admin/teacher-booklets/${id}`, body).then(r => r.data),
+
+  replaceOffers: (id: number, offers: QuantityOffer[]) =>
+    client.put(`/admin/teacher-booklets/${id}/offers`, offers).then(r => r.data),
+
+  uploadSample: (id: number, file: File) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return client
+      .post(`/admin/teacher-booklets/${id}/samples/upload`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .then(r => r.data);
+  },
+
+  deleteSample: (id: number, sampleId: number) =>
+    client.delete(`/admin/teacher-booklets/${id}/samples/${sampleId}`).then(r => r.data),
 
   updateInquiry: (id: number, body: { status?: string; adminNote?: string }) =>
     client.put(`/admin/teacher-inquiries/${id}`, body).then(r => r.data),
