@@ -7,6 +7,9 @@ import AssessmentSheet from '../../components/assessments/AssessmentSheet';
 
 const NEW_DAYS = 10;
 
+// The ministry PDF link is hidden for now; flip to true to bring the "ملف الوزارة" button back.
+const SHOW_SOURCE_LINK = false;
+
 
 // Printing happens in an isolated iframe that holds only the sheets, so the app chrome can never
 // leak into (or blank out) the PDF.
@@ -223,44 +226,44 @@ export default function AssessmentsPage() {
             {lessons.map(([lesson, list]) => (
               <div key={lesson}>
                 <h2 className="mb-3 border-r-4 border-orange-500 pr-3 text-lg font-black text-slate-900 dark:text-white">{lesson}</h2>
-                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
                   {list.map(w => {
                     const active = selected === w.week;
                     return (
                       <li key={w.week}>
                         <div
-                          className={`flex h-full flex-col rounded-2xl border-2 border-slate-900 bg-white p-4 shadow-[4px_4px_0_0_#0f172a] dark:border-teal-300 dark:bg-slate-900 dark:shadow-[4px_4px_0_0_#5eead4] ${
+                          className={`flex h-full flex-col rounded-xl border-2 border-slate-900 bg-white p-3 shadow-[3px_3px_0_0_#0f172a] dark:border-teal-300 dark:bg-slate-900 dark:shadow-[3px_3px_0_0_#5eead4] ${
                             active ? 'ring-4 ring-orange-400' : ''
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-xl font-black text-slate-900 dark:text-white">الأسبوع {w.week}</span>
+                            <span className="text-lg font-black text-slate-900 dark:text-white">الأسبوع {w.week}</span>
                             {isNew(w) && (
                               <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2.5 py-0.5 text-xs font-extrabold text-slate-900">
                                 <Sparkles size={12} aria-hidden /> جديد
                               </span>
                             )}
                           </div>
-                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                            {w.hasSolution ? `${w.itemCount} سؤال` : 'بانتظار التنسيق والحل'}
+                          <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400">
+                            {w.hasSolution ? `${w.itemCount} سؤال` : 'بانتظار الحل'}
                             {w.publishedAt ? ` · ${formatDate(w.publishedAt)}` : ''}
                           </p>
-                          <div className="mt-4 flex flex-wrap gap-2">
+                          <div className="mt-2 flex flex-wrap gap-2">
                             {w.hasSolution ? (
                               <button
                                 type="button"
                                 onClick={() => setSelected(w.week)}
                                 aria-pressed={active}
-                                className="min-h-11 flex-1 rounded-xl border-2 border-slate-900 bg-orange-500 px-4 font-extrabold text-slate-900 transition-colors hover:bg-orange-400 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-600 dark:border-orange-300"
+                                className="min-h-11 flex-1 rounded-lg border-2 border-slate-900 bg-orange-500 px-3 text-sm font-extrabold text-slate-900 transition-colors hover:bg-orange-400 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-600 dark:border-orange-300"
                               >
                                 {active ? 'معروض الآن' : 'عرض التقييم'}
                               </button>
                             ) : (
-                              <span className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-slate-500 px-3 text-sm font-extrabold text-slate-700 dark:text-slate-300">
+                              <span className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-slate-500 px-2 text-xs font-extrabold text-slate-700 dark:text-slate-300">
                                 <Clock size={15} aria-hidden /> الحل قريباً
                               </span>
                             )}
-                            {w.sourceAvailable && (
+                            {SHOW_SOURCE_LINK && w.sourceAvailable && (
                               <a
                                 href={w.sourceUrl}
                                 target="_blank"
