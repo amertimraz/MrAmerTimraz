@@ -42,10 +42,23 @@ function BookletEditor({ b }: { b: AdminTeacherBooklet }) {
     onError: e => setMessage({ ok: false, text: errText(e) }),
   });
 
+  // Upload several images in one go (one request per image, in order, stopping at the 8-sample limit).
   const upload = useMutation({
-    mutationFn: (file: File) => teachersApi.uploadSample(b.id, file),
-    onSuccess: () => { setMessage({ ok: true, text: 'تم رفع العينة' }); refresh(); },
-    onError: e => setMessage({ ok: false, text: errText(e) }),
+    mutationFn: async (files: File[]) => {
+      const room = 8 - b.samples.length;
+      const batch = files.slice(0, Math.max(room, 0));
+      let done = 0;
+      for (const f of batch) {
+        await teachersApi.uploadSample(b.id, f);
+        done += 1;
+      }
+      return { done, skipped: files.length - batch.length };
+    },
+    onSuccess: ({ done, skipped }) => {
+      setMessage({ ok: true, text: `تم رفع ${done} صورة${skipped > 0 ? ` (تم تجاهل ${skipped} لتجاوز الحد 8)` : ''}` });
+      refresh();
+    },
+    onError: e => { setMessage({ ok: false, text: errText(e) }); refresh(); },
   });
 
   const removeSample = useMutation({
@@ -117,7 +130,7 @@ function BookletEditor({ b }: { b: AdminTeacherBooklet }) {
           <div>
             <section aria-label="العينات">
               <h3 className="mb-1 font-extrabold text-slate-900 dark:text-white">صور العينات ({b.samples.length} / 8)</h3>
-              <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">صور جاهزة بالعلامة المائية (png أو jpg أو webp، حتى 2MB).</p>
+              <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">اختر عدة صور مرة واحدة (png أو jpg أو webp، حتى 2MB للصورة). الصورة الأولى هي صورة المذكرة المصغّرة.</p>
               <div className="flex flex-wrap gap-3">
                 {b.samples.map(sm => (
                   <div key={sm.id} className="relative">
@@ -131,8 +144,8 @@ function BookletEditor({ b }: { b: AdminTeacherBooklet }) {
                 {b.samples.length < 8 && (
                   <label className="flex h-28 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-slate-400 text-xs font-bold text-slate-600 dark:text-slate-300">
                     <ImagePlus size={20} aria-hidden /> {upload.isPending ? 'جاري الرفع…' : 'رفع'}
-                    <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={upload.isPending}
-                      onChange={e => { const f = e.target.files?.[0]; if (f) upload.mutate(f); e.target.value = ''; }} />
+                    <input type="file" multiple accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={upload.isPending}
+                      onChange={e => { const fs = Array.from(e.target.files ?? []); if (fs.length) upload.mutate(fs); e.target.value = ''; }} />
                   </label>
                 )}
               </div>

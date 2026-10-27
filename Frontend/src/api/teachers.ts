@@ -8,6 +8,7 @@ export interface TeacherBookletSummary {
   term?: string | null;
   pageCount?: number | null;
   coverImageUrl?: string | null;
+  firstSampleUrl?: string | null;
   studentPrice?: number | null;
   teacherPrice?: number | null;
   hasSamples: boolean;

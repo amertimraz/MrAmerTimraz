@@ -37,6 +37,9 @@ public class TeacherBookletsController : ControllerBase
                 b.Id, b.Title, b.GradeLevel, b.Subject, b.Term, b.PageCount, b.CoverImageUrl,
                 StudentPrice = b.Price,
                 b.TeacherPrice,
+                // Card thumbnail: the first sample page, falling back to the cover image on the client.
+                FirstSampleUrl = b.SamplePages.OrderBy(s => s.SortOrder).ThenBy(s => s.Id)
+                    .Select(s => s.ImageUrl).FirstOrDefault(),
                 HasSamples = b.SamplePages.Any(),
             }).ToListAsync();
 

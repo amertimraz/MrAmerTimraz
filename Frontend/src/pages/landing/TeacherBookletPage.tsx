@@ -36,8 +36,8 @@ export default function TeacherBookletPage() {
       {b && (
         <>
           <header className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
-            {b.coverImageUrl && (
-              <img src={getMediaUrl(b.coverImageUrl)} alt="" className="h-48 w-36 shrink-0 rounded-xl border-2 border-slate-900 object-cover dark:border-teal-300" />
+            {(b.samples[0]?.imageUrl || b.coverImageUrl) && (
+              <img src={getMediaUrl(b.samples[0]?.imageUrl ?? b.coverImageUrl)} alt="" className="h-48 w-36 shrink-0 rounded-xl border-2 border-slate-900 object-cover dark:border-teal-300" />
             )}
             <div>
               <h1 className="text-3xl font-black leading-10 text-slate-900 dark:text-white">{b.title}</h1>

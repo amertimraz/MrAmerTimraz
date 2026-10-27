@@ -129,8 +129,8 @@ export default function TeachersPage() {
                 to={`/teachers/${b.id}`}
                 className="flex h-full flex-col overflow-hidden rounded-2xl border-2 border-slate-900 bg-white shadow-[4px_4px_0_0_#0f172a] transition-colors hover:bg-orange-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-600 dark:border-teal-300 dark:bg-slate-900 dark:shadow-[4px_4px_0_0_#5eead4] dark:hover:bg-slate-800"
               >
-                {b.coverImageUrl ? (
-                  <img src={getMediaUrl(b.coverImageUrl)} alt="" loading="lazy" className="h-44 w-full border-b-2 border-slate-900 object-cover dark:border-teal-300" />
+                {b.firstSampleUrl || b.coverImageUrl ? (
+                  <img src={getMediaUrl(b.firstSampleUrl ?? b.coverImageUrl)} alt="" loading="lazy" className="h-44 w-full border-b-2 border-slate-900 object-cover dark:border-teal-300" />
                 ) : (
                   <div className="flex h-44 items-center justify-center border-b-2 border-slate-900 bg-teal-100 dark:border-teal-300 dark:bg-teal-950">
                     <BookOpen size={44} className="text-teal-800 dark:text-teal-300" aria-hidden />
