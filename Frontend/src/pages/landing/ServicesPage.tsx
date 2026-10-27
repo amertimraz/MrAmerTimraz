@@ -457,7 +457,6 @@ export default function ServicesPage() {
           maxPages={5}
           onClose={() => setPreviewOpen(null)}
           studentWaLink={waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${previewOpen.title}"\nنسخة الطالب${previewOpen.price > 0 ? ` - ${previewOpen.price} ج.م` : ''}`)}
-          teacherWaLink={previewOpen.teacherPrice ? waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${previewOpen.title}"\nنسخة المعلم - ${previewOpen.teacherPrice} ج.م`) : undefined}
         />
       )}
     </div>
@@ -493,7 +492,6 @@ function ChoiceCard({
 
 function BookletServiceCard({ booklet, card, isDark, onPreview }: { booklet: Booklet; card: React.CSSProperties; isDark: boolean; onPreview: () => void }) {
   const studentMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة الطالب${booklet.price > 0 ? ` - ${booklet.price} ج.م` : ''}`);
-  const teacherMsg = waLink(`مرحبًا، أنا مهتم بشراء مذكرة "${booklet.title}"\nنسخة المعلم${booklet.teacherPrice ? ` - ${booklet.teacherPrice} ج.م` : ''}`);
   const metaBits = [booklet.term, booklet.subject, booklet.pageCount ? `${booklet.pageCount} صفحة` : null].filter(Boolean);
 
   return (
@@ -568,9 +566,8 @@ function BookletServiceCard({ booklet, card, isDark, onPreview }: { booklet: Boo
             </span>
           </a>
           {!!booklet.teacherPrice && (
-            <a
-              href={teacherMsg}
-              target="_blank" rel="noopener noreferrer"
+            <Link
+              to={`/teachers/${booklet.id}`}
               className="flex flex-col items-center gap-0.5 rounded-2xl px-3 py-3.5 text-center transition-all hover:-translate-y-0.5"
               style={isDark
                 ? { background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)' }
@@ -584,9 +581,9 @@ function BookletServiceCard({ booklet, card, isDark, onPreview }: { booklet: Boo
                 <span className="text-xs font-bold mr-1">ج.م</span>
               </span>
               <span className={`flex items-center gap-1 text-[11px] font-bold mt-1.5 ${isDark ? 'text-sky-400' : 'text-sky-600'}`}>
-                <MessageCircle size={12} /> اطلب الآن
+                <Users size={12} /> التفاصيل والعينات
               </span>
-            </a>
+            </Link>
           )}
         </div>
         {!!booklet.teacherPrice && (
