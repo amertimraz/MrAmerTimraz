@@ -54,8 +54,8 @@ export default function TeachersPage() {
           <GraduationCap size={16} aria-hidden /> للمدرسين
         </span>
         {visits !== null && (
-          <span className="mr-2 inline-flex items-center gap-2 rounded-full border-2 border-slate-900 bg-orange-500 px-4 py-1 text-sm font-extrabold text-slate-900 dark:border-orange-300">
-            <Eye size={16} aria-hidden /> عدد الزيارات: {visits.toLocaleString('ar-EG')}
+          <span className="mr-2 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300" title="إجمالي الزيارات">
+            <Eye size={12} aria-hidden /> {visits.toLocaleString('en-US')}
           </span>
         )}
         <h1 className="mt-3 text-3xl font-black text-slate-900 dark:text-white sm:text-4xl">مذكرات جاهزة للمدرسين</h1>

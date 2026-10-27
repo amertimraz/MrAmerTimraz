@@ -16,6 +16,10 @@ namespace EduPlatform.API.Controllers;
 public class VisitsController : ControllerBase
 {
     private static readonly string[] AllowedPages = { "assessments", "teachers" };
+
+    // Per-booklet counters in the teachers section: "teacher-booklet-{id}".
+    private static bool IsAllowed(string page) =>
+        AllowedPages.Contains(page) || System.Text.RegularExpressions.Regex.IsMatch(page, @"^teacher-booklet-\d{1,9}$");
     private static volatile bool _tableReady;
     private static readonly SemaphoreSlim Gate = new(1, 1);
 
@@ -30,7 +34,7 @@ public class VisitsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Get(string page)
     {
-        if (!AllowedPages.Contains(page)) return NotFound();
+        if (!IsAllowed(page)) return NotFound();
         await EnsureTableAsync();
         return Ok(new { count = await ReadAsync(page) });
     }
@@ -39,7 +43,7 @@ public class VisitsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Hit(string page)
     {
-        if (!AllowedPages.Contains(page)) return NotFound();
+        if (!IsAllowed(page)) return NotFound();
         await EnsureTableAsync();
 
         var conn = _db.Database.GetDbConnection();
