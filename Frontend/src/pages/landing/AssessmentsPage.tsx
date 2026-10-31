@@ -256,8 +256,8 @@ export default function AssessmentsPage() {
           <section className="no-print mt-8 space-y-6" aria-label="أسابيع التقييم">
             {lessons.map(([lesson, list]) => (
               <div key={lesson}>
-                <h2 className="mb-3 border-r-4 border-orange-500 pr-3 text-lg font-black text-slate-900 dark:text-white">{lesson}</h2>
-                <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+                <h2 className="mb-2 border-r-4 border-orange-500 pr-2 text-sm font-extrabold text-slate-800 dark:text-slate-100">{lesson}</h2>
+                <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
                   {list.map(w => {
                     const active = selected === w.week;
                     return (
