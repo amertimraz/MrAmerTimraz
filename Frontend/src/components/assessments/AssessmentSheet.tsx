@@ -1,4 +1,5 @@
-import { Check, X } from 'lucide-react';
+import { useState } from 'react';
+import { Check, Eye, RotateCcw, X } from 'lucide-react';
 import { Rich } from '../shared/RichText';
 import type { AssessmentContent, AssessmentItem, AssessmentPart } from '../../api/assessments';
 
@@ -88,30 +89,108 @@ function WritingLines({ count }: { count: number }) {
   );
 }
 
+// Practice mode (showAnswers = false): the student can tap an answer and gets instant feedback.
+// Everything marked "live-only" is hidden in the printed copy so the PDF stays a clean worksheet.
+function Feedback({ ok, text, note }: { ok: boolean; text: string; note?: string }) {
+  return (
+    <div
+      role="status"
+      className={`live-only mt-2 rounded-lg border-2 px-3 py-2 text-sm font-bold leading-7 ${
+        ok ? 'border-emerald-700 bg-emerald-50 text-emerald-900' : 'border-rose-700 bg-rose-50 text-rose-900'
+      }`}
+    >
+      <span className="inline-flex items-center gap-1">
+        {ok ? <Check size={15} aria-hidden /> : <X size={15} aria-hidden />} {text}
+      </span>
+      {note && (
+        <span className="mt-1 block font-medium text-slate-700">
+          <span className="font-bold">توضيح: </span>
+          <Rich text={note} />
+        </span>
+      )}
+    </div>
+  );
+}
+
+function ResetButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="live-only mt-2 inline-flex min-h-9 items-center gap-1 rounded-lg border border-slate-400 px-3 text-xs font-bold text-slate-700 hover:bg-slate-100"
+    >
+      <RotateCcw size={13} aria-hidden /> حاول مرة أخرى
+    </button>
+  );
+}
+
 function ItemView({ item, n, showAnswers }: { item: AssessmentItem; n: number; showAnswers: boolean }) {
+  const [pick, setPick] = useState<number | null>(null); // tf: 1 = صح, 0 = خطأ; mcq: option index
+  const [shown, setShown] = useState(false); // open: reveal the model answer
+  const answered = pick !== null;
+
   return (
     <li className="break-inside-avoid border-b border-slate-200 py-3 last:border-0">
       <div className="flex gap-3">
         <span className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-700 text-sm font-extrabold text-white">{n}</span>
         <div className="min-w-0 flex-1">
           {item.type === 'tf' && (
-            <div className="flex items-start justify-between gap-4">
-              <p className="whitespace-pre-wrap text-lg font-black leading-9 text-slate-950">
-                <Rich text={item.text} />
-              </p>
-              {showAnswers ? (
-                <span
-                  className={`mt-1 inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1 text-sm font-extrabold ${
-                    item.answer ? 'border-emerald-700 text-emerald-800' : 'border-rose-700 text-rose-800'
-                  }`}
-                >
-                  {item.answer ? <Check size={15} aria-hidden /> : <X size={15} aria-hidden />}
-                  {item.answer ? 'صح' : 'خطأ'}
-                </span>
-              ) : (
-                <span aria-hidden className="mt-1 inline-block h-8 w-14 shrink-0 rounded-md border-2 border-slate-500" />
+            <>
+              <div className="flex items-start justify-between gap-4">
+                <p className="whitespace-pre-wrap text-lg font-black leading-9 text-slate-950">
+                  <Rich text={item.text} />
+                </p>
+                {showAnswers ? (
+                  <span
+                    className={`mt-1 inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1 text-sm font-extrabold ${
+                      item.answer ? 'border-emerald-700 text-emerald-800' : 'border-rose-700 text-rose-800'
+                    }`}
+                  >
+                    {item.answer ? <Check size={15} aria-hidden /> : <X size={15} aria-hidden />}
+                    {item.answer ? 'صح' : 'خطأ'}
+                  </span>
+                ) : (
+                  <>
+                    <span aria-hidden className="print-only mt-1 hidden h-8 w-14 shrink-0 rounded-md border-2 border-slate-500" />
+                    <div className="live-only mt-1 flex shrink-0 gap-2" role="group" aria-label="اختر صح أو خطأ">
+                      {([1, 0] as const).map(v => {
+                        const isRight = (v === 1) === item.answer;
+                        const state = !answered
+                          ? 'border-slate-400 bg-white text-slate-800 hover:bg-orange-100'
+                          : isRight
+                            ? 'border-emerald-700 bg-emerald-50 text-emerald-900'
+                            : pick === v
+                              ? 'border-rose-700 bg-rose-50 text-rose-900'
+                              : 'border-slate-300 bg-white text-slate-400';
+                        return (
+                          <button
+                            key={v}
+                            type="button"
+                            disabled={answered}
+                            aria-pressed={pick === v}
+                            onClick={() => setPick(v)}
+                            className={`inline-flex min-h-11 min-w-16 items-center justify-center gap-1 rounded-xl border-2 px-3 text-sm font-extrabold ${state}`}
+                          >
+                            {v === 1 ? <Check size={15} aria-hidden /> : <X size={15} aria-hidden />}
+                            {v === 1 ? 'صح' : 'خطأ'}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+              {!showAnswers && answered && (
+                <>
+                  <Feedback
+                    ok={(pick === 1) === item.answer}
+                    text={(pick === 1) === item.answer ? 'إجابة صحيحة' : `إجابة خاطئة — الصحيح: ${item.answer ? 'صح' : 'خطأ'}`}
+                    note={item.note}
+                  />
+                  <ResetButton onClick={() => setPick(null)} />
+                </>
               )}
-            </div>
+            </>
           )}
 
           {item.type === 'mcq' && (
@@ -122,30 +201,64 @@ function ItemView({ item, n, showAnswers }: { item: AssessmentItem; n: number; s
               {item.code && <CodeBlock code={item.code} />}
               <ul className="mt-1 grid gap-1.5 sm:grid-cols-2">
                 {item.options.map((opt, i) => {
-                  const correct = showAnswers && i === item.answer;
-                  return (
-                    <li
-                      key={i}
-                      className={`flex items-start gap-2 rounded-lg border px-3 py-1.5 text-base ${
-                        correct
-                          ? 'border-2 border-emerald-700 font-extrabold text-emerald-900'
-                          : 'border-slate-300 font-medium text-slate-700'
-                      }`}
-                    >
+                  const correct = showAnswers ? i === item.answer : answered && i === item.answer;
+                  const wrong = !showAnswers && answered && pick === i && i !== item.answer;
+                  const cls = correct
+                    ? 'border-2 border-emerald-700 bg-emerald-50 font-extrabold text-emerald-900'
+                    : wrong
+                      ? 'border-2 border-rose-700 bg-rose-50 font-extrabold text-rose-900'
+                      : 'border-slate-300 font-medium text-slate-700';
+                  const inner = (
+                    <>
                       <span className="w-5 shrink-0 font-bold">{LETTERS[i]}.</span>
-                      <bdi className="min-w-0 flex-1">
+                      <bdi className="min-w-0 flex-1 text-start">
                         <Rich text={opt} />
                       </bdi>
                       {correct && (
-                        <span className="inline-flex shrink-0 items-center gap-1 text-sm">
+                        <span className="live-only inline-flex shrink-0 items-center gap-1 text-sm">
                           <Check size={15} aria-hidden />
                           <span>الإجابة الصحيحة</span>
                         </span>
+                      )}
+                      {wrong && (
+                        <span className="live-only inline-flex shrink-0 items-center gap-1 text-sm">
+                          <X size={15} aria-hidden />
+                          <span>إجابتك</span>
+                        </span>
+                      )}
+                    </>
+                  );
+                  return (
+                    <li key={i}>
+                      {showAnswers ? (
+                        <div className={`flex items-start gap-2 rounded-lg border px-3 py-1.5 text-base ${cls}`}>{inner}</div>
+                      ) : (
+                        <button
+                          type="button"
+                          data-live-state={correct ? 'correct' : wrong ? 'wrong' : 'idle'}
+                          disabled={answered}
+                          onClick={() => setPick(i)}
+                          className={`flex min-h-11 w-full items-start gap-2 rounded-lg border px-3 py-1.5 text-start text-base ${cls} ${
+                            answered ? '' : 'hover:bg-orange-100'
+                          }`}
+                        >
+                          {inner}
+                        </button>
                       )}
                     </li>
                   );
                 })}
               </ul>
+              {!showAnswers && answered && (
+                <>
+                  <Feedback
+                    ok={pick === item.answer}
+                    text={pick === item.answer ? 'إجابة صحيحة' : `إجابة خاطئة — الصحيح: ${LETTERS[item.answer]}`}
+                    note={item.note}
+                  />
+                  <ResetButton onClick={() => setPick(null)} />
+                </>
+              )}
             </>
           )}
 
@@ -154,8 +267,8 @@ function ItemView({ item, n, showAnswers }: { item: AssessmentItem; n: number; s
               <p className="whitespace-pre-wrap text-lg font-black leading-9 text-slate-950">
                 <Rich text={item.text} />
               </p>
-              {showAnswers ? (
-                <div className="mt-2 rounded-xl border-2 border-emerald-700 p-3">
+              {showAnswers || shown ? (
+                <div className={`mt-2 rounded-xl border-2 border-emerald-700 p-3 ${showAnswers ? '' : 'live-only'}`}>
                   <p className="mb-1 text-sm font-extrabold text-emerald-800">الإجابة النموذجية</p>
                   <p className="whitespace-pre-wrap text-base leading-8 text-slate-900">
                     <Rich text={item.answer} />
@@ -170,8 +283,19 @@ function ItemView({ item, n, showAnswers }: { item: AssessmentItem; n: number; s
                     </>
                   )}
                 </div>
-              ) : (
-                <WritingLines count={item.code ? 5 : 3} />
+              ) : null}
+              {!showAnswers && (
+                <>
+                  <WritingLines count={item.code ? 5 : 3} />
+                  <button
+                    type="button"
+                    onClick={() => setShown(v => !v)}
+                    aria-expanded={shown}
+                    className="live-only mt-2 inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-slate-400 px-4 text-sm font-extrabold text-slate-800 hover:bg-orange-100"
+                  >
+                    <Eye size={16} aria-hidden /> {shown ? 'إخفاء الإجابة النموذجية' : 'اعرض الإجابة النموذجية'}
+                  </button>
+                </>
               )}
             </>
           )}
@@ -234,6 +358,9 @@ export default function AssessmentSheet({
         <h3 className="mt-1 text-xl font-black">الأسبوع {content.week}</h3>
         <p className="mt-1 text-sm font-semibold text-slate-700">{content.unit}</p>
         <p className="text-sm font-semibold text-slate-700">{content.lesson}</p>
+        {!showAnswers && (
+          <p className="live-only mt-2 text-sm font-bold text-teal-800">وضع التدريب: اضغط على إجابتك (صح/خطأ أو الاختيار) وسيظهر التصحيح فوراً.</p>
+        )}
         {showAnswers && (
           <p className="mt-2 inline-block rounded-full border-2 border-emerald-700 px-3 py-0.5 text-sm font-extrabold text-emerald-800">
             نموذج الإجابة

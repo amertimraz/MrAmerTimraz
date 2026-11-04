@@ -20,6 +20,9 @@ const WATERMARK_SVG = encodeURIComponent(
 const PRINT_CSS = `
   html, body { margin: 0; background: #fff !important; font-family: 'Cairo', sans-serif; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; }
+  .live-only { display: none !important; }
+  .print-only { display: revert !important; }
+  [data-live-state] { border: 1px solid #cbd5e1 !important; background: #fff !important; color: #334155 !important; font-weight: 500 !important; }
   .print-sheet { break-after: page; page-break-after: always; }
   .print-sheet:last-child { break-after: auto; page-break-after: auto; }
   .print-sheet article { border: none !important; padding: 0 !important; position: relative; z-index: 1; }
