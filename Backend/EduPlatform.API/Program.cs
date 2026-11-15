@@ -1057,13 +1057,8 @@ app.MapControllers();
 var spaIndex = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "index.html");
 if (File.Exists(spaIndex))
 {
-    app.MapFallbackToFile("index.html", new StaticFileOptions
-    {
-        OnPrepareResponse = ctx =>
-        {
-            ctx.Context.Response.Headers["Cache-Control"] = "no-cache";
-        }
-    });
+    // Serve the SPA shell with per-route title / Open Graph tags (link previews don't run JS).
+    app.MapFallback(EduPlatform.API.Services.SpaSeo.ServeAsync);
 }
 
 
