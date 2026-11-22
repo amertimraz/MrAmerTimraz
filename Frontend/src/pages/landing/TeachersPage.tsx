@@ -64,6 +64,17 @@ export default function TeachersPage() {
         </p>
       </header>
 
+      <Link
+        to="/teachers/interactive"
+        className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-slate-900 bg-orange-100 p-4 shadow-[4px_4px_0_0_#0f172a] transition-colors hover:bg-orange-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-600 dark:border-teal-300 dark:bg-orange-950 dark:shadow-[4px_4px_0_0_#5eead4] dark:hover:bg-orange-900"
+      >
+        <span>
+          <span className="block text-lg font-black text-slate-900 dark:text-white">جديد: العرض التفاعلي للفصل باسمك</span>
+          <span className="block text-sm font-bold text-slate-700 dark:text-slate-300">شرائح متحركة وألعاب وأسئلة جاهزة، باشتراك شهري للصفوف اللي بتدرّسها.</span>
+        </span>
+        <span className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-extrabold text-white dark:bg-teal-300 dark:text-slate-900">اعرف أكتر</span>
+      </Link>
+
       <nav aria-label="الصف الدراسي" className="mt-6">
         <div role="group" aria-label="الفصل الدراسي" className="mb-4 inline-flex overflow-hidden rounded-xl border-2 border-slate-900 dark:border-teal-300">
           {([1, 2] as const).map(t => (
