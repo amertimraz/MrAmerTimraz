@@ -1,0 +1,141 @@
+{
+  "track": "prep2-ict-t1",
+  "week": 11,
+  "unit": "الصف الثاني الإعدادي — الترم الأول",
+  "lesson": "تنسيق صفحات الويب (HTML و CSS)",
+  "parts": [
+    {
+      "group": "التقييم الأسبوعي",
+      "title": "الاختبار الأول",
+      "items": [
+        {
+          "type": "tf",
+          "text": "الخاصية rel=\"stylesheet\" تستخدم عند ربط ملف CSS بملف HTML.",
+          "answer": true
+        },
+        {
+          "type": "tf",
+          "text": "يمكن استخدام CSS لتغيير حجم الخط وألوانه.",
+          "answer": true
+        },
+        {
+          "type": "open",
+          "text": "لماذا لا يُفضل استخدام الـ Internal CSS في التنسيق عند تصميم المواقع الكبيرة؟",
+          "answer": "لأن الكود يُكتب داخل كل صفحة على حدة، فيتكرر في الصفحات ويصعب تعديله وتوحيد التنسيق؛ أما ملف CSS الخارجي (External) فيُكتب مرة واحدة ويُربط بكل الصفحات."
+        },
+        {
+          "type": "open",
+          "text": "ما الفرق بين الـ Selector والخصائص Properties في كود CSS من حيث الوظيفة؟",
+          "answer": "الـ Selector يحدد العنصر الذي سيُطبَّق عليه التنسيق (مثل h1 أو p). أما الـ Properties فتحدد شكل التنسيق نفسه (مثل color وfont-size) وقيمته."
+        }
+      ]
+    },
+    {
+      "group": "التقييم الأسبوعي",
+      "title": "الاختبار الثاني",
+      "items": [
+        {
+          "type": "tf",
+          "text": "Internal CSS يفضل استخدامه في المواقع الكبيرة لتوحيد التنسيق.",
+          "answer": false,
+          "note": "المفضل في المواقع الكبيرة هو External CSS لأنه يوحّد التنسيق في كل الصفحات."
+        },
+        {
+          "type": "tf",
+          "text": "في كود CSS، الـ selector يحدد الخصائص مثل اللون والحجم.",
+          "answer": false,
+          "note": "الـ selector يحدد العنصر المراد تنسيقه، أما الخصائص (properties) فهي التي تحدد اللون والحجم."
+        },
+        {
+          "type": "open",
+          "text": "ما هي الفائدة من استخدام الخاصية rel=\"stylesheet\" عند ربط ملف CSS بملف HTML؟",
+          "answer": "توضح للمتصفح أن الملف المرتبط هو ملف تنسيقات (Style Sheet) فيطبّق تنسيقاته على الصفحة."
+        },
+        {
+          "type": "open",
+          "text": "اذكر اثنين من الخصائص أو العناصر التي يمكن لـ CSS تعديلها في تصميم النصوص (مثل حجم الخط وألوانه).",
+          "answer": "مثل: لون النص (color)، حجم الخط (font-size)، نوع الخط (font-family)، محاذاة النص (text-align)."
+        }
+      ]
+    },
+    {
+      "group": "التقييم الأسبوعي",
+      "title": "الاختبار الثالث",
+      "items": [
+        {
+          "type": "tf",
+          "text": "العنصر body في CSS يمكن أن يغير خلفية الصفحة بأكملها.",
+          "answer": true
+        },
+        {
+          "type": "tf",
+          "text": "عند تغيير تنسيق في ملف CSS الخارجي لا يتأثر شكل الصفحات المرتبطة به.",
+          "answer": false,
+          "note": "يتأثر شكل جميع الصفحات المرتبطة بالملف الخارجي بمجرد تعديله."
+        },
+        {
+          "type": "open",
+          "text": "ما هي الصيغة العامة لكتابة كود CSS؟ وضّح مكوناتها.",
+          "answer": "selector { property: value; } — الـ selector هو العنصر المراد تنسيقه، والـ property هي الخاصية (مثل color)، والـ value هي قيمتها (مثل red)، وتوضع داخل أقواس { } وتنتهي كل خاصية بفاصلة منقوطة ;",
+          "code": "selector {\n  property: value;\n}"
+        },
+        {
+          "type": "open",
+          "text": "اذكر إحدى الطرق التي يتم من خلالها إدراج تنسيقات CSS داخل ملف الـ HTML.",
+          "answer": "هناك ثلاث طرق: Inline (داخل الوسم بالخاصية style)، Internal (داخل الوسم <style> في <head>)، External (ملف خارجي يُربط بالوسم <link>)."
+        }
+      ]
+    },
+    {
+      "group": "التقييم الصفي",
+      "title": "",
+      "items": [
+        {
+          "type": "open",
+          "text": "أنشئ صفحة ويب تحتوي على بيانات المدرسة، باستخدام كود CSS خارجي لعمل تنسيق موحد للصفحة.",
+          "answer": "نشاط عملي: 1) نكتب كود HTML في Notepad ونحفظه باسم school.html. 2) نكتب كود CSS في ملف style.css في نفس المجلد. 3) نربط الملفين بالوسم <link> ثم نفتح الصفحة في المتصفح للتأكد من التنسيق.",
+          "code": "<!-- school.html -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>بيانات المدرسة</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <h1>مدرسة النور الإعدادية</h1>\n  <p>العنوان: القاهرة</p>\n  <p>عدد الفصول: 12</p>\n</body>\n</html>\n\n/* style.css */\nbody { background-color: #eef6ff; font-family: Arial; }\nh1 { color: #1d4ed8; text-align: center; }\np { font-size: 20px; color: #333333; }"
+        }
+      ]
+    },
+    {
+      "group": "الواجب المنزلي",
+      "title": "",
+      "items": [
+        {
+          "type": "mcq",
+          "text": "الصيغة العامة لكود CSS .............................",
+          "options": [
+            "selector{property: value};",
+            "value{ property: selector };",
+            "property {value: selector };",
+            "selector{property };"
+          ],
+          "answer": 0
+        },
+        {
+          "type": "mcq",
+          "text": "من الطرق التي يمكن من خلالها إدراج تنسيقات CSS لكود HTML ...................",
+          "options": [
+            "Selector",
+            "Responsive",
+            "Href",
+            "External CSS"
+          ],
+          "answer": 3
+        },
+        {
+          "type": "open",
+          "text": "ما هي أهمية استخدام العنصر body في لغة CSS عند الرغبة في تغيير خلفية صفحة الويب بأكملها؟",
+          "answer": "لأن العنصر body يمثل محتوى الصفحة كله، فعند تطبيق background-color عليه تتغير خلفية الصفحة بأكملها بتنسيق واحد.",
+          "code": "body {\n  background-color: lightblue;\n}"
+        },
+        {
+          "type": "open",
+          "text": "كيف يؤثر إجراء تعديل في ملف CSS خارجي على جميع صفحات HTML المرتبطة به؟",
+          "answer": "يظهر التعديل تلقائياً في كل الصفحات المرتبطة بالملف دون تعديل كل صفحة على حدة، وهذا يوحّد التنسيق ويوفّر الوقت."
+        }
+      ]
+    }
+  ]
+}
